@@ -14,7 +14,8 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
+# We are obliged not to ignore *.dll because we need to store MultiplayerLab\2M3\lib\x64\openal32.dll and MultiplayerLab\2M3\lib\x86\openal32.dll
+#*.dll
 
 # Fortran module files
 *.mod
@@ -30,3 +31,10 @@
 *.exe
 *.out
 *.app
+
+# Backup files
+*.bak
+
+# Visual studio files
+.vs
+out
