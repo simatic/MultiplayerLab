@@ -21,7 +21,7 @@ int main()
 	float engineMaxSpeed = 0.01;
 
 	float steeringAngle = 0;
-	float steeringSpeed = M_PI_4;
+	float steeringSpeed = M_PI_4 * 3;
 	float steeringMaxAngle = M_PI * 2 / 3;
 
 	sf::Vector2f carSpeed(0, 0);
@@ -30,6 +30,9 @@ int main()
 	float maxCarSpeed = 0.05;
 
 	bool braking = false;
+	bool forward = true;
+
+	sf::Text text = sf::Text();
 
     while (window.isOpen())
     {
@@ -46,13 +49,12 @@ int main()
 		{
 			engineSpeed += engineAccel * dt.asSeconds();
 		}
-		//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && engineSpeed > 0)
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 		{
 			braking = true;
 			engineSpeed = 0;
 		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))// && engineSpeed <= 0)
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 		{
 			engineSpeed -= engineAccel * dt.asSeconds();
 		}
@@ -67,11 +69,8 @@ int main()
 		{
 			steeringAngle -= steeringSpeed * dt.asSeconds();
 		}
-		/*if (steeringAngle > steeringMaxAngle) steeringAngle = steeringMaxAngle;
-		if (steeringAngle < -steeringMaxAngle) steeringAngle = -steeringMaxAngle;*/
 
-		if (engineSpeed > 0) carSpeed += engineSpeed * sf::Vector2f(cos(carAngle + steeringAngle), -sin(carAngle + steeringAngle));
-		else carSpeed += -engineSpeed * sf::Vector2f(-sin(carAngle + steeringAngle), -cos(carAngle + steeringAngle));
+		carSpeed += engineSpeed * sf::Vector2f(cos(steeringAngle), -sin(steeringAngle));
 
 		if (braking)
 		{
