@@ -14,6 +14,20 @@ float scalar(sf::Vector2f u, sf::Vector2f v)
 	return u.x * v.x + u.y * v.y;
 }
 
+sf::Vector2f rotate(sf::Vector2f v, float a)
+{
+	if (v.x == 0 && v.y == 0) return sf::Vector2f(0, 0);
+	float l = length(v);
+	if (v.x == 0)
+	{
+		float prevA = M_PI_2 * v.y / abs(v.y);
+		return l * sf::Vector2f(cos(prevA + a), -sin(prevA + a));
+	}
+
+	float prevA = -atan2(v.y, v.x);
+	return l * sf::Vector2f(cos(prevA + a), -sin(prevA + a));
+}
+
 int main()
 {
 	sf::Clock clock;
@@ -22,27 +36,13 @@ int main()
 	sf::RectangleShape shape(sf::Vector2f(100, 50));
 	shape.setOrigin(sf::Vector2f(50, 25));
 
-	float x = 800;
-	float y = 450;
-	shape.setPosition(x, y);
-
+	sf::Vector2f carPos(800, 450);
+	shape.setPosition(carPos);
+	sf::Vector2f carDirection(1, 0);
 	sf::Vector2f carSpeed(0, 0);
-	float carMaxSpeed = 500;
 	float carAngle = 0;
 
-	float engineSpeed = 0;
-	float engineMaxSpeed = 20;
-	float engineAccel = 5;
-
-	float steeringAngle = M_PI / 100;
-
-	bool forward = true;
-
-	sf::VertexArray lines(sf::Lines, 4);
-	lines[0].color = sf::Color::Red;
-	lines[1].color = sf::Color::Red;
-	lines[2].color = sf::Color::Green;
-	lines[3].color = sf::Color::Green;
+	float R = 50;
 
     while (window.isOpen())
     {
@@ -55,67 +55,66 @@ int main()
 			window.close();
 		}
 
-		forward = scalar(carSpeed, sf::Vector2f(cos(carAngle), -sin(carAngle))) >= 0;
-
+		float accel = 0;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 		{
-			float factor = 1;
-			if (!forward) factor = 10;
-
-			engineSpeed += factor * engineAccel * dt.asSeconds();
+			accel += 100;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 		{
-			float factor = 1;
-			if (forward) factor = 10;
-
-			engineSpeed -= factor * engineAccel * dt.asSeconds();
+			accel -= 100;
 		}
-		if (engineSpeed > engineMaxSpeed) engineSpeed = engineMaxSpeed;
-		if (engineSpeed < -engineMaxSpeed) engineSpeed = -engineMaxSpeed;
 
 		float angle = 0;
+		float angleSign = 0;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 		{
-			angle += steeringAngle;
+			angle += M_PI / 3;
+			angleSign += 1;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 		{
-			angle -= steeringAngle;
+			angle -= M_PI / 3;
+			angleSign -= 1;
 		}
 
-		sf::Vector2f direction(cos(angle + carAngle), -sin(angle + carAngle));
-		//if (!forward) direction = -sf::Vector2f(cos(angle + M_PI - carAngle), -sin(angle + M_PI - carAngle));
+		float tangAccel = accel * cos(angle);
+		float radAccel = accel * sin(angle);
 
-		carSpeed += engineSpeed * direction;
-		float l = length(carSpeed);
-		if (l > carMaxSpeed)
+		sf::Vector2f tangAccelVector = tangAccel * carDirection;
+		carSpeed += tangAccelVector * dt.asSeconds();
+
+		float theta = sqrt(abs(radAccel) / R) * dt.asSeconds();
+
+		if (scalar(carSpeed, carDirection) < 0)
 		{
-			carSpeed *= carMaxSpeed / l;
+			carSpeed = rotate(carSpeed, -theta * angleSign);
+			carDirection = rotate(carDirection, -theta * angleSign);
 		}
-		
-		x += carSpeed.x * dt.asSeconds();
-		y += carSpeed.y * dt.asSeconds();
-		if (carSpeed.x != 0) carAngle = -atan2(carSpeed.y, carSpeed.x);
-		if (!forward) carAngle += M_PI;
+		else
+		{
+			carSpeed = rotate(carSpeed, theta * angleSign);
+			carDirection = rotate(carDirection, theta * angleSign);
+		}
 
-		if (x > 1600) x = 0;
-		else if (x < 0) x = 1600;
+		carPos += carSpeed * dt.asSeconds();
 
-		if (y > 900) y = 0;
-		else if (y < 0) y = 900;
+		if (carPos.x > 1600) carPos.x = 0;
+		else if (carPos.x < 0) carPos.x = 1600;
 
-		shape.setPosition(x, y);
+		if (carPos.y > 900) carPos.y = 0;
+		else if (carPos.y < 0) carPos.y = 900;
+
+		shape.setPosition(carPos);
+
+		carAngle = 0;
+		if (carDirection.x != 0) carAngle = -atan2(carDirection.y, carDirection.x);
+		if (carDirection.x == 0 && carDirection.y != 0) carAngle = M_PI_2 * carDirection.y / abs(carDirection.y);
+
 		shape.setRotation(-carAngle * 180.0 / M_PI);
-
-		lines[0].position = sf::Vector2f(x, y);
-		lines[1].position = sf::Vector2f(x, y) + (float)100 * sf::Vector2f(cos(carAngle), -sin(carAngle));
-		lines[2].position = sf::Vector2f(x, y);
-		lines[3].position = sf::Vector2f(x, y) + (float)100 * carSpeed;
 
 		window.clear();
 		window.draw(shape);
-		window.draw(lines);
 		window.display();
     }
 
