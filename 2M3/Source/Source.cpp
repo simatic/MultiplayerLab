@@ -4,6 +4,16 @@
 #include <iostream>
 #include <math.h>
 
+float length(sf::Vector2f vector)
+{
+	return sqrt(vector.x * vector.x + vector.y * vector.y);
+}
+
+float scalar(sf::Vector2f u, sf::Vector2f v)
+{
+	return u.x * v.x + u.y * v.y;
+}
+
 int main()
 {
 	sf::Clock clock;
@@ -16,23 +26,23 @@ int main()
 	float y = 450;
 	shape.setPosition(x, y);
 
-	float engineAccel = 0.00001;
-	float engineSpeed = 0;
-	float engineMaxSpeed = 0.01;
-
-	float steeringAngle = 0;
-	float steeringSpeed = M_PI_4 * 3;
-	float steeringMaxAngle = M_PI * 2 / 3;
-
 	sf::Vector2f carSpeed(0, 0);
-	sf::Vector2f carAccel(0, 0);
+	float carMaxSpeed = 500;
 	float carAngle = 0;
-	float maxCarSpeed = 0.05;
 
-	bool braking = false;
+	float engineSpeed = 0;
+	float engineMaxSpeed = 20;
+	float engineAccel = 5;
+
+	float steeringAngle = M_PI / 100;
+
 	bool forward = true;
 
-	sf::Text text = sf::Text();
+	sf::VertexArray lines(sf::Lines, 4);
+	lines[0].color = sf::Color::Red;
+	lines[1].color = sf::Color::Red;
+	lines[2].color = sf::Color::Green;
+	lines[3].color = sf::Color::Green;
 
     while (window.isOpen())
     {
@@ -45,48 +55,49 @@ int main()
 			window.close();
 		}
 
+		forward = scalar(carSpeed, sf::Vector2f(cos(carAngle), -sin(carAngle))) >= 0;
+
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 		{
-			engineSpeed += engineAccel * dt.asSeconds();
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-		{
-			braking = true;
-			engineSpeed = 0;
+			float factor = 1;
+			if (!forward) factor = 10;
+
+			engineSpeed += factor * engineAccel * dt.asSeconds();
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 		{
-			engineSpeed -= engineAccel * dt.asSeconds();
+			float factor = 1;
+			if (forward) factor = 10;
+
+			engineSpeed -= factor * engineAccel * dt.asSeconds();
 		}
 		if (engineSpeed > engineMaxSpeed) engineSpeed = engineMaxSpeed;
 		if (engineSpeed < -engineMaxSpeed) engineSpeed = -engineMaxSpeed;
 
+		float angle = 0;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 		{
-			steeringAngle += steeringSpeed * dt.asSeconds();
+			angle += steeringAngle;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 		{
-			steeringAngle -= steeringSpeed * dt.asSeconds();
+			angle -= steeringAngle;
 		}
 
-		carSpeed += engineSpeed * sf::Vector2f(cos(steeringAngle), -sin(steeringAngle));
+		sf::Vector2f direction(cos(angle + carAngle), -sin(angle + carAngle));
+		//if (!forward) direction = -sf::Vector2f(cos(angle + M_PI - carAngle), -sin(angle + M_PI - carAngle));
 
-		if (braking)
+		carSpeed += engineSpeed * direction;
+		float l = length(carSpeed);
+		if (l > carMaxSpeed)
 		{
-			carSpeed = sf::Vector2f(0, 0);
-			braking = false;
+			carSpeed *= carMaxSpeed / l;
 		}
-
-		float dx = carSpeed.x;
-		float dy = carSpeed.y;
-		float length = sqrt(dx * dx + dy * dy);
-		if (length > maxCarSpeed)
-		{
-			carSpeed *= maxCarSpeed / length;
-		}
-		x += dx;
-		y += dy;
+		
+		x += carSpeed.x * dt.asSeconds();
+		y += carSpeed.y * dt.asSeconds();
+		if (carSpeed.x != 0) carAngle = -atan2(carSpeed.y, carSpeed.x);
+		if (!forward) carAngle += M_PI;
 
 		if (x > 1600) x = 0;
 		else if (x < 0) x = 1600;
@@ -95,15 +106,16 @@ int main()
 		else if (y < 0) y = 900;
 
 		shape.setPosition(x, y);
+		shape.setRotation(-carAngle * 180.0 / M_PI);
 
-		if (carSpeed.x != 0 || carSpeed.y != 0)
-		{
-			carAngle = atan2(carSpeed.y, carSpeed.x);
-		}
-		shape.setRotation(carAngle * 180.0 / M_PI);
+		lines[0].position = sf::Vector2f(x, y);
+		lines[1].position = sf::Vector2f(x, y) + (float)100 * sf::Vector2f(cos(carAngle), -sin(carAngle));
+		lines[2].position = sf::Vector2f(x, y);
+		lines[3].position = sf::Vector2f(x, y) + (float)100 * carSpeed;
 
 		window.clear();
 		window.draw(shape);
+		window.draw(lines);
 		window.display();
     }
 
