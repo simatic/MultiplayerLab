@@ -30,3 +30,9 @@ target_link_libraries(tcp_clientMultiThread PUBLIC sfml-system sfml-network)
 
 add_executable(tcp_server Sources/tcp_server.cpp)
 target_link_libraries(tcp_server PUBLIC sfml-system sfml-network)
+
+add_executable(udp_clientMonoThread Sources/udp_clientMonoThread.cpp)
+target_link_libraries(udp_clientMonoThread PUBLIC sfml-system sfml-network)
+
+add_executable(udp_server Sources/Client.cpp Sources/udp_server.cpp)
+target_link_libraries(udp_server PUBLIC sfml-system sfml-network)

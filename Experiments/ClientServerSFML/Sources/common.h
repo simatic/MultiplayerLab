@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <SFML/Config.hpp>
 
 // Where the server listens by default
 const std::string_view DEFAULT_HOST("localhost");

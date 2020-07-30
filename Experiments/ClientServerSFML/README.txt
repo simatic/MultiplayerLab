@@ -25,15 +25,28 @@ tcp_server.exe [port]
        port: Port on which to listen (4096 by default)
 tcp_clientMonoThread.exe [nbMessages [host [port]]]
         nbMessages: Number of messages to send to server for broadcast (60 by default)
-        port: Host where is server located (localhost by default)
+        host: Host where server is located (localhost by default)
         port: Port on which to contact server (4096 by default)
 tcp_clientMultiThread.exe [nbMessages [host [port]]]
         nbMessages: Number of messages to send to server for broadcast (60 by default)
-        port: Host where is server located (localhost by default)
+        host: Host where server is located (localhost by default)
         port: Port on which to contact server (4096 by default)
+udp_clientMonoThread.exe [localPort [nbMessages [host [remotePort]]]]
+        localPort: Port on which client waits fo UDP messages (4096 by default)
+	      nbMessages: Number of messages to send to server for broadcast (60 by default)
+	      host: Host where server is located (localhost by default)
+	      remotePort: Port on which to contact server (4096 by default)
+udp_server.exe [port]
+	      port: Port on which to listen (4096 by default)
 
 Remark
 ------
 The only difference between tcp_clientMonoThread.exe and tcp_clientMultiThread.exe is in the way the work, the former
-witrh a single thread and the latter with two threads (one thread for sending messages and the other one for
+with a single thread and the latter with two threads (one thread for sending messages and the other one for
 receiving them).
+
+TODO
+----
+- TODO udp_clientMonoThread and udp_server are incomplete conecerning timeouts. For instance
+  - If udp_server is not here, udp_clientMonoThread goes on sending messages as though udp_server was here.
+  - If a udp_clientMonoThread does not send a message to udp_server for a long time, udp_server keeps this client in vecClient.

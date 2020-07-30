@@ -64,7 +64,7 @@ void usage(string_view progName)
 {
 	cout << progName << " [nbMessages [host [port]]]" << endl;
 	cout << "\tnbMessages: Number of messages to send to server for broadcast (" << DEFAULT_NB_MESSAGES << " by default)" << endl;
-	cout << "\tport: Host where is server located (" << DEFAULT_HOST << " by default)" << endl;
+	cout << "\thost: Host where server is located (" << DEFAULT_HOST << " by default)" << endl;
 	cout << "\tport: Port on which to contact server (" << DEFAULT_PORT << " by default)" << endl;
 }
 
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 	ostringstream buffer;
-	buffer << "host:" << hostname << "/pid:" << GETPID();
+	buffer << "host=" << hostname << "/pid=" << GETPID();
 	string clientName(buffer.str());
 
 	cout << "My clientName is '" << clientName << "'" << endl;
