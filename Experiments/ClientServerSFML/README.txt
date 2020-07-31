@@ -33,17 +33,23 @@ tcp_clientMultiThread.exe [nbMessages [host [port]]]
         port: Port on which to contact server (4096 by default)
 udp_clientMonoThread.exe [localPort [nbMessages [host [remotePort]]]]
         localPort: Port on which client waits fo UDP messages (4096 by default)
-	      nbMessages: Number of messages to send to server for broadcast (60 by default)
-	      host: Host where server is located (localhost by default)
-	      remotePort: Port on which to contact server (4096 by default)
+	    nbMessages: Number of messages to send to server for broadcast (60 by default)
+	    host: Host where server is located (localhost by default)
+	    remotePort: Port on which to contact server (4096 by default)
+udp_clientMultiThread.exe [localPort [nbMessages [host [remotePort]]]]
+        localPort: Port on which client waits fo UDP messages (4096 by default)
+	    nbMessages: Number of messages to send to server for broadcast (60 by default)
+	    host: Host where server is located (localhost by default)
+	    remotePort: Port on which to contact server (4096 by default)
 udp_server.exe [port]
 	      port: Port on which to listen (4096 by default)
 
 Remark
 ------
-The only difference between tcp_clientMonoThread.exe and tcp_clientMultiThread.exe is in the way the work, the former
+The only difference between [tcp|udp]_clientMonoThread.exe and [tcp|udp]_clientMultiThread.exe is in the way the work, the former
 with a single thread and the latter with two threads (one thread for sending messages and the other one for
-receiving them).
+receiving them). The roundtrip times are more precise with udp_clientMultiThread.exe as we have no wait 
+before trying to see if we received a message from the server.
 
 TODO
 ----

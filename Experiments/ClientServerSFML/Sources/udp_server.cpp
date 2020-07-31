@@ -44,12 +44,14 @@ void processReceivedPacket(sf::UdpSocket &socket, sf::Packet &packet, sf::IpAddr
 		{
 			sf::Int32 clientId;
 			sf::Int32 i;
+			sf::Int64 sendElapsed;
 			// TODO : Ideally, we should find CLientId by going through vecClient
 			//        to find the rank of this client.
-			packet >> clientId >> i;
-			cout << "Client '" << clientId << "' requests to broadcast int \"" << i << "\"" << endl;
+			packet >> clientId >> i >> sendElapsed;
+			cout << "Client '" << clientId << "' requests to broadcast int \"" << i 
+				<< "\" at " << sendElapsed << " microseconds" << endl;
 			sf::Packet packetToSend;
-			packetToSend << static_cast<sf::Int32>(ServerMsgType::Broadcast) << clientId << i;
+			packetToSend << static_cast<sf::Int32>(ServerMsgType::Broadcast) << clientId << i << sendElapsed;
 			for (auto & client : vecClient)
 				socket.send(packetToSend, client.getAddress(), client.getPort());
 			break;

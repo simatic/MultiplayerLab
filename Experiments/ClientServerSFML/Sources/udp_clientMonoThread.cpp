@@ -26,6 +26,7 @@ using namespace std;
 const int DEFAULT_NB_MESSAGES(60);
 
 static sf::Int32 clientId;
+static sf::Clock myClock;
 
 void processWaitingPackets(sf::UdpSocket &socket)
 {
@@ -50,8 +51,12 @@ void processWaitingPackets(sf::UdpSocket &socket)
 			{
 				sf::Int32 senderClientId;
 				sf::Int32 i;
-				packet >> senderClientId >> i;
-				cout << "Client '" << senderClientId << "' has broadcast (thanks to server) integer: " << i << endl;
+				sf::Int64 sendElapsed;
+				packet >> senderClientId >> i >> sendElapsed;
+				sf::Int64 receiveElapsed = myClock.getElapsedTime().asMicroseconds();
+				cout << (clientId == senderClientId ? "[Myself] " : "") << "Client '" << senderClientId 
+					<< "' has broadcast (thanks to server) integer: " << i
+					<< " taking " << receiveElapsed - sendElapsed << " microseconds" << endl;
 				break;
 			}
 			case ServerMsgType::ClientIdResponse:
@@ -172,7 +177,7 @@ int main(int argc, char *argv[])
 	sf::Packet packet;
 	packet << static_cast<int>(ClientMsgType::ClientIdRequest) << clientName;
 	sendPacket(socket, packet, recipient, remotePort);
-	sf::sleep(sf::milliseconds(1000));
+	sf::sleep(sf::milliseconds(1000)); // To give time to server to answer, so that we set clientId
 	processWaitingPackets(socket);
 
 	// Ask server to broadcast integers.
@@ -181,7 +186,7 @@ int main(int argc, char *argv[])
 		cout << "Request to broadcast integer: " << i << endl;
 		sf::Packet packet;
 		// NB : "Security leak" as the client sends its clientId (it could send another clientId
-		packet << static_cast<int>(ClientMsgType::IntToBroadcast) << clientId << i;
+		packet << static_cast<int>(ClientMsgType::IntToBroadcast) << clientId << i << myClock.getElapsedTime().asMicroseconds();
 		sendPacket(socket, packet, recipient, remotePort);
 		processWaitingPackets(socket);
 		sf::sleep(sf::milliseconds(1000));
