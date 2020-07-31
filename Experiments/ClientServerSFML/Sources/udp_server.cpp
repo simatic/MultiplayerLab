@@ -20,34 +20,40 @@ void processReceivedPacket(sf::UdpSocket &socket, sf::Packet &packet, sf::IpAddr
 	sf::Int32 msgType;
 	packet >> msgType;
 	ClientMsgType messageType = static_cast<ClientMsgType>(msgType);
-	switch (messageType) {
-	case ClientMsgType::ClientIdRequest:
-		{			
-			vecClient.push_back(Client(remoteAddress, remotePort));
+	switch (messageType)
+	{
+		case ClientMsgType::ClientIdRequest:
+		{	
+			string clientName;
+			packet >> clientName;
+			vecClient.push_back(Client(clientName, remoteAddress, remotePort));
 			sf::Int32 clientId = vecClient.size() - 1;
-			cout << "Client '" << clientId << "' is \"connected\" and requesting its clientId" << endl;
+			cout << "Client " << clientName << " is \"connected\" and given the clientId " << clientId << endl;
 
 			sf::Packet packetToSend;
 			packetToSend << static_cast<sf::Int32>(ServerMsgType::ClientIdResponse) << clientId;
 			socket.send(packetToSend, remoteAddress, remotePort);
-		}
-		break;
-		case ClientMsgType::IntToBroadcast:
-			{
-				sf::Int32 clientId;
-				sf::Int32 i;
-				// TODO : Ideally, we should find CLientId by going through vecClient
-				//        to find the rank of this client.
-				packet >> clientId >> i;
-				cout << "Client '" << clientId << "' requests to broadcast int \"" << i << "\"" << endl;
 
-				sf::Packet packetToSend;
-				packetToSend << static_cast<sf::Int32>(ServerMsgType::Broadcast) << clientId << i;
-
-				for (auto & client : vecClient)
-					socket.send(packetToSend, client.getAddress(), client.getPort());
-			}
+			packetToSend.clear();
+			packetToSend << static_cast<sf::Int32>(ServerMsgType::newClient) << clientId << clientName;
+			for (auto& client : vecClient)
+				socket.send(packetToSend, remoteAddress, remotePort);
 			break;
+		}
+		case ClientMsgType::IntToBroadcast:
+		{
+			sf::Int32 clientId;
+			sf::Int32 i;
+			// TODO : Ideally, we should find CLientId by going through vecClient
+			//        to find the rank of this client.
+			packet >> clientId >> i;
+			cout << "Client '" << clientId << "' requests to broadcast int \"" << i << "\"" << endl;
+			sf::Packet packetToSend;
+			packetToSend << static_cast<sf::Int32>(ServerMsgType::Broadcast) << clientId << i;
+			for (auto & client : vecClient)
+				socket.send(packetToSend, client.getAddress(), client.getPort());
+			break;
+		}
 		default:
 			std::cerr << "Received unknown message type '" << static_cast<int>(messageType) << "' from a client" << endl;
 			exit(1);

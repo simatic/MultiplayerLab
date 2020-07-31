@@ -30,7 +30,8 @@ static sf::Int32 clientId;
 void processWaitingPackets(sf::UdpSocket &socket)
 {
 	sf::Socket::Status status;
-	do {
+	do
+	{
 		// We try to see if there is a message to process
 		sf::Packet packet;
 		sf::IpAddress remoteAddress;
@@ -43,27 +44,37 @@ void processWaitingPackets(sf::UdpSocket &socket)
 		sf::Int32 msgType;
 		packet >> msgType;
 		ServerMsgType messageType = static_cast<ServerMsgType>(msgType);
-		switch (messageType) {
-		case ServerMsgType::Broadcast:
+		switch (messageType)
 		{
-			sf::Int32 senderClientId;
-			sf::Int32 i;
-			packet >> senderClientId >> i;
-			cout << "Client '" << senderClientId << "' has broadcast (thanks to server) integer: " << i << endl;
-			break;
-		}
-		case ServerMsgType::ClientIdResponse:
-		{
-			packet >> clientId;
-			cout << "Received my clientId from server. It is '" << clientId << "'" << endl;
-			break;
-		}
-		default:
-			cerr << "ERROR: Received from server unknown messageType:'" << static_cast<int>(messageType) << "'" << endl;
-			exit(EXIT_FAILURE);
+			case ServerMsgType::Broadcast:
+			{
+				sf::Int32 senderClientId;
+				sf::Int32 i;
+				packet >> senderClientId >> i;
+				cout << "Client '" << senderClientId << "' has broadcast (thanks to server) integer: " << i << endl;
+				break;
+			}
+			case ServerMsgType::ClientIdResponse:
+			{
+				packet >> clientId;
+				cout << "Received my clientId from server. It is '" << clientId << "'" << endl;
+				break;
+			}
+			case ServerMsgType::newClient:
+			{
+				sf::Int32 aClientId;
+				string aClientName;
+				packet >> aClientId >> aClientName;
+				cout << "New client " << aClientName << " with clientId " << aClientId << endl;
+				break;
+			}
+			default:
+				cerr << "ERROR: Received from server unknown messageType:'" << static_cast<int>(messageType) << "'" << endl;
+				exit(EXIT_FAILURE);
 		}
 
-	} while (true); // We exit this loop thanks to break instruction when ((status == sf::Socket::NotReady) || (status == sf::Socket::Disconnected))
+	}
+	while (true); // We exit this loop thanks to break instruction when ((status == sf::Socket::NotReady) || (status == sf::Socket::Disconnected))
 }
 
 void sendPacket(sf::UdpSocket &socket, sf::Packet &packet, sf::IpAddress &recipient, unsigned short remotePort)
@@ -142,10 +153,10 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	ostringstream buffer;
-	buffer << "host:port=" << hostname << ":" << localPort << "/pid=" << GETPID();
+	buffer << hostname << ":" << localPort << "(pid=" << GETPID() << ")";
 	string clientName(buffer.str());
 
-	std::cout << "My clientName is '" << clientName << "'" << endl;
+	std::cout << "My clientName is " << clientName << endl;
 	std::cout << "I will work with server at " << host << ":" << remotePort << endl;
 
 	sf::UdpSocket socket;
@@ -159,7 +170,7 @@ int main(int argc, char *argv[])
 
 	// Send our clientId to the server
 	sf::Packet packet;
-	packet << static_cast<int>(ClientMsgType::ClientIdRequest);
+	packet << static_cast<int>(ClientMsgType::ClientIdRequest) << clientName;
 	sendPacket(socket, packet, recipient, remotePort);
 	sf::sleep(sf::milliseconds(1000));
 	processWaitingPackets(socket);

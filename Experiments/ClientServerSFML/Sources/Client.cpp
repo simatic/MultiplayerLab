@@ -1,7 +1,8 @@
 #include "Client.h"
 
-Client::Client(sf::IpAddress address, unsigned short port)
-	: mAddress(address)
+Client::Client(std::string name, sf::IpAddress address, unsigned short port)
+	: mName(name)
+	, mAddress(address)
 	, mPort(port)
 {
 }
@@ -14,5 +15,10 @@ sf::IpAddress Client::getAddress()
 unsigned short Client::getPort()
 {
 	return mPort;
+}
+
+std::string Client::getName()
+{
+	return mName;
 }
 

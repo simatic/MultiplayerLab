@@ -11,7 +11,8 @@ const unsigned short DEFAULT_PORT(4096);
 enum class ServerMsgType
 {
 	Broadcast,
-	ClientIdResponse
+	ClientIdResponse,
+	newClient
 };
 
 // Packets originated in the client
