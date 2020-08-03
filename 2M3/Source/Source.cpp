@@ -41,6 +41,7 @@ int main()
 	sf::Vector2f carDirection(1, 0);
 	sf::Vector2f carSpeed(0, 0);
 	float carMaxSpeed = 1000;
+	float backCarMaxSpeed = carMaxSpeed / 3;
 	float carAngle = 0;
 	float carAccel = 200;
 
@@ -82,10 +83,14 @@ int main()
 			if (forward) f = 10;
 			accel -= f * carAccel;
 		}
-		if (accel == 0)
+		if (accel == 0 && l > 200)
 		{
 			accel = (l * l + 2 * l) * drag;
 			if (forward) accel *= -1;
+		}
+		else if (accel == 0)
+		{
+			carSpeed = sf::Vector2f(0, 0);
 		}
 
 		float angle = 0;
@@ -107,9 +112,13 @@ int main()
 		sf::Vector2f tangAccelVector = tangAccel * carDirection;
 		carSpeed += tangAccelVector * dt.asSeconds();
 		l = length(carSpeed);
-		if (l > carMaxSpeed)
+		if (forward && l > carMaxSpeed)
 		{
 			carSpeed *= carMaxSpeed / l;
+		}
+		else if (!forward && l > backCarMaxSpeed)
+		{
+			carSpeed *= backCarMaxSpeed / l;
 		}
 
 		bool prevDrifting = drifting;
