@@ -37,7 +37,7 @@ void processReceivedPacket(sf::UdpSocket &socket, sf::Packet &packet, sf::IpAddr
 			packetToSend.clear();
 			packetToSend << static_cast<sf::Int32>(ServerMsgType::newClient) << clientId << clientName;
 			for (auto& client : vecClient)
-				socket.send(packetToSend, remoteAddress, remotePort);
+				socket.send(packetToSend, client.getAddress(), client.getPort());
 			break;
 		}
 		case ClientMsgType::IntToBroadcast:
@@ -48,8 +48,8 @@ void processReceivedPacket(sf::UdpSocket &socket, sf::Packet &packet, sf::IpAddr
 			// TODO : Ideally, we should find CLientId by going through vecClient
 			//        to find the rank of this client.
 			packet >> clientId >> i >> sendElapsed;
-			cout << "Client '" << clientId << "' requests to broadcast int \"" << i 
-				<< "\" at " << sendElapsed << " microseconds" << endl;
+				//cout << "Client '" << clientId << "' requests to broadcast int \"" << i 
+				//	<< "\" at " << sendElapsed << " microseconds" << endl;
 			sf::Packet packetToSend;
 			packetToSend << static_cast<sf::Int32>(ServerMsgType::Broadcast) << clientId << i << sendElapsed;
 			for (auto & client : vecClient)
