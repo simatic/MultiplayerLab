@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <math.h>
+#include <Application.h>
 
 float length(sf::Vector2f vector)
 {
@@ -30,6 +31,9 @@ sf::Vector2f rotate(sf::Vector2f v, float a)
 
 int main()
 {
+	/*Application app;
+	app.run();*/
+	
 	sf::Clock clock;
 
     sf::RenderWindow window(sf::VideoMode(1600, 900), "SFML works!");
