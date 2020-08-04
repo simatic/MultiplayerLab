@@ -11,7 +11,7 @@ void Car::damage(int points)
 	}
 	else
 	{
-		setHp(getHp()+points);
+		setHp(getHp() + points);
 	}
 }
 
@@ -23,6 +23,6 @@ void Car::repair(int points)
 	}
 	else
 	{
-		setHp(getHp()+points);
+		setHp(getHp() + points);
 	}
 }

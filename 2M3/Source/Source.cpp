@@ -4,11 +4,12 @@
 #include <iostream>
 #include <math.h>
 #include <Application.h>
+#include <Utility.h>
 
-float length(sf::Vector2f vector)
-{
-	return sqrt(vector.x * vector.x + vector.y * vector.y);
-}
+//float length(sf::Vector2f vector)
+//{
+//	return sqrt(vector.x * vector.x + vector.y * vector.y);
+//}
 
 float scalar(sf::Vector2f u, sf::Vector2f v)
 {
