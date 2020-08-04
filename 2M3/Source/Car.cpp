@@ -5,24 +5,24 @@
 
 void Car::damage(int points) 
 {
-	if (getHp() - points <= 0)
+	if (getHitpoints() - points <= 0)
 	{
-		setHp(0);
+		setHitpoints(0);
 	}
 	else
 	{
-		setHp(getHp() + points);
+		setHitpoints(getHitpoints() + points);
 	}
 }
 
 void Car::repair(int points)
 {
-	if (getHp() + points >= mHpMax)
+	if (getHitpoints() + points >= mHpMax)
 	{
-		setHp(mHpMax);
+		setHitpoints(mHpMax);
 	}
 	else
 	{
-		setHp(getHp() + points);
+		setHitpoints(getHitpoints() + points);
 	}
 }

@@ -1,6 +1,3 @@
-#ifndef BOOK_GAMESTATE_HPP
-#define BOOK_GAMESTATE_HPP
-
 #include "State.h"
 //#include <Book/World.hpp>
 //#include <Book/Player.hpp>
@@ -23,5 +20,3 @@ class GameState : public State
 //		World				mWorld;
 //		Player&				mPlayer;
 };
-
-#endif // BOOK_GAMESTATE_HPP

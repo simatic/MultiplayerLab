@@ -3,61 +3,75 @@
 
 #include "Entity.h"
 
-Entity::Entity(int hp)
+Entity::Entity(int hitpoints)
+	: mVelocity()
+	, mHitpoints(hitpoints)
 {
-	mHp = hp;
 }
 
-void Entity::setVelocity(sf::Vector2f velocity) 
+void Entity::setVelocity(sf::Vector2f velocity)
 {
 	mVelocity = velocity;
 }
 
-sf::Vector2f Entity::getVelocity()
+void Entity::setVelocity(float vx, float vy)
+{
+	mVelocity.x = vx;
+	mVelocity.y = vy;
+}
+
+sf::Vector2f Entity::getVelocity() const
 {
 	return mVelocity;
 }
 
-void Entity::setAngle(float angle)
+void Entity::accelerate(sf::Vector2f velocity)
 {
-	mAngle = angle;
+	mVelocity += velocity;
 }
 
-float Entity::getAngle()
+void Entity::accelerate(float vx, float vy)
 {
-	return mAngle;
+	mVelocity.x += vx;
+	mVelocity.y += vy;
 }
 
-void Entity::rotate(float angle)
+int Entity::getHitpoints() const
 {
-	mAngle += angle;
-	if (mAngle < 0) 
-	{
-		mAngle = fmod(mAngle, 360);
-		mAngle = 360 - mAngle;
-	}
-	else if(mAngle >= 360)
-	{
-		mAngle = fmod(mAngle, 360);
-	}
+	return mHitpoints;
 }
 
-void Entity::damage(int points)
+void Entity::setHitpoints(int points)
 {
-	mHp -= points;
+	mHitpoints = points;
 }
 
 void Entity::repair(int points)
 {
-	mHp += points;
+	mHitpoints += points;
 }
 
-int Entity::getHp()
+void Entity::damage(int points)
 {
-	return mHp;
+	mHitpoints -= points;
 }
 
-void Entity::setHp(int hp)
+void Entity::destroy()
 {
-	mHp = hp;
+	mHitpoints = 0;
+}
+
+void Entity::remove()
+{
+	destroy();
+}
+
+bool Entity::isDestroyed() const
+{
+	return mHitpoints <= 0;
+}
+
+void Entity::updateCurrent(sf::Time dt, CommandQueue&)
+{
+	move(mVelocity * dt.asSeconds());
 }
