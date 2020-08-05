@@ -6,9 +6,10 @@
 class World
 {
 public:
-	void					update(sf::Time);
-	void					draw();
+	World();
+	void					update(sf::Time dt);
+	void					draw(sf::RenderTarget& target);
 
 private:
-	std::vector<Entity>		mEntities;
+	std::vector<Entity*>		mEntities;
 };

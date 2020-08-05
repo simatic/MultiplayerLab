@@ -6,16 +6,16 @@ class Entity
 public:
 	Entity(sf::Vector2f pos, sf::RectangleShape rect);
 
-	virtual void		update(sf::Time);
-	void				draw();
+	virtual void		update(sf::Time dt);
+	virtual void		draw(sf::RenderTarget& target);
 
-	void				setVelocity(float vx, float vy);
+	/*void				setVelocity(float vx, float vy);
 	void				setVelocity(sf::Vector2f v);
 	void				addVelocity(float vx, float vy);
 	void				addVelocity(sf::Vector2f v);
-	sf::Vector2f		getVelocity() const;
+	sf::Vector2f		getVelocity() const;*/
 
-private:
+protected:
 	sf::Vector2f		mPosition;
 	sf::Vector2f		mVelocity;
 	float				mRotation;
