@@ -177,9 +177,11 @@ int main()
 		world.update(dt);
 
 		window.clear();
+		
 		world.draw(window);
-		/*window.draw(shape);
-		window.draw(tires);*/
+
+		window.setView(window.getDefaultView());
+
 		window.display();
     }
 

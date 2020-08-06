@@ -26,3 +26,13 @@ void Entity::draw(sf::RenderTarget& target)
 	target.draw(mShape);
 	//target.draw(mSprite);
 }
+
+sf::Vector2f Entity::getPosition()
+{
+	return mPosition;
+}
+
+sf::Vector2f Entity::getVelocity()
+{
+	return mVelocity;
+}

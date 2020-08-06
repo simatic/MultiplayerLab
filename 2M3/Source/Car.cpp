@@ -2,9 +2,19 @@
 #include <Utility.h>
 #include <iostream>
 
-Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect) :
+
+Car::Car() :
+	mHP(1),
+	mHpMax(1),
+	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)))
+{
+	
+}
+
+Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, bool input) :
 	mHP(hp),
 	mHpMax(hp),
+	mTakesInput(input),
 	Entity(pos, rect)
 {
 	mCarDirection = sf::Vector2f(1, 0);
@@ -14,16 +24,16 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect) :
 
 void Car::update(sf::Time dt)
 {
-	getInput(dt);
-	//Entity::update(dt);
-	mShape.setPosition(mPosition);
+	if (mTakesInput) getInput(dt);
+	Entity::update(dt);
+	/*mShape.setPosition(mPosition);
 	mShape.setRotation(mRotation);
 	mSprite.setRotation(mRotation);
 
 	for (int i = 0; i < tires.getVertexCount(); i++)
 	{
 		tires[i].position -= mVelocity * dt.asSeconds();
-	}
+	}*/
 	tires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
 	tires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
 }

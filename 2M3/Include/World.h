@@ -2,6 +2,7 @@
 #include <vector>
 #include <Entity.h>
 #include <SFML/System.hpp>
+#include <Player.h>
 
 class World
 {
@@ -12,4 +13,5 @@ public:
 
 private:
 	std::vector<Entity*>		mEntities;
+	std::vector<Player*>		mPlayers;
 };

@@ -6,7 +6,8 @@
 class Car : public Entity
 {
 public:
-	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect);
+	Car();
+	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, bool input);
 
 	void update(sf::Time dt) override;
 	void getInput(sf::Time dt);
@@ -19,6 +20,8 @@ public:
 private:
 	int mHP;
 	int mHpMax;
+
+	bool mTakesInput;
 
 	sf::Vector2f mCarDirection;
 

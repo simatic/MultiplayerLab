@@ -9,6 +9,8 @@ public:
 	virtual void		update(sf::Time dt);
 	virtual void		draw(sf::RenderTarget& target);
 
+	sf::Vector2f		getPosition();
+	sf::Vector2f		getVelocity();
 	/*void				setVelocity(float vx, float vy);
 	void				setVelocity(sf::Vector2f v);
 	void				addVelocity(float vx, float vy);
