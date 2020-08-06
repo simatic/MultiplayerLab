@@ -6,15 +6,16 @@
 Car::Car() :
 	mHP(1),
 	mHpMax(1),
+	mKeyBindings(1),
 	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)))
 {
 	
 }
 
-Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, bool input) :
+Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding keys) :
 	mHP(hp),
 	mHpMax(hp),
-	mTakesInput(input),
+	mKeyBindings(keys),
 	Entity(pos, rect)
 {
 	mCarDirection = sf::Vector2f(1, 0);
@@ -24,33 +25,23 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, bool input) :
 
 void Car::update(sf::Time dt)
 {
-	if (mTakesInput) getInput(dt);
+	getInput(dt);
 	Entity::update(dt);
-	/*mShape.setPosition(mPosition);
-	mShape.setRotation(mRotation);
-	mSprite.setRotation(mRotation);
-
-	for (int i = 0; i < tires.getVertexCount(); i++)
-	{
-		tires[i].position -= mVelocity * dt.asSeconds();
-	}*/
 	tires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
 	tires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
 }
 
 void Car::getInput(sf::Time dt)
 {
-	//std::cout << "car input" << std::endl;
-
 	float l = length(mVelocity);
 	float accel = 0;
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::MoveUp)))
 	{
 		float f = 1;
 		if (!mForward) f = 10;
 		accel += f * mCarAcceleration;
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::MoveDown)))
 	{
 		float f = 1;
 		if (mForward) f = 10;
@@ -68,12 +59,12 @@ void Car::getInput(sf::Time dt)
 
 	float angle = 0;
 	float angleSign = 0;
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && l > 50)
+	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::MoveLeft)) && l > 50)
 	{
 		angle += M_PI / 3;
 		angleSign += 1;
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && l > 50)
+	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::MoveRight)) && l > 50)
 	{
 		angle -= M_PI / 3;
 		angleSign -= 1;
@@ -117,21 +108,10 @@ void Car::getInput(sf::Time dt)
 	}
 	mPrevDriftingSign = angleSign;
 
-	//mPosition += mVelocity * dt.asSeconds();
-
-	/*if (carPos.x > 1600) carPos.x = 0;
-	else if (carPos.x < 0) carPos.x = 1600;
-
-	if (carPos.y > 900) carPos.y = 0;
-	else if (carPos.y < 0) carPos.y = 900;
-
-	shape.setPosition(carPos);*/
-
 	float carAngle = 0;
 	if (mCarDirection.x != 0) carAngle = -atan2(mCarDirection.y, mCarDirection.x);
 	if (mCarDirection.x == 0 && mCarDirection.y != 0) carAngle = M_PI_2 * mCarDirection.y / abs(mCarDirection.y);
 	if (mDrifting) carAngle += angleSign * mDriftAngle;
-	//shape.setRotation(-carAngle * 180.0 / M_PI);
 	mRotation = -carAngle * 180.0 / M_PI;
 }
 

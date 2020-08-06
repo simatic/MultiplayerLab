@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <Car.h>
 #include <vector>
+#include <KeyBinding.h>
 
 class Player
 {

@@ -1,13 +1,14 @@
 #pragma once
 #define _USE_MATH_DEFINES
-#include "Entity.h"
+#include <Entity.h>
 #include <math.h>
+#include <KeyBinding.h>
 
 class Car : public Entity
 {
 public:
 	Car();
-	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, bool input);
+	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding keys);
 
 	void update(sf::Time dt) override;
 	void getInput(sf::Time dt);
@@ -21,7 +22,7 @@ private:
 	int mHP;
 	int mHpMax;
 
-	bool mTakesInput;
+	KeyBinding mKeyBindings;
 
 	sf::Vector2f mCarDirection;
 
