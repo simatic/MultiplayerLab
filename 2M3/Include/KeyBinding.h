@@ -12,6 +12,7 @@ namespace PlayerAction
 		MoveRight,
 		MoveUp,
 		MoveDown,
+		Fire,
 		Count
 	};
 }

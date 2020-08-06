@@ -19,7 +19,7 @@ Player::Player(int i) :
 	mPlayerView.setCenter(mPlayerCar->getPosition());
 }
 
-void Player::update(sf::Time dt)
+void Player::update(sf::Time dt, std::vector<Entity*>& newEntities)
 {
 	mPlayerView.move(mPlayerCar->getVelocity() * dt.asSeconds());
 }

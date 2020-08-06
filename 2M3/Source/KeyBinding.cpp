@@ -13,6 +13,7 @@ KeyBinding::KeyBinding(int controlPreconfiguration)
 		mKeyMap[sf::Keyboard::Right] = PlayerAction::MoveRight;
 		mKeyMap[sf::Keyboard::Up] = PlayerAction::MoveUp;
 		mKeyMap[sf::Keyboard::Down] = PlayerAction::MoveDown;
+		mKeyMap[sf::Keyboard::RControl] = PlayerAction::Fire;
 	}
 	else if (controlPreconfiguration == 2)
 	{
@@ -21,6 +22,7 @@ KeyBinding::KeyBinding(int controlPreconfiguration)
 		mKeyMap[sf::Keyboard::D] = PlayerAction::MoveRight;
 		mKeyMap[sf::Keyboard::Z] = PlayerAction::MoveUp;
 		mKeyMap[sf::Keyboard::S] = PlayerAction::MoveDown;
+		mKeyMap[sf::Keyboard::F] = PlayerAction::Fire;
 	}
 }
 

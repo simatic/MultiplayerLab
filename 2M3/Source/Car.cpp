@@ -16,6 +16,7 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding keys) :
 	mHP(hp),
 	mHpMax(hp),
 	mKeyBindings(keys),
+	mShootDelay(sf::seconds(0.1)),
 	Entity(pos, rect)
 {
 	mCarDirection = sf::Vector2f(1, 0);
@@ -23,15 +24,19 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding keys) :
 	tires[0].position = mPosition;
 }
 
-void Car::update(sf::Time dt)
+void Car::update(sf::Time dt, std::vector<Entity*>& newEntities)
 {
-	getInput(dt);
-	Entity::update(dt);
+	if (mCurrentShootDelay > sf::Time::Zero) mCurrentShootDelay -= dt;
+
+	getInput(dt, newEntities);
+
+	Entity::update(dt, newEntities);
+
 	tires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
 	tires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
 }
 
-void Car::getInput(sf::Time dt)
+void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 {
 	float l = length(mVelocity);
 	float accel = 0;
@@ -113,6 +118,17 @@ void Car::getInput(sf::Time dt)
 	if (mCarDirection.x == 0 && mCarDirection.y != 0) carAngle = M_PI_2 * mCarDirection.y / abs(mCarDirection.y);
 	if (mDrifting) carAngle += angleSign * mDriftAngle;
 	mRotation = -carAngle * 180.0 / M_PI;
+
+	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::Fire)) && mCurrentShootDelay <= sf::Time::Zero)
+	{
+		mCurrentShootDelay = mShootDelay;
+
+		sf::Vector2f projDir = mCarDirection;
+		if (mDrifting) projDir = rotate(projDir, angleSign * mDriftAngle);
+
+		Projectile* proj = new Projectile(1, mPosition + (float)25 * projDir, (float)2000 * projDir, sf::RectangleShape(sf::Vector2f(5, 5)));
+		newEntities.push_back(proj);
+	}
 }
 
 void Car::draw(sf::RenderTarget& target)

@@ -14,4 +14,6 @@ public:
 private:
 	std::vector<Entity*>		mEntities;
 	std::vector<Player*>		mPlayers;
+
+	std::vector<Entity*>		mNewEntities;
 };

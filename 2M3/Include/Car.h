@@ -3,6 +3,7 @@
 #include <Entity.h>
 #include <math.h>
 #include <KeyBinding.h>
+#include <Projectile.h>
 
 class Car : public Entity
 {
@@ -10,8 +11,8 @@ public:
 	Car();
 	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding keys);
 
-	void update(sf::Time dt) override;
-	void getInput(sf::Time dt);
+	void update(sf::Time dt, std::vector<Entity*>& newEntities) override;
+	void getInput(sf::Time dt, std::vector<Entity*>& newEntities);
 
 	void draw(sf::RenderTarget& target) override;
 
@@ -39,5 +40,8 @@ private:
 	float mPrevDriftingSign;
 
 	sf::VertexArray tires;
+
+	sf::Time mShootDelay;
+	sf::Time mCurrentShootDelay;
 
 };

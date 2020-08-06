@@ -9,7 +9,7 @@ class Player
 public:
 	Player(int i);
 
-	void update(sf::Time dt);
+	void update(sf::Time dt, std::vector<Entity*>& newEntities);
 	void draw(sf::RenderTarget& target, std::vector<Entity*>& entities);
 
 	Car* getCar();

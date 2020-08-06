@@ -12,7 +12,7 @@ Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
 	mSprite.setOrigin(bounds.width / 2, bounds.height / 2);
 }
 
-void Entity::update(sf::Time dt)
+void Entity::update(sf::Time dt, std::vector<Entity*>& newEntities)
 {
 	mPosition += mVelocity * dt.asSeconds();
 
