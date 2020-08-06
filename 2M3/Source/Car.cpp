@@ -7,6 +7,7 @@ Car::Car() :
 	mHP(1),
 	mHpMax(1),
 	mKeyBindings(1),
+	//mDust(Particles(sf::Color::Black, sf::Time::Zero)),
 	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)))
 {
 	
@@ -17,11 +18,12 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding keys) :
 	mHpMax(hp),
 	mKeyBindings(keys),
 	mShootDelay(sf::seconds(0.1)),
+	//mDust(sf::Color::White, sf::seconds(0.5)),
 	Entity(pos, rect)
 {
 	mCarDirection = sf::Vector2f(1, 0);
-	tires = sf::VertexArray(sf::Lines, 1);
-	tires[0].position = mPosition;
+	mTires = sf::VertexArray(sf::Lines, 1);
+	mTires[0].position = mPosition;
 }
 
 void Car::update(sf::Time dt, std::vector<Entity*>& newEntities)
@@ -32,8 +34,11 @@ void Car::update(sf::Time dt, std::vector<Entity*>& newEntities)
 
 	Entity::update(dt, newEntities);
 
-	tires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
-	tires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
+	mTires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
+	mTires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
+
+	//mDust.setPosition(mPosition - (float)20 * mCarDirection);
+	//mDust.update(dt);
 }
 
 void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
@@ -133,7 +138,8 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 
 void Car::draw(sf::RenderTarget& target)
 {
-	target.draw(tires);
+	target.draw(mTires);
+	//mDust.draw(target);
 	Entity::draw(target);
 }
 

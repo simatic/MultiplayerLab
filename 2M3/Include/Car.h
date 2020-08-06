@@ -4,6 +4,7 @@
 #include <math.h>
 #include <KeyBinding.h>
 #include <Projectile.h>
+#include <Particles.h>
 
 class Car : public Entity
 {
@@ -39,7 +40,8 @@ private:
 	bool mDrifting;
 	float mPrevDriftingSign;
 
-	sf::VertexArray tires;
+	sf::VertexArray mTires;
+	//Particles mDust;
 
 	sf::Time mShootDelay;
 	sf::Time mCurrentShootDelay;
