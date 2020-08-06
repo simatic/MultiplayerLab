@@ -1,5 +1,6 @@
 #include <World.h>
 #include <Car.h>
+#include <functional>
 
 World::World()
 {
@@ -14,6 +15,18 @@ World::World()
 
 void World::update(sf::Time dt)
 {
+	std::set<Entity::Pair> pairs;
+	for (auto& ent : mEntities)
+	{
+		ent->checkCollisions(mEntities, pairs);
+	}
+	for (auto& pair : pairs)
+	{
+		pair.first->onCollision(pair.second);
+	}
+	auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&Entity::toRemove));
+	mEntities.erase(removeBegin, mEntities.end());
+
 	for (auto& ent : mEntities)
 	{
 		ent->update(dt, mNewEntities);

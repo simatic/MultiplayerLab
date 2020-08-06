@@ -10,7 +10,7 @@ Car::Car() :
 	//mDust(Particles(sf::Color::Black, sf::Time::Zero)),
 	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)))
 {
-	
+	mType = Type::CarType;
 }
 
 Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding keys) :
@@ -24,6 +24,7 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding keys) :
 	mCarDirection = sf::Vector2f(1, 0);
 	mTires = sf::VertexArray(sf::Lines, 1);
 	mTires[0].position = mPosition;
+	mType = Type::CarType;
 }
 
 void Car::update(sf::Time dt, std::vector<Entity*>& newEntities)
@@ -152,4 +153,31 @@ void Car::repair(int points)
 {
 	mHP += points;
 	if (mHP > mHpMax) mHP = mHpMax;
+}
+
+void Car::onCollision(Entity* other)
+{
+	switch (other->getType())
+	{
+	case Type::CarType :
+	{
+		Car* otherCar = dynamic_cast<Car*>(other);
+
+		damage(2);
+		otherCar->damage(2);
+
+		mVelocity = sf::Vector2f(0, 0);
+		otherCar->mVelocity = sf::Vector2f(0, 0);
+		break;
+	}
+
+	case Type::ProjectileType :
+	{
+		Projectile* otherProj = dynamic_cast<Projectile*>(other);
+
+		damage(otherProj->getDamage());
+		other->remove();
+		break;
+	}
+	}
 }

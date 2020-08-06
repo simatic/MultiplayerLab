@@ -20,6 +20,8 @@ public:
 	void damage(int points);
 	void repair(int points);
 
+	void onCollision(Entity* other) override;
+
 private:
 	int mHP;
 	int mHpMax;
