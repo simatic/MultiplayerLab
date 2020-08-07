@@ -1,4 +1,3 @@
-#include "..\Include\Entity.h"
 #include <Entity.h>
 #include <iostream>
 
@@ -62,6 +61,8 @@ void Entity::remove()
 bool Entity::collide(Entity* other)
 {
 	return mShape.getGlobalBounds().intersects(other->mShape.getGlobalBounds());
+	/*CollisionResult res = collision(getRectangle(), other->getRectangle(), sf::Vector2f(0, 0));
+	return res.intersect;*/
 }
 
 void Entity::checkCollisions(std::vector<Entity*>& entities, std::set<Pair>& pairs)
@@ -73,4 +74,27 @@ void Entity::checkCollisions(std::vector<Entity*>& entities, std::set<Pair>& pai
 			pairs.insert(std::minmax(this, ent));
 		}
 	}
+}
+
+Rectangle Entity::getRectangle()
+{
+	sf::FloatRect baseRect = mShape.getLocalBounds();
+	std::vector<sf::Vector2f> points;
+	points.push_back(sf::Vector2f(baseRect.left, baseRect.top));
+	points.push_back(sf::Vector2f(baseRect.left + baseRect.width, baseRect.top));
+	points.push_back(sf::Vector2f(baseRect.left, baseRect.top + baseRect.height));
+	points.push_back(sf::Vector2f(baseRect.left + baseRect.width, baseRect.top + baseRect.height));
+
+	for (int i = 0; i < 4; i++)
+	{
+		points[i].x *= mShape.getScale().x;
+		points[i].y *= mShape.getScale().y;
+		points[i] = rotate(points[i], toRadians(mShape.getRotation()));
+		points[i] += mShape.getPosition();
+	}
+
+	Rectangle rect;
+	rect.points = points;
+	return rect;
+
 }

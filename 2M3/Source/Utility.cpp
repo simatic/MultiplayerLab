@@ -5,7 +5,7 @@ float length(sf::Vector2f vector)
 	return sqrt(vector.x * vector.x + vector.y * vector.y);
 }
 
-float scalar(sf::Vector2f u, sf::Vector2f v)
+float dotProduct(sf::Vector2f u, sf::Vector2f v)
 {
 	return u.x * v.x + u.y * v.y;
 }
@@ -22,4 +22,21 @@ sf::Vector2f rotate(sf::Vector2f v, float a)
 
 	float prevA = -atan2(v.y, v.x);
 	return l * sf::Vector2f(cos(prevA + a), -sin(prevA + a));
+}
+
+float toRadians(float a)
+{
+	return M_PI * a / 180.0;
+}
+
+float toDegrees(float a)
+{
+	return 180.0 * a / M_PI;
+}
+
+sf::Vector2f unitVector(sf::Vector2f v)
+{
+	float l = length(v);
+	if (l == 0) return v;
+	return v / l;
 }

@@ -100,7 +100,7 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 	mDrifting = mForward && l > mDriftTheshold && angleSign != 0;
 
 	float theta = sqrt(abs(radAccel) / mTurnRadius) * dt.asSeconds();
-	mForward = scalar(mVelocity, mCarDirection) >= 0;
+	mForward = dotProduct(mVelocity, mCarDirection) >= 0;
 	if (!mForward)
 	{
 		mVelocity = rotate(mVelocity, -theta * angleSign);

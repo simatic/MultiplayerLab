@@ -1,6 +1,8 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <set>;
+#include <Collider.h>
+#include <Utility.h>
 
 class Entity
 {
@@ -24,6 +26,7 @@ public:
 	sf::Vector2f		getPosition();
 	sf::Vector2f		getVelocity();
 	sf::RectangleShape	getShape();
+	Rectangle			getRectangle();
 	Type				getType();
 	bool				toRemove();
 	void				remove();
