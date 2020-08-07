@@ -15,7 +15,7 @@ World::World()
 
 void World::update(sf::Time dt)
 {
-	/*std::set<Entity::Pair> pairs;
+	std::set<Entity::Pair> pairs;
 	for (auto& ent : mEntities)
 	{
 		ent->checkCollisions(mEntities, pairs);
@@ -25,7 +25,7 @@ void World::update(sf::Time dt)
 		pair.first->onCollision(pair.second);
 	}
 	auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&Entity::toRemove));
-	mEntities.erase(removeBegin, mEntities.end());*/
+	mEntities.erase(removeBegin, mEntities.end());
 
 	for (auto& ent : mEntities)
 	{

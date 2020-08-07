@@ -60,9 +60,14 @@ void Entity::remove()
 
 bool Entity::collide(Entity* other)
 {
-	return mShape.getGlobalBounds().intersects(other->mShape.getGlobalBounds());
-	/*CollisionResult res = collision(getRectangle(), other->getRectangle(), sf::Vector2f(0, 0));
-	return res.intersect;*/
+	if (length(mPosition - other->getPosition()) > 100) return false;
+	//return mShape.getGlobalBounds().intersects(other->mShape.getGlobalBounds());
+	if (mShape.getGlobalBounds().intersects(other->mShape.getGlobalBounds()))
+	{
+		CollisionResult res = collision(getRectangle(), other->getRectangle(), sf::Vector2f(0, 0));
+		return res.intersect;
+	}
+	return false;
 }
 
 void Entity::checkCollisions(std::vector<Entity*>& entities, std::set<Pair>& pairs)
