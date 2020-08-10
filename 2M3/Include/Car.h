@@ -43,7 +43,7 @@ private:
 	float mPrevDriftingSign;
 
 	sf::VertexArray mTires;
-	//Particles mDust;
+	Particles mDust;
 
 	sf::Time mShootDelay;
 	sf::Time mCurrentShootDelay;

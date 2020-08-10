@@ -4,7 +4,7 @@ Particles::Particles(sf::Color color, sf::Time life) :
 	mColor(color),
 	mLifetime(life),
 	mVertexArray(sf::Quads),
-	mSpawnDelay(sf::seconds(1.0 / 30.0))
+	mSpawnDelay(sf::seconds(1.0 / 40.0))
 {
 }
 
@@ -29,6 +29,8 @@ void Particles::update(sf::Time dt)
 		particle.position = mPosition;
 		particle.color = mColor;
 		particle.lifetime = mLifetime;
+
+		mParticles.push_back(particle);
 	}
 
 }

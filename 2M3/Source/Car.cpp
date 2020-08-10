@@ -7,7 +7,7 @@ Car::Car() :
 	mHP(1),
 	mHpMax(1),
 	mKeyBindings(1),
-	//mDust(Particles(sf::Color::Black, sf::Time::Zero)),
+	mDust(sf::Color::Black, sf::Time::Zero),
 	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)))
 {
 	mType = Type::CarType;
@@ -18,7 +18,7 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding keys) :
 	mHpMax(hp),
 	mKeyBindings(keys),
 	mShootDelay(sf::seconds(0.1)),
-	//mDust(sf::Color::White, sf::seconds(0.5)),
+	mDust(sf::Color::White, sf::seconds(0.7)),
 	Entity(pos, rect)
 {
 	mCarDirection = sf::Vector2f(1, 0);
@@ -38,8 +38,8 @@ void Car::update(sf::Time dt, std::vector<Entity*>& newEntities)
 	mTires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
 	mTires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
 
-	//mDust.setPosition(mPosition - (float)20 * mCarDirection);
-	//mDust.update(dt);
+	mDust.setPosition(mPosition - (float)20 * mCarDirection);
+	mDust.update(dt);
 }
 
 void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
@@ -140,7 +140,7 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 void Car::draw(sf::RenderTarget& target)
 {
 	target.draw(mTires);
-	//mDust.draw(target);
+	mDust.draw(target);
 	Entity::draw(target);
 }
 

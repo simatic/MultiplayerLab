@@ -1,6 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <set>;
+#include <set>
 #include <Collider.h>
 #include <Utility.h>
 
@@ -10,7 +10,7 @@ public:
 	typedef std::pair<Entity*, Entity*> Pair;
 
 public:
-	enum Type
+	enum class Type
 	{
 		CarType,
 		ProjectileType,
