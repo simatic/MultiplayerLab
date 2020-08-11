@@ -46,13 +46,13 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 {
 	float l = length(mVelocity);
 	float accel = 0;
-	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::MoveUp)))
+	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::Accelerate)))
 	{
 		float f = 1;
 		if (!mForward) f = 10;
 		accel += f * mCarAcceleration;
 	}
-	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::MoveDown)))
+	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::Brake)))
 	{
 		float f = 1;
 		if (mForward) f = 10;
@@ -70,12 +70,12 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 
 	float angle = 0;
 	float angleSign = 0;
-	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::MoveLeft)) && l > 50)
+	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::TurnLeft)) && l > 50)
 	{
 		angle += M_PI / 3;
 		angleSign += 1;
 	}
-	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::MoveRight)) && l > 50)
+	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::TurnRight)) && l > 50)
 	{
 		angle -= M_PI / 3;
 		angleSign -= 1;
