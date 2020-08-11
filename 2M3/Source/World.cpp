@@ -18,7 +18,7 @@ void World::update(sf::Time dt)
 	std::set<Entity::Pair> pairs;
 	for (auto& ent : mEntities)
 	{
-		ent->checkCollisions(mEntities, pairs);
+		ent->checkCollisions(mEntities, pairs, dt);
 	}
 	for (auto& pair : pairs)
 	{

@@ -5,7 +5,8 @@ struct CollisionResult
 {
 	bool willIntersect;
 	bool intersect;
-	sf::Vector2f translation;
+	sf::Vector2f speedReductionA;
+	sf::Vector2f speedReductionB;
 };
 
 struct Rectangle
@@ -16,4 +17,4 @@ struct Rectangle
 void projectRectangle(sf::Vector2f axis, Rectangle rectangle, float& min, float& max);
 float intervalDistance(float minA, float maxA, float minB, float maxB);
 
-CollisionResult collision(Rectangle rectA, Rectangle rectB, sf::Vector2f velocity);
+CollisionResult collision(Rectangle rectA, Rectangle rectB, sf::Vector2f velocityA, sf::Vector2f velocityB, sf::Time dt);

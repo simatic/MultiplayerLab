@@ -23,13 +23,16 @@ float intervalDistance(float minA, float maxA, float minB, float maxB)
 	return minA - maxB;
 }
 
-CollisionResult collision(Rectangle rectA, Rectangle rectB, sf::Vector2f velocity)
+CollisionResult collision(Rectangle rectA, Rectangle rectB, sf::Vector2f velocityA, sf::Vector2f velocityB, sf::Time dt)
 {
-	CollisionResult result;
-	result.intersect = true;
+	CollisionResult result = { true, true, sf::Vector2f(0, 0), sf::Vector2f(0, 0) };
 
-	for (int i = 0; i < 2 && result.intersect; i++)
+	float minInterval = INFINITY;
+	sf::Vector2f speedReductionAxis = sf::Vector2f(0, 0);
+
+	for (size_t i = 0; i < 2 && result.intersect && result.willIntersect; i++)
 	{
+		//check current collision
 		float minA, minB, maxA, maxB;
 		sf::Vector2f axis = unitVector(rotate(rectA.points[i + 1] - rectA.points[i], M_PI_2));
 
@@ -38,9 +41,35 @@ CollisionResult collision(Rectangle rectA, Rectangle rectB, sf::Vector2f velocit
 		float d = intervalDistance(minA, maxA, minB, maxB);
 
 		if (d > 0) result.intersect = false;
+
+		//check future collision
+		float projectedVelA = dotProduct(velocityA * dt.asSeconds(), axis);
+		float projectedVelB = dotProduct(velocityB * dt.asSeconds(), axis);
+
+		if (projectedVelA < 0) minA += projectedVelA;
+		else maxA += projectedVelA;
+
+		if (projectedVelB < 0) minB += projectedVelB;
+		else maxB += projectedVelB;
+
+		d = intervalDistance(minA, maxA, minB, maxB);
+
+		if (d > 0)
+		{
+			result.willIntersect = false;
+			break;
+		}
+
+		//compute minimal speed reduction
+		if (d < minInterval)
+		{
+			minInterval = d;
+			speedReductionAxis = axis;
+		}
 	}
 
-	for (int i = 0; i < 2 && result.intersect; i++)
+	//same for rectangle B axes
+	for (size_t i = 0; i < 2 && result.intersect && result.willIntersect; i++)
 	{
 		float minA, minB, maxA, maxB;
 		sf::Vector2f axis = unitVector(rotate(rectB.points[i + 1] - rectB.points[i], M_PI_2));
@@ -50,6 +79,41 @@ CollisionResult collision(Rectangle rectA, Rectangle rectB, sf::Vector2f velocit
 		float d = intervalDistance(minA, maxA, minB, maxB);
 
 		if (d > 0) result.intersect = false;
+
+		float projectedVelA = dotProduct(velocityA * dt.asSeconds(), axis);
+		float projectedVelB = dotProduct(velocityB * dt.asSeconds(), axis);
+
+		if (projectedVelA < 0) minA += projectedVelA;
+		else maxA += projectedVelA;
+
+		if (projectedVelB < 0) minB += projectedVelB;
+		else maxB += projectedVelB;
+
+		d = intervalDistance(minA, maxA, minB, maxB);
+
+		if (d > 0)
+		{
+			result.willIntersect = false;
+			break;
+		}
+
+		if (d < minInterval)
+		{
+			minInterval = d;
+			speedReductionAxis = axis;
+		}
+	}
+
+	if (result.willIntersect)
+	{
+		sf::Vector2f unitA = unitVector(velocityA);
+		sf::Vector2f unitB = unitVector(velocityB);
+
+		float speedA = dotProduct(unitA, minInterval * speedReductionAxis);
+		float speedB = dotProduct(unitB, minInterval * speedReductionAxis);
+
+		result.speedReductionA = unitA * speedA;
+		result.speedReductionB = unitB * speedB;
 	}
 
 	return result;

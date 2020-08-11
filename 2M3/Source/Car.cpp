@@ -7,6 +7,9 @@ Car::Car() :
 	mHP(1),
 	mHpMax(1),
 	mKeyBindings(1),
+	mDrifting(false),
+	mForward(true),
+	mPrevDriftingSign(0),
 	mDust(sf::Color::Black, sf::Time::Zero),
 	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)))
 {
@@ -141,7 +144,16 @@ void Car::draw(sf::RenderTarget& target)
 {
 	target.draw(mTires);
 	mDust.draw(target);
+
 	Entity::draw(target);
+
+	//draw hitbox
+	/*sf::VertexArray hitbox = sf::VertexArray(sf::Quads, 4);
+	for (auto& corner : getRectangle().points)
+	{
+		hitbox.append(sf::Vertex(corner, sf::Color::Red));
+	}
+	target.draw(hitbox);*/
 }
 
 void Car::damage(int points)

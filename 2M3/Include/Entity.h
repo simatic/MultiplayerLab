@@ -31,8 +31,8 @@ public:
 	bool				toRemove();
 	void				remove();
 
-	void				checkCollisions(std::vector<Entity*>& entities, std::set<Pair>& pairs);
-	bool				collide(Entity* other);
+	void				checkCollisions(std::vector<Entity*>& entities, std::set<Pair>& pairs, sf::Time dt);
+	bool				collide(Entity* other, sf::Time dt);
 	virtual void		onCollision(Entity* other) = 0;
 
 protected:
