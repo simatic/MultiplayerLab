@@ -1,28 +1,32 @@
-#include <KeyBinding.h>
+#include "KeyBinding.h"
+#include "Foreach.h"
+
 #include <string>
 #include <algorithm>
 
 
 KeyBinding::KeyBinding(int controlPreconfiguration)
-	: mKeyMap()
+: mKeyMap()
 {
 	// Set initial key bindings for player 1
 	if (controlPreconfiguration == 1)
 	{
-		mKeyMap[sf::Keyboard::Left] = PlayerAction::MoveLeft;
-		mKeyMap[sf::Keyboard::Right] = PlayerAction::MoveRight;
-		mKeyMap[sf::Keyboard::Up] = PlayerAction::MoveUp;
-		mKeyMap[sf::Keyboard::Down] = PlayerAction::MoveDown;
-		mKeyMap[sf::Keyboard::RControl] = PlayerAction::Fire;
+		mKeyMap[sf::Keyboard::Left]		= PlayerAction::TurnLeft;
+		mKeyMap[sf::Keyboard::Right]	= PlayerAction::TurnRight;
+		mKeyMap[sf::Keyboard::Up]		= PlayerAction::Accelerate;
+		mKeyMap[sf::Keyboard::Down]		= PlayerAction::Brake;
+		mKeyMap[sf::Keyboard::Numpad7]	= PlayerAction::Fire;
+		mKeyMap[sf::Keyboard::Numpad8]	= PlayerAction::ChangeWeapon;
 	}
 	else if (controlPreconfiguration == 2)
 	{
 		// Player 2
-		mKeyMap[sf::Keyboard::Q] = PlayerAction::MoveLeft;
-		mKeyMap[sf::Keyboard::D] = PlayerAction::MoveRight;
-		mKeyMap[sf::Keyboard::Z] = PlayerAction::MoveUp;
-		mKeyMap[sf::Keyboard::S] = PlayerAction::MoveDown;
+		mKeyMap[sf::Keyboard::Q] = PlayerAction::TurnLeft;
+		mKeyMap[sf::Keyboard::D] = PlayerAction::TurnRight;
+		mKeyMap[sf::Keyboard::Z] = PlayerAction::Accelerate;
+		mKeyMap[sf::Keyboard::S] = PlayerAction::Brake;
 		mKeyMap[sf::Keyboard::F] = PlayerAction::Fire;
+		mKeyMap[sf::Keyboard::G] = PlayerAction::ChangeWeapon;
 	}
 }
 
@@ -41,16 +45,6 @@ void KeyBinding::assignKey(Action action, sf::Keyboard::Key key)
 	mKeyMap[key] = action;
 }
 
-sf::Keyboard::Key KeyBinding::getAssignedKey(Action action) const
-{
-	for(auto pair : mKeyMap)
-	{
-		if (pair.second == action)
-			return pair.first;
-	}
-
-	return sf::Keyboard::Unknown;
-}
 
 bool KeyBinding::checkAction(sf::Keyboard::Key key, Action& out) const
 {
@@ -64,4 +58,15 @@ bool KeyBinding::checkAction(sf::Keyboard::Key key, Action& out) const
 		out = found->second;
 		return true;
 	}
+}
+
+sf::Keyboard::Key KeyBinding::getAssignedKey(Action action) const
+{
+	for (auto pair : mKeyMap)
+	{
+		if (pair.second == action)
+			return pair.first;
+	}
+
+	return sf::Keyboard::Unknown;
 }

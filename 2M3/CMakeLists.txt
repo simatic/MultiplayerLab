@@ -15,7 +15,17 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(sfml)
 
 include_directories("Include")
-file(GLOB SOURCES CONFIGURE_DEPENDS Include/*.hpp Include/*.inl Source/*.cpp)
+file(GLOB SOURCES CONFIGURE_DEPENDS Include/*.h Include/*.inl Source/*.cpp)
+
+if (MSVC)
+    # warning level 4 (see https://docs.microsoft.com/fr-fr/cpp/build/reference/compiler-option-warning-level?view=vs-2019)
+    # We do not put /WX to consider all warnings as errors
+    add_compile_options(/W4)
+else()
+    # lots of warnings 
+    # We do not put -Werror to consider all warnings as errors
+    add_compile_options(-Wall -Wextra)
+endif()
 
 add_executable(2M3
   ${SOURCES}
