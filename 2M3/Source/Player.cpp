@@ -14,14 +14,15 @@ Player::Player(int i) :
 	{
 		mPlayerView = sf::View(sf::FloatRect(800, 0, 800, 900));
 		mPlayerView.setViewport(sf::FloatRect(0.5, 0, 0.5, 1));
-		mPlayerCar = new Car(10, sf::Vector2f(850, 450), sf::RectangleShape(sf::Vector2f(40, 20)), KeyBinding(i + 1));
+		mPlayerCar = new Car(10, sf::Vector2f(900, 450), sf::RectangleShape(sf::Vector2f(40, 20)), KeyBinding(i + 1));
 	}
 	mPlayerView.setCenter(mPlayerCar->getPosition());
 }
 
-void Player::update(sf::Time dt, std::vector<Entity*>& newEntities)
+void Player::update(sf::Time dt) //, std::vector<Entity*>& newEntities)
 {
-	mPlayerView.move(mPlayerCar->getVelocity() * dt.asSeconds());
+	//mPlayerView.move(mPlayerCar->getVelocity() * dt.asSeconds());
+	mPlayerView.setCenter(mPlayerCar->getPosition());
 }
 
 void Player::draw(sf::RenderTarget& target, std::vector<Entity*>& entities)

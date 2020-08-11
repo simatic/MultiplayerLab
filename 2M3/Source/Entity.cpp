@@ -15,8 +15,10 @@ Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
 	mSprite.setOrigin(bounds.width / 2, bounds.height / 2);
 }
 
-void Entity::update(sf::Time dt, std::vector<Entity*>& newEntities)
+void Entity::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
 {
+	checkCollisions(entities, pairs, dt);
+
 	mPosition += mVelocity * dt.asSeconds();
 
 	mShape.setPosition(mPosition);
@@ -50,6 +52,16 @@ Entity::Type Entity::getType()
 	return mType;
 }
 
+void Entity::offset(sf::Vector2f o)
+{
+	mPosition += o;
+}
+
+void Entity::setVelocity(sf::Vector2f v)
+{
+	mVelocity = v;
+}
+
 bool Entity::toRemove()
 {
 	return mToRemove;
@@ -63,11 +75,19 @@ void Entity::remove()
 bool Entity::collide(Entity* other, sf::Time dt)
 {
 	if (length(mPosition - other->getPosition()) > 100) return false;
-	//return mShape.getGlobalBounds().intersects(other->mShape.getGlobalBounds());
+	//if (mShape.getGlobalBounds().intersects(other->getShape().getGlobalBounds())) return false;
+
+	Rectangle rect = getRectangle();
 	if (mShape.getGlobalBounds().intersects(other->mShape.getGlobalBounds()))
 	{
-		CollisionResult res = collision(getRectangle(), other->getRectangle(), mVelocity, other->getVelocity(), dt);
-		return res.intersect;
+		CollisionResult res = collision(rect, other->getRectangle(), mVelocity, other->getVelocity(), dt);
+
+		/*mVelocity += res.speedReductionA;
+		other->setVelocity(other->getVelocity() + res.speedReductionB);*/
+		/*mPosition -= res.speedReductionA;
+		other->offset(-res.speedReductionB);*/
+
+		return res.intersect || res.willIntersect;
 	}
 	return false;
 }

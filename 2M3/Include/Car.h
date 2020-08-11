@@ -12,8 +12,9 @@ public:
 	Car();
 	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding keys);
 
-	void update(sf::Time dt, std::vector<Entity*>& newEntities) override;
+	void update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs) override;
 	void getInput(sf::Time dt, std::vector<Entity*>& newEntities);
+	void crash(sf::Vector2f otherVelocity);
 
 	void draw(sf::RenderTarget& target) override;
 
@@ -36,11 +37,13 @@ private:
 	const float mTurnRadius = 12;
 	const float mDriftTheshold = mCarMaxSpeed - 200;
 	const float mDriftAngle = M_PI / 3;
-	const float mDrag = 0.001;
+	const float mDrag = 0.001f;
 
 	bool mForward;
 	bool mDrifting;
 	float mPrevDriftingSign;
+
+	bool mCrash;
 
 	sf::VertexArray mTires;
 	Particles mDust;
