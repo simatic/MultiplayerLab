@@ -1,0 +1,10 @@
+^C:\SOFTWARE\MULTIPLAYERLAB\2M3\BUILD\CMAKEFILES\F4F96CB2EA5C659CF38C3F18B51BE3DC\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Software/MultiplayerLab/2M3 -BC:/Software/MultiplayerLab/2M3/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Software/MultiplayerLab/2M3/build/2M3.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
