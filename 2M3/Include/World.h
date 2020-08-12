@@ -7,13 +7,15 @@
 class World
 {
 public:
-	World();
+	World					(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2);
 	void					update(sf::Time dt);
-	void					draw(sf::RenderTarget& target);
+	void					draw();
 
 private:
 	std::vector<Entity*>		mEntities;
 	std::vector<Player*>		mPlayers;
 
 	std::vector<Entity*>		mNewEntities;
+
+	sf::RenderTarget&			mTarget;
 };

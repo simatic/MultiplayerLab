@@ -7,7 +7,7 @@
 class Player
 {
 public:
-	Player(int i);
+	Player(int i, KeyBinding* keys1, KeyBinding* keys2);
 
 	void update(sf::Time dt, std::vector<Entity*>& newEntities);
 	void draw(sf::RenderTarget& target, std::vector<Entity*>& entities);

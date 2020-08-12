@@ -21,7 +21,7 @@ MenuState::MenuState(StateStack& stack, Context context)
 	playButton->setCallback([this] ()
 	{
 		requestStackPop();
-//		requestStackPush(States::Game);
+		requestStackPush(States::Game);
 	});
 
 	//auto hostPlayButton = std::make_shared<GUI::Button>(context);

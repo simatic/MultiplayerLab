@@ -2,10 +2,11 @@
 #include <Car.h>
 #include <functional>
 
-World::World()
+World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2)
+	: mTarget(outputTarget)
 {
-	Player* p1 = new Player(0);
-	Player* p2 = new Player(1);
+	Player* p1 = new Player(0, keys1, keys2);
+	Player* p2 = new Player(1, keys1, keys2);
 	mPlayers.push_back(p1);
 	mPlayers.push_back(p2);
 
@@ -43,10 +44,10 @@ void World::update(sf::Time dt)
 	mNewEntities.clear();
 }
 
-void World::draw(sf::RenderTarget& target)
+void World::draw()
 {
 	for (auto& player : mPlayers)
 	{
-		player->draw(target, mEntities);
+		player->draw(mTarget, mEntities);
 	}
 }

@@ -3,11 +3,11 @@
 #include "State.h"
 #include "StateIdentifiers.h"
 #include "TitleState.h"
-//#include "GameState.h"
-//#include "MultiplayerGameState.h"
 #include "MenuState.h"
-//#include "PauseState.h"
 #include "SettingsState.h"
+#include "GameState.h"
+//#include "MultiplayerGameState.h"
+//#include "PauseState.h"
 //#include "GameOverState.h"
 
 
@@ -116,12 +116,10 @@ void Application::registerStates()
 {
 	mStateStack.registerState<TitleState>(States::Title);
 	mStateStack.registerState<MenuState>(States::Menu);
-	//mStateStack.registerState<GameState>(States::Game);
+	mStateStack.registerState<GameState>(States::Game);
+	mStateStack.registerState<SettingsState>(States::Settings);
 	//mStateStack.registerState<MultiplayerGameState>(States::HostGame, true);
 	//mStateStack.registerState<MultiplayerGameState>(States::JoinGame, false);
 	//mStateStack.registerState<PauseState>(States::Pause);
 	//mStateStack.registerState<PauseState>(States::NetworkPause, true);
-	mStateStack.registerState<SettingsState>(States::Settings);
-	//mStateStack.registerState<GameOverState>(States::GameOver, "Mission Failed!");
-	//mStateStack.registerState<GameOverState>(States::MissionSuccess, "Mission Successful!");
 }

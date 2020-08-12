@@ -7,32 +7,34 @@
 #include "Application.h"
 
 int main()
-{
-	sf::Clock clock;
+{	
+	Application application;
+	application.run();
+	//sf::Clock clock;
 
-    sf::RenderWindow window(sf::VideoMode(1600, 900), "2M3");
+ //   sf::RenderWindow window(sf::VideoMode(1600, 900), "2M3");
 
-	World world = World();
+	//World world = World();
 
-    while (window.isOpen())
-    {
-		sf::Time dt = clock.restart();
+ //   while (window.isOpen())
+ //   {
+	//	sf::Time dt = clock.restart();
 
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)) 
-			window.close();
-		}
+	//	sf::Event event;
+	//	while (window.pollEvent(event))
+	//	{
+	//		if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)) 
+	//		window.close();
+	//	}
 
-		world.update(dt);
+	//	world.update(dt);
 
-		window.clear();
-		
-		world.draw(window);
+	//	window.clear();
+	//	
+	//	world.draw(window);
 
-		window.display();
-    }
+	//	window.display();
+ //   }
 
     return 0;
 }

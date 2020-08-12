@@ -6,14 +6,14 @@
 Car::Car() :
 	mHP(1),
 	mHpMax(1),
-	mKeyBindings(1),
+//	mKeyBindings(1),
 	mDust(sf::Color::Black, sf::Time::Zero),
 	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)))
 {
 	mType = Type::CarType;
 }
 
-Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding keys) :
+Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys) :
 	mHP(hp),
 	mHpMax(hp),
 	mKeyBindings(keys),
@@ -46,13 +46,13 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 {
 	float l = length(mVelocity);
 	float accel = 0;
-	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::Accelerate)))
+	if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Accelerate)))
 	{
 		float f = 1;
 		if (!mForward) f = 10;
 		accel += f * mCarAcceleration;
 	}
-	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::Brake)))
+	if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Brake)))
 	{
 		float f = 1;
 		if (mForward) f = 10;
@@ -70,12 +70,12 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 
 	float angle = 0;
 	float angleSign = 0;
-	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::TurnLeft)) && l > 50)
+	if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnLeft)) && l > 50)
 	{
 		angle += M_PI / 3;
 		angleSign += 1;
 	}
-	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::TurnRight)) && l > 50)
+	if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnRight)) && l > 50)
 	{
 		angle -= M_PI / 3;
 		angleSign -= 1;
@@ -125,7 +125,7 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 	if (mDrifting) carAngle += angleSign * mDriftAngle;
 	mRotation = -carAngle * 180.0 / M_PI;
 
-	if (sf::Keyboard::isKeyPressed(mKeyBindings.getAssignedKey(PlayerAction::Fire)) && mCurrentShootDelay <= sf::Time::Zero)
+	if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Fire)) && mCurrentShootDelay <= sf::Time::Zero)
 	{
 		mCurrentShootDelay = mShootDelay;
 

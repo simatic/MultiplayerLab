@@ -1,20 +1,20 @@
 #include <Player.h>
 #include <iostream>
 
-Player::Player(int i) :
+Player::Player(int i, KeyBinding* keys1, KeyBinding* keys2) :
 	mPlayerID(i)
 {
 	if (i == 0)
 	{
 		mPlayerView = sf::View(sf::FloatRect(0, 0, 800, 900));
 		mPlayerView.setViewport(sf::FloatRect(0, 0, 0.5, 1));
-		mPlayerCar = new Car(10, sf::Vector2f(800, 450), sf::RectangleShape(sf::Vector2f(40, 20)), KeyBinding(i + 1));
+		mPlayerCar = new Car(10, sf::Vector2f(800, 450), sf::RectangleShape(sf::Vector2f(40, 20)), keys1);
 	}
 	else if (i == 1)
 	{
 		mPlayerView = sf::View(sf::FloatRect(800, 0, 800, 900));
 		mPlayerView.setViewport(sf::FloatRect(0.5, 0, 0.5, 1));
-		mPlayerCar = new Car(10, sf::Vector2f(850, 450), sf::RectangleShape(sf::Vector2f(40, 20)), KeyBinding(i + 1));
+		mPlayerCar = new Car(10, sf::Vector2f(850, 450), sf::RectangleShape(sf::Vector2f(40, 20)), keys2);
 	}
 	mPlayerView.setCenter(mPlayerCar->getPosition());
 }

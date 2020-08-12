@@ -10,7 +10,7 @@ class Car : public Entity
 {
 public:
 	Car();
-	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding keys);
+	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys);
 
 	void update(sf::Time dt, std::vector<Entity*>& newEntities) override;
 	void getInput(sf::Time dt, std::vector<Entity*>& newEntities);
@@ -26,7 +26,7 @@ private:
 	int mHP;
 	int mHpMax;
 
-	KeyBinding mKeyBindings;
+	KeyBinding* mKeyBindings;
 
 	sf::Vector2f mCarDirection;
 
