@@ -1,5 +1,4 @@
 #include "KeyBinding.h"
-#include "Foreach.h"
 
 #include <string>
 #include <algorithm>
