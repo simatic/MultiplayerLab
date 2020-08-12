@@ -1,10 +1,11 @@
 #include <Projectile.h>
 #include <Car.h>
 
-Projectile::Projectile(int dmg, sf::Vector2f pos, sf::Vector2f velocity, sf::RectangleShape rect, Car* car) :
+Projectile::Projectile(int dmg, sf::Vector2f pos, sf::Vector2f velocity, sf::RectangleShape rect, Car* car, sf::Time lifetime) :
 	Entity(pos, rect),
 	mDamage(dmg),
-	mCar(car)
+	mCar(car),
+	mLifetime(lifetime)
 {
 	mVelocity = velocity;
 	mType = Type::ProjectileType;
@@ -44,4 +45,15 @@ void Projectile::onCollision(Entity* other)
 Car* Projectile::getCar()
 {
 	return mCar;
+}
+
+void Projectile::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
+{
+	mLifetime -= dt;
+	if (mLifetime < sf::Time::Zero)
+	{
+		mToRemove = true;
+	}
+
+	Entity::update(dt, entities, newEntities, pairs);
 }
