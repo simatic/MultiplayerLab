@@ -3,7 +3,6 @@
 #include <Entity.h>
 #include <math.h>
 #include <KeyBinding.h>
-#include <Projectile.h>
 #include <Particles.h>
 
 class Car : public Entity

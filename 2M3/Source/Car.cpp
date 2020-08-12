@@ -1,6 +1,7 @@
 #include <Car.h>
 #include <Utility.h>
 #include <iostream>
+#include <Projectile.h>
 
 
 Car::Car() :
@@ -139,7 +140,7 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 			sf::Vector2f projDir = mCarDirection;
 			if (mDrifting) projDir = rotate(projDir, angleSign * mDriftAngle);
 
-			Projectile* proj = new Projectile(1, mPosition + (float)25 * projDir, (float)2000 * projDir, sf::RectangleShape(sf::Vector2f(5, 5)));
+			Projectile* proj = new Projectile(1, mPosition + (float)25 * projDir, (float)2000 * projDir, sf::RectangleShape(sf::Vector2f(5, 5)), this);
 			newEntities.push_back(proj);
 		}
 	}
@@ -208,6 +209,10 @@ void Car::onCollision(Entity* other)
 	case Type::ProjectileType :
 	{
 		Projectile* otherProj = dynamic_cast<Projectile*>(other);
+		if (otherProj->getCar() == this)
+		{
+			break;
+		}
 
 		damage(otherProj->getDamage());
 		other->remove();
