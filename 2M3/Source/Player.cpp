@@ -19,9 +19,10 @@ Player::Player(int i, KeyBinding* keys1, KeyBinding* keys2) :
 	mPlayerView.setCenter(mPlayerCar->getPosition());
 }
 
-void Player::update(sf::Time dt, std::vector<Entity*>& newEntities)
+void Player::update(sf::Time dt) //, std::vector<Entity*>& newEntities)
 {
-	mPlayerView.move(mPlayerCar->getVelocity() * dt.asSeconds());
+	//mPlayerView.move(mPlayerCar->getVelocity() * dt.asSeconds());
+	mPlayerView.setCenter(mPlayerCar->getPosition());
 }
 
 void Player::draw(sf::RenderTarget& target, std::vector<Entity*>& entities)
