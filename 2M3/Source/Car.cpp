@@ -140,7 +140,8 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 			sf::Vector2f projDir = mCarDirection;
 			if (mDrifting) projDir = rotate(projDir, angleSign * mDriftAngle);
 
-			Projectile* proj = new Projectile(1, mPosition + (float)25 * projDir, (float)1500 * projDir, sf::RectangleShape(sf::Vector2f(5, 5)), this, sf::seconds(1));
+			//Projectile* proj = new Projectile(1, sf::seconds(1), 1500, mPosition + 25.f * projDir, projDir, sf::RectangleShape(sf::Vector2f(5, 5)), this);
+			Projectile* proj = new Projectile(5, sf::seconds(10), 400, 400, mPosition + 25.f * projDir, projDir, sf::RectangleShape(sf::Vector2f(30, 10)), this);
 			newEntities.push_back(proj);
 		}
 	}
