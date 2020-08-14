@@ -64,29 +64,6 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 	float l = length(mVelocity);
 	if (!mCrash)
 	{
-		float accel = 0;
-		if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Accelerate)))
-		{
-			float f = 1;
-			if (!mForward) f = 10;
-			accel += f * mCarAcceleration;
-		}
-		if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Brake)))
-		{
-			float f = 1;
-			if (mForward) f = 10;
-			accel -= f * mCarAcceleration;
-		}
-		if (accel == 0 && l > 200)
-		{
-			accel = (l * l + 2 * l) * mDrag;
-			if (mForward) accel *= -1;
-		}
-		else if (accel == 0)
-		{
-			mVelocity = sf::Vector2f(0, 0);
-		}
-
 		float angle = 0;
 		float angleSign = 0;
 		if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnLeft)) && l > 50)
@@ -100,9 +77,36 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 			angleSign -= 1;
 		}
 
+		float accel = 0;
+		bool driftBrake = false;
+		if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Accelerate)))
+		{
+			float f = 1;
+			if (!mForward) f = 10;
+			accel += f * mCarAcceleration;
+		}
+		if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Brake)))
+		{
+			if (mForward && l > mDriftTheshold && angleSign != 0) driftBrake = true;
+			else
+			{
+				float f = 1;
+				if (mForward) f = 10;
+				accel -= f * mCarAcceleration;
+			}
+		}
+		if (accel == 0 && l > 200)
+		{
+			accel = (l * l + 2 * l) * mDrag;
+			if (mForward) accel *= -1;
+		}
+		else if (accel == 0)
+		{
+			mVelocity = sf::Vector2f(0, 0);
+		}
+
 		float tangAccel = accel * cos(angle);
 		float radAccel = accel * sin(angle);
-
 		sf::Vector2f tangAccelVector = tangAccel * mCarDirection;
 		mVelocity += tangAccelVector * dt.asSeconds();
 		l = length(mVelocity);
@@ -116,7 +120,7 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 		}
 
 		bool prevDrifting = mDrifting;
-		mDrifting = mForward && l > mDriftTheshold&& angleSign != 0;
+		mDrifting = mForward && l > mDriftTheshold && angleSign != 0 && driftBrake;
 
 		float theta = sqrt(abs(radAccel) / mTurnRadius) * dt.asSeconds();
 		mForward = dotProduct(mVelocity, mCarDirection) >= 0;
