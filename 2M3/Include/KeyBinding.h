@@ -9,7 +9,7 @@
 
 namespace PlayerAction
 {
-	enum class Type
+	enum Type
 	{
 		Accelerate,
 		Brake,

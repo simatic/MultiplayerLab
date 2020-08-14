@@ -127,3 +127,8 @@ Rectangle Entity::getRectangle()
 	return rect;
 
 }
+
+bool Entity::handleEvent(const sf::Event& event)
+{
+	return true;
+}

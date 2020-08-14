@@ -8,12 +8,22 @@
 class Car : public Entity
 {
 public:
+	enum class CarAction
+	{
+		ShootBullet,
+		LaunchMissile,
+		ActionCount
+	};
+
+public:
 	Car();
 	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys);
 
 	void update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs) override;
 	void getInput(sf::Time dt, std::vector<Entity*>& newEntities);
 	void crash(sf::Vector2f otherVelocity);
+	bool handleEvent(const sf::Event& event) override;
+	bool needsEventInput();
 
 	void draw(sf::RenderTarget& target) override;
 
@@ -47,7 +57,9 @@ private:
 	sf::VertexArray mTires;
 	Particles mDust;
 
+	CarAction mAction;
 	sf::Time mShootDelay;
 	sf::Time mCurrentShootDelay;
+	bool mLaunchedMissile;
 
 };

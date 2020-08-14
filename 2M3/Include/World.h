@@ -10,6 +10,7 @@ public:
 	World					(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2);
 	void					update(sf::Time dt);
 	void					draw();
+	bool					handleEvent(const sf::Event& event);
 
 private:
 	std::vector<Entity*>		mEntities;
