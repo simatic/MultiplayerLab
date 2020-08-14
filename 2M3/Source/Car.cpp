@@ -7,7 +7,6 @@
 Car::Car() :
 	mHP(1),
 	mHpMax(1),
-//	mKeyBindings(1),
 	mDrifting(false),
 	mForward(true),
 	mPrevDriftingSign(0),
@@ -32,9 +31,17 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys) :
 	Entity(pos, rect)
 {
 	mCarDirection = sf::Vector2f(1, 0);
+
 	mTires = sf::VertexArray(sf::Lines, 1);
 	mTires[0].position = mPosition;
+
 	mType = Type::CarType;
+
+	mHpBackgroundBar = sf::RectangleShape(sf::Vector2f(40, 10));
+	mHpBackgroundBar.setFillColor(sf::Color(127, 127, 127));
+	mHpBackgroundBar.setOrigin(sf::Vector2f(20, 5));
+	mHpBar = sf::RectangleShape(sf::Vector2f(40, 10));
+	mHpBar.setFillColor(sf::Color::Green);
 }
 
 void Car::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
@@ -239,6 +246,15 @@ void Car::draw(sf::RenderTarget& target)
 
 	Entity::draw(target);
 
+	mHpBackgroundBar.setPosition(mPosition + sf::Vector2f(0, 50));
+	target.draw(mHpBackgroundBar);
+	float hpWidth = mHpBackgroundBar.getSize().x;
+	float hpHeight = mHpBackgroundBar.getSize().y;
+	float hpBarWidth = hpWidth * mHP / (float)mHpMax;
+	mHpBar.setPosition(mHpBackgroundBar.getPosition() - sf::Vector2f(hpWidth / 2.f, hpHeight / 2.f));
+	mHpBar.setSize(sf::Vector2f(hpBarWidth, hpHeight));
+	target.draw(mHpBar);
+
 	//draw hitbox
 	/*sf::VertexArray hitbox = sf::VertexArray(sf::Quads, 4);
 	for (auto& corner : getRectangle().points)
@@ -251,6 +267,8 @@ void Car::draw(sf::RenderTarget& target)
 void Car::damage(int points)
 {
 	mHP -= points;
+	std::cout << "took " << points << " dmg" << std::endl;
+	if (mHP <= 0) mToRemove = true;
 }
 
 void Car::repair(int points)
@@ -266,6 +284,8 @@ void Car::onCollision(Entity* other)
 	case Type::CarType :
 	{
 		Car* otherCar = dynamic_cast<Car*>(other);
+
+		std::cout << "collision" << std::endl;
 
 		damage(2);
 		otherCar->damage(2);

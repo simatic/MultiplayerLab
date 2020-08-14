@@ -75,6 +75,8 @@ void Projectile::update(sf::Time dt, std::vector<Entity*> entities, std::vector<
 		mToRemove = true;
 	}
 
+	if (mTarget != nullptr && mTarget->toRemove()) mTarget = nullptr;
+
 	if (mGuided)
 	{
 		if (mTarget != nullptr)

@@ -14,7 +14,7 @@ Player::Player(int i, KeyBinding* keys1, KeyBinding* keys2) :
 	{
 		mPlayerView = sf::View(sf::FloatRect(800, 0, 800, 900));
 		mPlayerView.setViewport(sf::FloatRect(0.5, 0, 0.5, 1));
-		mPlayerCar = new Car(10, sf::Vector2f(850, 450), sf::RectangleShape(sf::Vector2f(40, 20)), keys2);
+		mPlayerCar = new Car(10, sf::Vector2f(900, 450), sf::RectangleShape(sf::Vector2f(40, 20)), keys2);
 	}
 	mPlayerView.setCenter(mPlayerCar->getPosition());
 }

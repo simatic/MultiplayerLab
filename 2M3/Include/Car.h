@@ -35,6 +35,8 @@ public:
 private:
 	int mHP;
 	int mHpMax;
+	sf::RectangleShape mHpBackgroundBar;
+	sf::RectangleShape mHpBar;
 
 	KeyBinding* mKeyBindings;
 
