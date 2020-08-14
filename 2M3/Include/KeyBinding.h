@@ -9,14 +9,14 @@
 
 namespace PlayerAction
 {
-	enum Type
+	enum class Type
 	{
 		Accelerate,
 		Brake,
 		TurnRight,
 		TurnLeft,
-		Fire,
-		ChangeWeapon,
+		DoAction,
+		ChangeAction,
 		Count
 	};
 }
