@@ -170,7 +170,6 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 					mCurrentShootDelay = mShootDelay;
 
 					Projectile* proj = new Projectile(1, sf::seconds(1), 1500, mPosition + 25.f * projDir, projDir, sf::RectangleShape(sf::Vector2f(5, 5)), this);
-					//Projectile* proj = new Projectile(5, sf::seconds(10), 400, 400, mPosition + 25.f * projDir, projDir, sf::RectangleShape(sf::Vector2f(30, 10)), this);
 					newEntities.push_back(proj);
 				}
 				break;
@@ -319,4 +318,31 @@ void Car::onCollision(Entity* other)
 		break;
 	}
 	}
+}
+
+std::string Car::getActionText()
+{
+	std::string res = "null";
+	switch (mAction)
+	{
+	case CarAction::ShootBullet:
+	{
+		res = "Shoot Bullets";
+		break;
+	}
+	case CarAction::LaunchMissile:
+	{
+		res = "Launch Missile";
+		break;
+	}
+	default:
+		break;
+	}
+
+	return res;
+}
+
+float Car::getSpeedRatio()
+{
+	return length(mVelocity) / mCarMaxSpeed;
 }

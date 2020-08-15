@@ -38,3 +38,8 @@ Car* Player::getCar()
 {
 	return mPlayerCar;
 }
+
+int Player::getID()
+{
+	return mPlayerID;
+}

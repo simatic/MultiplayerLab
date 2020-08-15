@@ -2,8 +2,10 @@
 #include <Car.h>
 #include <functional>
 
-World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2)
+World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2, const FontHolder& fonts)
 	: mTarget(outputTarget)
+	, mPlayerOneGUI(fonts)
+	, mPlayerTwoGUI(fonts)
 {
 	Player* p1 = new Player(0, keys1, keys2);
 	Player* p2 = new Player(1, keys1, keys2);
@@ -12,6 +14,9 @@ World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys
 
 	mEntities.push_back(p1->getCar());
 	mEntities.push_back(p2->getCar());
+
+	mPlayerOneGUI.initialize(p1);
+	mPlayerTwoGUI.initialize(p2);
 }
 
 void World::update(sf::Time dt)
@@ -51,6 +56,14 @@ void World::draw()
 	{
 		player->draw(mTarget, mEntities);
 	}
+
+	mTarget.setView(mTarget.getDefaultView());
+
+	mPlayerOneGUI.updateElements(mTarget);
+	mTarget.draw(mPlayerOneGUI);
+
+	mPlayerTwoGUI.updateElements(mTarget);
+	mTarget.draw(mPlayerTwoGUI);
 }
 
 bool World::handleEvent(const sf::Event& event)

@@ -32,6 +32,9 @@ public:
 
 	void onCollision(Entity* other) override;
 
+	std::string getActionText();
+	float getSpeedRatio();
+
 private:
 	int mHP;
 	int mHpMax;

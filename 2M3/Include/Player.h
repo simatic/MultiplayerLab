@@ -13,6 +13,7 @@ public:
 	void draw(sf::RenderTarget& target, std::vector<Entity*>& entities);
 
 	Car* getCar();
+	int getID();
 
 private:
 	sf::View	mPlayerView;

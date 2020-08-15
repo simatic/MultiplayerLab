@@ -2,12 +2,12 @@
 #include <vector>
 #include <Entity.h>
 #include <SFML/System.hpp>
-#include <Player.h>
+#include <PlayerGUI.h>
 
 class World
 {
 public:
-	World					(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2);
+	World					(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2, const FontHolder& fonts);
 	void					update(sf::Time dt);
 	void					draw();
 	bool					handleEvent(const sf::Event& event);
@@ -19,4 +19,7 @@ private:
 	std::vector<Entity*>		mNewEntities;
 
 	sf::RenderTarget&			mTarget;
+
+	GUI::PlayerGUI				mPlayerOneGUI;
+	GUI::PlayerGUI				mPlayerTwoGUI;
 };
