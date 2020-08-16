@@ -29,6 +29,7 @@ public:
 
 	void damage(int points);
 	void repair(int points);
+	void addMissileAmmo(int ammo);
 
 	void onCollision(Entity* other) override;
 
@@ -66,5 +67,6 @@ private:
 	sf::Time mShootDelay;
 	sf::Time mCurrentShootDelay;
 	bool mLaunchedMissile;
+	int mMissileAmmo;
 
 };

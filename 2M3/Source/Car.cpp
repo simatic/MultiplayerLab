@@ -14,6 +14,7 @@ Car::Car() :
 	mDust(sf::Color::Black, sf::Time::Zero),
 	mAction(CarAction::ShootBullet),
 	mLaunchedMissile(false),
+	mMissileAmmo(5),
 	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)))
 {
 	mType = Type::CarType;
@@ -28,6 +29,7 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys) :
 	mCrash(false),
 	mAction(CarAction::ShootBullet),
 	mLaunchedMissile(false),
+	mMissileAmmo(5),
 	Entity(pos, rect)
 {
 	mCarDirection = sf::Vector2f(1, 0);
@@ -154,6 +156,7 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 		if (mAction == CarAction::LaunchMissile && mLaunchedMissile)
 		{
 			mLaunchedMissile = false;
+			mMissileAmmo--;
 
 			Projectile* proj = new Projectile(5, sf::seconds(10), 400, 400, mPosition + 25.f * projDir, projDir, sf::RectangleShape(sf::Vector2f(30, 10)), this);
 			newEntities.push_back(proj);
@@ -202,7 +205,7 @@ bool Car::handleEvent(const sf::Event& event)
 		{
 		case Car::CarAction::LaunchMissile:
 		{
-			if (!mLaunchedMissile) mLaunchedMissile = true;
+			if (!mLaunchedMissile && mMissileAmmo > 0) mLaunchedMissile = true;
 			break;
 		}
 		default:
@@ -280,6 +283,11 @@ void Car::repair(int points)
 	if (mHP > mHpMax) mHP = mHpMax;
 }
 
+void Car::addMissileAmmo(int ammo)
+{
+	mMissileAmmo += ammo;
+}
+
 void Car::onCollision(Entity* other)
 {
 	switch (other->getType())
@@ -317,6 +325,9 @@ void Car::onCollision(Entity* other)
 		other->remove();
 		break;
 	}
+
+	default:
+		break;
 	}
 }
 
@@ -332,7 +343,7 @@ std::string Car::getActionText()
 	}
 	case CarAction::LaunchMissile:
 	{
-		res = "Launch Missile";
+		res = "Launch Missile (x" + std::to_string(mMissileAmmo) + ")";
 		break;
 	}
 	default:

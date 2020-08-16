@@ -59,6 +59,9 @@ void Projectile::onCollision(Entity* other)
 		remove();
 		break;
 	}
+
+	default:
+		break;
 	}
 }
 
