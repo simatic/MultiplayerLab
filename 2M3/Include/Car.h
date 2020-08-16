@@ -24,6 +24,7 @@ public:
 	void crash(sf::Vector2f otherVelocity);
 	bool handleEvent(const sf::Event& event) override;
 	bool needsEventInput();
+	void cleanUp(sf::Vector2f worldSize, sf::Time dt) override;
 
 	void draw(sf::RenderTarget& target) override;
 
@@ -59,6 +60,8 @@ private:
 	float mPrevDriftingSign;
 
 	bool mCrash;
+	std::vector<Entity*> mPrevCollidedWith;
+	std::vector<Entity*> mCollidedWith;
 
 	sf::VertexArray mTires;
 	Particles mDust;

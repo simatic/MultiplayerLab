@@ -132,3 +132,7 @@ bool Entity::handleEvent(const sf::Event& event)
 {
 	return true;
 }
+
+void Entity::cleanUp(sf::Vector2f worldSize, sf::Time dt)
+{
+}

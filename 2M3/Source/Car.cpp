@@ -238,6 +238,15 @@ bool Car::needsEventInput()
 	return needs;
 }
 
+void Car::cleanUp(sf::Vector2f worldSize, sf::Time dt)
+{
+	if (mPosition.x > worldSize.x || mPosition.x < 0) mPosition.x -= mVelocity.x * dt.asSeconds();
+	if (mPosition.y > worldSize.y || mPosition.y < 0) mPosition.y -= mVelocity.y * dt.asSeconds();
+
+	mPrevCollidedWith = mCollidedWith;
+	mCollidedWith.clear();
+}
+
 void Car::crash(sf::Vector2f otherVelocity)
 {
 	mCrash = true;
@@ -295,11 +304,24 @@ void Car::onCollision(Entity* other)
 	case Type::CarType :
 	{
 		Car* otherCar = dynamic_cast<Car*>(other);
+		mCollidedWith.push_back(other);
 
-		std::cout << "collision" << std::endl;
+		bool collision = true;
+		for (auto& ent : mPrevCollidedWith)
+		{
+			if (ent == other)
+			{
+				collision = false;
+				break;
+			}
+		}
 
-		damage(2);
-		otherCar->damage(2);
+		if (collision)
+		{
+			std::cout << "collision" << std::endl;
+			damage(2);
+			otherCar->damage(2);
+		}
 
 		sf::Vector2f prevVelocity = mVelocity;
 		//crash(other->getVelocity());

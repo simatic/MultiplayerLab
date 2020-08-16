@@ -24,6 +24,7 @@ public:
 	virtual void		update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs);
 	virtual void		draw(sf::RenderTarget& target);
 	virtual bool		handleEvent(const sf::Event& event);
+	virtual void		cleanUp(sf::Vector2f worldSize, sf::Time dt);
 
 	sf::Vector2f		getPosition();
 	sf::Vector2f		getVelocity();

@@ -12,6 +12,8 @@ public:
 	void					draw();
 	bool					handleEvent(const sf::Event& event);
 
+	sf::Vector2f			getWorldSize();
+
 private:
 	std::vector<Entity*>		mEntities;
 	std::vector<Player*>		mPlayers;
@@ -22,4 +24,7 @@ private:
 
 	GUI::PlayerGUI				mPlayerOneGUI;
 	GUI::PlayerGUI				mPlayerTwoGUI;
+
+	float						mWorldWidth;
+	float						mWorldHeight;
 };

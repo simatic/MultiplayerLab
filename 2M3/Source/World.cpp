@@ -7,6 +7,8 @@ World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys
 	: mTarget(outputTarget)
 	, mPlayerOneGUI(fonts)
 	, mPlayerTwoGUI(fonts)
+	, mWorldWidth(16000.f)
+	, mWorldHeight(9000.f)
 {
 	Player* p1 = new Player(0, keys1, keys2);
 	Player* p2 = new Player(1, keys1, keys2);
@@ -47,6 +49,11 @@ void World::update(sf::Time dt)
 	auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&Entity::toRemove));
 	mEntities.erase(removeBegin, mEntities.end());
 
+	for (auto& ent : mEntities)
+	{
+		ent->cleanUp(getWorldSize(), dt);
+	}
+
 	for (auto& newEnt : mNewEntities)
 	{
 		mEntities.push_back(newEnt);
@@ -79,4 +86,9 @@ bool World::handleEvent(const sf::Event& event)
 	}
 
 	return res;
+}
+
+sf::Vector2f World::getWorldSize()
+{
+	return sf::Vector2f(mWorldWidth, mWorldHeight);
 }
