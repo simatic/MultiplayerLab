@@ -1,5 +1,6 @@
 #include <World.h>
 #include <Car.h>
+#include <PickUp.h>
 #include <functional>
 
 World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2, const FontHolder& fonts)
@@ -14,6 +15,9 @@ World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys
 
 	mEntities.push_back(p1->getCar());
 	mEntities.push_back(p2->getCar());
+
+	/*mEntities.push_back(new PickUp(PickUp::PickUpType::HealthPack, sf::Vector2f(400, 400)));
+	mEntities.push_back(new PickUp(PickUp::PickUpType::MissilesAmmo, sf::Vector2f(600, 400)));*/
 
 	mPlayerOneGUI.initialize(p1);
 	mPlayerTwoGUI.initialize(p2);

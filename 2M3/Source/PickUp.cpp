@@ -1,4 +1,5 @@
 #include <PickUp.h>
+#include <Car.h>
 
 PickUp::PickUp() :
 	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0))),
@@ -21,7 +22,7 @@ void PickUp::onCollision(Entity* other)
 {
 	switch (other->getType())
 	{
-	/*case Type::CarType:
+	case Type::CarType:
 	{
 		Car* otherCar = dynamic_cast<Car*>(other);
 
@@ -43,7 +44,7 @@ void PickUp::onCollision(Entity* other)
 
 		remove();
 		break;
-	}*/
+	}
 	default:
 		break;
 	}

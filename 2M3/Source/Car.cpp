@@ -2,7 +2,7 @@
 #include <Utility.h>
 #include <iostream>
 #include <Projectile.h>
-
+#include <PickUp.h>
 
 Car::Car() :
 	mHP(1),
@@ -326,6 +326,11 @@ void Car::onCollision(Entity* other)
 		break;
 	}
 
+	case Type::PickUpType : 
+	{
+		PickUp* otherPickup = dynamic_cast<PickUp*>(other);
+		otherPickup->onCollision(this);
+	}
 	default:
 		break;
 	}
