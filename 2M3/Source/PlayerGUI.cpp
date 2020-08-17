@@ -13,7 +13,8 @@ namespace GUI
 		mPlayer(player),
 		mAction("Shoot", fonts),
 		mSpeedometer(),
-		mSpeedometerBackground()
+		mSpeedometerBackground(),
+		mMiniMap()
 	{
 		if (mPlayer->getID() == 0) setPosition(0, 800);
 		else setPosition(800, 800);
@@ -50,6 +51,11 @@ namespace GUI
 		mSpeedometer.setPosition(mSpeedometerBackground.getPosition());
 		mSpeedometer.setRotation(180.f);
 		mSpeedometer.setFillColor(sf::Color::Black);
+
+		mMiniMap.setSize(sf::Vector2f(800, 450));
+		if (mPlayer->getID() == 0) mMiniMap.setPosition(0, 225);
+		else mMiniMap.setPosition(800, 225);
+		mMiniMap.setFillColor(sf::Color::Color(255, 255, 255, 200));
 	}
 
 	bool PlayerGUI::isSelectable() const
@@ -61,7 +67,7 @@ namespace GUI
 	{
 	}
 
-	void PlayerGUI::updateElements(sf::RenderTarget& target)
+	void PlayerGUI::updateElements(sf::RenderTarget& target, std::vector<Entity*> entities, sf::Vector2f worldSize)
 	{
 		Car* car = mPlayer->getCar();
 
@@ -74,6 +80,37 @@ namespace GUI
 
 		mAction.setText(car->getActionText());
 		mSpeedometer.setRotation(180.f + 180.f * car->getSpeedRatio());
+
+		mMiniMapShapes.clear();
+		if (mPlayer->getCar()->getShowMap())
+		{
+			updateMap(entities, worldSize);
+		}
+	}
+
+	void GUI::PlayerGUI::updateMap(std::vector<Entity*> entities, sf::Vector2f worldSize)
+	{
+		for (auto& ent : entities)
+		{
+			switch (ent->getType())
+			{
+			case Entity::Type::CarType:
+			{
+				sf::ConvexShape triangle = sf::ConvexShape(3);
+				triangle.setPoint(0, sf::Vector2f(0, 0));
+				triangle.setPoint(1, sf::Vector2f(5, 2.5f));
+				triangle.setPoint(2, sf::Vector2f(0, 5));
+				triangle.setOrigin(2.5f, 2.5f);
+				triangle.setFillColor(sf::Color::Red);
+				triangle.setPosition(ent->getMiniMapPosition(worldSize, mMiniMap.getSize()) + mMiniMap.getPosition());
+				triangle.setRotation(ent->getRotation());
+				mMiniMapShapes.push_back(triangle);
+			}
+
+			default:
+				break;
+			}
+		}
 	}
 
 	void PlayerGUI::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -83,6 +120,15 @@ namespace GUI
 		target.draw(mAction, states);
 		target.draw(mSpeedometerBackground, states);
 		target.draw(mSpeedometer, states);
+
+		if (mPlayer->getCar()->getShowMap())
+		{
+			target.draw(mMiniMap);
+			for (auto& shape : mMiniMapShapes)
+			{
+				target.draw(shape);
+			}
+		}
 	}
 
 }

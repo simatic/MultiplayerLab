@@ -70,10 +70,10 @@ void World::draw()
 
 	mTarget.setView(mTarget.getDefaultView());
 
-	mPlayerOneGUI.updateElements(mTarget);
+	mPlayerOneGUI.updateElements(mTarget, mEntities, getWorldSize());
 	mTarget.draw(mPlayerOneGUI);
 
-	mPlayerTwoGUI.updateElements(mTarget);
+	mPlayerTwoGUI.updateElements(mTarget, mEntities, getWorldSize());
 	mTarget.draw(mPlayerTwoGUI);
 }
 

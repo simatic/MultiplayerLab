@@ -37,6 +37,18 @@ sf::Vector2f Entity::getPosition()
 	return mPosition;
 }
 
+float Entity::getRotation()
+{
+	return mRotation;
+}
+
+sf::Vector2f Entity::getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f mapSize)
+{
+	float x = mapSize.x * mPosition.x / worldSize.x;
+	float y = mapSize.y *  mPosition.y / worldSize.y;
+	return sf::Vector2f(x, y);
+}
+
 sf::Vector2f Entity::getVelocity()
 {
 	return mVelocity;

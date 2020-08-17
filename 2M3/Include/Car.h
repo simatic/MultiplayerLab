@@ -12,6 +12,7 @@ public:
 	{
 		ShootBullet,
 		LaunchMissile,
+		ToggleMap,
 		ActionCount
 	};
 
@@ -36,6 +37,7 @@ public:
 
 	std::string getActionText();
 	float getSpeedRatio();
+	bool getShowMap();
 
 private:
 	int mHP;
@@ -71,5 +73,6 @@ private:
 	sf::Time mCurrentShootDelay;
 	bool mLaunchedMissile;
 	int mMissileAmmo;
+	bool mShowMap;
 
 };

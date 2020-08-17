@@ -15,6 +15,7 @@ Car::Car() :
 	mAction(CarAction::ShootBullet),
 	mLaunchedMissile(false),
 	mMissileAmmo(5),
+	mShowMap(false),
 	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)))
 {
 	mType = Type::CarType;
@@ -30,6 +31,7 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys) :
 	mAction(CarAction::ShootBullet),
 	mLaunchedMissile(false),
 	mMissileAmmo(5),
+	mShowMap(false),
 	Entity(pos, rect)
 {
 	mCarDirection = sf::Vector2f(1, 0);
@@ -197,6 +199,7 @@ bool Car::handleEvent(const sf::Event& event)
 	if (event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::ChangeAction))
 	{
 		++mAction;
+		mShowMap = false;
 		if (mAction == CarAction::ActionCount) mAction = (CarAction)0;
 	}
 	else if (event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::DoAction) && needsEventInput())
@@ -206,6 +209,11 @@ bool Car::handleEvent(const sf::Event& event)
 		case Car::CarAction::LaunchMissile:
 		{
 			if (!mLaunchedMissile && mMissileAmmo > 0) mLaunchedMissile = true;
+			break;
+		}
+		case Car::CarAction::ToggleMap:
+		{
+			mShowMap = !mShowMap;
 			break;
 		}
 		default:
@@ -227,6 +235,11 @@ bool Car::needsEventInput()
 		break;
 	}
 	case CarAction::LaunchMissile:
+	{
+		needs = true;
+		break;
+	}
+	case CarAction::ToggleMap:
 	{
 		needs = true;
 		break;
@@ -373,6 +386,11 @@ std::string Car::getActionText()
 		res = "Launch Missile (x" + std::to_string(mMissileAmmo) + ")";
 		break;
 	}
+	case CarAction::ToggleMap :
+	{
+		res = "Toggle Map";
+		break;
+	}
 	default:
 		break;
 	}
@@ -383,4 +401,9 @@ std::string Car::getActionText()
 float Car::getSpeedRatio()
 {
 	return length(mVelocity) / mCarMaxSpeed;
+}
+
+bool Car::getShowMap()
+{
+	return mShowMap;
 }
