@@ -3,6 +3,7 @@
 #include <set>
 #include <Collider.h>
 #include <Utility.h>
+#include "ResourceIdentifiers.h"
 
 class Entity
 {
@@ -18,7 +19,7 @@ public:
 	};
 
 public:
-	Entity(sf::Vector2f pos, sf::RectangleShape rect);
+	Entity(sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder& textures);
 
 	virtual void		update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs);
 	virtual void		draw(sf::RenderTarget& target);
@@ -28,9 +29,12 @@ public:
 	sf::RectangleShape	getShape();
 	Rectangle			getRectangle();
 	Type				getType();
+	const TextureHolder&getTextures();
+	float				getRotation();
 
 	void				offset(sf::Vector2f o);
 	void				setVelocity(sf::Vector2f v);
+	void				setSprite();
 
 	bool				toRemove();
 	void				remove();
@@ -46,6 +50,7 @@ protected:
 
 	sf::Sprite			mSprite;
 	sf::RectangleShape	mShape;
+	const TextureHolder&mTextures;
 
 	Type				mType;
 

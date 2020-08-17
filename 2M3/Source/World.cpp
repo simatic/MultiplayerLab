@@ -4,9 +4,12 @@
 
 World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2)
 	: mTarget(outputTarget)
+	, mTextures()
 {
-	Player* p1 = new Player(0, keys1, keys2);
-	Player* p2 = new Player(1, keys1, keys2);
+	loadTextures();
+
+	Player* p1 = new Player(0, keys1, keys2, mTextures);
+	Player* p2 = new Player(1, keys1, keys2, mTextures);
 	mPlayers.push_back(p1);
 	mPlayers.push_back(p2);
 
@@ -51,4 +54,10 @@ void World::draw()
 	{
 		player->draw(mTarget, mEntities);
 	}
+}
+
+void World::loadTextures()
+{
+	mTextures.load(Textures::Car,		"Media/Textures/Car.png");
+	mTextures.load(Textures::Bullet,	"Media/Textures/Bullet.png");
 }

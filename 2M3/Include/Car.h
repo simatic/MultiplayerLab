@@ -8,8 +8,8 @@
 class Car : public Entity
 {
 public:
-	Car();
-	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys);
+	Car(const TextureHolder& textures);
+	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, const TextureHolder& textures);
 
 	void update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs) override;
 	void getInput(sf::Time dt, std::vector<Entity*>& newEntities);

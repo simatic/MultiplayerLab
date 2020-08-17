@@ -4,7 +4,7 @@
 #include <Projectile.h>
 
 
-Car::Car() :
+Car::Car(const TextureHolder& textures) :
 	mHP(1),
 	mHpMax(1),
 //	mKeyBindings(1),
@@ -13,24 +13,26 @@ Car::Car() :
 	mPrevDriftingSign(0),
 	mCrash(false),
 	mDust(sf::Color::Black, sf::Time::Zero),
-	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)))
+	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)), textures)
 {
 	mType = Type::CarType;
+	Entity::setSprite();
 }
 
-Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys) :
+Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, const TextureHolder& textures) :
 	mHP(hp),
 	mHpMax(hp),
 	mKeyBindings(keys),
 	mShootDelay(sf::seconds(0.1)),
 	mDust(sf::Color::White, sf::seconds(0.7)),
 	mCrash(false),
-	Entity(pos, rect)
+	Entity(pos, rect, textures)
 {
+	mType = Type::CarType;
 	mCarDirection = sf::Vector2f(1, 0);
 	mTires = sf::VertexArray(sf::Lines, 1);
 	mTires[0].position = mPosition;
-	mType = Type::CarType;
+	Entity::setSprite();
 }
 
 void Car::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
@@ -140,7 +142,7 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 			sf::Vector2f projDir = mCarDirection;
 			if (mDrifting) projDir = rotate(projDir, angleSign * mDriftAngle);
 
-			Projectile* proj = new Projectile(1, mPosition + (float)25 * projDir, (float)1500 * projDir, sf::RectangleShape(sf::Vector2f(5, 5)), this, sf::seconds(1));
+			Projectile* proj = new Projectile(1, mPosition + (float)50 * projDir, (float)1500 * projDir, sf::RectangleShape(sf::Vector2f(5, 5)), this, sf::seconds(1), getTextures());
 			newEntities.push_back(proj);
 		}
 	}

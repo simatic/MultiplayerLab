@@ -1,18 +1,18 @@
 #include <Entity.h>
 #include <iostream>
+#include "ResourceHolder.h"
 
-Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
+Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder& textures) :
 	mPosition(pos),
 	mShape(rect),
 	mRotation(0),
 	mType(Type::Count),
-	mToRemove(false)
+	mToRemove(false),
+	mTextures(textures)
 {
 	sf::FloatRect bounds = mShape.getLocalBounds();
 	mShape.setOrigin(bounds.width / 2, bounds.height / 2);
 
-	bounds = mSprite.getLocalBounds();
-	mSprite.setOrigin(bounds.width / 2, bounds.height / 2);
 }
 
 void Entity::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
@@ -23,13 +23,15 @@ void Entity::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Enti
 
 	mShape.setPosition(mPosition);
 	mShape.setRotation(mRotation);
+
+	mSprite.setPosition(mPosition);
 	mSprite.setRotation(mRotation);
 }
 
 void Entity::draw(sf::RenderTarget& target)
 {
 	target.draw(mShape);
-	//target.draw(mSprite);
+	target.draw(mSprite);
 }
 
 sf::Vector2f Entity::getPosition()
@@ -50,6 +52,11 @@ sf::RectangleShape Entity::getShape()
 Entity::Type Entity::getType()
 {
 	return mType;
+}
+
+float Entity::getRotation()
+{
+	return mRotation;
 }
 
 void Entity::offset(sf::Vector2f o)
@@ -126,4 +133,19 @@ Rectangle Entity::getRectangle()
 	rect.points = points;
 	return rect;
 
+}
+
+void Entity::setSprite()
+{
+	if (mType == Type::CarType) { mSprite.setTexture(mTextures.get(Textures::Car)); mSprite.setScale(sf::Vector2f(0.132f, 0.132f));
+	}
+	else if (mType == Type::ProjectileType) { mSprite.setTexture(mTextures.get(Textures::Bullet)); mSprite.setScale(sf::Vector2f(0.5f, 0.5f)); }
+
+	sf::FloatRect bounds = mSprite.getLocalBounds();
+	mSprite.setOrigin(bounds.width / 2, bounds.height / 2);
+}
+
+const TextureHolder& Entity::getTextures()
+{
+	return mTextures;
 }

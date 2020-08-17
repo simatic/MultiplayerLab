@@ -1,14 +1,15 @@
 #include <Projectile.h>
 #include <Car.h>
 
-Projectile::Projectile(int dmg, sf::Vector2f pos, sf::Vector2f velocity, sf::RectangleShape rect, Car* car, sf::Time lifetime) :
-	Entity(pos, rect),
+Projectile::Projectile(int dmg, sf::Vector2f pos, sf::Vector2f velocity, sf::RectangleShape rect, Car* car, sf::Time lifetime, const TextureHolder& textures) :
+	Entity(pos, rect, textures),
 	mDamage(dmg),
 	mCar(car),
 	mLifetime(lifetime)
 {
 	mVelocity = velocity;
 	mType = Type::ProjectileType;
+	Entity::setSprite();
 }
 
 int Projectile::getDamage()
@@ -54,6 +55,6 @@ void Projectile::update(sf::Time dt, std::vector<Entity*> entities, std::vector<
 	{
 		mToRemove = true;
 	}
-
+	mRotation = mCar->getRotation();
 	Entity::update(dt, entities, newEntities, pairs);
 }

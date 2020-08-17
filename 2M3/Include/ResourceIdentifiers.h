@@ -16,6 +16,8 @@ namespace Textures
 		TitleScreen,
 		MenuScreen,
 		Buttons,
+		Car,
+		Bullet,
 	};
 }
 
