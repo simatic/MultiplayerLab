@@ -39,6 +39,18 @@ sf::Vector2f Entity::getPosition()
 	return mPosition;
 }
 
+float Entity::getRotation()
+{
+	return mRotation;
+}
+
+sf::Vector2f Entity::getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f mapSize)
+{
+	float x = mapSize.x * mPosition.x / worldSize.x;
+	float y = mapSize.y *  mPosition.y / worldSize.y;
+	return sf::Vector2f(x, y);
+}
+
 sf::Vector2f Entity::getVelocity()
 {
 	return mVelocity;
@@ -52,11 +64,6 @@ sf::RectangleShape Entity::getShape()
 Entity::Type Entity::getType()
 {
 	return mType;
-}
-
-float Entity::getRotation()
-{
-	return mRotation;
 }
 
 void Entity::offset(sf::Vector2f o)
@@ -135,9 +142,19 @@ Rectangle Entity::getRectangle()
 
 }
 
+bool Entity::handleEvent(const sf::Event& event)
+{
+	return true;
+}
+
+void Entity::cleanUp(sf::Vector2f worldSize, sf::Time dt)
+{
+}
+
 void Entity::setSprite()
 {
-	if (mType == Type::CarType) { mSprite.setTexture(mTextures.get(Textures::Car)); mSprite.setScale(sf::Vector2f(0.132f, 0.132f));
+	if (mType == Type::CarType) {
+		mSprite.setTexture(mTextures.get(Textures::Car)); mSprite.setScale(sf::Vector2f(0.132f, 0.132f));
 	}
 	else if (mType == Type::ProjectileType) { mSprite.setTexture(mTextures.get(Textures::Bullet)); mSprite.setScale(sf::Vector2f(0.5f, 0.5f)); }
 

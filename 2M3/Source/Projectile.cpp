@@ -1,13 +1,33 @@
 #include <Projectile.h>
 #include <Car.h>
 
-Projectile::Projectile(int dmg, sf::Vector2f pos, sf::Vector2f velocity, sf::RectangleShape rect, Car* car, sf::Time lifetime, const TextureHolder& textures) :
+Projectile::Projectile(int dmg, sf::Time lifetime, float speed, sf::Vector2f pos, sf::Vector2f direction, sf::RectangleShape rect, Car* car, const TextureHolder& textures) :
 	Entity(pos, rect, textures),
 	mDamage(dmg),
-	mCar(car),
-	mLifetime(lifetime)
+	mLifetime(lifetime),
+	mMaxSpeed(speed),
+	mGuided(false),
+	mTarget(nullptr),
+	mDetectionRange(0),
+	mGuideRate(0),
+	mCar(car)
 {
-	mVelocity = velocity;
+	mVelocity = speed * direction;
+	mType = Type::ProjectileType;
+}
+
+Projectile::Projectile(int dmg, sf::Time lifetime, float speed, float detection, sf::Vector2f pos, sf::Vector2f direction, sf::RectangleShape rect, Car* car, const TextureHolder& textures) :
+	Entity(pos, rect, textures),
+	mDamage(dmg),
+	mLifetime(lifetime),
+	mMaxSpeed(speed),
+	mGuided(true),
+	mTarget(nullptr),
+	mDetectionRange(detection),
+	mGuideRate(0.3),
+	mCar(car)
+{
+	mVelocity = speed * direction;
 	mType = Type::ProjectileType;
 	Entity::setSprite();
 }
@@ -40,6 +60,9 @@ void Projectile::onCollision(Entity* other)
 		remove();
 		break;
 	}
+
+	default:
+		break;
 	}
 }
 
@@ -55,6 +78,39 @@ void Projectile::update(sf::Time dt, std::vector<Entity*> entities, std::vector<
 	{
 		mToRemove = true;
 	}
-	mRotation = mCar->getRotation();
+	//mRotation = mCar->getRotation();
+
+	if (mTarget != nullptr && mTarget->toRemove()) mTarget = nullptr;
+
+	if (mGuided)
+	{
+		if (mTarget != nullptr)
+		{
+			sf::Vector2f acceleration = unitVector(mTarget->getPosition() - mPosition);
+			sf::Vector2f velocity = unitVector(unitVector(mVelocity) + mGuideRate * acceleration) * mMaxSpeed;
+			setVelocity(velocity);
+		}
+		else
+		{
+			float minDist = mDetectionRange;
+			Entity* target = nullptr;
+			for (const auto ent : entities)
+			{
+				float dist = length(mPosition - ent->getPosition());
+				if (dist < minDist && ent->getType() == Type::CarType && ent != mCar)
+				{
+					minDist = dist;
+					target = ent;
+				}
+			}
+			mTarget = target;
+		}
+	}
+
+	float angle = 0;
+	if (mVelocity.x != 0) angle = -atan2(mVelocity.y, mVelocity.x);
+	if (mVelocity.x == 0 && mVelocity.y != 0) angle = M_PI_2 * mVelocity.y / abs(mVelocity.y);
+	mRotation = -toDegrees(angle);
+
 	Entity::update(dt, entities, newEntities, pairs);
 }

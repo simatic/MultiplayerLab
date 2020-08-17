@@ -4,7 +4,7 @@
 
 GameState::GameState(StateStack& stack, Context context)
 	: State(stack, context)
-	, mWorld(*context.window, context.keys1, context.keys2)
+	, mWorld(*context.window, context.keys1, context.keys2, *context.fonts)
 	, mClock()
 {	
 }
@@ -22,6 +22,6 @@ bool GameState::update(sf::Time dt)
 
 bool GameState::handleEvent(const sf::Event& event)
 {
-	return true;
+	return mWorld.handleEvent(event);
 }
 

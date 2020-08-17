@@ -15,8 +15,8 @@ namespace PlayerAction
 		Brake,
 		TurnRight,
 		TurnLeft,
-		Fire,
-		ChangeWeapon,
+		DoAction,
+		ChangeAction,
 		Count
 	};
 }

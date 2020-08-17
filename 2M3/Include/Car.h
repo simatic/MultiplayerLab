@@ -8,23 +8,42 @@
 class Car : public Entity
 {
 public:
+	enum class CarAction
+	{
+		ShootBullet,
+		LaunchMissile,
+		ToggleMap,
+		ActionCount
+	};
+
+public:
 	Car(const TextureHolder& textures);
 	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, const TextureHolder& textures);
 
 	void update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs) override;
 	void getInput(sf::Time dt, std::vector<Entity*>& newEntities);
 	void crash(sf::Vector2f otherVelocity);
+	bool handleEvent(const sf::Event& event) override;
+	bool needsEventInput();
+	void cleanUp(sf::Vector2f worldSize, sf::Time dt) override;
 
 	void draw(sf::RenderTarget& target) override;
 
 	void damage(int points);
 	void repair(int points);
+	void addMissileAmmo(int ammo);
 
 	void onCollision(Entity* other) override;
+
+	std::string getActionText();
+	float getSpeedRatio();
+	bool getShowMap();
 
 private:
 	int mHP;
 	int mHpMax;
+	sf::RectangleShape mHpBackgroundBar;
+	sf::RectangleShape mHpBar;
 
 	KeyBinding* mKeyBindings;
 
@@ -43,11 +62,17 @@ private:
 	float mPrevDriftingSign;
 
 	bool mCrash;
+	std::vector<Entity*> mPrevCollidedWith;
+	std::vector<Entity*> mCollidedWith;
 
 	sf::VertexArray mTires;
 	Particles mDust;
 
+	CarAction mAction;
 	sf::Time mShootDelay;
 	sf::Time mCurrentShootDelay;
+	bool mLaunchedMissile;
+	int mMissileAmmo;
+	bool mShowMap;
 
 };

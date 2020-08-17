@@ -18,8 +18,8 @@ SettingsState::SettingsState(StateStack& stack, Context context)
 		addButtonLabel(PlayerAction::TurnRight,		x, 1, "Turn Right", context);
 		addButtonLabel(PlayerAction::Accelerate,	x, 2, "Accelerate", context);
 		addButtonLabel(PlayerAction::Brake,			x, 3, "Brake", context);
-		addButtonLabel(PlayerAction::Fire,			x, 4, "Fire", context);
-		addButtonLabel(PlayerAction::ChangeWeapon,	x, 5, "Change Weapon", context);
+		addButtonLabel(PlayerAction::DoAction,			x, 4, "Fire", context);
+		addButtonLabel(PlayerAction::ChangeAction,	x, 5, "Change Weapon", context);
 	}
 
 	updateLabels();
