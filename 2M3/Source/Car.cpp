@@ -3,6 +3,7 @@
 #include <iostream>
 #include <Projectile.h>
 #include <PickUp.h>
+#include "ResourceHolder.h"
 
 
 Car::Car(const TextureHolder& textures) :
