@@ -1,21 +1,19 @@
 #pragma once
-#include <World.h>
 #include <SFML/Network.hpp>
-#include <GameClient.h>
 
-class GameServer
+class GameClient
 {
 public:
 
+
+	sf::IpAddress getAddress();
+	unsigned short getPort();
 
 	void processWaitingPackets(sf::UdpSocket& socket);
 	void processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
 
 private:
-	World mWorld;
-	sf::Clock mClock;
-
-	sf::UdpSocket mSocket;
-	std::vector<GameClient> mClients;
+	sf::IpAddress mAddress;
+	unsigned short mPort;
 
 };
