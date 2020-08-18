@@ -16,4 +16,7 @@ private:
 	sf::IpAddress mAddress;
 	unsigned short mPort;
 
+	sf::IpAddress mServerAddress;
+	unsigned short mServerPort;
+
 };

@@ -1,7 +1,7 @@
 #pragma once
 #include <World.h>
 #include <SFML/Network.hpp>
-#include <GameClient.h>
+#include <ClientData.h>
 
 class GameServer
 {
@@ -16,6 +16,6 @@ private:
 	sf::Clock mClock;
 
 	sf::UdpSocket mSocket;
-	std::vector<GameClient> mClients;
+	std::vector<ClientData> mClients;
 
 };
