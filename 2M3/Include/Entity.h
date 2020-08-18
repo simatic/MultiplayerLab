@@ -38,7 +38,7 @@ public:
 
 	void				offset(sf::Vector2f o);
 	void				setVelocity(sf::Vector2f v);
-	void				setSprite();
+	virtual void		setSprite();
 
 	bool				toRemove();
 	void				remove();

@@ -11,6 +11,8 @@ public:
 	void update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs) override;
 	void onCollision(Entity* other) override;
 
+	void setSprite() override;
+
 	int getDamage();
 	Car* getCar();
 
