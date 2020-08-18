@@ -100,4 +100,5 @@ void World::loadTextures()
 {
 	mTextures.load(Textures::Car,		"Media/Textures/Car.png");
 	mTextures.load(Textures::Bullet,	"Media/Textures/Bullet.png");
+	mTextures.load(Textures::Missile,	"Media/Textures/Missile.png");
 }

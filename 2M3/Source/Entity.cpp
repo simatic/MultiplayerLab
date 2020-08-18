@@ -156,7 +156,6 @@ void Entity::setSprite()
 	if (mType == Type::CarType) {
 		mSprite.setTexture(mTextures.get(Textures::Car)); mSprite.setScale(sf::Vector2f(0.132f, 0.132f));
 	}
-	else if (mType == Type::ProjectileType) { mSprite.setTexture(mTextures.get(Textures::Bullet)); mSprite.setScale(sf::Vector2f(0.5f, 0.5f)); }
 
 	sf::FloatRect bounds = mSprite.getLocalBounds();
 	mSprite.setOrigin(bounds.width / 2, bounds.height / 2);

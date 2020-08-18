@@ -18,6 +18,7 @@ namespace Textures
 		Buttons,
 		Car,
 		Bullet,
+		Missile,
 	};
 }
 
