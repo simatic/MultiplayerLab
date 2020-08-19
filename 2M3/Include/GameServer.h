@@ -1,5 +1,5 @@
 #pragma once
-#include <World.h>
+#include <ServerWorld.h>
 #include <SFML/Network.hpp>
 #include <ClientData.h>
 
@@ -12,7 +12,7 @@ public:
 	void processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
 
 private:
-	World mWorld;
+	ServerWorld mWorld;
 	sf::Clock mClock;
 
 	sf::UdpSocket mSocket;
