@@ -21,6 +21,6 @@ private:
 	unsigned short mServerPort;
 
 	sf::Clock mClock;
-	sf::Time mClockOffset;	//server.clock - this.clock
+	sf::Time mClockOffset;	//server.clock - (this.clock + delay)
 
 };

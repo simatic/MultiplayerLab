@@ -9,8 +9,8 @@ class GameServer
 public:
 
 
-	void processWaitingPackets(sf::UdpSocket& socket);
-	void processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
+	void processWaitingPackets();
+	void processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
 
 	sf::Uint64 getNewEntityID();
 	sf::Uint32 getNewClientID();
