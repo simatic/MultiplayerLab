@@ -15,3 +15,13 @@ unsigned short ClientData::getPort()
 {
 	return mPort;
 }
+
+sf::Time ClientData::getDelay()
+{
+	return mDelay;
+}
+
+void ClientData::setDelay(sf::Time t)
+{
+	mDelay = t;
+}
