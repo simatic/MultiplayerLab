@@ -7,7 +7,7 @@ GameServer::GameServer()
 
 }
 
-void GameServer::processWaitingPackets(sf::UdpSocket& socket)
+void GameServer::processWaitingPackets()
 {
 	sf::Socket::Status status;
 	do
@@ -16,17 +16,17 @@ void GameServer::processWaitingPackets(sf::UdpSocket& socket)
 		sf::Packet packet;
 		sf::IpAddress remoteAddress;
 		unsigned short remotePort;
-		status = socket.receive(packet, remoteAddress, remotePort);
+		status = mSocket.receive(packet, remoteAddress, remotePort);
 		if (status == sf::Socket::NotReady || status == sf::Socket::Disconnected)
 			break;
 
 		// We process the message
-		processReceivedPacket(socket, packet, remoteAddress, remotePort);
+		processReceivedPacket(packet, remoteAddress, remotePort);
 
 	} while (true); // We exit this loop thanks to break instruction when ((status == sf::Socket::NotReady) || (status == sf::Socket::Disconnected))
 }
 
-void GameServer::processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort)
+void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort)
 {
 	sf::Uint32 msgType;
 	packet >> msgType;
@@ -40,7 +40,7 @@ void GameServer::processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet
 		
 		sf::Packet toSend;
 		toSend << newID << mClock.getElapsedTime();
-		socket.send(toSend, remoteAddress, remotePort);
+		mSocket.send(toSend, remoteAddress, remotePort);
 
 		break;
 	}
