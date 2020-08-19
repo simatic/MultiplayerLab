@@ -2,6 +2,7 @@
 #include <vector>
 #include <Entity.h>
 #include <SFML/System.hpp>
+#include <Player.h>
 
 class ServerWorld
 {

@@ -1,5 +1,5 @@
 #include <GameClient.h>
-#include <MessageTypes.h>
+#include <NetworkCommon.h>
 
 sf::IpAddress GameClient::getAddress()
 {

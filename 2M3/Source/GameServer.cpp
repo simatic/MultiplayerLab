@@ -1,5 +1,5 @@
 #include <GameServer.h>
-#include <MessageTypes.h>
+#include <NetworkCommon.h>
 
 void GameServer::processWaitingPackets(sf::UdpSocket& socket)
 {
