@@ -1,12 +1,18 @@
 #include <ClientData.h>
 
-ClientData::ClientData(sf::IpAddress address, unsigned short port) :
+ClientData::ClientData(sf::Uint32 id, sf::IpAddress address, unsigned short port) :
+	mID(id),
 	mAddress(address),
 	mPort(port)
 {
 }
 
-sf::IpAddress ClientData::getAddress()
+sf::Uint32 ClientData::getID()
+{
+	return mID;
+}
+
+sf::IpAddress& ClientData::getAddress()
 {
 	return mAddress;
 }

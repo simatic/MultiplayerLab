@@ -63,6 +63,13 @@ void GameClient::processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet
 	}
 	case ServerMsgType::PingRequest:
 	{
+		sf::Int64 elapsed;
+		packet >> elapsed;
+
+		sf::Packet toSend;
+		toSend << static_cast<sf::Uint32>(ClientMsgType::PingResponse) << mID << elapsed;
+		socket.send(toSend, mServerAddress, mServerPort);
+
 		break;
 	}
 	default:

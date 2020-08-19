@@ -13,6 +13,9 @@ public:
 	void processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
 
 	sf::Uint64 getNewID();
+	ClientData& getClientFromID(sf::Uint32 id);
+
+	void sendPing(ClientData& client);
 
 private:
 	ServerWorld mWorld;

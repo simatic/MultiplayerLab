@@ -1,5 +1,6 @@
 #include <GameServer.h>
 #include <NetworkCommon.h>
+#include <iostream>
 
 void GameServer::processWaitingPackets(sf::UdpSocket& socket)
 {
@@ -37,6 +38,13 @@ void GameServer::processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet
 	}
 	case ClientMsgType::PingResponse:
 	{
+		sf::Uint32 id;
+		sf::Int64 timeSent;
+		packet >> id >> timeSent;
+
+		ClientData& client = getClientFromID(id);
+		client.setDelay(sf::microseconds((mClock.getElapsedTime().asMicroseconds() - timeSent) / 2));
+
 		break;
 	}
 	default:
@@ -50,4 +58,21 @@ sf::Uint64 GameServer::getNewID()
 	mAvailableIDs.pop();
 	if (mAvailableIDs.empty()) mAvailableIDs.emplace(id + 1);
 	return id;
+}
+
+ClientData& GameServer::getClientFromID(sf::Uint32 id)
+{
+	for (auto& client : mClients)
+	{
+		if (client.getID() == id) return client;
+	}
+	std::cerr << "Error: no client with such ID : " << id << std::endl;
+	exit(EXIT_FAILURE);
+}
+
+void GameServer::sendPing(ClientData& client)
+{
+	sf::Packet packet;
+	packet << static_cast<sf::Uint32>(ServerMsgType::PingRequest) << mClock.getElapsedTime().asMicroseconds();
+	mSocket.send(packet, client.getAddress(), client.getPort());
 }
