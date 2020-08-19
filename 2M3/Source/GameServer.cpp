@@ -2,6 +2,11 @@
 #include <NetworkCommon.h>
 #include <iostream>
 
+GameServer::GameServer()
+{
+
+}
+
 void GameServer::processWaitingPackets(sf::UdpSocket& socket)
 {
 	sf::Socket::Status status;

@@ -7,7 +7,7 @@
 class GameServer
 {
 public:
-
+	GameServer();
 
 	void processWaitingPackets(sf::UdpSocket& socket);
 	void processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);

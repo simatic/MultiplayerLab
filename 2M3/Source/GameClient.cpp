@@ -1,6 +1,10 @@
 #include <GameClient.h>
 #include <NetworkCommon.h>
 
+GameClient::GameClient()
+{
+}
+
 sf::IpAddress GameClient::getAddress()
 {
 	return mAddress;
@@ -9,6 +13,12 @@ sf::IpAddress GameClient::getAddress()
 unsigned short GameClient::getPort()
 {
 	return mPort;
+}
+
+sf::Socket::Status GameClient::bindSocket()
+{
+	sf::Socket::Status status = mSocket.bind(mPort);
+	return status;
 }
 
 void GameClient::processWaitingPackets(sf::UdpSocket& socket)

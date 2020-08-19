@@ -5,9 +5,12 @@ class GameClient
 {
 public:
 
+	GameClient();
 
 	sf::IpAddress getAddress();
 	unsigned short getPort();
+
+	sf::Socket::Status bindSocket();
 
 	void processWaitingPackets(sf::UdpSocket& socket);
 	void processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
@@ -16,6 +19,7 @@ private:
 	sf::Uint32 mID;
 	sf::IpAddress mAddress;
 	unsigned short mPort;
+	sf::UdpSocket mSocket;
 
 	sf::IpAddress mServerAddress;
 	unsigned short mServerPort;

@@ -14,8 +14,8 @@ namespace States
 		//Loading,
 		//Pause,
 		//NetworkPause,
-		//HostGame,
-		//JoinGame,
+		HostGame,
+		JoinGame,
 	};
 }
 
