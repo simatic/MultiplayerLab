@@ -63,7 +63,7 @@ void GameClient::processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet
 	}
 	case ServerMsgType::PingRequest:
 	{
-		sf::Int64 elapsed;
+		sf::Time elapsed;
 		packet >> elapsed;
 
 		sf::Packet toSend;

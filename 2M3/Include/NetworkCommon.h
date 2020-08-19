@@ -41,4 +41,7 @@ struct EntityStruct
 };
 
 sf::Packet& operator <<(sf::Packet& packet, const EntityStruct& entity);
-sf::Packet& operator >>(sf::Packet& packet, const EntityStruct& entity);
+sf::Packet& operator >>(sf::Packet& packet, EntityStruct& entity);
+
+sf::Packet& operator <<(sf::Packet& packet, const sf::Time& time);
+sf::Packet& operator >>(sf::Packet& packet, sf::Time& time);

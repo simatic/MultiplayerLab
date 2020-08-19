@@ -39,11 +39,11 @@ void GameServer::processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet
 	case ClientMsgType::PingResponse:
 	{
 		sf::Uint32 id;
-		sf::Int64 timeSent;
+		sf::Time timeSent;
 		packet >> id >> timeSent;
 
 		ClientData& client = getClientFromID(id);
-		client.setDelay(sf::microseconds((mClock.getElapsedTime().asMicroseconds() - timeSent) / 2));
+		client.setDelay(sf::microseconds((mClock.getElapsedTime() - timeSent).asMicroseconds() / 2));
 
 		break;
 	}
@@ -73,6 +73,6 @@ ClientData& GameServer::getClientFromID(sf::Uint32 id)
 void GameServer::sendPing(ClientData& client)
 {
 	sf::Packet packet;
-	packet << static_cast<sf::Uint32>(ServerMsgType::PingRequest) << mClock.getElapsedTime().asMicroseconds();
+	packet << static_cast<sf::Uint32>(ServerMsgType::PingRequest) << mClock.getElapsedTime();
 	mSocket.send(packet, client.getAddress(), client.getPort());
 }

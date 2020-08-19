@@ -16,3 +16,17 @@ sf::Packet& operator>>(sf::Packet& packet, EntityStruct& entity)
 	packet >> entity.position.x >> entity.position.y >> entity.velocity.x >> entity.velocity.y;
 	return packet;
 }
+
+sf::Packet& operator<<(sf::Packet& packet, const sf::Time& time)
+{
+	return packet << time.asMicroseconds();
+}
+
+sf::Packet& operator>>(sf::Packet& packet, sf::Time& time)
+{
+	sf::Int64 t;
+	packet >> t;
+	time = sf::microseconds(t);
+
+	return packet;
+}
