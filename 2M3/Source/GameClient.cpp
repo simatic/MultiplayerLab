@@ -43,6 +43,10 @@ void GameClient::processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet
 	}
 	case ServerMsgType::ClientIdResponse:
 	{
+		sf::Time timeSent;
+		packet >> mID >> timeSent;
+		mClockOffset = timeSent - mClock.getElapsedTime();
+
 		break;
 	}
 	case ServerMsgType::Collision:

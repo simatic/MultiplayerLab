@@ -30,6 +30,13 @@ void GameServer::processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet
 	{
 	case ClientMsgType::ClientIdRequest:
 	{
+		sf::Uint32 newID = getNewClientID();
+		ClientData client = ClientData(newID, remoteAddress, remotePort);
+		
+		sf::Packet toSend;
+		toSend << newID << mClock.getElapsedTime();
+		socket.send(toSend, remoteAddress, remotePort);
+
 		break;
 	}
 	case ClientMsgType::Input:
@@ -52,11 +59,19 @@ void GameServer::processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet
 	}
 }
 
-sf::Uint64 GameServer::getNewID()
+sf::Uint64 GameServer::getNewEntityID()
 {
-	sf::Int64 id = mAvailableIDs.top();
-	mAvailableIDs.pop();
-	if (mAvailableIDs.empty()) mAvailableIDs.emplace(id + 1);
+	sf::Uint64 id = mAvailableEntityIDs.top();
+	mAvailableEntityIDs.pop();
+	if (mAvailableEntityIDs.empty()) mAvailableEntityIDs.emplace(id + 1);
+	return id;
+}
+
+sf::Uint32 GameServer::getNewClientID()
+{
+	sf::Uint32 id = mAvailableClientIDs.top();
+	mAvailableClientIDs.pop();
+	if (mAvailableClientIDs.empty()) mAvailableClientIDs.emplace(id + 1);
 	return id;
 }
 

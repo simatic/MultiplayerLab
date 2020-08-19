@@ -12,7 +12,8 @@ public:
 	void processWaitingPackets(sf::UdpSocket& socket);
 	void processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
 
-	sf::Uint64 getNewID();
+	sf::Uint64 getNewEntityID();
+	sf::Uint32 getNewClientID();
 	ClientData& getClientFromID(sf::Uint32 id);
 
 	void sendPing(ClientData& client);
@@ -24,6 +25,7 @@ private:
 	sf::UdpSocket mSocket;
 	std::vector<ClientData> mClients;
 
-	std::stack<sf::Uint64> mAvailableIDs;
+	std::stack<sf::Uint64> mAvailableEntityIDs;
+	std::stack<sf::Uint32> mAvailableClientIDs;
 
 };

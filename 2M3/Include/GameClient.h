@@ -20,4 +20,7 @@ private:
 	sf::IpAddress mServerAddress;
 	unsigned short mServerPort;
 
+	sf::Clock mClock;
+	sf::Time mClockOffset;	//server.clock - this.clock
+
 };
