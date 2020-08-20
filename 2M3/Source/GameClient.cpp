@@ -21,7 +21,7 @@ sf::Socket::Status GameClient::bindSocket()
 	return status;
 }
 
-void GameClient::processWaitingPackets(sf::UdpSocket& socket)
+void GameClient::processWaitingPackets()
 {
 	sf::Socket::Status status;
 	do
@@ -30,17 +30,17 @@ void GameClient::processWaitingPackets(sf::UdpSocket& socket)
 		sf::Packet packet;
 		sf::IpAddress remoteAddress;
 		unsigned short remotePort;
-		status = socket.receive(packet, remoteAddress, remotePort);
+		status = mSocket.receive(packet, remoteAddress, remotePort);
 		if (status == sf::Socket::NotReady || status == sf::Socket::Disconnected)
 			break;
 
 		// We process the message
-		processReceivedPacket(socket, packet, remoteAddress, remotePort);
+		processReceivedPacket(packet, remoteAddress, remotePort);
 
 	} while (true); // We exit this loop thanks to break instruction when ((status == sf::Socket::NotReady) || (status == sf::Socket::Disconnected))
 }
 
-void GameClient::processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort)
+void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort)
 {
 	sf::Uint32 msgType;
 	packet >> msgType;
@@ -82,7 +82,7 @@ void GameClient::processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet
 
 		sf::Packet toSend;
 		toSend << static_cast<sf::Uint32>(ClientMsgType::PingResponse) << mID << elapsed;
-		socket.send(toSend, mServerAddress, mServerPort);
+		mSocket.send(toSend, mServerAddress, mServerPort);
 
 		break;
 	}

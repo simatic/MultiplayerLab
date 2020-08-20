@@ -12,8 +12,8 @@ public:
 
 	sf::Socket::Status bindSocket();
 
-	void processWaitingPackets(sf::UdpSocket& socket);
-	void processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
+	void processWaitingPackets();
+	void processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
 
 private:
 	sf::Uint32 mID;
