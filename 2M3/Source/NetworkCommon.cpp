@@ -30,3 +30,26 @@ sf::Packet& operator>>(sf::Packet& packet, sf::Time& time)
 
 	return packet;
 }
+
+sf::Packet& operator<<(sf::Packet& packet, const sf::Keyboard::Key& key)
+{
+	return packet << static_cast<sf::Uint32>(key);
+}
+
+sf::Packet& operator>>(sf::Packet& packet, sf::Keyboard::Key& key)
+{
+	sf::Uint32 keyInt;
+	packet >> keyInt;
+	key = static_cast<sf::Keyboard::Key>(keyInt);
+	return packet;
+}
+
+sf::Packet& operator<<(sf::Packet& packet, const Inputs& inputs)
+{
+	return packet << inputs.up << inputs.down << inputs.left << inputs.right << inputs.action << inputs.changeActionEvent << inputs.doActionEvent;
+}
+
+sf::Packet& operator>>(sf::Packet& packet, Inputs& inputs)
+{
+	return packet >> inputs.up >> inputs.down >> inputs.left >> inputs.right >> inputs.action >> inputs.changeActionEvent >> inputs.doActionEvent;
+}

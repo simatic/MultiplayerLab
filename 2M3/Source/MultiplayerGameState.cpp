@@ -56,7 +56,12 @@ void MultiplayerGameState::draw()
 
 bool MultiplayerGameState::update(sf::Time dt)
 {
-	if (mConnected){ mWorld.update(dt); return true;}
+	if (mConnected)
+	{
+		mWorld.update(dt);
+		return true;
+	}
+	return false;
 }
 
 bool MultiplayerGameState::handleEvent(const sf::Event& event)

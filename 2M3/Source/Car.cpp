@@ -18,6 +18,7 @@ Car::Car(const TextureHolder& textures) :
 	mLaunchedMissile(false),
 	mMissileAmmo(5),
 	mShowMap(false),
+	mInputs({ false, false, false, false, false, false, false }),
 	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)), textures)
 {
 	mType = Type::CarType;
@@ -35,6 +36,7 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, co
 	mLaunchedMissile(false),
 	mMissileAmmo(5),
 	mShowMap(false),
+	mInputs({ false, false, false, false, false, false, false }),
 	Entity(pos, rect, textures)
 {
 	mType = Type::CarType;
@@ -57,7 +59,8 @@ void Car::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*
 {
 	if (mCurrentShootDelay > sf::Time::Zero) mCurrentShootDelay -= dt;
 
-	getInput(dt, newEntities);
+	getInput();
+	useInputs(dt, newEntities);
 
 	Entity::update(dt, entities, newEntities, pairs);
 
@@ -68,19 +71,61 @@ void Car::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*
 	mDust.update(dt);
 }
 
-void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
+void Car::getInput()
+{
+	mInputs.left = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnLeft));
+	mInputs.right = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnRight));
+	mInputs.up = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Accelerate));
+	mInputs.down = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Brake));
+	mInputs.action = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::DoAction));
+}
+
+inline Car::CarAction operator++(Car::CarAction& x)
+{
+	return x = (Car::CarAction)(((int)(x)+1));
+}
+
+void Car::useInputs(sf::Time dt, std::vector<Entity*>& newEntities)
 {
 	float l = length(mVelocity);
+
+	//events handling
+	if (mInputs.changeActionEvent)
+	{
+		++mAction;
+		mShowMap = false;
+		if (mAction == CarAction::ActionCount) mAction = (CarAction)0;
+	}
+	else if (mInputs.doActionEvent && needsEventInput())
+	{
+		switch (mAction)
+		{
+		case Car::CarAction::LaunchMissile:
+		{
+			if (!mLaunchedMissile && mMissileAmmo > 0) mLaunchedMissile = true;
+			break;
+		}
+		case Car::CarAction::ToggleMap:
+		{
+			mShowMap = !mShowMap;
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
+	//realtime handling
 	if (!mCrash)
 	{
 		float angle = 0;
 		float angleSign = 0;
-		if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnLeft)) && l > 50)
+		if (mInputs.left && l > 50)
 		{
 			angle += M_PI / 3;
 			angleSign += 1;
 		}
-		if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnRight)) && l > 50)
+		if (mInputs.right && l > 50)
 		{
 			angle -= M_PI / 3;
 			angleSign -= 1;
@@ -88,13 +133,13 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 
 		float accel = 0;
 		bool driftBrake = false;
-		if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Accelerate)))
+		if (mInputs.up)
 		{
 			float f = 1;
 			if (!mForward) f = 10;
 			accel += f * mCarAcceleration;
 		}
-		if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Brake)))
+		if (mInputs.down)
 		{
 			if (mForward && l > mDriftTheshold && angleSign != 0) driftBrake = true;
 			else
@@ -169,7 +214,7 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 			newEntities.push_back(proj);
 		}
 
-		if (sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::DoAction)) && !needsEventInput()) //&& mCurrentShootDelay <= sf::Time::Zero)
+		if (mInputs.action && !needsEventInput()) //&& mCurrentShootDelay <= sf::Time::Zero)
 		{
 			switch (mAction)
 			{
@@ -192,39 +237,14 @@ void Car::getInput(sf::Time dt, std::vector<Entity*>& newEntities)
 	else
 	{
 	}
-}
 
-inline Car::CarAction operator++(Car::CarAction& x)
-{
-	return x = (Car::CarAction)(((int)(x)+1));
+	mInputs = { false, false, false, false, false, false, false };
 }
 
 bool Car::handleEvent(const sf::Event& event)
 {
-	if (event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::ChangeAction))
-	{
-		++mAction;
-		mShowMap = false;
-		if (mAction == CarAction::ActionCount) mAction = (CarAction)0;
-	}
-	else if (event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::DoAction) && needsEventInput())
-	{
-		switch (mAction)
-		{
-		case Car::CarAction::LaunchMissile:
-		{
-			if (!mLaunchedMissile && mMissileAmmo > 0) mLaunchedMissile = true;
-			break;
-		}
-		case Car::CarAction::ToggleMap:
-		{
-			mShowMap = !mShowMap;
-			break;
-		}
-		default:
-			break;
-		}
-	}
+	mInputs.changeActionEvent = mInputs.changeActionEvent || event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::ChangeAction);
+	mInputs.doActionEvent = mInputs.doActionEvent || event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::DoAction);
 
 	return true;
 }
@@ -411,4 +431,9 @@ float Car::getSpeedRatio()
 bool Car::getShowMap()
 {
 	return mShowMap;
+}
+
+Inputs Car::getSavedInputs()
+{
+	return mInputs;
 }
