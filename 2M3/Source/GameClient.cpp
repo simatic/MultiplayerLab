@@ -42,9 +42,9 @@ void GameClient::processWaitingPackets()
 
 void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort)
 {
-	sf::Uint32 msgType;
-	packet >> msgType;
-	ServerMsgType messageType = static_cast<ServerMsgType>(msgType);
+	ServerMsgType messageType;
+	packet >> messageType;
+
 	switch (messageType)
 	{
 	case ServerMsgType::CarUpdate:
@@ -81,12 +81,24 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		packet >> elapsed;
 
 		sf::Packet toSend;
-		toSend << static_cast<sf::Uint32>(ClientMsgType::PingResponse) << mID << elapsed;
+		toSend << ClientMsgType::PingResponse << mID << elapsed;
 		mSocket.send(toSend, mServerAddress, mServerPort);
 
 		break;
 	}
 	default:
 		break;
+	}
+}
+
+void GameClient::sendCarsInputs(const std::vector<Player*>& players)
+{
+	for (auto& player : players)
+	{
+		sf::Packet toSend;
+		Car* car = player->getCar();
+		toSend << ClientMsgType::Input << car->getID() << car->getSavedInputs();
+
+		mSocket.send(toSend, mServerAddress, mServerPort);
 	}
 }

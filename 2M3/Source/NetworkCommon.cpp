@@ -53,3 +53,29 @@ sf::Packet& operator>>(sf::Packet& packet, Inputs& inputs)
 {
 	return packet >> inputs.up >> inputs.down >> inputs.left >> inputs.right >> inputs.action >> inputs.changeActionEvent >> inputs.doActionEvent;
 }
+
+sf::Packet& operator<<(sf::Packet& packet, const ServerMsgType& msgType)
+{
+	return packet << static_cast<sf::Uint32>(msgType);
+}
+
+sf::Packet& operator>>(sf::Packet& packet, ServerMsgType& msgType)
+{
+	sf::Uint32 msg;
+	packet >> msg;
+	msgType = static_cast<ServerMsgType>(msg);
+	return packet;
+}
+
+sf::Packet& operator<<(sf::Packet& packet, const ClientMsgType& msgType)
+{
+	return packet << static_cast<sf::Uint32>(msgType);
+}
+
+sf::Packet& operator>>(sf::Packet& packet, ClientMsgType& msgType)
+{
+	sf::Uint32 msg;
+	packet >> msg;
+	msgType = static_cast<ClientMsgType>(msg);
+	return packet;
+}

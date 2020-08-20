@@ -51,3 +51,8 @@ sf::Packet& operator >>(sf::Packet& packet, sf::Keyboard::Key& key);
 
 sf::Packet& operator <<(sf::Packet& packet, const Inputs& inputs);
 sf::Packet& operator >>(sf::Packet& packet, Inputs& inputs);
+
+sf::Packet& operator <<(sf::Packet& packet, const ServerMsgType& msgType);
+sf::Packet& operator >>(sf::Packet& packet, ServerMsgType& msgType);
+sf::Packet& operator <<(sf::Packet& packet, const ClientMsgType& msgType);
+sf::Packet& operator >>(sf::Packet& packet, ClientMsgType& msgType);

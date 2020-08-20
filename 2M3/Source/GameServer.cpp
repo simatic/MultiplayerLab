@@ -28,9 +28,9 @@ void GameServer::processWaitingPackets()
 
 void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort)
 {
-	sf::Uint32 msgType;
-	packet >> msgType;
-	ClientMsgType messageType = static_cast<ClientMsgType>(msgType);
+	ClientMsgType messageType;
+	packet >> messageType;
+
 	switch (messageType)
 	{
 	case ClientMsgType::ClientIdRequest:
@@ -39,13 +39,19 @@ void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		ClientData client = ClientData(newID, remoteAddress, remotePort);
 		
 		sf::Packet toSend;
-		toSend << newID << mClock.getElapsedTime();
+		toSend << ServerMsgType::ClientIdResponse << newID << mClock.getElapsedTime();
 		mSocket.send(toSend, remoteAddress, remotePort);
 
 		break;
 	}
 	case ClientMsgType::Input:
 	{
+		sf::Uint64 id;
+		Inputs inputs;
+		packet >> id >> inputs;
+
+		mWorld.setCarInputs(id, inputs);
+
 		break;
 	}
 	case ClientMsgType::PingResponse:
@@ -93,6 +99,6 @@ ClientData& GameServer::getClientFromID(sf::Uint32 id)
 void GameServer::sendPing(ClientData& client)
 {
 	sf::Packet packet;
-	packet << static_cast<sf::Uint32>(ServerMsgType::PingRequest) << mClock.getElapsedTime();
+	packet << ServerMsgType::PingRequest << mClock.getElapsedTime();
 	mSocket.send(packet, client.getAddress(), client.getPort());
 }

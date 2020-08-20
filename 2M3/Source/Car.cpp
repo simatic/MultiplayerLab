@@ -437,3 +437,8 @@ Inputs Car::getSavedInputs()
 {
 	return mInputs;
 }
+
+void Car::setInputs(Inputs inputs)
+{
+	mInputs = inputs;
+}

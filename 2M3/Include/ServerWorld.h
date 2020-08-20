@@ -13,6 +13,9 @@ public:
 
 	sf::Vector2f			getWorldSize();
 
+	Entity*					getEntityFromId(sf::Uint64 id);
+	void					setCarInputs(sf::Uint64 id, Inputs inputs);
+
 private:
 	std::vector<Entity*>		mEntities;
 	std::vector<Player*>		mPlayers;

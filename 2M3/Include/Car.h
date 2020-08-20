@@ -51,6 +51,7 @@ public:
 	float getSpeedRatio();
 	bool getShowMap();
 	Inputs getSavedInputs();
+	void setInputs(Inputs inputs);
 
 private:
 	int mHP;

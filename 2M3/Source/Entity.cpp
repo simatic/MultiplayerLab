@@ -165,3 +165,8 @@ const TextureHolder& Entity::getTextures()
 {
 	return mTextures;
 }
+
+sf::Uint64 Entity::getID()
+{
+	return mID;
+}
