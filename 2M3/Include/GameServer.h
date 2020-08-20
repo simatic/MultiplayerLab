@@ -9,6 +9,11 @@ class GameServer
 public:
 	GameServer();
 
+	const sf::IpAddress& getAdress();
+	const unsigned short& getPort();
+
+	sf::Socket::Status bindPort();
+
 	void processWaitingPackets();
 	void processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
 
@@ -22,10 +27,14 @@ private:
 	ServerWorld mWorld;
 	sf::Clock mClock;
 
+	sf::IpAddress	mAdress;
+	unsigned short  mPort;
 	sf::UdpSocket mSocket;
 	std::vector<ClientData> mClients;
 
 	std::stack<sf::Uint64> mAvailableEntityIDs;
 	std::stack<sf::Uint32> mAvailableClientIDs;
+
+
 
 };

@@ -3,8 +3,13 @@
 #include <iostream>
 
 GameServer::GameServer()
+	: mWorld()
+	, mClock()
+	, mSocket()
+	, mClients()
 {
-
+	mPort = sf::Socket::AnyPort;
+	mAdress	= sf::IpAddress::getPublicAddress();
 }
 
 void GameServer::processWaitingPackets()
@@ -95,4 +100,21 @@ void GameServer::sendPing(ClientData& client)
 	sf::Packet packet;
 	packet << static_cast<sf::Uint32>(ServerMsgType::PingRequest) << mClock.getElapsedTime();
 	mSocket.send(packet, client.getAddress(), client.getPort());
+}
+
+sf::Socket::Status GameServer::bindPort()
+{
+	return mSocket.bind(mPort);
+}
+
+const sf::IpAddress& GameServer::getAdress()
+{
+	const sf::IpAddress& t = mAdress;
+	return t;
+}
+
+const unsigned short& GameServer::getPort()
+{
+	const unsigned short& t = mPort;
+	return t;
 }

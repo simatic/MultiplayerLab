@@ -3,6 +3,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Network/IpAddress.hpp>
 #include <fstream>
+#include <iostream>
 
 sf::IpAddress getAddressFromFile()
 {
@@ -40,7 +41,7 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 		ip = getAddressFromFile();
 	}
 
-	if (mGameClient.bindSocket() == sf::Socket::Done)
+	if (mGameClient.bindSocket() != sf::Socket::Done)
 	{
 		//Send a ID request to the server
 	}

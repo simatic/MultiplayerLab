@@ -2,7 +2,10 @@
 #include <NetworkCommon.h>
 
 GameClient::GameClient()
+	: mSocket()
 {
+	mAddress = sf::IpAddress::getPublicAddress();
+	mPort = sf::Socket::AnyPort;
 }
 
 sf::IpAddress GameClient::getAddress()
@@ -17,8 +20,7 @@ unsigned short GameClient::getPort()
 
 sf::Socket::Status GameClient::bindSocket()
 {
-	sf::Socket::Status status = mSocket.bind(mPort);
-	return status;
+	return mSocket.bind(mPort);
 }
 
 void GameClient::processWaitingPackets(sf::UdpSocket& socket)
