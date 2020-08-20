@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <SFML/Network.hpp>
-#include <Entity.h>
+#include <Car.h>
 
 // Where the server listens by default
 //const std::string_view DEFAULT_HOST("localhost");
@@ -45,3 +45,14 @@ sf::Packet& operator >>(sf::Packet& packet, EntityStruct& entity);
 
 sf::Packet& operator <<(sf::Packet& packet, const sf::Time& time);
 sf::Packet& operator >>(sf::Packet& packet, sf::Time& time);
+
+sf::Packet& operator <<(sf::Packet& packet, const sf::Keyboard::Key& key);
+sf::Packet& operator >>(sf::Packet& packet, sf::Keyboard::Key& key);
+
+sf::Packet& operator <<(sf::Packet& packet, const Inputs& inputs);
+sf::Packet& operator >>(sf::Packet& packet, Inputs& inputs);
+
+sf::Packet& operator <<(sf::Packet& packet, const ServerMsgType& msgType);
+sf::Packet& operator >>(sf::Packet& packet, ServerMsgType& msgType);
+sf::Packet& operator <<(sf::Packet& packet, const ClientMsgType& msgType);
+sf::Packet& operator >>(sf::Packet& packet, ClientMsgType& msgType);

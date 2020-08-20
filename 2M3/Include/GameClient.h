@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Network.hpp>
+#include <Player.h>
 
 class GameClient
 {
@@ -12,8 +13,10 @@ public:
 
 	sf::Socket::Status bindSocket();
 
-	void processWaitingPackets(sf::UdpSocket& socket);
-	void processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
+	void processWaitingPackets();
+	void processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
+
+	void sendCarsInputs(const std::vector<Player*>& players);
 
 private:
 	sf::Uint32 mID;
@@ -25,6 +28,6 @@ private:
 	unsigned short mServerPort;
 
 	sf::Clock mClock;
-	sf::Time mClockOffset;	//server.clock - (this.clock + delay)
+	sf::Time mClockOffset;	//server.clock - this.clock - delay
 
 };

@@ -23,7 +23,7 @@ sf::Socket::Status GameClient::bindSocket()
 	return mSocket.bind(mPort);
 }
 
-void GameClient::processWaitingPackets(sf::UdpSocket& socket)
+void GameClient::processWaitingPackets()
 {
 	sf::Socket::Status status;
 	do
@@ -32,21 +32,21 @@ void GameClient::processWaitingPackets(sf::UdpSocket& socket)
 		sf::Packet packet;
 		sf::IpAddress remoteAddress;
 		unsigned short remotePort;
-		status = socket.receive(packet, remoteAddress, remotePort);
+		status = mSocket.receive(packet, remoteAddress, remotePort);
 		if (status == sf::Socket::NotReady || status == sf::Socket::Disconnected)
 			break;
 
 		// We process the message
-		processReceivedPacket(socket, packet, remoteAddress, remotePort);
+		processReceivedPacket(packet, remoteAddress, remotePort);
 
 	} while (true); // We exit this loop thanks to break instruction when ((status == sf::Socket::NotReady) || (status == sf::Socket::Disconnected))
 }
 
-void GameClient::processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort)
+void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort)
 {
-	sf::Uint32 msgType;
-	packet >> msgType;
-	ServerMsgType messageType = static_cast<ServerMsgType>(msgType);
+	ServerMsgType messageType;
+	packet >> messageType;
+
 	switch (messageType)
 	{
 	case ServerMsgType::CarUpdate:
@@ -83,12 +83,24 @@ void GameClient::processReceivedPacket(sf::UdpSocket& socket, sf::Packet& packet
 		packet >> elapsed;
 
 		sf::Packet toSend;
-		toSend << static_cast<sf::Uint32>(ClientMsgType::PingResponse) << mID << elapsed;
-		socket.send(toSend, mServerAddress, mServerPort);
+		toSend << ClientMsgType::PingResponse << mID << elapsed;
+		mSocket.send(toSend, mServerAddress, mServerPort);
 
 		break;
 	}
 	default:
 		break;
+	}
+}
+
+void GameClient::sendCarsInputs(const std::vector<Player*>& players)
+{
+	for (auto& player : players)
+	{
+		sf::Packet toSend;
+		Car* car = player->getCar();
+		toSend << ClientMsgType::Input << car->getID() << car->getSavedInputs();
+
+		mSocket.send(toSend, mServerAddress, mServerPort);
 	}
 }

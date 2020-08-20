@@ -35,6 +35,7 @@ public:
 	Rectangle			getRectangle();
 	Type				getType();
 	const TextureHolder&getTextures();
+	sf::Uint64			getID();
 
 	void				offset(sf::Vector2f o);
 	void				setVelocity(sf::Vector2f v);
@@ -59,4 +60,6 @@ protected:
 	Type				mType;
 
 	bool				mToRemove;
+
+	sf::Uint64			mID;
 };

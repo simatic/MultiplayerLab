@@ -2,6 +2,7 @@
 #include <Car.h>
 #include <PickUp.h>
 #include <functional>
+#include <iostream>
 
 ServerWorld::ServerWorld()
 	: mWorldWidth(16000.f)
@@ -59,4 +60,21 @@ bool ServerWorld::handleEvent(const sf::Event& event)
 sf::Vector2f ServerWorld::getWorldSize()
 {
 	return sf::Vector2f(mWorldWidth, mWorldHeight);
+}
+
+Entity* ServerWorld::getEntityFromId(sf::Uint64 id)
+{
+	for (auto& ent : mEntities)
+	{
+		if (ent->getID() == id) return ent;
+	}
+	std::cerr << "Error: no entity with such ID : " << id << std::endl;
+	exit(EXIT_FAILURE);
+}
+
+void ServerWorld::setCarInputs(sf::Uint64 id, Inputs inputs)
+{
+	Entity* entity = getEntityFromId(id);
+	Car* car = dynamic_cast<Car*>(entity);
+	car->setInputs(inputs);
 }
