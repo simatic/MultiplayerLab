@@ -21,6 +21,7 @@ private:
 	std::vector<Player*>		mPlayers;
 
 	std::vector<Entity*>		mNewEntities;
+	std::set<Entity::Pair>		mPairs;
 
 	float						mWorldWidth;
 	float						mWorldHeight;

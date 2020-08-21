@@ -23,7 +23,7 @@ sf::Socket::Status GameClient::bindSocket()
 	return mSocket.bind(mPort);
 }
 
-void GameClient::processWaitingPackets()
+void GameClient::processWaitingPackets(World& world)
 {
 	sf::Socket::Status status;
 	do
@@ -37,12 +37,12 @@ void GameClient::processWaitingPackets()
 			break;
 
 		// We process the message
-		processReceivedPacket(packet, remoteAddress, remotePort);
+		processReceivedPacket(packet, remoteAddress, remotePort, world);
 
 	} while (true); // We exit this loop thanks to break instruction when ((status == sf::Socket::NotReady) || (status == sf::Socket::Disconnected))
 }
 
-void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort)
+void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort, World& world)
 {
 	ServerMsgType messageType;
 	packet >> messageType;
@@ -63,6 +63,15 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 	}
 	case ServerMsgType::Collision:
 	{
+		sf::Uint64 id1;
+		sf::Uint64 id2;
+		packet >> id1 >> id2;
+
+		Entity* ent1 = world.getEntityFromId(id1);
+		Entity* ent2 = world.getEntityFromId(id2);
+
+		world.addCollision(ent1, ent2);
+
 		break;
 	}
 	case ServerMsgType::GameEnd:
@@ -71,10 +80,36 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 	}
 	case ServerMsgType::ObjectCreation:
 	{
+		EntityStruct baseEnt;
+		packet >> baseEnt;
+
+		switch (baseEnt.entityType)
+		{
+		case Entity::Type::CarType:
+		{
+			break;
+		}
+		case Entity::Type::PickUpType:
+		{
+			break;
+		}
+		case Entity::Type::ProjectileType:
+		{
+			break;
+		}
+		default:
+			break;
+		}
+
 		break;
 	}
 	case ServerMsgType::ObjectDestruction:
 	{
+		sf::Uint64 id;
+		packet >> id;
+
+		world.getEntityFromId(id)->remove();
+
 		break;
 	}
 	case ServerMsgType::PingRequest:

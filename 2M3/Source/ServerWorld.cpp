@@ -12,22 +12,16 @@ ServerWorld::ServerWorld()
 
 void ServerWorld::update(sf::Time dt)
 {
-	std::set<Entity::Pair> pairs;
-	/*for (auto& ent : mEntities)
-	{
-		ent->checkCollisions(mEntities, pairs, dt);
-	}*/
-
 	for (auto& ent : mEntities)
 	{
-		ent->update(dt, mEntities, mNewEntities, pairs);
+		ent->update(dt, mEntities, mNewEntities, mPairs);
 	}
 	for (auto& player : mPlayers)
 	{
 		player->update(dt); // , mNewEntities);
 	}
 
-	for (auto& pair : pairs)
+	for (auto& pair : mPairs)
 	{
 		pair.first->onCollision(pair.second);
 	}
@@ -44,6 +38,7 @@ void ServerWorld::update(sf::Time dt)
 		mEntities.push_back(newEnt);
 	}
 	mNewEntities.clear();
+	mPairs.clear();
 }
 
 bool ServerWorld::handleEvent(const sf::Event& event)

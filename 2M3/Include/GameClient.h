@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Network.hpp>
 #include <Player.h>
+#include <World.h>
 
 class GameClient
 {
@@ -13,8 +14,8 @@ public:
 
 	sf::Socket::Status bindSocket();
 
-	void processWaitingPackets();
-	void processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
+	void processWaitingPackets(World& world);
+	void processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort, World& world);
 
 	void sendCarsInputs(const std::vector<Player*>& players);
 

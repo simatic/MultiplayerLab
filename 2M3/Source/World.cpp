@@ -2,6 +2,7 @@
 #include <Car.h>
 #include <PickUp.h>
 #include <functional>
+#include <iostream>
 
 World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2, const FontHolder& fonts)
 	: mTarget(outputTarget)
@@ -30,22 +31,16 @@ World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys
 
 void World::update(sf::Time dt)
 {
-	std::set<Entity::Pair> pairs;
-	/*for (auto& ent : mEntities)
-	{
-		ent->checkCollisions(mEntities, pairs, dt);
-	}*/
-
 	for (auto& ent : mEntities)
 	{
-		ent->update(dt, mEntities, mNewEntities, pairs);
+		ent->update(dt, mEntities, mNewEntities, mPairs);
 	}
 	for (auto& player : mPlayers)
 	{
 		player->update(dt); // , mNewEntities);
 	}
 
-	for (auto& pair : pairs)
+	for (auto& pair : mPairs)
 	{
 		pair.first->onCollision(pair.second);
 	}
@@ -62,6 +57,7 @@ void World::update(sf::Time dt)
 		mEntities.push_back(newEnt);
 	}
 	mNewEntities.clear();
+	mPairs.clear();
 }
 
 void World::draw()
@@ -101,4 +97,25 @@ void World::loadTextures()
 	mTextures.load(Textures::Car,		"Media/Textures/Car.png");
 	mTextures.load(Textures::Bullet,	"Media/Textures/Bullet.png");
 	mTextures.load(Textures::Missile,	"Media/Textures/Missile.png");
+}
+
+Entity* World::getEntityFromId(sf::Uint64 id)
+{
+	for (auto& ent : mEntities)
+	{
+		if (ent->getID() == id) return ent;
+	}
+	/*std::cerr << "Error: no entity with such ID : " << id << std::endl;
+	exit(EXIT_FAILURE);*/
+	return nullptr;
+}
+
+void World::addCollision(Entity* ent1, Entity* ent2)
+{
+	mPairs.insert(std::minmax(ent1, ent2));
+}
+
+void World::createEntity(Entity* ent)
+{
+	mNewEntities.push_back(ent);
 }

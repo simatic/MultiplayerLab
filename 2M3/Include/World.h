@@ -15,12 +15,17 @@ public:
 	bool					handleEvent(const sf::Event& event);
 
 	sf::Vector2f			getWorldSize();
+	Entity*					getEntityFromId(sf::Uint64 id);
+
+	void					addCollision(Entity* ent1, Entity* ent2);
+	void					createEntity(Entity* ent);
 
 private:
 	std::vector<Entity*>		mEntities;
 	std::vector<Player*>		mPlayers;
 
 	std::vector<Entity*>		mNewEntities;
+	std::set<Entity::Pair>		mPairs;
 
 	sf::RenderTarget&			mTarget;
 	TextureHolder				mTextures;
