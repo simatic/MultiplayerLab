@@ -16,10 +16,6 @@ void ServerWorld::update(sf::Time dt)
 	{
 		ent->update(dt, mEntities, mNewEntities, mPairs);
 	}
-	for (auto& player : mPlayers)
-	{
-		player->update(dt); // , mNewEntities);
-	}
 
 	for (auto& pair : mPairs)
 	{
@@ -67,9 +63,59 @@ Entity* ServerWorld::getEntityFromId(sf::Uint64 id)
 	exit(EXIT_FAILURE);
 }
 
-void ServerWorld::setCarInputs(sf::Uint64 id, Inputs inputs)
+bool operator<(const TimedInputs& inputs1, const TimedInputs& inputs2)
 {
-	Entity* entity = getEntityFromId(id);
+	return inputs1.timestamp < inputs2.timestamp;
+}
+
+void ServerWorld::setCarInputs(sf::Uint64 id, Inputs inputs, sf::Time t)
+{
+	/*Entity* entity = getEntityFromId(id);
 	Car* car = dynamic_cast<Car*>(entity);
-	car->setInputs(inputs);
+	car->setInputs(inputs);*/
+
+	mInputs.insert({ id, t, inputs });
+	
+}
+
+void ServerWorld::rollback(sf::Time present, sf::Time rollbackDate)
+{
+	sf::Time current = present;
+	std::stack<sf::Time> deltas = std::stack<sf::Time>();
+
+	while (current > rollbackDate)
+	{
+		UpdateFrame frame = mFrames.top();
+		mFrames.pop();
+
+		current -= frame.dt;
+		deltas.push(frame.dt);
+
+		for (auto& up : frame.velocityUpdates)
+		{
+			up.entity->offset(up.entity->getVelocity() * frame.dt.asSeconds());
+			up.entity->setVelocity(up.oldVelocity);
+		}
+
+		for (auto& up : frame.presenceUpdates)
+		{
+			if (up.added)
+			{
+				remove(mEntities.begin(), mEntities.end(), up.entity);
+			}
+			else
+			{
+				up.entity->unremove();
+				mEntities.push_back(up.entity);
+			}
+		}
+	}
+
+	while (current < present)
+	{
+		sf::Time dt = deltas.top();
+		deltas.pop();
+
+		update(dt);
+	}
 }
