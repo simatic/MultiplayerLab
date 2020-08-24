@@ -1,11 +1,12 @@
 #include <GameClient.h>
 #include <NetworkCommon.h>
+#include <iostream>
 
 GameClient::GameClient()
 	: mSocket()
 {
-	mAddress = sf::IpAddress::getPublicAddress();
 	mPort = sf::Socket::AnyPort;
+	bindSocket();
 }
 
 sf::IpAddress GameClient::getAddress()
@@ -18,9 +19,23 @@ unsigned short GameClient::getPort()
 	return mPort;
 }
 
+void GameClient::setServerAddress(sf::IpAddress serverAddress)
+{
+	mServerAddress = serverAddress;
+}
+
 sf::Socket::Status GameClient::bindSocket()
 {
 	return mSocket.bind(mPort);
+}
+
+void GameClient::sendPacket(sf::Packet packet, sf::IpAddress remoteAddress, unsigned short remotePort)
+{
+	if (mSocket.send(packet, remoteAddress, remotePort) != sf::Socket::Done)
+	{
+		std::cout << "Problem during the sending of a packet";
+		std::exit(EXIT_FAILURE);
+	}
 }
 
 void GameClient::processWaitingPackets(World& world)
