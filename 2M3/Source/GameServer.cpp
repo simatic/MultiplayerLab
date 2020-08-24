@@ -57,7 +57,7 @@ void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		Inputs inputs;
 		packet >> id >> inputs;
 
-		mWorld.setCarInputs(id, inputs);
+		//mWorld.setCarInputs(id, inputs);
 
 		break;
 	}

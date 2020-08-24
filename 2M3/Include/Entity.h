@@ -43,6 +43,7 @@ public:
 
 	bool				toRemove();
 	void				remove();
+	void				unremove();
 
 	void				checkCollisions(std::vector<Entity*>& entities, std::set<Pair>& pairs, sf::Time dt);
 	bool				collide(Entity* other, sf::Time dt);

@@ -86,6 +86,11 @@ void Entity::remove()
 	mToRemove = true;
 }
 
+void Entity::unremove()
+{
+	mToRemove = false;
+}
+
 bool Entity::collide(Entity* other, sf::Time dt)
 {
 	if (length(mPosition - other->getPosition()) > 100) return false;
