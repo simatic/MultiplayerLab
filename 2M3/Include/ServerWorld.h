@@ -5,12 +5,12 @@
 #include <Player.h>
 #include <stack>
 
-struct TimedInputs
-{
-	sf::Uint64 id;
-	sf::Time timestamp;
-	Inputs inputs;
-};
+//struct TimedInputs
+//{
+//	sf::Uint64 id;
+//	sf::Time timestamp;
+//	Inputs inputs;
+//};
 
 struct UpdatedVelocity
 {
@@ -35,7 +35,7 @@ class ServerWorld
 {
 public:
 							ServerWorld();
-	void					update(sf::Time dt);
+	void					update(sf::Time serverTime, sf::Time dt);
 	bool					handleEvent(const sf::Event& event);
 
 	void					rollback(sf::Time present, sf::Time rollbackDate);
@@ -51,7 +51,7 @@ private:
 	std::vector<Entity*>		mNewEntities;
 	std::set<Entity::Pair>		mPairs;
 
-	std::multiset<TimedInputs>	mInputs;
+	//std::multiset<TimedInputs>	mInputs;
 	std::stack<UpdateFrame>		mFrames;
 
 	float						mWorldWidth;

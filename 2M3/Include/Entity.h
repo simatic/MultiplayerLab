@@ -23,6 +23,7 @@ public:
 	Entity(sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder& textures);
 
 	virtual void		update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs);
+	virtual void		serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs);
 	virtual void		draw(sf::RenderTarget& target);
 	virtual bool		handleEvent(const sf::Event& event);
 	virtual void		cleanUp(sf::Vector2f worldSize, sf::Time dt);

@@ -2,6 +2,7 @@
 #include <SFML/Network.hpp>
 #include <Player.h>
 #include <World.h>
+#include <queue>
 
 class GameClient
 {
@@ -30,5 +31,7 @@ private:
 
 	sf::Clock mClock;
 	sf::Time mClockOffset;	//server.clock - this.clock - delay
+
+	std::queue<Entity*> mToBeAssignedID;
 
 };

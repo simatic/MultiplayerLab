@@ -71,6 +71,22 @@ void Car::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*
 	mDust.update(dt);
 }
 
+void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
+{
+	if (mCurrentShootDelay > sf::Time::Zero) mCurrentShootDelay -= dt;
+
+	getInput(serverTime);
+	useInputs(dt, newEntities);
+
+	Entity::update(dt, entities, newEntities, pairs);
+
+	mTires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
+	mTires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
+
+	mDust.setPosition(mPosition - (float)20 * mCarDirection);
+	mDust.update(dt);
+}
+
 void Car::getInput()
 {
 	mInputs.left = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnLeft));
@@ -78,6 +94,28 @@ void Car::getInput()
 	mInputs.up = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Accelerate));
 	mInputs.down = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Brake));
 	mInputs.action = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::DoAction));
+}
+
+void Car::getInput(sf::Time serverTime)
+{
+	std::map<sf::Time, Inputs>::iterator low, prev;
+	low = mServerInputs.lower_bound(serverTime);
+	if (low == mServerInputs.end())
+	{
+		//no input with time not less than serverTime aka serverTime is greater than every input timestamp
+		low--;
+		mInputs = low->second;
+	}
+	else if (low == mServerInputs.begin())
+	{
+		//serverTime is lower than every input tiimestamp
+		mInputs = { false, false, false, false, false, false, false };
+	}
+	else
+	{
+		prev = std::prev(low);
+		mInputs = prev->second;
+	}
 }
 
 inline Car::CarAction operator++(Car::CarAction& x)
@@ -441,4 +479,9 @@ Inputs Car::getSavedInputs()
 void Car::setInputs(Inputs inputs)
 {
 	mInputs = inputs;
+}
+
+void Car::insertInputs(sf::Time serverTime, Inputs inputs)
+{
+	mServerInputs.emplace(serverTime, inputs);
 }

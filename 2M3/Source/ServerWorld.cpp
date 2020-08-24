@@ -10,11 +10,11 @@ ServerWorld::ServerWorld()
 {
 }
 
-void ServerWorld::update(sf::Time dt)
+void ServerWorld::update(sf::Time serverTime, sf::Time dt)
 {
 	for (auto& ent : mEntities)
 	{
-		ent->update(dt, mEntities, mNewEntities, mPairs);
+		ent->serverUpdate(serverTime, dt, mEntities, mNewEntities, mPairs);
 	}
 
 	for (auto& pair : mPairs)
@@ -70,11 +70,11 @@ bool operator<(const TimedInputs& inputs1, const TimedInputs& inputs2)
 
 void ServerWorld::setCarInputs(sf::Uint64 id, Inputs inputs, sf::Time t)
 {
-	/*Entity* entity = getEntityFromId(id);
+	Entity* entity = getEntityFromId(id);
 	Car* car = dynamic_cast<Car*>(entity);
-	car->setInputs(inputs);*/
+	car->insertInputs(t, inputs);
 
-	mInputs.insert({ id, t, inputs });
+	//mInputs.insert({ id, t, inputs });
 	
 }
 
@@ -116,6 +116,7 @@ void ServerWorld::rollback(sf::Time present, sf::Time rollbackDate)
 		sf::Time dt = deltas.top();
 		deltas.pop();
 
-		update(dt);
+		update(current, dt);
+		current += dt;
 	}
 }
