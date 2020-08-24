@@ -1,25 +1,9 @@
 #include "MultiplayerGameState.h"
-
+#include "NetworkCommon.h"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Network/IpAddress.hpp>
 #include <fstream>
 #include <iostream>
-
-sf::IpAddress getAddressFromFile()
-{
-	{ // Try to open existing file (RAII block)
-		std::ifstream inputFile("ip.txt");
-		std::string ipAddress;
-		if (inputFile >> ipAddress)
-			return ipAddress;
-	}
-
-	// If open/read failed, create new file
-	std::ofstream outputFile("ip.txt");
-	std::string localAddress = "127.0.0.1";
-	outputFile << localAddress;
-	return localAddress;
-}
 
 MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, bool isHost)
 	: State(stack, context)
@@ -30,22 +14,28 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 	, mConnected(false)
 	, mGameServer(nullptr)
 {
-	sf::IpAddress ip;
 	if (isHost)
 	{
-		mGameServer.reset(new GameServer());	
-		ip = "127.0.0.1";
+		mGameServer.reset(new GameServer());
+		std::cout << "Server address: " << mGameServer->getAdress() <<"\n";
 	}
-	else
-	{
-		ip = getAddressFromFile();
-	}
-
 	if (mGameClient.bindSocket() != sf::Socket::Done)
 	{
-		//Send a ID request to the server
+		std::cout << "Could not bind Socket\n";
 	}
+	if (!isHost)
+	{
+		std::string address;
+		std::cout << "Input server address: \n";
+		std::cin >> address;
+		sf::IpAddress serverAddress(address);
+		mGameClient.setServerAddress(serverAddress);	
 
+		sf::Packet packet;
+		packet << ClientMsgType::ClientIdRequest;
+		mGameClient.sendPacket(packet, serverAddress, 5000);
+	}
+	
 }
 
 
@@ -69,3 +59,20 @@ bool MultiplayerGameState::handleEvent(const sf::Event& event)
 {
 	return mWorld.handleEvent(event);
 }
+
+
+//sf::ipaddress getaddressfromfile()
+//{
+//	{ // try to open existing file (raii block)
+//		std::ifstream inputfile("ip.txt");
+//		std::string ipaddress;
+//		if (inputfile >> ipaddress)
+//			return ipaddress;
+//	}
+//
+//	// if open/read failed, create new file
+//	std::ofstream outputfile("ip.txt");
+//	std::string localaddress = "127.0.0.1";
+//	outputfile << localaddress;
+//	return localaddress;
+//}

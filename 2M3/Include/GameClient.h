@@ -12,7 +12,12 @@ public:
 	sf::IpAddress getAddress();
 	unsigned short getPort();
 
+	void setServerAddress(sf::IpAddress serverAddress);
+	void setServerPort(unsigned short port);
+
 	sf::Socket::Status bindSocket();
+
+	void sendPacket(sf::Packet packet, sf::IpAddress remoteAddress, unsigned short remotePort);	
 
 	void processWaitingPackets(World& world);
 	void processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort, World& world);

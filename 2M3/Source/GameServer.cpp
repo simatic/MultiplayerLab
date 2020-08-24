@@ -8,8 +8,9 @@ GameServer::GameServer()
 	, mSocket()
 	, mClients()
 {
-	mPort = sf::Socket::AnyPort;
-	mAdress	= sf::IpAddress::getPublicAddress();
+	//mPort = sf::Socket::AnyPort;
+	mAdress	= sf::IpAddress::getLocalAddress();
+	bindPort();
 }
 
 void GameServer::processWaitingPackets()
@@ -42,6 +43,7 @@ void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 	{
 		sf::Uint32 newID = getNewClientID();
 		ClientData client = ClientData(newID, remoteAddress, remotePort);
+		mClients.push_back(client);
 		
 		sf::Packet toSend;
 		toSend << ServerMsgType::ClientIdResponse << newID << mClock.getElapsedTime();

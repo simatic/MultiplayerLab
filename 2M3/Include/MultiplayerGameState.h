@@ -7,7 +7,6 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 
-
 class MultiplayerGameState : public State
 {
 public:

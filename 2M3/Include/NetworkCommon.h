@@ -5,7 +5,7 @@
 
 // Where the server listens by default
 //const std::string_view DEFAULT_HOST("localhost");
-//const unsigned short DEFAULT_PORT(4096);
+const unsigned short ServerPort = 5000;
 
 // Type of messages
 
