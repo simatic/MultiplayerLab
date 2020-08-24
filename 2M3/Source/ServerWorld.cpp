@@ -63,10 +63,10 @@ Entity* ServerWorld::getEntityFromId(sf::Uint64 id)
 	exit(EXIT_FAILURE);
 }
 
-bool operator<(const TimedInputs& inputs1, const TimedInputs& inputs2)
-{
-	return inputs1.timestamp < inputs2.timestamp;
-}
+//bool operator<(const TimedInputs& inputs1, const TimedInputs& inputs2)
+//{
+//	return inputs1.timestamp < inputs2.timestamp;
+//}
 
 void ServerWorld::setCarInputs(sf::Uint64 id, Inputs inputs, sf::Time t)
 {
