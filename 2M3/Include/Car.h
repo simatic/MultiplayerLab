@@ -32,7 +32,9 @@ public:
 	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, const TextureHolder& textures);
 
 	void update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs) override;
+	void serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs) override;
 	void getInput();
+	void getInput(sf::Time serverTime);
 	void useInputs(sf::Time dt, std::vector<Entity*>& newEntities);
 	void crash(sf::Vector2f otherVelocity);
 	bool handleEvent(const sf::Event& event) override;
@@ -52,6 +54,7 @@ public:
 	bool getShowMap();
 	Inputs getSavedInputs();
 	void setInputs(Inputs inputs);
+	void insertInputs(sf::Time serverTime, Inputs inputs);
 
 	void computeDeadReckoning(sf::Vector2f newPosition, sf::Vector2f newVelocity, sf::Vector2f newCarDirection);
 
@@ -63,6 +66,7 @@ private:
 
 	KeyBinding* mKeyBindings;
 	Inputs mInputs;
+	std::map<sf::Time, Inputs> mServerInputs;
 
 	sf::Vector2f mCarDirection;
 

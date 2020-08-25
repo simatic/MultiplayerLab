@@ -28,6 +28,11 @@ void Entity::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Enti
 	mSprite.setRotation(mRotation);
 }
 
+void Entity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
+{
+	update(dt, entities, newEntities, pairs);
+}
+
 void Entity::draw(sf::RenderTarget& target)
 {
 	target.draw(mShape);
