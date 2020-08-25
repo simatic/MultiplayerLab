@@ -180,3 +180,8 @@ sf::Uint64 Entity::getID()
 {
 	return mID;
 }
+
+void Entity::setID(sf::Uint64 id)
+{
+	mID = id;
+}

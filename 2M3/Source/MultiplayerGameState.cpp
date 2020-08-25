@@ -49,7 +49,7 @@ bool MultiplayerGameState::update(sf::Time dt)
 {
 	if (mConnected)
 	{
-		mWorld.update(dt);
+		mWorld.clientUpdate(dt);
 		return true;
 	}
 	return false;

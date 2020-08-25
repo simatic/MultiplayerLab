@@ -96,6 +96,7 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 	case ServerMsgType::ObjectCreation:
 	{
 		EntityStruct baseEnt;
+		sf::Uint64 creatorID;
 		packet >> baseEnt;
 
 		switch (baseEnt.entityType)
@@ -110,6 +111,22 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		}
 		case Entity::Type::ProjectileType:
 		{
+			sf::Uint64 shooterID;
+			packet >> shooterID;
+			if (ownsCar(shooterID, world)) //projectile already exists in local world
+			{
+				world.getUnassignedEntity()->setID(baseEnt.id);
+			}
+			else
+			{
+				bool guided;
+				packet >> guided;
+
+				Car* shooter = dynamic_cast<Car*>(world.getEntityFromId(shooterID));
+
+				world.createProjectile(baseEnt.id, baseEnt.position, baseEnt.velocity, shooter, guided);
+			}
+
 			break;
 		}
 		default:
@@ -153,4 +170,18 @@ void GameClient::sendCarsInputs(const std::vector<Player*>& players)
 
 		mSocket.send(toSend, mServerAddress, mServerPort);
 	}
+}
+
+bool GameClient::ownsCar(sf::Uint64 id, World& world)
+{
+	bool res = false;
+	for (auto& player : world.getPlayers())
+	{
+		if (player->getCar()->getID() == id)
+		{
+			res = true;
+			break;
+		}
+	}
+	return res;
 }

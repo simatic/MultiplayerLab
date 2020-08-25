@@ -2,7 +2,6 @@
 #include <SFML/Network.hpp>
 #include <Player.h>
 #include <World.h>
-#include <queue>
 
 class GameClient
 {
@@ -17,6 +16,8 @@ public:
 	void setServerPort(unsigned short port);
 
 	sf::Socket::Status bindSocket();
+
+	bool ownsCar(sf::Uint64 id, World& world);
 
 	void sendPacket(sf::Packet packet, sf::IpAddress remoteAddress, unsigned short remotePort);	
 
@@ -36,7 +37,5 @@ private:
 
 	sf::Clock mClock;
 	sf::Time mClockOffset;	//server.clock - this.clock - delay
-
-	std::queue<Entity*> mToBeAssignedID;
 
 };
