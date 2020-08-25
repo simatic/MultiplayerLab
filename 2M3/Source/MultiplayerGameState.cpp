@@ -53,10 +53,15 @@ bool MultiplayerGameState::update(sf::Time dt)
 {
 	if (mConnected)
 	{
-		mWorld.update(dt);
+		mWorld.clientUpdate(dt);
 		return true;
 	}
 	return false;
+}
+
+bool MultiplayerGameState::tick()
+{
+	return true;
 }
 
 bool MultiplayerGameState::handleEvent(const sf::Event& event)

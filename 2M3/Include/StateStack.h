@@ -40,6 +40,7 @@ class StateStack : private sf::NonCopyable
 		void				registerState(States::ID stateID, Param1 arg1);
 
 		void				update(sf::Time dt);
+		void				tick();
 		void				draw();
 		void				handleEvent(const sf::Event& event);
 

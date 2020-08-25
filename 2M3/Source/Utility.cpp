@@ -193,3 +193,4 @@ sf::Vector2f unitVector(sf::Vector2f v)
 	if (l == 0) return v;
 	return v / l;
 }
+

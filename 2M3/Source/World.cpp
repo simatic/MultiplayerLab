@@ -3,6 +3,7 @@
 #include <PickUp.h>
 #include <functional>
 #include <iostream>
+#include <Projectile.h>
 
 World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2, const FontHolder& fonts)
 	: mTarget(outputTarget)
@@ -60,6 +61,39 @@ void World::update(sf::Time dt)
 	mPairs.clear();
 }
 
+void World::clientUpdate(sf::Time dt)
+{
+	std::set<Entity::Pair> tmpPairs = std::set<Entity::Pair>(); //fake set of collision pairs, it is used to ignore local collisions
+	for (auto& ent : mEntities)
+	{
+		ent->update(dt, mEntities, mNewEntities, tmpPairs);
+	}
+	for (auto& player : mPlayers)
+	{
+		player->update(dt); // , mNewEntities);
+	}
+
+	for (auto& pair : mPairs)
+	{
+		pair.first->onCollision(pair.second);
+	}
+	auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&Entity::toRemove));
+	mEntities.erase(removeBegin, mEntities.end());
+
+	for (auto& ent : mEntities)
+	{
+		ent->cleanUp(getWorldSize(), dt);
+	}
+
+	for (auto& newEnt : mNewEntities)
+	{
+		if (newEnt->getID() == 0) mToBeAssignedID.push(newEnt);
+		mEntities.push_back(newEnt);
+	}
+	mNewEntities.clear();
+	mPairs.clear();
+}
+
 void World::draw()
 {
 	for (auto& player : mPlayers)
@@ -110,12 +144,35 @@ Entity* World::getEntityFromId(sf::Uint64 id)
 	return nullptr;
 }
 
+std::vector<Player*>& World::getPlayers()
+{
+	return mPlayers;
+}
+
+Entity* World::getUnassignedEntity()
+{
+	Entity* res = mToBeAssignedID.front();
+	mToBeAssignedID.pop();
+	return res;
+}
+
 void World::addCollision(Entity* ent1, Entity* ent2)
 {
 	mPairs.insert(std::minmax(ent1, ent2));
 }
 
-void World::createEntity(Entity* ent)
+void World::createProjectile(sf::Uint64 id, sf::Vector2f pos, sf::Vector2f velocity, Car* creator, bool guided)
 {
-	mNewEntities.push_back(ent);
+	sf::Vector2f projDir = unitVector(velocity);
+
+	if (guided)
+	{
+		Projectile* proj = new Projectile(5, sf::seconds(10), 400, 400, pos, projDir, sf::RectangleShape(sf::Vector2f(30, 10)), creator, mTextures);
+		mNewEntities.push_back(proj);
+	}
+	else
+	{
+		Projectile* proj = new Projectile(1, sf::seconds(1), 1500, pos, projDir, sf::RectangleShape(sf::Vector2f(5, 5)), creator, mTextures);
+		mNewEntities.push_back(proj);
+	}
 }

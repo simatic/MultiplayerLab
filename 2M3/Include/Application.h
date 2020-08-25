@@ -21,6 +21,7 @@ class Application
 	private:
 		void					processInput();
 		void					update(sf::Time dt);
+		void					tick();
 		void					render();
 
 		void					updateStatistics(sf::Time dt);
@@ -29,6 +30,7 @@ class Application
 
 	private:
 		static const sf::Time	TimePerFrame;
+		static const sf::Time	TimePerTick;
 
 		sf::RenderWindow		mWindow;
 		TextureHolder			mTextures;

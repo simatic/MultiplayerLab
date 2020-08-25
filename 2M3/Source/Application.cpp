@@ -11,6 +11,7 @@
 
 
 const sf::Time Application::TimePerFrame = sf::seconds(1.f/60.f);
+const sf::Time Application::TimePerTick = sf::seconds(1.f / 20.f);
 
 Application::Application()
 : mWindow(sf::VideoMode(1600, 900), "2M3", sf::Style::Close)
@@ -47,6 +48,7 @@ void Application::run()
 {
 	sf::Clock clock;
 	sf::Time timeSinceLastUpdate = sf::Time::Zero;
+	sf::Time timeSinceLastTick = sf::Time::Zero;
 
 	while (mWindow.isOpen())
 	{
@@ -62,6 +64,14 @@ void Application::run()
 			// Check inside this loop, because stack might be empty before update() call
 			if (mStateStack.isEmpty())
 				mWindow.close();
+		}
+
+		timeSinceLastTick += dt;
+		while (timeSinceLastTick > TimePerTick)
+		{
+			timeSinceLastTick -= TimePerTick;
+
+			tick();
 		}
 
 		updateStatistics(dt);
@@ -84,6 +94,11 @@ void Application::processInput()
 void Application::update(sf::Time dt)
 {
 	mStateStack.update(dt);
+}
+
+void Application::tick()
+{
+	mStateStack.tick();
 }
 
 void Application::render()

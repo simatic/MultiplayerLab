@@ -44,6 +44,11 @@ State::Context State::getContext() const
 	return mContext;
 }
 
+bool State::tick()
+{
+	return true;
+}
+
 void State::onActivate()
 {
 
