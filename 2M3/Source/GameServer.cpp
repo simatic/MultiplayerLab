@@ -8,7 +8,7 @@ GameServer::GameServer()
 	, mSocket()
 	, mClients()
 {
-	//mPort = sf::Socket::AnyPort;
+	mPort = ServerPort;
 	mAdress	= sf::IpAddress::getLocalAddress();
 	bindPort();
 }

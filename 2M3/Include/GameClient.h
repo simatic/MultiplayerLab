@@ -12,6 +12,7 @@ public:
 
 	sf::IpAddress getAddress();
 	unsigned short getPort();
+	sf::IpAddress getServerAddress();
 
 	void setServerAddress(sf::IpAddress serverAddress);
 	void setServerPort(unsigned short port);

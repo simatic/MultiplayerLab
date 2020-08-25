@@ -18,6 +18,8 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 	{
 		mGameServer.reset(new GameServer());
 		std::cout << "Server address: " << mGameServer->getAdress() <<"\n";
+		mConnected = true;
+		mGameClient.setServerAddress(mGameServer->getAdress());
 	}
 	if (mGameClient.bindSocket() != sf::Socket::Done)
 	{
@@ -30,11 +32,13 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 		std::cin >> address;
 		sf::IpAddress serverAddress(address);
 		mGameClient.setServerAddress(serverAddress);	
-
-		sf::Packet packet;
-		packet << ClientMsgType::ClientIdRequest;
-		mGameClient.sendPacket(packet, serverAddress, ServerPort);
 	}
+
+	sf::Packet packet;
+	packet << ClientMsgType::ClientIdRequest;
+
+	mGameClient.sendPacket(packet, mGameClient.getServerAddress(), ServerPort);
+	mConnected = true;
 		
 }
 

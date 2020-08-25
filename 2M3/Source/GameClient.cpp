@@ -19,6 +19,11 @@ unsigned short GameClient::getPort()
 	return mPort;
 }
 
+sf::IpAddress GameClient::getServerAddress()
+{
+	return mServerAddress;
+}
+
 void GameClient::setServerAddress(sf::IpAddress serverAddress)
 {
 	mServerAddress = serverAddress;
