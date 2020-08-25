@@ -19,6 +19,7 @@ Car::Car(const TextureHolder& textures) :
 	mMissileAmmo(5),
 	mShowMap(false),
 	mInputs({ false, false, false, false, false, false, false }),
+	mDeadReckoningStep(0),
 	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)), textures)
 {
 	mType = Type::CarType;
@@ -479,6 +480,33 @@ Inputs Car::getSavedInputs()
 void Car::setInputs(Inputs inputs)
 {
 	mInputs = inputs;
+}
+
+void Car::computeDeadReckoning(sf::Vector2f newPosition, sf::Vector2f newVelocity, sf::Vector2f newCarDirection)
+{
+	if (mDeadReckoningStep == 0)
+	{
+		mPosition += (1.f / 3.f) * (newPosition - mPosition);
+		mVelocity += (1.f / 3.f) * (newVelocity - mVelocity);
+		mCarDirection += (1.f / 3.f) * (newCarDirection - mCarDirection);
+	}
+
+	if (mDeadReckoningStep == 1)
+	{
+		mPosition += (1.f / 2.f) * (newPosition - mPosition);
+		mVelocity += (1.f / 2.f) * (newVelocity - mVelocity);
+		mCarDirection += (1.f / 2.f) * (newCarDirection - mCarDirection);
+	}
+
+	if (mDeadReckoningStep == 2)
+	{
+		mPosition = newPosition;
+		mVelocity = newVelocity;
+		mCarDirection = newCarDirection;
+	}
+
+	mDeadReckoningStep += 1;
+	mDeadReckoningStep = mDeadReckoningStep % 3;
 }
 
 void Car::insertInputs(sf::Time serverTime, Inputs inputs)

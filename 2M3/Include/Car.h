@@ -56,6 +56,8 @@ public:
 	void setInputs(Inputs inputs);
 	void insertInputs(sf::Time serverTime, Inputs inputs);
 
+	void computeDeadReckoning(sf::Vector2f newPosition, sf::Vector2f newVelocity, sf::Vector2f newCarDirection);
+
 private:
 	int mHP;
 	int mHpMax;
@@ -93,5 +95,7 @@ private:
 	bool mLaunchedMissile;
 	int mMissileAmmo;
 	bool mShowMap;
+
+	int mDeadReckoningStep;
 
 };

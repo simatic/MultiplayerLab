@@ -33,9 +33,9 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 
 		sf::Packet packet;
 		packet << ClientMsgType::ClientIdRequest;
-		mGameClient.sendPacket(packet, serverAddress, 5000);
+		mGameClient.sendPacket(packet, serverAddress, ServerPort);
 	}
-	
+		
 }
 
 

@@ -37,6 +37,7 @@ sf::Vector2f rotate(sf::Vector2f v, float a);
 float toRadians(float a);
 float toDegrees(float a);
 sf::Vector2f unitVector(sf::Vector2f v);
+sf::Vector2f multiplyByScalar(sf::Vector2f v, float f);
 
 #include "Utility.inl"
 #endif // BOOK_UTILITY_HPP
