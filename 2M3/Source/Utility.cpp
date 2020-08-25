@@ -193,3 +193,11 @@ sf::Vector2f unitVector(sf::Vector2f v)
 	if (l == 0) return v;
 	return v / l;
 }
+
+sf::Vector2f multiplyByScalar(sf::Vector2f v, float f)
+{
+	for (auto e : v)
+	{
+		e *= f;
+	}
+}
