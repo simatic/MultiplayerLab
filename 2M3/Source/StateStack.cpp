@@ -23,6 +23,16 @@ void StateStack::update(sf::Time dt)
 	applyPendingChanges();
 }
 
+void StateStack::tick()
+{
+	// Iterate from top to bottom, stop as soon as tick() returns false
+	for (auto itr = mStack.rbegin(); itr != mStack.rend(); ++itr)
+	{
+		if (!(*itr)->tick())
+			break;
+	}
+}
+
 void StateStack::draw()
 {
 	// Draw all active states from bottom to top

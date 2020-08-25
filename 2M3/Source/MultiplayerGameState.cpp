@@ -55,6 +55,11 @@ bool MultiplayerGameState::update(sf::Time dt)
 	return false;
 }
 
+bool MultiplayerGameState::tick()
+{
+	return true;
+}
+
 bool MultiplayerGameState::handleEvent(const sf::Event& event)
 {
 	return mWorld.handleEvent(event);
