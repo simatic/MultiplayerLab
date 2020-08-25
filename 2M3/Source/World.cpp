@@ -87,6 +87,7 @@ void World::clientUpdate(sf::Time dt)
 
 	for (auto& newEnt : mNewEntities)
 	{
+		if (newEnt->getID() == 0) mToBeAssignedID.push(newEnt);
 		mEntities.push_back(newEnt);
 	}
 	mNewEntities.clear();

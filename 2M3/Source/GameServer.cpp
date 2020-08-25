@@ -11,6 +11,8 @@ GameServer::GameServer()
 	//mPort = sf::Socket::AnyPort;
 	mAdress	= sf::IpAddress::getLocalAddress();
 	bindPort();
+	mAvailableEntityIDs.push(1);
+	mAvailableClientIDs.push(0);
 }
 
 void GameServer::processWaitingPackets()
