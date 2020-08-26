@@ -110,6 +110,8 @@ void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		Inputs inputs;
 		packet >> id >> inputs;
 
+		std::cout << "serv received inputs" << std::endl;
+
 		//mWorld.setCarInputs(id, inputs);
 
 		break;
@@ -119,6 +121,8 @@ void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		sf::Uint32 id;
 		sf::Time timeSent;
 		packet >> id >> timeSent;
+
+		std::cout << "serv received ping response by " << id << std::endl;
 
 		ClientData& client = getClientFromID(id);
 		client.setDelay(sf::microseconds((mClock.getElapsedTime() - timeSent).asMicroseconds() / 2));
@@ -158,6 +162,7 @@ ClientData& GameServer::getClientFromID(sf::Uint32 id)
 
 void GameServer::sendPing(ClientData& client)
 {
+	std::cout << "serv ping at " << client.getID() << std::endl;
 	sf::Packet packet;
 	packet << ServerMsgType::PingRequest << mClock.getElapsedTime();
 	mSocket.send(packet, client.getAddress(), client.getPort());

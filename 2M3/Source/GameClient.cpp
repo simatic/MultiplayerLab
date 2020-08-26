@@ -29,6 +29,11 @@ void GameClient::setServerAddress(sf::IpAddress serverAddress)
 	mServerAddress = serverAddress;
 }
 
+void GameClient::setServerPort(unsigned short port)
+{
+	mServerPort = port;
+}
+
 void GameClient::setSocketBlocking(bool isBlocking)
 {
 	mSocket.setBlocking(isBlocking);
@@ -156,6 +161,7 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 	}
 	case ServerMsgType::PingRequest:
 	{
+		std::cout << mID << " received ping" << std::endl;
 		sf::Time elapsed;
 		packet >> elapsed;
 

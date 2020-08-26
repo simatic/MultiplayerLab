@@ -36,6 +36,8 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 		mGameClient.setServerAddress(serverAddress);	
 	}
 
+	mGameClient.setServerPort(ServerPort);
+
 	sf::Packet packet;
 	packet << ClientMsgType::ClientIdRequest;
 
@@ -66,6 +68,7 @@ bool MultiplayerGameState::update(sf::Time dt)
 bool MultiplayerGameState::tick()
 {
 	//std::cout << "client tick" << std::endl;
+	mGameClient.processWaitingPackets(mWorld);
 	mGameClient.sendCarsInputs(mWorld.getPlayers());
 	return true;
 }
