@@ -8,6 +8,7 @@ GameServer::GameServer()
 	, mSocket()
 	, mClients()
 	, mThread(&GameServer::run, this)
+	, mStopThread(false)
 {
 	mPort = ServerPort;
 	mAdress	= sf::IpAddress::getLocalAddress();
@@ -36,7 +37,7 @@ void GameServer::run()
 		while (timeSinceLastTick > TimePerTick)
 		{
 			timeSinceLastTick -= TimePerTick;
-			std::cout << "server tick" << std::endl;
+			//std::cout << "server tick" << std::endl;
 
 			for (auto& client : mClients)
 			{

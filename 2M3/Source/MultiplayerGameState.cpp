@@ -65,6 +65,7 @@ bool MultiplayerGameState::update(sf::Time dt)
 
 bool MultiplayerGameState::tick()
 {
+	//std::cout << "client tick" << std::endl;
 	mGameClient.sendCarsInputs(mWorld.getPlayers());
 	return true;
 }
