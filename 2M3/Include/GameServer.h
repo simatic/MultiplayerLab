@@ -3,6 +3,7 @@
 #include <SFML/Network.hpp>
 #include <ClientData.h>
 #include <stack>
+#include <SFML/System/Thread.hpp>
 
 class GameServer
 {
@@ -14,6 +15,10 @@ public:
 
 	sf::Socket::Status bindPort();
 
+	void run();
+	void start(sf::RenderWindow* window);
+	void stop();
+
 	void processWaitingPackets();
 	void processReceivedPacket(sf::Packet& packet, sf::IpAddress& remoteAddress, unsigned short remotePort);
 
@@ -24,6 +29,7 @@ public:
 	void sendPing(ClientData& client);
 
 private:
+	sf::RenderWindow* mHostWindow;
 	ServerWorld mWorld;
 	sf::Clock mClock;
 
@@ -35,6 +41,7 @@ private:
 	std::stack<sf::Uint64> mAvailableEntityIDs;
 	std::stack<sf::Uint32> mAvailableClientIDs;
 
-
+	sf::Thread mThread;
+	bool mStopThread;
 
 };

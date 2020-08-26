@@ -7,11 +7,11 @@
 #include "SettingsState.h"
 #include "GameState.h"
 #include "MultiplayerGameState.h"
+#include "NetworkCommon.h"
 
 
 
 const sf::Time Application::TimePerFrame = sf::seconds(1.f/60.f);
-const sf::Time Application::TimePerTick = sf::seconds(1.f / 20.f);
 
 Application::Application()
 : mWindow(sf::VideoMode(1600, 900), "2M3", sf::Style::Close)

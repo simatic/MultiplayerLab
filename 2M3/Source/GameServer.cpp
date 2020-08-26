@@ -7,12 +7,62 @@ GameServer::GameServer()
 	, mClock()
 	, mSocket()
 	, mClients()
+	, mThread(&GameServer::run, this)
 {
 	mPort = ServerPort;
 	mAdress	= sf::IpAddress::getLocalAddress();
 	bindPort();
 	mAvailableEntityIDs.push(1);
 	mAvailableClientIDs.push(0);
+}
+
+void GameServer::run()
+{
+	sf::Time TimePerFrame = sf::seconds(1.f / 60.f);
+	sf::Time timeSinceLastFrame = sf::Time::Zero;
+	sf::Time timeSinceLastTick = sf::Time::Zero;
+	sf::Time lastDate = mClock.getElapsedTime();
+
+	while (mHostWindow->isOpen() && !mStopThread)
+	{
+		sf::Time t = mClock.getElapsedTime();
+		sf::Time dt = t - lastDate;
+		lastDate = t;
+		timeSinceLastTick += dt;
+		timeSinceLastFrame += dt;
+
+		processWaitingPackets();
+
+		while (timeSinceLastTick > TimePerTick)
+		{
+			timeSinceLastTick -= TimePerTick;
+			std::cout << "server tick" << std::endl;
+
+			for (auto& client : mClients)
+			{
+				sendPing(client);
+			}
+		}
+
+		while (timeSinceLastFrame > TimePerFrame)
+		{
+			timeSinceLastFrame -= TimePerFrame;
+
+			mWorld.update(t, dt);
+		}
+	}
+}
+
+void GameServer::start(sf::RenderWindow* window)
+{
+	mHostWindow = window;
+	mThread.launch();
+}
+
+void GameServer::stop()
+{
+	mStopThread = true;
+	mThread.wait();
 }
 
 void GameServer::processWaitingPackets()

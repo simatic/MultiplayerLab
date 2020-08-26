@@ -20,6 +20,8 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 		std::cout << "Server address: " << mGameServer->getAdress() <<"\n";
 		mConnected = true;
 		mGameClient.setServerAddress(mGameServer->getAdress());
+
+		mGameServer->start(context.window);
 	}
 	if (mGameClient.bindSocket() != sf::Socket::Done)
 	{
@@ -61,6 +63,7 @@ bool MultiplayerGameState::update(sf::Time dt)
 
 bool MultiplayerGameState::tick()
 {
+	mGameClient.sendCarsInputs(mWorld.getPlayers());
 	return true;
 }
 

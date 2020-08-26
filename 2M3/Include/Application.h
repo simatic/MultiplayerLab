@@ -30,7 +30,6 @@ class Application
 
 	private:
 		static const sf::Time	TimePerFrame;
-		static const sf::Time	TimePerTick;
 
 		sf::RenderWindow		mWindow;
 		TextureHolder			mTextures;

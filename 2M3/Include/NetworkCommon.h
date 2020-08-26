@@ -6,6 +6,7 @@
 // Where the server listens by default
 //const std::string_view DEFAULT_HOST("localhost");
 const unsigned short ServerPort = 5000;
+const sf::Time TimePerTick = sf::seconds(1.f / 20.f);
 
 // Type of messages
 
