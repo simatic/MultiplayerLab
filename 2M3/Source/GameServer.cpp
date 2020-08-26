@@ -178,3 +178,8 @@ const unsigned short& GameServer::getPort()
 	const unsigned short& t = mPort;
 	return t;
 }
+
+void GameServer::setSocketBlocking(bool isBlocking)
+{
+	mSocket.setBlocking(isBlocking);
+}

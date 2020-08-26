@@ -29,6 +29,11 @@ void GameClient::setServerAddress(sf::IpAddress serverAddress)
 	mServerAddress = serverAddress;
 }
 
+void GameClient::setSocketBlocking(bool isBlocking)
+{
+	mSocket.setBlocking(isBlocking);
+}
+
 sf::Socket::Status GameClient::bindSocket()
 {
 	return mSocket.bind(mPort);

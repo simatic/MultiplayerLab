@@ -15,6 +15,7 @@ public:
 
 	void setServerAddress(sf::IpAddress serverAddress);
 	void setServerPort(unsigned short port);
+	void setSocketBlocking(bool isBlocking);
 
 	sf::Socket::Status bindSocket();
 

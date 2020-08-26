@@ -12,6 +12,8 @@ public:
 
 	const sf::IpAddress& getAdress();
 	const unsigned short& getPort();
+	
+	void setSocketBlocking(bool isBlocking);
 
 	sf::Socket::Status bindPort();
 

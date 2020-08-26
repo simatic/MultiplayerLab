@@ -41,6 +41,8 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 
 	mGameClient.sendPacket(packet, mGameClient.getServerAddress(), ServerPort);
 	mConnected = true;
+	mGameClient.setSocketBlocking(false);
+	if (isHost) { mGameServer->setSocketBlocking(false); }
 		
 }
 
