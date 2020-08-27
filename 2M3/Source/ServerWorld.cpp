@@ -54,6 +54,19 @@ sf::Vector2f ServerWorld::getWorldSize()
 	return sf::Vector2f(mWorldWidth, mWorldHeight);
 }
 
+std::vector<Entity*> ServerWorld::getCars()
+{
+	std::vector<Entity*> res;
+	for (auto& ent : mEntities)
+	{
+		if (ent->getType() == Entity::Type::CarType)
+		{
+			res.push_back(ent);
+		}
+	}
+	return res;
+}
+
 Entity* ServerWorld::getEntityFromId(sf::Uint64 id)
 {
 	for (auto& ent : mEntities)

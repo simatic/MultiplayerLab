@@ -39,9 +39,12 @@ void GameServer::run()
 			timeSinceLastTick -= TimePerTick;
 			//std::cout << "server tick" << std::endl;
 
+			auto cars = mWorld.getCars();
+
 			for (auto& client : mClients)
 			{
 				sendPing(client);
+				sendCarsUpdate(client, cars);
 			}
 		}
 
@@ -186,6 +189,25 @@ void GameServer::sendPing(ClientData& client)
 	sf::Packet packet;
 	packet << ServerMsgType::PingRequest << mClock.getElapsedTime();
 	mSocket.send(packet, client.getAddress(), client.getPort());
+}
+
+void GameServer::sendCarsUpdate(ClientData& client, const std::vector<Entity*>& cars)
+{
+	sf::Packet packet;
+	for (auto& carEnt : cars)
+	{
+		packet << ServerMsgType::CarUpdate;
+
+		EntityStruct carStruct = { carEnt->getID(), Entity::Type::CarType, carEnt->getPosition(), carEnt->getVelocity() };
+		packet << carStruct;
+
+		Car* car = dynamic_cast<Car*>(carEnt);
+		packet << car->getCarDirection();
+
+		mSocket.send(packet, client.getAddress(), client.getPort());
+		packet.clear();
+	}
+
 }
 
 sf::Socket::Status GameServer::bindPort()

@@ -42,6 +42,7 @@ public:
 	void					rollback(sf::Time present, sf::Time rollbackDate);
 
 	sf::Vector2f			getWorldSize();
+	std::vector<Entity*>	getCars();
 
 	Entity*					getEntityFromId(sf::Uint64 id);
 	void					setCarInputs(sf::Uint64 id, Inputs inputs, sf::Time t);

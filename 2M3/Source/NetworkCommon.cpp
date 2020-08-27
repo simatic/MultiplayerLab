@@ -79,3 +79,14 @@ sf::Packet& operator>>(sf::Packet& packet, ClientMsgType& msgType)
 	msgType = static_cast<ClientMsgType>(msg);
 	return packet;
 }
+
+sf::Packet& operator<<(sf::Packet& packet, const sf::Vector2f& vector)
+{
+	return packet << vector.x << vector.y;
+}
+
+sf::Packet& operator>>(sf::Packet& packet, sf::Vector2f& vector)
+{
+	packet >> vector.x >> vector.y;
+	return packet;
+}

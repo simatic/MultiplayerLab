@@ -50,6 +50,7 @@ public:
 
 	void onCollision(Entity* other) override;
 
+	sf::Vector2f getCarDirection();
 	std::string getActionText();
 	float getSpeedRatio();
 	bool getShowMap();

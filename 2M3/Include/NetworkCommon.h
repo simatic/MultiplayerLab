@@ -57,3 +57,6 @@ sf::Packet& operator <<(sf::Packet& packet, const ServerMsgType& msgType);
 sf::Packet& operator >>(sf::Packet& packet, ServerMsgType& msgType);
 sf::Packet& operator <<(sf::Packet& packet, const ClientMsgType& msgType);
 sf::Packet& operator >>(sf::Packet& packet, ClientMsgType& msgType);
+
+sf::Packet& operator <<(sf::Packet& packet, const sf::Vector2f& vector);
+sf::Packet& operator >>(sf::Packet& packet, sf::Vector2f& vector);

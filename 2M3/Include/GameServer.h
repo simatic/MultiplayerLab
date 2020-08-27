@@ -29,6 +29,7 @@ public:
 	ClientData& getClientFromID(sf::Uint32 id);
 
 	void sendPing(ClientData& client);
+	void sendCarsUpdate(ClientData& client, const std::vector<Entity*>& cars);
 
 private:
 	sf::RenderWindow* mHostWindow;

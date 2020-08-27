@@ -464,6 +464,11 @@ void Car::onCollision(Entity* other)
 	}
 }
 
+sf::Vector2f Car::getCarDirection()
+{
+	return mCarDirection;
+}
+
 std::string Car::getActionText()
 {
 	std::string res = "null";

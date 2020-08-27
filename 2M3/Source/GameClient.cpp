@@ -81,6 +81,15 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 	{
 	case ServerMsgType::CarUpdate:
 	{
+		EntityStruct carStruct;
+		sf::Vector2f carDir;
+		packet >> carStruct >> carDir;
+
+		Entity* carEnt = world.getEntityFromId(carStruct.id);
+		Car* car = dynamic_cast<Car*>(carEnt);
+
+		//car->computeDeadReckoning(carStruct.position, carStruct.velocity, carDir);
+
 		break;
 	}
 	case ServerMsgType::ClientIdResponse:
