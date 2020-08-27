@@ -58,6 +58,8 @@ public:
 	void setInputs(Inputs inputs);
 	void insertInputs(sf::Time serverTime, Inputs inputs);
 
+	void setCarDirection(sf::Vector2f d);
+
 	void computeDeadReckoning(sf::Vector2f newPosition, sf::Vector2f newVelocity, sf::Vector2f newCarDirection);
 
 private:

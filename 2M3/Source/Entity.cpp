@@ -186,3 +186,8 @@ void Entity::setID(sf::Uint64 id)
 {
 	mID = id;
 }
+
+void Entity::setPosition(sf::Vector2f p)
+{
+	mPosition = p;
+}

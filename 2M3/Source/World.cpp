@@ -198,3 +198,12 @@ void World::createProjectile(sf::Uint64 id, sf::Vector2f pos, sf::Vector2f veloc
 		mNewEntities.push_back(proj);
 	}
 }
+
+void World::createCar(sf::Uint64 id, sf::Vector2f pos, sf::Vector2f velocity, sf::Vector2f direction)
+{
+	Car* car = new Car(100, pos, sf::RectangleShape(sf::Vector2f(80, 40)), mTextures);
+	car->setID(id);
+	car->setVelocity(velocity);
+	car->setCarDirection(direction);
+	mNewEntities.push_back(car);
+}

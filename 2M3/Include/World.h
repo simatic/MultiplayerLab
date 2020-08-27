@@ -26,6 +26,7 @@ public:
 
 	void					addCollision(Entity* ent1, Entity* ent2);
 	void					createProjectile(sf::Uint64 id, sf::Vector2f pos, sf::Vector2f velocity, Car* creator, bool guided);
+	void					createCar(sf::Uint64 id, sf::Vector2f pos, sf::Vector2f velocity, sf::Vector2f direction);
 
 private:
 	std::vector<Entity*>		mEntities;

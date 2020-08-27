@@ -37,8 +37,9 @@ public:
 	Type				getType();
 	const TextureHolder&getTextures();
 	sf::Uint64			getID();
-	void				setID(sf::Uint64 id);
 
+	void				setID(sf::Uint64 id);
+	void				setPosition(sf::Vector2f p);
 	void				offset(sf::Vector2f o);
 	void				setVelocity(sf::Vector2f v);
 	virtual void		setSprite();

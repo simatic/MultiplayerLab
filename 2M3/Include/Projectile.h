@@ -15,6 +15,7 @@ public:
 
 	int getDamage();
 	Car* getCar();
+	bool isGuided();
 
 private:
 	int mDamage;

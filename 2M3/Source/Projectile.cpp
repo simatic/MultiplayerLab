@@ -73,6 +73,11 @@ Car* Projectile::getCar()
 	return mCar;
 }
 
+bool Projectile::isGuided()
+{
+	return mGuided;
+}
+
 void Projectile::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
 {
 	mLifetime -= dt;

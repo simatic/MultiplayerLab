@@ -547,3 +547,8 @@ void Car::insertInputs(sf::Time serverTime, Inputs inputs)
 {
 	mServerInputs.emplace(serverTime, inputs);
 }
+
+void Car::setCarDirection(sf::Vector2f d)
+{
+	mCarDirection = d;
+}

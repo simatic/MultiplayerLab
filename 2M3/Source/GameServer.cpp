@@ -52,7 +52,7 @@ void GameServer::run()
 		{
 			timeSinceLastFrame -= TimePerFrame;
 
-			mWorld.update(t, dt);
+			mWorld.update(t, dt, mSocket, mClients);
 		}
 	}
 }
@@ -106,21 +106,23 @@ void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 
 		mWorld.createCar(p1);
 		mWorld.createCar(p2);
-		
+
 		sf::Packet toSend;
 		toSend << ServerMsgType::ClientIdResponse << newID << mClock.getElapsedTime() << p1 << p2;
 		mSocket.send(toSend, remoteAddress, remotePort);
+
+		mWorld.sendWorld(client, mSocket, p1.id, p2.id);
 
 		for (auto& cl : mClients)
 		{
 			if (cl.getID() != newID)
 			{
 				toSend.clear();
-				toSend << ServerMsgType::ObjectCreation << p1;
+				toSend << ServerMsgType::ObjectCreation << p1 << sf::Vector2f(0, 0);
 				mSocket.send(toSend, cl.getAddress(), cl.getPort());
 
 				toSend.clear();
-				toSend << ServerMsgType::ObjectCreation << p2;
+				toSend << ServerMsgType::ObjectCreation << p2 << sf::Vector2f(0, 0);
 				mSocket.send(toSend, cl.getAddress(), cl.getPort());
 			}
 		}

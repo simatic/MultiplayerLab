@@ -5,6 +5,7 @@
 #include <Player.h>
 #include <stack>
 #include <NetworkCommon.h>
+#include <ClientData.h>
 
 //struct TimedInputs
 //{
@@ -36,10 +37,10 @@ class ServerWorld
 {
 public:
 							ServerWorld(const TextureHolder& textures);
-	void					update(sf::Time serverTime, sf::Time dt);
+	void					update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket, std::vector<ClientData>& clients);
 	bool					handleEvent(const sf::Event& event);
 
-	void					rollback(sf::Time present, sf::Time rollbackDate);
+	void					rollback(sf::Time present, sf::Time rollbackDate, sf::UdpSocket& socket, std::vector<ClientData>& clients);
 
 	sf::Vector2f			getWorldSize();
 	std::vector<Entity*>	getCars();
@@ -48,6 +49,8 @@ public:
 	void					setCarInputs(sf::Uint64 id, Inputs inputs, sf::Time t);
 
 	void					createCar(EntityStruct car);
+
+	void					sendWorld(ClientData client, sf::UdpSocket& socket, sf::Uint64 idCar1, sf::Uint64 idCar2);
 
 private:
 	std::vector<Entity*>		mEntities;

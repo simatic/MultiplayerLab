@@ -88,6 +88,9 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		Entity* carEnt = world.getEntityFromId(carStruct.id);
 		Car* car = dynamic_cast<Car*>(carEnt);
 
+		//car->setPosition(carStruct.position);
+		//car->setVelocity(carStruct.velocity);
+		//car->setCarDirection(carDir);
 		//car->computeDeadReckoning(carStruct.position, carStruct.velocity, carDir);
 
 		break;
@@ -131,6 +134,9 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		{
 		case Entity::Type::CarType:
 		{
+			sf::Vector2f direction;
+			packet >> direction;
+			world.createCar(baseEnt.id, baseEnt.position, baseEnt.velocity, direction);
 			break;
 		}
 		case Entity::Type::PickUpType:
