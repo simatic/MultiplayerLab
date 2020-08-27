@@ -27,7 +27,8 @@ void ServerWorld::update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket
 		{
 			sf::Packet packet;
 			packet << pair.first->getID() << pair.second->getID();
-			//socket.send(packet, client.getAddress(), client.getPort());
+			std::cout << "sending collision between " << pair.first->getID() << " and " << pair.second->getID() << std::endl;
+			socket.send(packet, client.getAddress(), client.getPort());
 		}
 	}
 	auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&Entity::toRemove));
@@ -108,6 +109,7 @@ std::vector<Entity*> ServerWorld::getCars()
 
 Entity* ServerWorld::getEntityFromId(sf::Uint64 id)
 {
+	std::cout << "searching for entity id " << id << std::endl;
 	for (auto& ent : mEntities)
 	{
 		if (ent->getID() == id) return ent;
@@ -127,6 +129,7 @@ Entity* ServerWorld::getEntityFromId(sf::Uint64 id)
 
 void ServerWorld::setCarInputs(sf::Uint64 id, Inputs inputs, sf::Time t)
 {
+	std::cout << "setting car inputs " << id << std::endl;
 	Entity* entity = getEntityFromId(id);
 	Car* car = dynamic_cast<Car*>(entity);
 	car->insertInputs(t, inputs);
@@ -180,7 +183,7 @@ void ServerWorld::rollback(sf::Time present, sf::Time rollbackDate, sf::UdpSocke
 
 void ServerWorld::createCar(EntityStruct car)
 {
-	//std::cout << "creating car " << car.id << std::endl;
+	std::cout << "creating car " << car.id << std::endl;
 	Car* obj = new Car(100, car.position, sf::RectangleShape(sf::Vector2f(80, 40)), mTextures);
 	obj->setID(car.id);
 	mNewEntities.push_back(obj);
@@ -188,6 +191,7 @@ void ServerWorld::createCar(EntityStruct car)
 
 void ServerWorld::sendWorld(ClientData client, sf::UdpSocket& socket, sf::Uint64 idCar1, sf::Uint64 idCar2)
 {
+	std::cout << "sending world" << std::endl;
 	for (auto& ent : mEntities)
 	{
 		sf::Uint64 id = ent->getID();

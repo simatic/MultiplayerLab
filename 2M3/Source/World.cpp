@@ -35,6 +35,7 @@ World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys
 void World::initialize(EntityStruct p1, EntityStruct p2)
 {
 	//mPlayerCar = new Car(100, sf::Vector2f(850, 450), sf::RectangleShape(sf::Vector2f(80, 40)), keys, textures); from Player constructor
+	std::cout << "initializing world with car1 " << p1.id << " and car2 " << p2.id << std::endl;
 	Car* car1 = new Car(100, p1.position, sf::RectangleShape(sf::Vector2f(80, 40)), mPlayerOneKeys, mTextures);
 	car1->setID(p1.id);
 	Car* car2 = new Car(100, p2.position, sf::RectangleShape(sf::Vector2f(80, 40)), mPlayerTwoKeys, mTextures);

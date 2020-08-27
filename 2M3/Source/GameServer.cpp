@@ -98,6 +98,7 @@ void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 	case ClientMsgType::ClientIdRequest:
 	{
 		sf::Uint32 newID = getNewClientID();
+		std::cout << "received id request, given " << newID << std::endl;
 		ClientData client = ClientData(newID, remoteAddress, remotePort);
 		mClients.push_back(client);
 

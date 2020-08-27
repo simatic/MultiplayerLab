@@ -40,6 +40,7 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 
 	sf::Packet packet;
 	packet << ClientMsgType::ClientIdRequest;
+	std::cout << "sending id request" << std::endl;
 
 	mGameClient.sendPacket(packet, mGameClient.getServerAddress(), ServerPort);
 	mConnected = true;
