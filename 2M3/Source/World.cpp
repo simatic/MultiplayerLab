@@ -5,29 +5,51 @@
 #include <iostream>
 #include <Projectile.h>
 
-World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2, const FontHolder& fonts)
+World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2, const FontHolder& fonts, bool local)
 	: mTarget(outputTarget)
 	, mTextures()
 	, mPlayerOneGUI(fonts)
 	, mPlayerTwoGUI(fonts)
 	, mWorldWidth(16000.f)
 	, mWorldHeight(9000.f)
+	, mPlayerOneKeys(keys1)
+	, mPlayerTwoKeys(keys2)
 {
 	loadTextures();
 
-	Player* p1 = new Player(0, keys1, keys2, mTextures);
-	Player* p2 = new Player(1, keys1, keys2, mTextures);
-	mPlayers.push_back(p1);
-	mPlayers.push_back(p2);
+	if (local)
+	{
+		Player* p1 = new Player(0, keys1, mTextures);
+		Player* p2 = new Player(1, keys2, mTextures);
+		mPlayers.push_back(p1);
+		mPlayers.push_back(p2);
 
-	mEntities.push_back(p1->getCar());
-	mEntities.push_back(p2->getCar());
+		mEntities.push_back(p1->getCar());
+		mEntities.push_back(p2->getCar());
 
-	/*mEntities.push_back(new PickUp(PickUp::PickUpType::HealthPack, sf::Vector2f(400, 400)));
-	mEntities.push_back(new PickUp(PickUp::PickUpType::MissilesAmmo, sf::Vector2f(600, 400)));*/
+		mPlayerOneGUI.initialize(p1);
+		mPlayerTwoGUI.initialize(p2);
+	}
+}
 
-	mPlayerOneGUI.initialize(p1);
-	mPlayerTwoGUI.initialize(p2);
+void World::initialize(EntityStruct p1, EntityStruct p2)
+{
+	//mPlayerCar = new Car(100, sf::Vector2f(850, 450), sf::RectangleShape(sf::Vector2f(80, 40)), keys, textures); from Player constructor
+	Car* car1 = new Car(100, p1.position, sf::RectangleShape(sf::Vector2f(80, 40)), mPlayerOneKeys, mTextures);
+	car1->setID(p1.id);
+	Car* car2 = new Car(100, p2.position, sf::RectangleShape(sf::Vector2f(80, 40)), mPlayerTwoKeys, mTextures);
+	car2->setID(p2.id);
+
+	Player* player1 = new Player(0, car1);
+	Player* player2 = new Player(1, car2);
+	mPlayers.push_back(player1);
+	mPlayers.push_back(player2);
+
+	mEntities.push_back(car1);
+	mEntities.push_back(car2);
+
+	mPlayerOneGUI.initialize(player1);
+	mPlayerTwoGUI.initialize(player2);
 }
 
 void World::update(sf::Time dt)

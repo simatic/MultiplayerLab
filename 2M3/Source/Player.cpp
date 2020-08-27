@@ -1,23 +1,41 @@
 #include <Player.h>
 #include <iostream>
 
-Player::Player(int i, KeyBinding* keys1, KeyBinding* keys2, const TextureHolder& textures) :
+Player::Player(int i, KeyBinding* keys, const TextureHolder& textures) :
 	mPlayerID(i)
 {
 	if (i == 0)
 	{
 		mPlayerView = sf::View(sf::FloatRect(0, 0, 800, 900));
 		mPlayerView.setViewport(sf::FloatRect(0, 0, 0.5, 1));
-		mPlayerCar = new Car(100, sf::Vector2f(800, 450), sf::RectangleShape(sf::Vector2f(80, 40)), keys1, textures);
+		mPlayerCar = new Car(100, sf::Vector2f(800, 450), sf::RectangleShape(sf::Vector2f(80, 40)), keys, textures);
 	}
 	else if (i == 1)
 	{
 		mPlayerView = sf::View(sf::FloatRect(800, 0, 800, 900));
 		mPlayerView.setViewport(sf::FloatRect(0.5, 0, 0.5, 1));
-		mPlayerCar = new Car(100, sf::Vector2f(850, 450), sf::RectangleShape(sf::Vector2f(80, 40)), keys2, textures);
+		mPlayerCar = new Car(100, sf::Vector2f(850, 450), sf::RectangleShape(sf::Vector2f(80, 40)), keys, textures);
 
 	}
 	mPlayerView.setCenter(mPlayerCar->getPosition());
+}
+
+Player::Player(int i, Car* car) :
+	mPlayerID(i),
+	mPlayerCar(car)
+{
+	if (i == 0)
+	{
+		mPlayerView = sf::View(sf::FloatRect(0, 0, 800, 900));
+		mPlayerView.setViewport(sf::FloatRect(0, 0, 0.5, 1));
+	}
+	else if (i == 1)
+	{
+		mPlayerView = sf::View(sf::FloatRect(800, 0, 800, 900));
+		mPlayerView.setViewport(sf::FloatRect(0.5, 0, 0.5, 1));
+
+	}
+	mPlayerView.setCenter(car->getPosition());
 }
 
 void Player::update(sf::Time dt) //, std::vector<Entity*>& newEntities)

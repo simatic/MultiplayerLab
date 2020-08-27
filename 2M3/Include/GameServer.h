@@ -8,7 +8,7 @@
 class GameServer
 {
 public:
-	GameServer();
+	GameServer(const TextureHolder& textures);
 
 	const sf::IpAddress& getAdress();
 	const unsigned short& getPort();

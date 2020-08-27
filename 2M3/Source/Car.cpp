@@ -26,6 +26,35 @@ Car::Car(const TextureHolder& textures) :
 	Entity::setSprite();
 }
 
+Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder& textures) :
+	mHP(hp),
+	mHpMax(hp),
+	mKeyBindings(nullptr),
+	mShootDelay(sf::seconds(0.1)),
+	mDust(sf::Color::White, sf::seconds(0.7)),
+	mCrash(false),
+	mAction(CarAction::ShootBullet),
+	mLaunchedMissile(false),
+	mMissileAmmo(5),
+	mShowMap(false),
+	mInputs({ false, false, false, false, false, false, false }),
+	Entity(pos, rect, textures)
+{
+	mType = Type::CarType;
+	mCarDirection = sf::Vector2f(1, 0);
+
+	mTires = sf::VertexArray(sf::Lines, 1);
+	mTires[0].position = mPosition;
+
+	mType = Type::CarType;
+
+	mHpBackgroundBar = sf::RectangleShape(sf::Vector2f(40, 10));
+	mHpBackgroundBar.setFillColor(sf::Color(127, 127, 127));
+	mHpBackgroundBar.setOrigin(sf::Vector2f(20, 5));
+	mHpBar = sf::RectangleShape(sf::Vector2f(40, 10));
+	mHpBar.setFillColor(sf::Color::Green);
+}
+
 Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, const TextureHolder& textures) :
 	mHP(hp),
 	mHpMax(hp),
@@ -101,16 +130,16 @@ void Car::getInput(sf::Time serverTime)
 {
 	std::map<sf::Time, Inputs>::iterator low, prev;
 	low = mServerInputs.lower_bound(serverTime);
-	if (low == mServerInputs.end())
+	if (low == mServerInputs.begin())
+	{
+		//serverTime is lower than every input timestamp
+		mInputs = { false, false, false, false, false, false, false };
+	}
+	else if (low == mServerInputs.end())
 	{
 		//no input with time not less than serverTime aka serverTime is greater than every input timestamp
 		low--;
 		mInputs = low->second;
-	}
-	else if (low == mServerInputs.begin())
-	{
-		//serverTime is lower than every input tiimestamp
-		mInputs = { false, false, false, false, false, false, false };
 	}
 	else
 	{

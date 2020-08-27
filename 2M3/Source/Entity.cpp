@@ -8,7 +8,8 @@ Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder& t
 	mRotation(0),
 	mType(Type::Count),
 	mToRemove(false),
-	mTextures(textures)
+	mTextures(textures),
+	mID(0)
 {
 	sf::FloatRect bounds = mShape.getLocalBounds();
 	mShape.setOrigin(bounds.width / 2, bounds.height / 2);

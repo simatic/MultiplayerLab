@@ -87,7 +87,11 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 	{
 		sf::Time timeSent;
 		packet >> mID >> timeSent;
-		mClockOffset = timeSent - mClock.getElapsedTime();
+		//mClockOffset = timeSent - mClock.getElapsedTime();
+
+		EntityStruct p1, p2;
+		packet >> p1 >> p2;
+		world.initialize(p1, p2);
 
 		break;
 	}
@@ -161,7 +165,7 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 	}
 	case ServerMsgType::PingRequest:
 	{
-		std::cout << mID << " received ping" << std::endl;
+		//std::cout << mID << " received ping" << std::endl;
 		sf::Time elapsed;
 		packet >> elapsed;
 

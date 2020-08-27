@@ -4,9 +4,10 @@
 #include <functional>
 #include <iostream>
 
-ServerWorld::ServerWorld()
+ServerWorld::ServerWorld(const TextureHolder& textures)
 	: mWorldWidth(16000.f)
 	, mWorldHeight(9000.f)
+	, mTextures(textures)
 {
 }
 
@@ -119,4 +120,12 @@ void ServerWorld::rollback(sf::Time present, sf::Time rollbackDate)
 		update(current, dt);
 		current += dt;
 	}
+}
+
+void ServerWorld::createCar(EntityStruct car)
+{
+	//std::cout << "creating car " << car.id << std::endl;
+	Car* obj = new Car(100, car.position, sf::RectangleShape(sf::Vector2f(80, 40)), mTextures);
+	obj->setID(car.id);
+	mNewEntities.push_back(obj);
 }

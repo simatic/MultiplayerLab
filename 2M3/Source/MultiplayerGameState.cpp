@@ -7,7 +7,7 @@
 
 MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, bool isHost)
 	: State(stack, context)
-	, mWorld(*context.window, context.keys1, context.keys2, *context.fonts)
+	, mWorld(*context.window, context.keys1, context.keys2, *context.fonts, false)
 	, mClock()
 	, mGameClient()
 	, mIsHost(isHost)
@@ -16,7 +16,7 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 {
 	if (isHost)
 	{
-		mGameServer.reset(new GameServer());
+		mGameServer.reset(new GameServer(*context.textures));
 		std::cout << "Server address: " << mGameServer->getAdress() <<"\n";
 		mConnected = true;
 		mGameClient.setServerAddress(mGameServer->getAdress());

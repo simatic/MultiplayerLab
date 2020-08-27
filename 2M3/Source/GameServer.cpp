@@ -2,8 +2,8 @@
 #include <NetworkCommon.h>
 #include <iostream>
 
-GameServer::GameServer()
-	: mWorld()
+GameServer::GameServer(const TextureHolder& textures)
+	: mWorld(textures)
 	, mClock()
 	, mSocket()
 	, mClients()
@@ -97,10 +97,30 @@ void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		sf::Uint32 newID = getNewClientID();
 		ClientData client = ClientData(newID, remoteAddress, remotePort);
 		mClients.push_back(client);
+
+		EntityStruct p1 = { getNewEntityID(), Entity::Type::CarType, sf::Vector2f(8000, 4500), sf::Vector2f(0, 0) };
+		EntityStruct p2 = { getNewEntityID(), Entity::Type::CarType, sf::Vector2f(8100, 4500), sf::Vector2f(0, 0) };
+
+		mWorld.createCar(p1);
+		mWorld.createCar(p2);
 		
 		sf::Packet toSend;
-		toSend << ServerMsgType::ClientIdResponse << newID << mClock.getElapsedTime();
+		toSend << ServerMsgType::ClientIdResponse << newID << mClock.getElapsedTime() << p1 << p2;
 		mSocket.send(toSend, remoteAddress, remotePort);
+
+		for (auto& cl : mClients)
+		{
+			if (cl.getID() != newID)
+			{
+				toSend.clear();
+				toSend << ServerMsgType::ObjectCreation << p1;
+				mSocket.send(toSend, cl.getAddress(), cl.getPort());
+
+				toSend.clear();
+				toSend << ServerMsgType::ObjectCreation << p2;
+				mSocket.send(toSend, cl.getAddress(), cl.getPort());
+			}
+		}
 
 		break;
 	}
@@ -110,9 +130,9 @@ void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		Inputs inputs;
 		packet >> id >> inputs;
 
-		std::cout << "serv received inputs" << std::endl;
+		//std::cout << "serv received inputs of car " << id << std::endl;
 
-		//mWorld.setCarInputs(id, inputs);
+		mWorld.setCarInputs(id, inputs, mClock.getElapsedTime());
 
 		break;
 	}
@@ -122,7 +142,7 @@ void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		sf::Time timeSent;
 		packet >> id >> timeSent;
 
-		std::cout << "serv received ping response by " << id << std::endl;
+		//std::cout << "serv received ping response by " << id << std::endl;
 
 		ClientData& client = getClientFromID(id);
 		client.setDelay(sf::microseconds((mClock.getElapsedTime() - timeSent).asMicroseconds() / 2));
@@ -162,7 +182,7 @@ ClientData& GameServer::getClientFromID(sf::Uint32 id)
 
 void GameServer::sendPing(ClientData& client)
 {
-	std::cout << "serv ping at " << client.getID() << std::endl;
+	//std::cout << "serv ping at " << client.getID() << std::endl;
 	sf::Packet packet;
 	packet << ServerMsgType::PingRequest << mClock.getElapsedTime();
 	mSocket.send(packet, client.getAddress(), client.getPort());

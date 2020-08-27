@@ -4,7 +4,8 @@
 namespace GUI
 {
 	PlayerGUI::PlayerGUI(const FontHolder& fonts) :
-		mAction("Shoot", fonts)
+		mAction("Shoot", fonts),
+		mPlayer(nullptr)
 	{
 
 	}
@@ -69,22 +70,25 @@ namespace GUI
 
 	void PlayerGUI::updateElements(sf::RenderTarget& target, std::vector<Entity*> entities, sf::Vector2f worldSize)
 	{
-		Car* car = mPlayer->getCar();
-
-		if (mPlayer->getID() == 0) setPosition(target.mapPixelToCoords(sf::Vector2i(0, 800)));
-		else setPosition(target.mapPixelToCoords(sf::Vector2i(800, 800)));
-
-		mAction.setPosition(getPosition());
-		mSpeedometerBackground.setPosition(getPosition() + sf::Vector2f(400, 100));
-		mSpeedometer.setPosition(mSpeedometerBackground.getPosition());
-
-		mAction.setText(car->getActionText());
-		mSpeedometer.setRotation(180.f + 180.f * car->getSpeedRatio());
-
-		mMiniMapShapes.clear();
-		if (mPlayer->getCar()->getShowMap())
+		if (mPlayer != nullptr)
 		{
-			updateMap(entities, worldSize);
+			Car* car = mPlayer->getCar();
+
+			if (mPlayer->getID() == 0) setPosition(target.mapPixelToCoords(sf::Vector2i(0, 800)));
+			else setPosition(target.mapPixelToCoords(sf::Vector2i(800, 800)));
+
+			mAction.setPosition(getPosition());
+			mSpeedometerBackground.setPosition(getPosition() + sf::Vector2f(400, 100));
+			mSpeedometer.setPosition(mSpeedometerBackground.getPosition());
+
+			mAction.setText(car->getActionText());
+			mSpeedometer.setRotation(180.f + 180.f * car->getSpeedRatio());
+
+			mMiniMapShapes.clear();
+			if (mPlayer->getCar()->getShowMap())
+			{
+				updateMap(entities, worldSize);
+			}
 		}
 	}
 
@@ -116,17 +120,19 @@ namespace GUI
 	void PlayerGUI::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
 		//states.transform *= getTransform();
-
-		target.draw(mAction, states);
-		target.draw(mSpeedometerBackground, states);
-		target.draw(mSpeedometer, states);
-
-		if (mPlayer->getCar()->getShowMap())
+		if (mPlayer != nullptr)
 		{
-			target.draw(mMiniMap);
-			for (auto& shape : mMiniMapShapes)
+			target.draw(mAction, states);
+			target.draw(mSpeedometerBackground, states);
+			target.draw(mSpeedometer, states);
+
+			if (mPlayer->getCar()->getShowMap())
 			{
-				target.draw(shape);
+				target.draw(mMiniMap);
+				for (auto& shape : mMiniMapShapes)
+				{
+					target.draw(shape);
+				}
 			}
 		}
 	}

@@ -5,11 +5,14 @@
 #include "ResourceIdentifiers.h"
 #include <PlayerGUI.h>
 #include <queue>
+#include <NetworkCommon.h>
 
 class World
 {
 public:
-							World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2, const FontHolder& fonts);
+							World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2, const FontHolder& fonts, bool local);
+	void					initialize(EntityStruct p1, EntityStruct p2);
+
 	void					update(sf::Time dt);
 	void					clientUpdate(sf::Time dt);
 	void					draw();
@@ -35,6 +38,9 @@ private:
 
 	sf::RenderTarget&			mTarget;
 	TextureHolder				mTextures;
+
+	KeyBinding*					mPlayerOneKeys;
+	KeyBinding*					mPlayerTwoKeys;
 
 	GUI::PlayerGUI				mPlayerOneGUI;
 	GUI::PlayerGUI				mPlayerTwoGUI;

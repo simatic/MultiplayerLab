@@ -4,6 +4,7 @@
 #include <SFML/System.hpp>
 #include <Player.h>
 #include <stack>
+#include <NetworkCommon.h>
 
 //struct TimedInputs
 //{
@@ -34,7 +35,7 @@ struct UpdateFrame
 class ServerWorld
 {
 public:
-							ServerWorld();
+							ServerWorld(const TextureHolder& textures);
 	void					update(sf::Time serverTime, sf::Time dt);
 	bool					handleEvent(const sf::Event& event);
 
@@ -44,6 +45,8 @@ public:
 
 	Entity*					getEntityFromId(sf::Uint64 id);
 	void					setCarInputs(sf::Uint64 id, Inputs inputs, sf::Time t);
+
+	void					createCar(EntityStruct car);
 
 private:
 	std::vector<Entity*>		mEntities;
@@ -56,4 +59,6 @@ private:
 
 	float						mWorldWidth;
 	float						mWorldHeight;
+
+	const TextureHolder&		mTextures;
 };
