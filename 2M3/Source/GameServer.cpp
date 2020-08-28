@@ -2,8 +2,8 @@
 #include <NetworkCommon.h>
 #include <iostream>
 
-GameServer::GameServer(const TextureHolder& textures)
-	: mWorld(textures)
+GameServer::GameServer()
+	: mWorld()
 	, mClock()
 	, mSocket()
 	, mClients()
@@ -52,7 +52,7 @@ void GameServer::run()
 		{
 			timeSinceLastFrame -= TimePerFrame;
 
-			mWorld.update(t, dt, mSocket, mClients);
+			mWorld.update(t, dt, mSocket, mClients, mAvailableEntityIDs);
 		}
 	}
 }

@@ -140,7 +140,7 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 	{
 		EntityStruct baseEnt;
 		packet >> baseEnt;
-		//std::cout << "received object " << baseEnt.id << " creation of type " << (int)baseEnt.entityType << std::endl;
+		std::cout << "received object " << baseEnt.id << " creation of type " << (int)baseEnt.entityType << std::endl;
 		//std::cout << "(carType: " << (int)Entity::Type::CarType << ")" << std::endl;
 
 		switch (baseEnt.entityType)
@@ -159,10 +159,13 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		}
 		case Entity::Type::ProjectileType:
 		{
+			std::cout << "porjectile" << std::endl;
+
 			sf::Uint64 shooterID;
 			packet >> shooterID;
 			if (ownsCar(shooterID, world)) //projectile already exists in local world
 			{
+				std::cout << "owned" << std::endl;
 				world.getUnassignedEntity()->setID(baseEnt.id);
 			}
 			else

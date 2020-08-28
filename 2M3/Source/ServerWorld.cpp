@@ -5,17 +5,17 @@
 #include <functional>
 #include <iostream>
 
-ServerWorld::ServerWorld(const TextureHolder& textures)
+ServerWorld::ServerWorld()
 	: mWorldWidth(16000.f)
 	, mWorldHeight(9000.f)
-	, mTextures(textures)
+	, mTextures()
 {
-	Car* dummy = new Car(10, sf::Vector2f(8000, 4400), sf::RectangleShape(sf::Vector2f(80, 40)), mTextures);
-	dummy->setID(1337);
-	mEntities.push_back(dummy);
+	mTextures.load(Textures::Car, "Media/Textures/Car.png");
+	mTextures.load(Textures::Bullet, "Media/Textures/Bullet.png");
+	mTextures.load(Textures::Missile, "Media/Textures/Missile.png");
 }
 
-void ServerWorld::update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket, std::vector<ClientData>& clients)
+void ServerWorld::update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket, std::vector<ClientData>& clients, std::stack<sf::Uint64>& availableIDs)
 {
 	for (auto& ent : mEntities)
 	{
@@ -44,6 +44,14 @@ void ServerWorld::update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket
 
 	for (auto& newEnt : mNewEntities)
 	{
+		if (newEnt->getID() == 0)
+		{
+			sf::Uint64 id = availableIDs.top();
+			availableIDs.pop();
+			if (availableIDs.empty()) availableIDs.emplace(id + 1);
+			newEnt->setID(id);
+		}
+
 		mEntities.push_back(newEnt);
 		//to do : send object creations
 		for (auto& client : clients)
@@ -74,6 +82,7 @@ void ServerWorld::update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket
 			default:
 				break;
 			}
+			std::cout << "sending object creation " << entStruct.id << std::endl;
 			socket.send(packet, client.getAddress(), client.getPort());
 		}
 	}
@@ -141,7 +150,7 @@ void ServerWorld::setCarInputs(sf::Uint64 id, Inputs inputs, sf::Time t)
 	
 }
 
-void ServerWorld::rollback(sf::Time present, sf::Time rollbackDate, sf::UdpSocket& socket, std::vector<ClientData>& clients)
+void ServerWorld::rollback(sf::Time present, sf::Time rollbackDate, sf::UdpSocket& socket, std::vector<ClientData>& clients, std::stack<sf::Uint64>& availableIDs)
 {
 	sf::Time current = present;
 	std::stack<sf::Time> deltas = std::stack<sf::Time>();
@@ -179,7 +188,7 @@ void ServerWorld::rollback(sf::Time present, sf::Time rollbackDate, sf::UdpSocke
 		sf::Time dt = deltas.top();
 		deltas.pop();
 
-		update(current, dt, socket, clients);
+		update(current, dt, socket, clients, availableIDs);
 		current += dt;
 	}
 }

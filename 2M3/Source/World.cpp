@@ -100,8 +100,8 @@ void World::clientUpdate(sf::Time dt)
 	{
 		pair.first->onCollision(pair.second);
 	}
-	auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&Entity::toRemove));
-	mEntities.erase(removeBegin, mEntities.end());
+	/*auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&Entity::toRemove));
+	mEntities.erase(removeBegin, mEntities.end());*/
 
 	for (auto& ent : mEntities)
 	{
@@ -162,9 +162,12 @@ Entity* World::getEntityFromId(sf::Uint64 id)
 	{
 		if (ent->getID() == id) return ent;
 	}
-	/*std::cerr << "Error: no entity with such ID : " << id << std::endl;
-	exit(EXIT_FAILURE);*/
-	return nullptr;
+	for (auto& ent : mNewEntities)
+	{
+		if (ent->getID() == id) return ent;
+	}
+	std::cerr << "Error: no entity with such ID : " << id << std::endl;
+	exit(EXIT_FAILURE);
 }
 
 std::vector<Player*>& World::getPlayers()

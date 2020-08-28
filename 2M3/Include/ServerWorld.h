@@ -6,6 +6,8 @@
 #include <stack>
 #include <NetworkCommon.h>
 #include <ClientData.h>
+#include <ResourceHolder.h>
+#include <ResourceIdentifiers.h>
 
 //struct TimedInputs
 //{
@@ -36,11 +38,11 @@ struct UpdateFrame
 class ServerWorld
 {
 public:
-							ServerWorld(const TextureHolder& textures);
-	void					update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket, std::vector<ClientData>& clients);
+							ServerWorld();
+	void					update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket, std::vector<ClientData>& clients, std::stack<sf::Uint64>& availableIDs);
 	bool					handleEvent(const sf::Event& event);
 
-	void					rollback(sf::Time present, sf::Time rollbackDate, sf::UdpSocket& socket, std::vector<ClientData>& clients);
+	void					rollback(sf::Time present, sf::Time rollbackDate, sf::UdpSocket& socket, std::vector<ClientData>& clients, std::stack<sf::Uint64>& availableIDs);
 
 	sf::Vector2f			getWorldSize();
 	std::vector<Entity*>	getCars();
@@ -64,5 +66,5 @@ private:
 	float						mWorldWidth;
 	float						mWorldHeight;
 
-	const TextureHolder&		mTextures;
+	TextureHolder				mTextures;
 };

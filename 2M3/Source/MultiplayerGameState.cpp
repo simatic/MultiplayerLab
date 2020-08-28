@@ -16,7 +16,7 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 {
 	if (isHost)
 	{
-		mGameServer.reset(new GameServer(*context.textures));
+		mGameServer.reset(new GameServer());
 		std::cout << "Server address: " << mGameServer->getAdress() <<"\n";
 		mConnected = true;
 		mGameClient.setServerAddress(mGameServer->getAdress());

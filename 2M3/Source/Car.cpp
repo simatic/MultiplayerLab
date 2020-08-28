@@ -126,6 +126,8 @@ void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> en
 
 	mDust.setPosition(mPosition - (float)20 * mCarDirection);
 	mDust.update(dt);
+
+	mInputs = { false, false, false, false, false, false, false };
 }
 
 void Car::getInput()
@@ -142,23 +144,17 @@ void Car::getInput()
 
 void Car::getInput(sf::Time serverTime)
 {
-	std::map<sf::Time, Inputs>::iterator low, prev;
+	std::map<sf::Time, Inputs>::iterator low;
 	low = mServerInputs.lower_bound(serverTime);
 	if (low == mServerInputs.begin())
 	{
 		//serverTime is lower than every input timestamp
 		mInputs = { false, false, false, false, false, false, false };
 	}
-	else if (low == mServerInputs.end())
-	{
-		//no input with time not less than serverTime aka serverTime is greater than every input timestamp
-		low--;
-		mInputs = low->second;
-	}
 	else
 	{
-		prev = std::prev(low);
-		mInputs = prev->second;
+		--low;
+		mInputs = low->second;
 	}
 }
 
@@ -198,129 +194,121 @@ void Car::useInputs(sf::Time dt, std::vector<Entity*>& newEntities)
 	}
 
 	//realtime handling
-	if (!mCrash)
+	float angle = 0;
+	float angleSign = 0;
+	if (mInputs.left && l > 50)
 	{
-		float angle = 0;
-		float angleSign = 0;
-		if (mInputs.left && l > 50)
-		{
-			angle += M_PI / 3;
-			angleSign += 1;
-		}
-		if (mInputs.right && l > 50)
-		{
-			angle -= M_PI / 3;
-			angleSign -= 1;
-		}
+		angle += M_PI / 3;
+		angleSign += 1;
+	}
+	if (mInputs.right && l > 50)
+	{
+		angle -= M_PI / 3;
+		angleSign -= 1;
+	}
 
-		float accel = 0;
-		bool driftBrake = false;
-		if (mInputs.up)
-		{
-			float f = 1;
-			if (!mForward) f = 10;
-			accel += f * mCarAcceleration;
-		}
-		if (mInputs.down)
-		{
-			if (mForward && l > mDriftTheshold && angleSign != 0) driftBrake = true;
-			else
-			{
-				float f = 1;
-				if (mForward) f = 10;
-				accel -= f * mCarAcceleration;
-			}
-		}
-		if (accel == 0 && l > 200)
-		{
-			accel = (l * l + 2 * l) * mDrag;
-			if (mForward) accel *= -1;
-		}
-		else if (accel == 0)
-		{
-			mVelocity = sf::Vector2f(0, 0);
-		}
-
-		float tangAccel = accel * cos(angle);
-		float radAccel = accel * sin(angle);
-		sf::Vector2f tangAccelVector = tangAccel * mCarDirection;
-		mVelocity += tangAccelVector * dt.asSeconds();
-		l = length(mVelocity);
-		if (mForward && l > mCarMaxSpeed)
-		{
-			mVelocity *= mCarMaxSpeed / l;
-		}
-		else if (!mForward && l > mCarBackwardsMaxSpeed)
-		{
-			mVelocity *= mCarBackwardsMaxSpeed / l;
-		}
-
-		bool prevDrifting = mDrifting;
-		mDrifting = mForward && l > mDriftTheshold && angleSign != 0 && driftBrake;
-
-		float theta = sqrt(abs(radAccel) / mTurnRadius) * dt.asSeconds();
-		mForward = dotProduct(mVelocity, mCarDirection) >= 0;
-		if (!mForward)
-		{
-			mVelocity = rotate(mVelocity, -theta * angleSign);
-			mCarDirection = rotate(mCarDirection, -theta * angleSign);
-		}
+	float accel = 0;
+	bool driftBrake = false;
+	if (mInputs.up)
+	{
+		float f = 1;
+		if (!mForward) f = 10;
+		accel += f * mCarAcceleration;
+	}
+	if (mInputs.down)
+	{
+		if (mForward && l > mDriftTheshold && angleSign != 0) driftBrake = true;
 		else
 		{
-			mVelocity = rotate(mVelocity, theta * angleSign);
-			mCarDirection = rotate(mCarDirection, theta * angleSign);
+			float f = 1;
+			if (mForward) f = 10;
+			accel -= f * mCarAcceleration;
 		}
+	}
+	if (accel == 0 && l > 200)
+	{
+		accel = (l * l + 2 * l) * mDrag;
+		if (mForward) accel *= -1;
+	}
+	else if (accel == 0)
+	{
+		mVelocity = sf::Vector2f(0, 0);
+	}
 
-		if (prevDrifting && !mDrifting)
-		{
-			mCarDirection = rotate(mCarDirection, mPrevDriftingSign * mDriftAngle);
-			mVelocity = rotate(mVelocity, mPrevDriftingSign * mDriftAngle);
-		}
-		mPrevDriftingSign = angleSign;
+	float tangAccel = accel * cos(angle);
+	float radAccel = accel * sin(angle);
+	sf::Vector2f tangAccelVector = tangAccel * mCarDirection;
+	mVelocity += tangAccelVector * dt.asSeconds();
+	l = length(mVelocity);
+	if (mForward && l > mCarMaxSpeed)
+	{
+		mVelocity *= mCarMaxSpeed / l;
+	}
+	else if (!mForward && l > mCarBackwardsMaxSpeed)
+	{
+		mVelocity *= mCarBackwardsMaxSpeed / l;
+	}
 
-		float carAngle = 0;
-		if (mCarDirection.x != 0) carAngle = -atan2(mCarDirection.y, mCarDirection.x);
-		if (mCarDirection.x == 0 && mCarDirection.y != 0) carAngle = M_PI_2 * mCarDirection.y / abs(mCarDirection.y);
-		if (mDrifting) carAngle += angleSign * mDriftAngle;
-		mRotation = -carAngle * 180.0 / M_PI;
+	bool prevDrifting = mDrifting;
+	mDrifting = mForward && l > mDriftTheshold && angleSign != 0 && driftBrake;
 
-		sf::Vector2f projDir = mCarDirection;
-		if (mDrifting) projDir = rotate(projDir, angleSign * mDriftAngle);
-
-		if (mAction == CarAction::LaunchMissile && mLaunchedMissile)
-		{
-			mLaunchedMissile = false;
-			mMissileAmmo--;
-
-			Projectile* proj = new Projectile(5, sf::seconds(10), 400, 400, mPosition + 25.f * projDir, projDir, sf::RectangleShape(sf::Vector2f(30, 10)), this, getTextures());
-			newEntities.push_back(proj);
-		}
-
-		if (mInputs.action && !needsEventInput()) //&& mCurrentShootDelay <= sf::Time::Zero)
-		{
-			switch (mAction)
-			{
-			case Car::CarAction::ShootBullet:
-			{
-				if (mCurrentShootDelay <= sf::Time::Zero)
-				{
-					mCurrentShootDelay = mShootDelay;
-
-					Projectile* proj = new Projectile(1, sf::seconds(1), 1500, mPosition + 25.f * projDir, projDir, sf::RectangleShape(sf::Vector2f(5, 5)), this, getTextures());
-					newEntities.push_back(proj);
-				}
-				break;
-			}
-			default:
-				break;
-			}
-		}
+	float theta = sqrt(abs(radAccel) / mTurnRadius) * dt.asSeconds();
+	mForward = dotProduct(mVelocity, mCarDirection) >= 0;
+	if (!mForward)
+	{
+		mVelocity = rotate(mVelocity, -theta * angleSign);
+		mCarDirection = rotate(mCarDirection, -theta * angleSign);
 	}
 	else
 	{
+		mVelocity = rotate(mVelocity, theta * angleSign);
+		mCarDirection = rotate(mCarDirection, theta * angleSign);
 	}
 
-	mInputs = { false, false, false, false, false, false, false };
+	if (prevDrifting && !mDrifting)
+	{
+		mCarDirection = rotate(mCarDirection, mPrevDriftingSign * mDriftAngle);
+		mVelocity = rotate(mVelocity, mPrevDriftingSign * mDriftAngle);
+	}
+	mPrevDriftingSign = angleSign;
+
+	float carAngle = 0;
+	if (mCarDirection.x != 0) carAngle = -atan2(mCarDirection.y, mCarDirection.x);
+	if (mCarDirection.x == 0 && mCarDirection.y != 0) carAngle = M_PI_2 * mCarDirection.y / abs(mCarDirection.y);
+	if (mDrifting) carAngle += angleSign * mDriftAngle;
+	mRotation = -carAngle * 180.0 / M_PI;
+
+	sf::Vector2f projDir = mCarDirection;
+	if (mDrifting) projDir = rotate(projDir, angleSign * mDriftAngle);
+
+	if (mAction == CarAction::LaunchMissile && mLaunchedMissile)
+	{
+		mLaunchedMissile = false;
+		mMissileAmmo--;
+
+		Projectile* proj = new Projectile(5, sf::seconds(10), 400, 400, mPosition + 25.f * projDir, projDir, sf::RectangleShape(sf::Vector2f(30, 10)), this, getTextures());
+		newEntities.push_back(proj);
+	}
+
+	if (mInputs.action && !needsEventInput()) //&& mCurrentShootDelay <= sf::Time::Zero)
+	{
+		switch (mAction)
+		{
+		case Car::CarAction::ShootBullet:
+		{
+			if (mCurrentShootDelay <= sf::Time::Zero)
+			{
+				mCurrentShootDelay = mShootDelay;
+
+				Projectile* proj = new Projectile(1, sf::seconds(1), 1500, mPosition + 25.f * projDir, projDir, sf::RectangleShape(sf::Vector2f(5, 5)), this, getTextures());
+				newEntities.push_back(proj);
+			}
+			break;
+		}
+		default:
+			break;
+		}
+	}
 }
 
 bool Car::handleEvent(const sf::Event& event)
