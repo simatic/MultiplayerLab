@@ -14,7 +14,7 @@ GameServer::GameServer(const TextureHolder& textures)
 	mAdress	= sf::IpAddress::getLocalAddress();
 	bindPort();
 	mAvailableEntityIDs.push(1);
-	mAvailableClientIDs.push(0);
+	mAvailableClientIDs.push(1);
 }
 
 void GameServer::run()
@@ -98,7 +98,7 @@ void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 	case ClientMsgType::ClientIdRequest:
 	{
 		sf::Uint32 newID = getNewClientID();
-		std::cout << "received id request, given " << newID << std::endl;
+		//std::cout << "received id request, given " << newID << std::endl;
 		ClientData client = ClientData(newID, remoteAddress, remotePort);
 		mClients.push_back(client);
 

@@ -3,7 +3,8 @@
 #include <iostream>
 
 GameClient::GameClient()
-	: mSocket()
+	: mSocket(),
+	mID(0)
 {
 	mPort = sf::Socket::AnyPort;
 	bindSocket();
@@ -85,7 +86,7 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		sf::Vector2f carDir;
 		packet >> carStruct >> carDir;
 
-		std::cout << "received car " << carStruct.id << " update" << std::endl;
+		//std::cout << "received car " << carStruct.id << " update" << std::endl;
 		Entity* carEnt = world.getEntityFromId(carStruct.id);
 		Car* car = dynamic_cast<Car*>(carEnt);
 
@@ -98,14 +99,17 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 	}
 	case ServerMsgType::ClientIdResponse:
 	{
-		sf::Time timeSent;
-		packet >> mID >> timeSent;
-		//mClockOffset = timeSent - mClock.getElapsedTime();
-		
-		std::cout << "received client id response " << mID << std::endl;
-		EntityStruct p1, p2;
-		packet >> p1 >> p2;
-		world.initialize(p1, p2);
+		if (mID == 0)
+		{
+			sf::Time timeSent;
+			packet >> mID >> timeSent;
+			//mClockOffset = timeSent - mClock.getElapsedTime();
+
+			std::cout << "received client id response " << mID << std::endl;
+			EntityStruct p1, p2;
+			packet >> p1 >> p2;
+			world.initialize(p1, p2);
+		}
 
 		break;
 	}
@@ -130,17 +134,18 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 	case ServerMsgType::ObjectCreation:
 	{
 		EntityStruct baseEnt;
-		sf::Uint64 creatorID;
 		packet >> baseEnt;
+		//std::cout << "received object " << baseEnt.id << " creation of type " << (int)baseEnt.entityType << std::endl;
+		//std::cout << "(carType: " << (int)Entity::Type::CarType << ")" << std::endl;
 
 		switch (baseEnt.entityType)
 		{
 		case Entity::Type::CarType:
 		{
-			std::cout << "creating car " << baseEnt.id << std::endl;
+			//std::cout << "creating car " << baseEnt.id << std::endl;
 			sf::Vector2f direction;
 			packet >> direction;
-			world.createCar(baseEnt.id, baseEnt.position, baseEnt.velocity, direction);
+			if (!ownsCar(baseEnt.id, world)) world.createCar(baseEnt.id, baseEnt.position, baseEnt.velocity, direction);
 			break;
 		}
 		case Entity::Type::PickUpType:
@@ -160,7 +165,7 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 				bool guided;
 				packet >> guided;
 
-				std::cout << "searching shooter " << shooterID << std::endl;
+				//std::cout << "searching shooter " << shooterID << std::endl;
 				Car* shooter = dynamic_cast<Car*>(world.getEntityFromId(shooterID));
 
 				world.createProjectile(baseEnt.id, baseEnt.position, baseEnt.velocity, shooter, guided);
@@ -179,7 +184,7 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		sf::Uint64 id;
 		packet >> id;
 
-		std::cout << "destroying objects " << id << std::endl;
+		//std::cout << "destroying objects " << id << std::endl;
 		world.getEntityFromId(id)->remove();
 
 		break;
@@ -203,12 +208,12 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 
 void GameClient::sendCarsInputs(const std::vector<Player*>& players)
 {
-	std::cout << "sending car inputs : size " << players.size() << std::endl;
+	//std::cout << "sending car inputs : size " << players.size() << std::endl;
 	for (auto& player : players)
 	{
 		sf::Packet toSend;
 		Car* car = player->getCar();
-		std::cout << "car " << car->getID() << std::endl;
+		//std::cout << "car " << car->getID() << std::endl;
 		toSend << ClientMsgType::Input << car->getID() << car->getSavedInputs();
 
 		mSocket.send(toSend, mServerAddress, mServerPort);

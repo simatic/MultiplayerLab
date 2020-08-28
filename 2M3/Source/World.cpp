@@ -191,11 +191,13 @@ void World::createProjectile(sf::Uint64 id, sf::Vector2f pos, sf::Vector2f veloc
 	if (guided)
 	{
 		Projectile* proj = new Projectile(5, sf::seconds(10), 400, 400, pos, projDir, sf::RectangleShape(sf::Vector2f(30, 10)), creator, mTextures);
+		proj->setSprite();
 		mNewEntities.push_back(proj);
 	}
 	else
 	{
 		Projectile* proj = new Projectile(1, sf::seconds(1), 1500, pos, projDir, sf::RectangleShape(sf::Vector2f(5, 5)), creator, mTextures);
+		proj->setSprite();
 		mNewEntities.push_back(proj);
 	}
 }
@@ -206,5 +208,6 @@ void World::createCar(sf::Uint64 id, sf::Vector2f pos, sf::Vector2f velocity, sf
 	car->setID(id);
 	car->setVelocity(velocity);
 	car->setCarDirection(direction);
+	car->setSprite();
 	mNewEntities.push_back(car);
 }
