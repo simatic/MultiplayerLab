@@ -92,18 +92,21 @@ void Car::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*
 {
 	if (mCurrentShootDelay > sf::Time::Zero) mCurrentShootDelay -= dt;
 
-	getInput();
-	useInputs(dt, newEntities);
+	if (!mTrajectory.empty()) //maybe skip usual computation when we use dead reckoning?
+	{
+		stepUpDeadReckoning();
+	}
+	else
+	{
+		getInput();
+		useInputs(dt, newEntities);
+	}
 
 	Entity::update(dt, entities, newEntities, pairs);
 
 	mTires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
 	mTires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
 
-	if (!mTrajectory.empty()) //maybe skip usual computation when we use dead reckoning?
-	{
-		stepUpDeadReckoning();
-	}
 
 	mDust.setPosition(mPosition - (float)20 * mCarDirection);
 	mDust.update(dt);
