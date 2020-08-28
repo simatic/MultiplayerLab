@@ -4,6 +4,8 @@
 #include <Projectile.h>
 #include <PickUp.h>
 #include "ResourceHolder.h"
+#include "NetworkCommon.h"
+#include <math.h>
 
 
 Car::Car(const TextureHolder& textures) :
@@ -19,7 +21,7 @@ Car::Car(const TextureHolder& textures) :
 	mMissileAmmo(5),
 	mShowMap(false),
 	mInputs({ false, false, false, false, false, false, false }),
-	mDeadReckoningStep(0),
+	mTrajectory(),	
 	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)), textures)
 {
 	mType = Type::CarType;
@@ -38,6 +40,7 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder&
 	mMissileAmmo(5),
 	mShowMap(false),
 	mInputs({ false, false, false, false, false, false, false }),
+	mTrajectory(),
 	Entity(pos, rect, textures)
 {
 	mType = Type::CarType;
@@ -96,6 +99,11 @@ void Car::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*
 
 	mTires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
 	mTires.append(sf::Vertex(mPosition - (float)20 * mCarDirection));
+
+	if (!mTrajectory.empty()) //maybe skip usual computation when we use dead reckoning?
+	{
+		stepUpDeadReckoning();
+	}
 
 	mDust.setPosition(mPosition - (float)20 * mCarDirection);
 	mDust.update(dt);
@@ -518,29 +526,22 @@ void Car::setInputs(Inputs inputs)
 
 void Car::computeDeadReckoning(sf::Vector2f newPosition, sf::Vector2f newVelocity, sf::Vector2f newCarDirection)
 {
-	if (mDeadReckoningStep == 0)
-	{
-		mPosition += (1.f / 3.f) * (newPosition - mPosition);
-		mVelocity += (1.f / 3.f) * (newVelocity - mVelocity);
-		mCarDirection += (1.f / 3.f) * (newCarDirection - mCarDirection);
-	}
+	int numberOfSteps;
+	numberOfSteps = floor(TimePerFrame / TimePerTick);
+	mTrajectory.empty();
 
-	if (mDeadReckoningStep == 1)
+	for (int i = 0; i < numberOfSteps; i++)
 	{
-		mPosition += (1.f / 2.f) * (newPosition - mPosition);
-		mVelocity += (1.f / 2.f) * (newVelocity - mVelocity);
-		mCarDirection += (1.f / 2.f) * (newCarDirection - mCarDirection);
+		mTrajectory.push({ mPosition + ((1.f / (numberOfSteps - i)) * (newPosition - mPosition)), mVelocity + ((1.f / (numberOfSteps - i)) * (newVelocity - mVelocity)), mCarDirection + ((1.f / (numberOfSteps - i)) * (newCarDirection - mCarDirection)) });
 	}
+}
 
-	if (mDeadReckoningStep == 2)
-	{
-		mPosition = newPosition;
-		mVelocity = newVelocity;
-		mCarDirection = newCarDirection;
-	}
-
-	mDeadReckoningStep += 1;
-	mDeadReckoningStep = mDeadReckoningStep % 3;
+void Car::stepUpDeadReckoning()
+{
+	mPosition = mTrajectory.front().position;
+	mVelocity = mTrajectory.front().velocity;
+	mCarDirection = mTrajectory.front().direction;
+	mTrajectory.pop();
 }
 
 void Car::insertInputs(sf::Time serverTime, Inputs inputs)

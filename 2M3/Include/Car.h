@@ -4,6 +4,7 @@
 #include <math.h>
 #include <KeyBinding.h>
 #include <Particles.h>
+#include <queue>
 
 struct Inputs
 {
@@ -14,6 +15,13 @@ struct Inputs
 	bool action;
 	bool changeActionEvent;
 	bool doActionEvent;
+};
+
+struct SpatialVars
+{
+	sf::Vector2f position;
+	sf::Vector2f velocity;
+	sf::Vector2f direction;
 };
 
 class Car : public Entity
@@ -61,6 +69,7 @@ public:
 	void setCarDirection(sf::Vector2f d);
 
 	void computeDeadReckoning(sf::Vector2f newPosition, sf::Vector2f newVelocity, sf::Vector2f newCarDirection);
+	void stepUpDeadReckoning();
 
 private:
 	int mHP;
@@ -100,6 +109,5 @@ private:
 	int mMissileAmmo;
 	bool mShowMap;
 
-	int mDeadReckoningStep;
-
+	std::queue<SpatialVars> mTrajectory;
 };

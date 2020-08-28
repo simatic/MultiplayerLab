@@ -7,7 +7,7 @@
 //const std::string_view DEFAULT_HOST("localhost");
 const unsigned short ServerPort = 5000;
 const sf::Time TimePerTick = sf::seconds(1.f / 20.f);
-
+const sf::Time TimePerFrame = sf::seconds(1.f / 60.f);
 // Type of messages
 
 // Packets originated in the server

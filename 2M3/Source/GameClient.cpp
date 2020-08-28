@@ -89,6 +89,11 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		Entity* carEnt = world.getEntityFromId(carStruct.id);
 		Car* car = dynamic_cast<Car*>(carEnt);
 
+		if (!ownsCar(carStruct.id, world))
+		{
+			car->computeDeadReckoning(carStruct.position, carStruct.velocity, carDir);
+		}
+
 		//car->setPosition(carStruct.position);
 		//car->setVelocity(carStruct.velocity);
 		//car->setCarDirection(carDir);
