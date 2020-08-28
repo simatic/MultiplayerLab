@@ -1,17 +1,19 @@
 #include <NetworkCommon.h>
+#include <iostream>
 
 sf::Packet& operator<<(sf::Packet& packet, const EntityStruct& entity)
 {
-	return packet << entity.id << static_cast<sf::Uint32>(entity.entityType) << entity.position.x << entity.position.y << entity.velocity.x << entity.velocity.y;
+	return packet << entity.id << static_cast<sf::Uint64>(entity.entityType) << entity.position.x << entity.position.y << entity.velocity.x << entity.velocity.y;
 }
 
 sf::Packet& operator>>(sf::Packet& packet, EntityStruct& entity)
 {
 	packet >> entity.id; 
 	
-	sf::Uint32 type;
+	sf::Uint64 type;
 	packet >> type;
-	entity.entityType = static_cast<Entity::Type>(entity.entityType);
+	entity.entityType = static_cast<Entity::Type>(type);
+	//std::cout << "operator packet << entityStruct : received id " << entity.id << " and type " << type << " translated to type " << (int)entity.entityType << std::endl;
 
 	packet >> entity.position.x >> entity.position.y >> entity.velocity.x >> entity.velocity.y;
 	return packet;

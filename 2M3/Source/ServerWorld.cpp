@@ -10,6 +10,9 @@ ServerWorld::ServerWorld(const TextureHolder& textures)
 	, mWorldHeight(9000.f)
 	, mTextures(textures)
 {
+	Car* dummy = new Car(10, sf::Vector2f(8000, 4400), sf::RectangleShape(sf::Vector2f(80, 40)), mTextures);
+	dummy->setID(1337);
+	mEntities.push_back(dummy);
 }
 
 void ServerWorld::update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket, std::vector<ClientData>& clients)
@@ -26,8 +29,8 @@ void ServerWorld::update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket
 		for (auto& client : clients)
 		{
 			sf::Packet packet;
-			packet << pair.first->getID() << pair.second->getID();
-			std::cout << "sending collision between " << pair.first->getID() << " and " << pair.second->getID() << std::endl;
+			//std::cout << "sending collision between " << pair.first->getID() << " and " << pair.second->getID() << std::endl;
+			packet << ServerMsgType::Collision << pair.first->getID() << pair.second->getID();
 			socket.send(packet, client.getAddress(), client.getPort());
 		}
 	}
@@ -71,7 +74,7 @@ void ServerWorld::update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket
 			default:
 				break;
 			}
-			//socket.send(packet, client.getAddress(), client.getPort());
+			socket.send(packet, client.getAddress(), client.getPort());
 		}
 	}
 	mNewEntities.clear();
@@ -109,7 +112,7 @@ std::vector<Entity*> ServerWorld::getCars()
 
 Entity* ServerWorld::getEntityFromId(sf::Uint64 id)
 {
-	std::cout << "searching for entity id " << id << std::endl;
+	//std::cout << "searching for entity id " << id << std::endl;
 	for (auto& ent : mEntities)
 	{
 		if (ent->getID() == id) return ent;
@@ -129,7 +132,7 @@ Entity* ServerWorld::getEntityFromId(sf::Uint64 id)
 
 void ServerWorld::setCarInputs(sf::Uint64 id, Inputs inputs, sf::Time t)
 {
-	std::cout << "setting car inputs " << id << std::endl;
+	//std::cout << "setting car inputs " << id << std::endl;
 	Entity* entity = getEntityFromId(id);
 	Car* car = dynamic_cast<Car*>(entity);
 	car->insertInputs(t, inputs);
@@ -183,7 +186,7 @@ void ServerWorld::rollback(sf::Time present, sf::Time rollbackDate, sf::UdpSocke
 
 void ServerWorld::createCar(EntityStruct car)
 {
-	std::cout << "creating car " << car.id << std::endl;
+	//std::cout << "creating car " << car.id << std::endl;
 	Car* obj = new Car(100, car.position, sf::RectangleShape(sf::Vector2f(80, 40)), mTextures);
 	obj->setID(car.id);
 	mNewEntities.push_back(obj);
@@ -191,10 +194,11 @@ void ServerWorld::createCar(EntityStruct car)
 
 void ServerWorld::sendWorld(ClientData client, sf::UdpSocket& socket, sf::Uint64 idCar1, sf::Uint64 idCar2)
 {
-	std::cout << "sending world" << std::endl;
+	//std::cout << "sending world" << std::endl;
 	for (auto& ent : mEntities)
 	{
 		sf::Uint64 id = ent->getID();
+		//std::cout << id << std::endl;
 		if (id != idCar1 && id != idCar2)
 		{
 			Entity::Type type = ent->getType();
@@ -207,6 +211,7 @@ void ServerWorld::sendWorld(ClientData client, sf::UdpSocket& socket, sf::Uint64
 			{
 			case Entity::Type::CarType:
 			{
+				//std::cout << "car " << id << std::endl;
 				Car* car = dynamic_cast<Car*>(ent);
 				packet << car->getCarDirection();
 

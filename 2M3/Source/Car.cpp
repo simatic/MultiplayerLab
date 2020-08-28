@@ -127,11 +127,14 @@ void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> en
 
 void Car::getInput()
 {
-	mInputs.left = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnLeft));
-	mInputs.right = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnRight));
-	mInputs.up = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Accelerate));
-	mInputs.down = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Brake));
-	mInputs.action = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::DoAction));
+	if (mKeyBindings != nullptr)
+	{
+		mInputs.left = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnLeft));
+		mInputs.right = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnRight));
+		mInputs.up = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Accelerate));
+		mInputs.down = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Brake));
+		mInputs.action = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::DoAction));
+	}
 }
 
 void Car::getInput(sf::Time serverTime)
@@ -319,8 +322,11 @@ void Car::useInputs(sf::Time dt, std::vector<Entity*>& newEntities)
 
 bool Car::handleEvent(const sf::Event& event)
 {
-	mInputs.changeActionEvent = mInputs.changeActionEvent || event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::ChangeAction);
-	mInputs.doActionEvent = mInputs.doActionEvent || event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::DoAction);
+	if (mKeyBindings != nullptr)
+	{
+		mInputs.changeActionEvent = mInputs.changeActionEvent || event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::ChangeAction);
+		mInputs.doActionEvent = mInputs.doActionEvent || event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::DoAction);
+	}
 
 	return true;
 }
