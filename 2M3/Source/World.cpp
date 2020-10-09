@@ -4,6 +4,7 @@
 #include <functional>
 #include <iostream>
 #include <Projectile.h>
+#include <Wall.h>
 
 World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2, const FontHolder& fonts, bool local)
 	: mTarget(outputTarget)
@@ -29,6 +30,8 @@ World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys
 
 		mPlayerOneGUI.initialize(p1);
 		mPlayerTwoGUI.initialize(p2);
+
+		addWalls();
 	}
 }
 
@@ -51,6 +54,21 @@ void World::initialize(EntityStruct p1, EntityStruct p2)
 
 	mPlayerOneGUI.initialize(player1);
 	mPlayerTwoGUI.initialize(player2);
+
+	addWalls();
+}
+
+void World::addWalls() {
+    auto horizontalWall = sf::RectangleShape(sf::Vector2f(mWorldWidth, 10.0f));
+    auto verticalWall = sf::RectangleShape(sf::Vector2f(10.0f, mWorldHeight));
+    // north
+    mEntities.push_back(new Wall(sf::Vector2f(0, -10), horizontalWall, mTextures));
+    // south
+    mEntities.push_back(new Wall(sf::Vector2f(0, mWorldHeight), horizontalWall, mTextures));
+    // west
+    mEntities.push_back(new Wall(sf::Vector2f(-10, 0), verticalWall, mTextures));
+    // east
+    mEntities.push_back(new Wall(sf::Vector2f(mWorldWidth, 0), verticalWall, mTextures));
 }
 
 void World::update(sf::Time dt)

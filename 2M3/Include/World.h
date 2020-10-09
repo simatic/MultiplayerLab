@@ -48,4 +48,6 @@ private:
 
 	float						mWorldWidth;
 	float						mWorldHeight;
+
+    void                        addWalls();
 };
