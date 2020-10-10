@@ -20,15 +20,11 @@ World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, const FontHolder
 	if (local)
 	{
 		Player* p1 = new Player(0, keys1, mTextures);
-		Player* p2 = new Player(1, keys1, mTextures);
 		mPlayers.push_back(p1);
-		mPlayers.push_back(p2);
 
 		mEntities.push_back(p1->getCar());
-		mEntities.push_back(p2->getCar());
 
 		mPlayerOneGUI.initialize(p1);
-		mPlayerTwoGUI.initialize(p2);
 
 		addWalls();
 	}
