@@ -6,7 +6,7 @@
 #include <Projectile.h>
 #include <Wall.h>
 
-World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2, const FontHolder& fonts, bool local)
+World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, const FontHolder& fonts, bool local)
 	: mTarget(outputTarget)
 	, mTextures()
 	, mPlayerOneGUI(fonts)
@@ -14,14 +14,13 @@ World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys
 	, mWorldWidth(16000.f)
 	, mWorldHeight(9000.f)
 	, mPlayerOneKeys(keys1)
-	, mPlayerTwoKeys(keys2)
 {
 	loadTextures();
 
 	if (local)
 	{
 		Player* p1 = new Player(0, keys1, mTextures);
-		Player* p2 = new Player(1, keys2, mTextures);
+		Player* p2 = new Player(1, keys1, mTextures);
 		mPlayers.push_back(p1);
 		mPlayers.push_back(p2);
 
@@ -41,7 +40,7 @@ void World::initialize(EntityStruct p1, EntityStruct p2)
 	std::cout << "initializing world with car1 " << p1.id << " and car2 " << p2.id << std::endl;
 	Car* car1 = new Car(100, p1.position, sf::RectangleShape(sf::Vector2f(80, 40)), mPlayerOneKeys, mTextures);
 	car1->setID(p1.id);
-	Car* car2 = new Car(100, p2.position, sf::RectangleShape(sf::Vector2f(80, 40)), mPlayerTwoKeys, mTextures);
+	Car* car2 = new Car(100, p2.position, sf::RectangleShape(sf::Vector2f(80, 40)), mPlayerOneKeys, mTextures);
 	car2->setID(p2.id);
 
 	Player* player1 = new Player(0, car1);
