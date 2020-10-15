@@ -16,6 +16,7 @@ FetchContent_MakeAvailable(sfml)
 
 include_directories("Include")
 file(GLOB SOURCES CONFIGURE_DEPENDS Include/*.h Include/*.inl Source/*.cpp)
+file(GLOB SOURCES_SERVER CONFIGURE_DEPENDS Include/Server/*.h Include/Server/*.inl Source/Server/*.cpp)
 
 if (MSVC)
     # warning level 4 (see https://docs.microsoft.com/fr-fr/cpp/build/reference/compiler-option-warning-level?view=vs-2019)
@@ -30,6 +31,10 @@ endif()
 add_executable(2M3
   ${SOURCES}
   )
+
+add_executable(2M3-Server
+        ${SOURCES_SERVER}
+        )
 
 target_link_libraries(2M3 PUBLIC sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
 
