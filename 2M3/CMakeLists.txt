@@ -28,6 +28,7 @@ else()
     add_compile_options(-Wall -Wextra)
 endif()
 
+add_subdirectory(imgui-sfml)
 add_executable(2M3
   ${SOURCES}
   )
@@ -37,6 +38,7 @@ add_executable(2M3-Server
         )
 
 target_link_libraries(2M3 PUBLIC sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
+target_link_libraries(2M3-Server PUBLIC sfml-system sfml-window sfml-graphics sfml-audio sfml-network imgui-sfml)
 
 add_custom_target(copy-Media ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Media)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Media

@@ -3,10 +3,13 @@
 //
 
 #include "Server/servermain.h"
-#include <stdio.h>
-#include <iostream>
+#include <thread>
 
 int main() {
-    std::cout << "Hello world!" << std::endl;
+    std::thread network(networkThread);
+    std::thread interface(interfaceThread);
+
+    network.join();
+    interface.join();
     return 0;
 }
