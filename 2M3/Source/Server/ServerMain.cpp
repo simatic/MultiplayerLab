@@ -25,8 +25,9 @@ int main(int argc, char** argv) {
 
     std::thread network(networkThread, localPort);
     std::thread interface(interfaceThread);
+    interface.join();
+    killNetworkThread();
 
     network.join();
-    interface.join();
     return 0;
 }
