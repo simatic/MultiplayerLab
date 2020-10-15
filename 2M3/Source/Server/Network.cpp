@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <Common/Network.h>
+#include "Server/NetworkSettings.h"
 
 void networkThread(int port) {
 // Bind to port
@@ -16,6 +17,7 @@ void networkThread(int port) {
 
     // Wait for messages on this socket
     std::cerr << "Waiting for messages on port " << port << std::endl;
+    auto instanceNetworkSetting = NetworkSettings::getInstance();
     while (true) {
         sf::Packet packet;
         sf::IpAddress remoteAddress;
@@ -30,9 +32,13 @@ void networkThread(int port) {
         auto logicalPacket = deserializePacket(packet);
         if(logicalPacket) {
             std::cout << "[Debug] Received packet with ID " << logicalPacket->getID() << std::endl;
-            auto response = logicalPacket->handle();
-            if(response) {
-                response->send(socket, remoteAddress, remotePort);
+            if(!instanceNetworkSetting->inComingPacketLost()){
+                auto response = logicalPacket->handle();
+                if(response) {
+                    if(!instanceNetworkSetting->outGoingPacketLost()){
+                        response->send(socket, remoteAddress, remotePort);
+                    }
+                }
             }
         }
     }

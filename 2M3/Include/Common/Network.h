@@ -6,7 +6,7 @@
 enum PacketID: sf::Uint32 {
     Ping,
     Pong,
-
+    Echo,
     // TODO
 };
 

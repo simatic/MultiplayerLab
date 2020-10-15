@@ -39,3 +39,5 @@
 .vs
 out
 build
+.idea
+cmake-build-*

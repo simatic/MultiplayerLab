@@ -5,6 +5,7 @@
 #include <Common/Network.h>
 #include <Common/Constants.h>
 #include <Common/PingPongPackets.h>
+#include "Common/EchoPacket.h"
 #include <iostream>
 #include <thread>
 
@@ -55,13 +56,14 @@ int main(int argc, char** argv) {
     PingPacket().send(socket, ip, remotePort);
 
     sf::sleep(sf::milliseconds(1));
-
+    int number = 0;
     while(true) {
         processWaitingPackets(socket);
         sf::sleep(sf::milliseconds(10));
         // TODO: replace with game code?
-        PingPacket().send(socket, ip, remotePort);
-
+        //PingPacket().send(socket, ip, remotePort);
+        number++;
+        EchoPacket(number).send(socket, ip, remotePort);
         sf::sleep(sf::milliseconds(1));
     }
     return EXIT_SUCCESS;

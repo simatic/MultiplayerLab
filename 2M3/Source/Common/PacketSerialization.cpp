@@ -1,6 +1,7 @@
 #include <Common/Network.h>
 #include <iostream>
 #include <Common/PingPongPackets.h>
+#include "Common/EchoPacket.h"
 
 std::unique_ptr<Packet> deserializePacket(sf::Packet& packet) {
     sf::Uint32 id;
@@ -11,6 +12,9 @@ std::unique_ptr<Packet> deserializePacket(sf::Packet& packet) {
 
         case PacketID::Pong:
             return std::make_unique<PongPacket>(packet);
+
+        case PacketID::Echo:
+            return std::make_unique<EchoPacket>(packet);
 
         default:
             std::cerr << "Unknown/unsupported packet ID " << id << std::endl;
