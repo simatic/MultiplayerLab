@@ -1,4 +1,4 @@
 #pragma once
 
-void networkThread();
+void networkThread(int port);
 void interfaceThread();
