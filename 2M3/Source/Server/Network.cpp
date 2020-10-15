@@ -3,12 +3,13 @@
 //
 
 #include <iostream>
-#include <Common/Network.h>
 #include "Server/NetworkSettings.h"
+#include "Common/Network.h"
+
+sf::UdpSocket socket;
 
 void networkThread(int port) {
-// Bind to port
-    sf::UdpSocket socket;
+    // Bind to port
     sf::Socket::Status status = socket.bind(port);
     if (status != sf::Socket::Done) {
         std::cerr << "Error: Problem during binding to local port " << port << " (status = " << status << ") : Another process is probably already using this port" << std::endl;
@@ -42,4 +43,8 @@ void networkThread(int port) {
             }
         }
     }
+}
+
+void killNetworkThread() {
+    socket.unbind();
 }

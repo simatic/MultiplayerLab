@@ -19,6 +19,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS Include/*.h Include/*.inl Source/*.cpp)
 file(GLOB SOURCES_SERVER CONFIGURE_DEPENDS Include/Server/*.h Include/Server/*.inl Source/Server/*.cpp)
 file(GLOB SOURCES_CLIENT CONFIGURE_DEPENDS Include/Client/*.h Include/Client/*.inl Source/Client/*.cpp)
 file(GLOB SOURCES_COMMON CONFIGURE_DEPENDS Source/Common/*.cpp)
+file(GLOB IMPLOT_SOURCES thirdparty/implot/*.h thirdparty/implot/*.cpp)
 
 if (MSVC)
     # warning level 4 (see https://docs.microsoft.com/fr-fr/cpp/build/reference/compiler-option-warning-level?view=vs-2019)
@@ -30,7 +31,8 @@ else()
     add_compile_options(-Wall -Wextra)
 endif()
 
-add_subdirectory(imgui-sfml)
+add_subdirectory(thirdparty/imgui-sfml)
+include_directories(thirdparty/implot)
 add_executable(2M3
   ${SOURCES}
   )
@@ -38,6 +40,7 @@ add_executable(2M3
 add_executable(2M3-Server
         ${SOURCES_SERVER}
         ${SOURCES_COMMON}
+        ${IMPLOT_SOURCES}
         )
 
 add_executable(2M3-Client
