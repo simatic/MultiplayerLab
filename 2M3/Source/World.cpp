@@ -6,20 +6,20 @@
 #include <Projectile.h>
 #include <Wall.h>
 
-World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, const FontHolder& fonts, bool local)
+World::World(sf::RenderTarget& outputTarget, KeyBinding* keys, const FontHolder& fonts, bool local)
 	: mTarget(outputTarget)
 	, mTextures()
 	, mPlayerOneGUI(fonts)
 	, mPlayerTwoGUI(fonts)
 	, mWorldWidth(16000.f)
 	, mWorldHeight(9000.f)
-	, mPlayerOneKeys(keys1)
+	, mPlayerOneKeys(keys)
 {
 	loadTextures();
 
 	if (local)
 	{
-		Player* p1 = new Player(0, keys1, mTextures);
+		Player* p1 = new Player(0, keys, mTextures);
 		mPlayers.push_back(p1);
 
 		mEntities.push_back(p1->getCar());

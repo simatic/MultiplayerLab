@@ -58,7 +58,7 @@ bool SettingsState::handleEvent(const sf::Event& event)
 			isKeyBinding = true;
 			if (event.type == sf::Event::KeyReleased)
 			{
-				getContext().keys1->assignKey(static_cast<PlayerAction::Type>(i), event.key.code);
+				getContext().keys->assignKey(static_cast<PlayerAction::Type>(i), event.key.code);
 
 				mBindingButtons[i]->deactivate();
 			}
@@ -82,10 +82,10 @@ void SettingsState::updateLabels()
 		auto action = static_cast<PlayerAction::Type>(i);
 
 		// Get keys of the player
-		sf::Keyboard::Key key1 = getContext().keys1->getAssignedKey(action);
+		sf::Keyboard::Key key = getContext().keys->getAssignedKey(action);
 
 		// Assign both key strings to labels
-		mBindingLabels[i]->setText(toString(key1));
+		mBindingLabels[i]->setText(toString(key));
 	}
 }
 

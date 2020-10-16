@@ -34,8 +34,7 @@ class Application
 		TextureHolder			mTextures;
 	  	FontHolder				mFonts;
 
-		KeyBinding				mKeyBinding1;
-		KeyBinding				mKeyBinding2;
+		KeyBinding				mKeyBinding;
 		StateStack				mStateStack;
 
 		sf::Text				mStatisticsText;
