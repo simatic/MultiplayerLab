@@ -19,12 +19,12 @@ World::World(sf::RenderTarget& outputTarget, KeyBinding* keys, const FontHolder&
 
 	if (local)
 	{
-		Player* p1 = new Player(0, keys, mTextures);
-		mPlayers.push_back(p1);
+		Player* player = new Player(0, keys, mTextures);
+		mPlayers.push_back(player);
 
-		mEntities.push_back(p1->getCar());
+		mEntities.push_back(player->getCar());
 
-		mPlayerOneGUI.initialize(p1);
+		mPlayerOneGUI.initialize(player);
 
 		addWalls();
 	}
@@ -36,7 +36,7 @@ void World::initialize(EntityStruct p1, EntityStruct p2)
 	std::cout << "initializing world with car1 " << p1.id << " and car2 " << p2.id << std::endl;
 	Car* car1 = new Car(100, p1.position, sf::RectangleShape(sf::Vector2f(80, 40)), mPlayerOneKeys, mTextures);
 	car1->setID(p1.id);
-	Car* car2 = new Car(100, p2.position, sf::RectangleShape(sf::Vector2f(80, 40)), mPlayerOneKeys, mTextures);
+	Car* car2 = new Car(100, p2.position, sf::RectangleShape(sf::Vector2f(80, 40)), mTextures);
 	car2->setID(p2.id);
 
 	Player* player1 = new Player(0, car1);
@@ -48,7 +48,6 @@ void World::initialize(EntityStruct p1, EntityStruct p2)
 	mEntities.push_back(car2);
 
 	mPlayerOneGUI.initialize(player1);
-	mPlayerTwoGUI.initialize(player2);
 
 	addWalls();
 }

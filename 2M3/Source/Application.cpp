@@ -130,6 +130,4 @@ void Application::registerStates()
 	mStateStack.registerState<SettingsState>(States::Settings);
 	mStateStack.registerState<MultiplayerGameState>(States::HostGame, true);
 	mStateStack.registerState<MultiplayerGameState>(States::JoinGame, false);
-	//mStateStack.registerState<PauseState>(States::Pause);
-	//mStateStack.registerState<PauseState>(States::NetworkPause, true);
 }
