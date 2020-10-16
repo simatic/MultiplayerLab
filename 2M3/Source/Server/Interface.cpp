@@ -8,6 +8,7 @@
 #include <imgui.h>
 #include <implot.h>
 #include <Common/Constants.h>
+#include <Server/NetworkSettings.h>
 
 void interfaceThread() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Server Interface");
@@ -59,10 +60,10 @@ void Interface::render() {
 
         ImGui::TextColored(TITLE_COLOR, "Pertes de packets");
         ImGui::Text("Pertes de packets venant du client");
-        DragFloat("Pourcentage de pertes client", getTest, setTest);
+        DragFloat("Pourcentage de pertes client", [&]{return NetworkSettings::getInstance()->getPercentageInComingPacketLost();}, [&](float v){NetworkSettings::getInstance()->setPercentageInComingPacketLost(v);});
 
         ImGui::Text("Pertes de packets partant du serveur");
-        DragFloat("Pourcentage de pertes serveur", getTest, setTest);
+        DragFloat("Pourcentage de pertes serveur", [&]{return NetworkSettings::getInstance()->getPercentageOutGoingPacketLost();}, [&](float v){NetworkSettings::getInstance()->setPercentageOutGoingPacketLost(v);});
 
         ImGui::Separator();
         ImGui::TextColored(TITLE_COLOR, "Délais");
