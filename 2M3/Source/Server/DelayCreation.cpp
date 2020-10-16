@@ -1,4 +1,5 @@
 #include <iostream>
+#include <Server/ServerNetworkHandling.h>
 #include "Server/ServerMain.h"
 #include "Server/NetworkSettings.h"
 #include "Server/DelayCreation.h"
@@ -6,7 +7,6 @@
 
 void delayThread(sf::UdpSocket* socketPtr){
     std::vector<packetWithDelay> packetWithDelayList;
-    auto instanceNetworkSetting = NetworkSettings::getInstance();
     sf::UdpSocket& socket = *socketPtr;
     sf::Clock clock;
     sf::Time lastTime = clock.getElapsedTime();
@@ -32,10 +32,12 @@ void delayThread(sf::UdpSocket* socketPtr){
             packet.delayMilliseconds -= deltaTime.asMilliseconds();
             if(packet.delayMilliseconds <= 0){
                 std::cout << "[Debug] Received packet with ID " << packet.logicalPacket->getID() << std::endl;
-                if(!instanceNetworkSetting->inComingPacketLost()){
+                auto& client = ServerNetworkHandling::getOrCreateClient(packet.remoteAddress, packet.remotePort);
+                if(!client.settings.inComingPacketLost()){
+                    ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{clock.getElapsedTime(), NetworkEvent::Type::PacketReceived});
                     auto response = packet.logicalPacket->handle();
                     if(response) {
-                        if(!instanceNetworkSetting->outGoingPacketLost()){
+                        if(!client.settings.outGoingPacketLost()){
                             response->send(socket, packet.remoteAddress, packet.remotePort);
                         }
                     }

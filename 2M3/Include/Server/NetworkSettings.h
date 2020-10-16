@@ -8,13 +8,7 @@ private:
     float percentageInComingPacketLost;
 
 public:
-    static NetworkSettings* instance;
-
-private:
     NetworkSettings();
-
-public:
-    static NetworkSettings* getInstance();
 
     float getPercentageOutGoingPacketLost() const;
     void setPercentageOutGoingPacketLost(float percentage);

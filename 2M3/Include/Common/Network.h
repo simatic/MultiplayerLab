@@ -21,7 +21,7 @@ public:
 
     virtual ~Packet() = default;
 
-    void send(sf::UdpSocket& socket, sf::IpAddress& address, unsigned short port) const;
+    void send(sf::UdpSocket& socket, const sf::IpAddress& address, unsigned short port) const;
 };
 
 std::unique_ptr<Packet> deserializePacket(sf::Packet& packet);

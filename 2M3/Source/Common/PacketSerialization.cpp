@@ -22,7 +22,7 @@ std::unique_ptr<Packet> deserializePacket(sf::Packet& packet) {
     }
 }
 
-void Packet::send(sf::UdpSocket &socket, sf::IpAddress &address, unsigned short port) const {
+void Packet::send(sf::UdpSocket &socket, const sf::IpAddress &address, unsigned short port) const {
     sf::Packet packet;
     packet << getID();
     write(packet);
