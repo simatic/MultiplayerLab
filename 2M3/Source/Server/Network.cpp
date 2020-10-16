@@ -3,10 +3,15 @@
 //
 
 #include <iostream>
+#include <thread>
 #include "Server/NetworkSettings.h"
 #include "Common/Network.h"
+#include "Server/ServerMain.h"
+#include "Server/DelayCreation.h"
 
 sf::UdpSocket socket;
+std::mutex Delay::mutex4Packet4Delay;
+std::vector<packet4Delay> Delay::packet4DelayList;
 
 void networkThread(int port) {
     // Bind to port
@@ -15,10 +20,12 @@ void networkThread(int port) {
         std::cerr << "Error: Problem during binding to local port " << port << " (status = " << status << ") : Another process is probably already using this port" << std::endl;
         exit(EXIT_FAILURE);
     }
+    sf::UdpSocket* socketPtr = &socket;
+    std::thread delayCreation(delayThread, socketPtr);
 
     // Wait for messages on this socket
     std::cerr << "Waiting for messages on port " << port << std::endl;
-    auto instanceNetworkSetting = NetworkSettings::getInstance();
+
     while (true) {
         sf::Packet packet;
         sf::IpAddress remoteAddress;
@@ -32,15 +39,13 @@ void networkThread(int port) {
 
         auto logicalPacket = deserializePacket(packet);
         if(logicalPacket) {
-            std::cout << "[Debug] Received packet with ID " << logicalPacket->getID() << std::endl;
-            if(!instanceNetworkSetting->inComingPacketLost()){
-                auto response = logicalPacket->handle();
-                if(response) {
-                    if(!instanceNetworkSetting->outGoingPacketLost()){
-                        response->send(socket, remoteAddress, remotePort);
-                    }
-                }
-            }
+            packet4Delay packetToHandle;
+            packetToHandle.logicalPacket = std::move(logicalPacket);
+            packetToHandle.remoteAddress = remoteAddress;
+            packetToHandle.remotePort = remotePort;
+            Delay::mutex4Packet4Delay.lock();
+            Delay::packet4DelayList.push_back(std::move(packetToHandle));
+            Delay::mutex4Packet4Delay.unlock();
         }
     }
 }
@@ -48,3 +53,4 @@ void networkThread(int port) {
 void killNetworkThread() {
     socket.unbind();
 }
+
