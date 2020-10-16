@@ -37,7 +37,7 @@ namespace GUI
 	void GUI::PlayerGUI::initialize(Player* player)
 	{
 		mPlayer = player;
-		if (mPlayer->getID() == 0) setPosition(0, 800);
+		if (mPlayer->getID() == 0) setPosition(400, 800);
 		else setPosition(800, 800);
 
 		mAction.setPosition(getPosition());

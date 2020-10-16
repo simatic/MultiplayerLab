@@ -141,9 +141,6 @@ void World::draw()
 
 	mPlayerOneGUI.updateElements(mTarget, mEntities, getWorldSize());
 	mTarget.draw(mPlayerOneGUI);
-
-	mPlayerTwoGUI.updateElements(mTarget, mEntities, getWorldSize());
-	mTarget.draw(mPlayerTwoGUI);
 }
 
 bool World::handleEvent(const sf::Event& event)
