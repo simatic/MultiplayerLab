@@ -1,20 +1,10 @@
 #include <iostream>
 #include "Server/NetworkSettings.h"
 
-NetworkSettings* NetworkSettings::instance = nullptr;
-
 NetworkSettings::NetworkSettings() {
-    percentageOutGoingPacketLost = 0.5;
-    percentageInComingPacketLost = 0.5;
+    percentageOutGoingPacketLost = 0.0;
+    percentageInComingPacketLost = 0.0;
 }
-
-NetworkSettings* NetworkSettings::getInstance(){
-    if(!instance){
-        instance = new NetworkSettings();
-    }
-    return instance;
-}
-
 
 float NetworkSettings::getPercentageOutGoingPacketLost() const {
     return percentageOutGoingPacketLost;

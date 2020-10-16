@@ -9,6 +9,7 @@
 #include <implot.h>
 #include <Common/Constants.h>
 #include <Server/NetworkSettings.h>
+#include <Server/ServerNetworkHandling.h>
 
 void interfaceThread() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Server Interface");
@@ -52,18 +53,25 @@ float getTest() {
 ImVec4 TITLE_COLOR = ImVec4(1,1,0,1);
 
 void Interface::render() {
-    // TODO: foreach client
-    if(ImGui::Begin("Contrôles")) {
-        ImGui::Text("IP du client: %s", "TODO TODO TODO"); // TODO: ip
-        ImGui::Text("Port du client: %i", DEFAULT_PORT); // TODO: port
+    std::vector<UdpClient>& clients = ServerNetworkHandling::getClients();
+    for (int i = 0; i < clients.size(); ++i) {
+        auto& client = clients.at(i);
+        renderClientWindow("Client #" + std::to_string(i+1), client);
+    }
+}
+
+void Interface::renderClientWindow(const std::string& title, UdpClient& client) {
+    if(ImGui::Begin(("Contrôles "+title).c_str())) {
+        ImGui::Text("IP du client: %s", client.address.toString().c_str());
+        ImGui::Text("Port du client: %i", client.port);
         ImGui::Separator();
 
         ImGui::TextColored(TITLE_COLOR, "Pertes de packets");
         ImGui::Text("Pertes de packets venant du client");
-        DragFloat("Pourcentage de pertes client", [&]{return NetworkSettings::getInstance()->getPercentageInComingPacketLost();}, [&](float v){NetworkSettings::getInstance()->setPercentageInComingPacketLost(v);});
+        DragFloat("Pourcentage de pertes client", [&]{return client.settings.getPercentageInComingPacketLost();}, [&](float v){client.settings.setPercentageInComingPacketLost(v);});
 
         ImGui::Text("Pertes de packets partant du serveur");
-        DragFloat("Pourcentage de pertes serveur", [&]{return NetworkSettings::getInstance()->getPercentageOutGoingPacketLost();}, [&](float v){NetworkSettings::getInstance()->setPercentageOutGoingPacketLost(v);});
+        DragFloat("Pourcentage de pertes serveur", [&]{return client.settings.getPercentageOutGoingPacketLost();}, [&](float v){client.settings.setPercentageOutGoingPacketLost(v);});
 
         ImGui::Separator();
         ImGui::TextColored(TITLE_COLOR, "Délais");
