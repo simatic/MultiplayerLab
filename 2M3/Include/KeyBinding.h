@@ -28,7 +28,7 @@ class KeyBinding
 
 
 	public:
-		explicit				KeyBinding();
+		explicit				KeyBinding(int controlPreconfiguration);
 
 		void					assignKey(Action action, sf::Keyboard::Key key);
 		sf::Keyboard::Key		getAssignedKey(Action action) const;

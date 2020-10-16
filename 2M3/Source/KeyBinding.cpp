@@ -4,15 +4,27 @@
 #include <algorithm>
 
 
-KeyBinding::KeyBinding()
+KeyBinding::KeyBinding(int controlPreconfiguration)
 : mKeyMap()
 {
-	mKeyMap[sf::Keyboard::Left]		= PlayerAction::Type::TurnLeft;
-	mKeyMap[sf::Keyboard::Right]	= PlayerAction::Type::TurnRight;
-	mKeyMap[sf::Keyboard::Up]		= PlayerAction::Type::Accelerate;
-	mKeyMap[sf::Keyboard::Down]		= PlayerAction::Type::Brake;
-	mKeyMap[sf::Keyboard::RControl]	= PlayerAction::Type::DoAction;
-	mKeyMap[sf::Keyboard::RShift]	= PlayerAction::Type::ChangeAction;
+	if (controlPreconfiguration == 1)
+	{
+		mKeyMap[sf::Keyboard::Left] = PlayerAction::Type::TurnLeft;
+		mKeyMap[sf::Keyboard::Right] = PlayerAction::Type::TurnRight;
+		mKeyMap[sf::Keyboard::Up] = PlayerAction::Type::Accelerate;
+		mKeyMap[sf::Keyboard::Down] = PlayerAction::Type::Brake;
+		mKeyMap[sf::Keyboard::RControl] = PlayerAction::Type::DoAction;
+		mKeyMap[sf::Keyboard::RShift] = PlayerAction::Type::ChangeAction;
+	}
+	else if (controlPreconfiguration == 2)
+	{
+		mKeyMap[sf::Keyboard::Q] = PlayerAction::Type::TurnLeft;
+		mKeyMap[sf::Keyboard::D] = PlayerAction::Type::TurnRight;
+		mKeyMap[sf::Keyboard::Z] = PlayerAction::Type::Accelerate;
+		mKeyMap[sf::Keyboard::S] = PlayerAction::Type::Brake;
+		mKeyMap[sf::Keyboard::F] = PlayerAction::Type::DoAction;
+		mKeyMap[sf::Keyboard::G] = PlayerAction::Type::ChangeAction;
+	}
 }
 
 void KeyBinding::assignKey(Action action, sf::Keyboard::Key key)
