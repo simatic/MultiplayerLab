@@ -7,9 +7,8 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 #include <implot.h>
-#include <Common/Constants.h>
-#include <Server/NetworkSettings.h>
-#include <Server/ServerNetworkHandling.h>
+
+std::map<ClientID, std::vector<NetworkEvent::Event>> Interface::clientEvents{};
 
 void interfaceThread() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Server Interface");
@@ -52,6 +51,8 @@ float getTest() {
 
 ImVec4 TITLE_COLOR = ImVec4(1,1,0,1);
 
+sf::Clock interfaceClock{};
+
 void Interface::render() {
     std::vector<UdpClient>& clients = ServerNetworkHandling::getClients();
     for (int i = 0; i < clients.size(); ++i) {
@@ -84,15 +85,25 @@ void Interface::renderClientWindow(const std::string& title, UdpClient& client) 
         ImGui::Separator();
 
         if(ImGui::TreeNode("Graphes des packets")) {
-            if(ImPlot::BeginPlot("Packets entrants")) {
-                float timestampsIncoming[] = {0.1f, 0.2f, 0.65f, 0.9f, 1.5f, 2.36f, 3.0f, 3.56f, 4.0f, 5.0f, 6.28f};
-                float valuesIncoming[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-                ImPlot::PlotStems("Packets entrants", timestampsIncoming, valuesIncoming, 10);
+            if(ImPlot::BeginPlot("Evénements")) {
+                std::vector<NetworkEvent::Event> events = clientEvents[client.id];
 
-                float fakeDelay = 0.02f;
-                float timestampsOutgoing[] = {0.1f + fakeDelay, 0.2f + fakeDelay, 0.65f + fakeDelay, 0.9f + fakeDelay, 1.5f + fakeDelay, 2.36f + fakeDelay, 3.0f + fakeDelay, 3.56f + fakeDelay, 4.0f + fakeDelay, 5.0f + fakeDelay, 6.28f + fakeDelay};
-                float valuesOutgoing[] = {-0,-1,-2,-3,-4,-5,-6,-7,-8,-9};
-                ImPlot::PlotStems("Packets sortants", timestampsOutgoing, valuesOutgoing, 10);
+                for(unsigned int typeID = 0; typeID < NetworkEvent::Type::Last; typeID++) {
+                    auto type = static_cast<NetworkEvent::Type>(typeID);
+
+                    std::vector<float> timestamps{};
+                    std::vector<float> values{};
+
+                    for(auto& event : events) {
+                        float x = event.timestamp.asSeconds();
+                        if(event.type == type) {
+                            timestamps.push_back(x);
+                            values.push_back(typeID);
+                        }
+                    }
+                    ImPlot::PlotScatter(NetworkEvent::name(type), timestamps.data(), values.data(), values.size());
+                }
+
                 ImPlot::EndPlot();
             }
             ImGui::TreePop();
@@ -112,4 +123,15 @@ void Interface::pollEvents(sf::Window& window) {
                 break;
         }
     }
+}
+
+void Interface::onEvent(UdpClient &client, NetworkEvent::Event event) {
+    if(clientEvents.find(client.id) == clientEvents.end()) {
+        clientEvents[client.id] = std::vector<NetworkEvent::Event>();
+    }
+    clientEvents[client.id].push_back(event);
+}
+
+void ServerNetworkHandling::triggerEvent(UdpClient &client, NetworkEvent::Event event) {
+    Interface::onEvent(client, event);
 }

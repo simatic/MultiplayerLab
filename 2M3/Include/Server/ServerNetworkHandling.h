@@ -5,15 +5,41 @@
 #include "Common/Network.h"
 #include "Server/NetworkSettings.h"
 
+using ClientID = unsigned int;
+
 /// Client connected to the server
 struct UdpClient {
+    const ClientID id;
     const sf::IpAddress address;
     const unsigned short port;
     NetworkSettings settings;
 };
 
+namespace NetworkEvent {
+    enum Type {
+        Connected,
+        Disconnected,
+        PacketReceived,
+        PacketDelayed,
+        // When the packet is supposed to be sent
+        SendingPacket,
+        // When the packet is sent (with possible additional delay)
+        SentPacket,
+
+        Last
+    };
+
+    struct Event {
+        const sf::Time timestamp;
+        const Type type;
+    };
+
+    const char* name(Type t);
+}
+
 class ServerNetworkHandling {
 private:
+    static ClientID currentClientID;
     static std::vector<UdpClient> clients;
 
 public:
@@ -27,5 +53,7 @@ public:
     static std::vector<UdpClient>& getClients() {
         return clients;
     }
+
+    static void triggerEvent(UdpClient& client, NetworkEvent::Event event);
 };
 

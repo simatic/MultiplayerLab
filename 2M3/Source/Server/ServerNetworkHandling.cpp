@@ -8,7 +8,9 @@
 #include "Server/ServerNetworkHandling.h"
 
 sf::UdpSocket socket;
+ClientID ServerNetworkHandling::currentClientID = 0;
 std::vector<UdpClient> ServerNetworkHandling::clients{};
+sf::Clock timeClock;
 
 void networkThread(int port) {
     // Bind to port
@@ -34,8 +36,10 @@ void networkThread(int port) {
 
         auto logicalPacket = deserializePacket(packet);
         if(logicalPacket) {
+            ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{timeClock.getElapsedTime(), NetworkEvent::Type::PacketReceived});
+
             std::cout << "[Debug] Received packet with ID " << logicalPacket->getID() << std::endl;
-            if(!client.settings.inComingPacketLost()){
+            if(!client.settings.inComingPacketLost()) {
                 auto response = logicalPacket->handle();
                 if(response) {
                     if(!client.settings.outGoingPacketLost()){
@@ -58,12 +62,35 @@ UdpClient& ServerNetworkHandling::getOrCreateClient(sf::IpAddress address, unsig
         }
     }
     std::cout << "New client at " << address << ":" << port << std::endl;
-    clients.push_back({address, port, NetworkSettings()});
-    return clients.at(clients.size()-1);
+    clients.push_back({currentClientID++, address, port, NetworkSettings()});
+
+    auto& client = clients.at(clients.size()-1);
+    triggerEvent(client, NetworkEvent::Event{timeClock.getElapsedTime(), NetworkEvent::Type::Connected});
+    return client;
 }
 
 void ServerNetworkHandling::broadcast(Packet& toBroadcast) {
     for(auto& client : clients) {
         toBroadcast.send(socket, client.address, client.port);
+    }
+}
+
+const char *NetworkEvent::name(NetworkEvent::Type t)  {
+    switch (t) {
+        case Connected:
+            return "Connexion";
+        case Disconnected:
+            return "Déconnexion";
+        case PacketReceived:
+            return "Packet reçu";
+        case PacketDelayed:
+            return "Packet délayé";
+        case SendingPacket:
+            return "Packet prêt à l'envoi";
+        case SentPacket:
+            return "Packet envoyé";
+
+        default:
+            return "Unknown type";
     }
 }

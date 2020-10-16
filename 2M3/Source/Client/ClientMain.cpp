@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     int number = 0;
     while(true) {
         processWaitingPackets(socket);
-        sf::sleep(sf::milliseconds(10));
+        sf::sleep(sf::milliseconds(100));
         // TODO: replace with game code?
         //PingPacket().send(socket, ip, remotePort);
         number++;
