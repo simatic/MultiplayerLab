@@ -2,6 +2,7 @@
 #include <Entity.h>
 #include <Car.h>
 
+// Voir note Car.h
 class Projectile : public Entity
 {
 public:

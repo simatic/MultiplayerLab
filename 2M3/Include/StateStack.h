@@ -13,14 +13,14 @@
 #include <functional>
 #include <map>
 
-
+#include <iostream>
 namespace sf
 {
 	class Event;
 	class RenderWindow;
 }
 
-class StateStack : private sf::NonCopyable
+class StateStack //: private sf::NonCopyable
 {
 	public:
 		enum Action
@@ -83,6 +83,12 @@ void StateStack::registerState(States::ID stateID)
 	{
 		return State::Ptr(new T(*this, mContext));
 	};
+	if (mFactories[stateID] == nullptr) {
+		std::cout << "Error : no State::Ptr assigned to StackState::mFactories.\n";
+	}
+	else {
+		std::cout << "State " << static_cast<int>(stateID) <<" successfully registered\n";
+	}
 }
 
 template <typename T, typename Param1>
@@ -92,6 +98,12 @@ void StateStack::registerState(States::ID stateID, Param1 arg1)
 	{
 		return State::Ptr(new T(*this, mContext, arg1));
 	};
+	if (mFactories[stateID] == nullptr) {
+		std::cout << "Error : no State::Ptr assigned to StackState::mFactories.\n";
+	}
+	else {
+		std::cout << "State " << static_cast<int>(stateID) << " successfully registered\n";
+	}
 }
 
 #endif // BOOK_STATESTACK_HPP

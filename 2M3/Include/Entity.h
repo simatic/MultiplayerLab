@@ -5,6 +5,7 @@
 #include <Utility.h>
 #include "ResourceIdentifiers.h"
 
+// Voir note Car.h
 class Entity
 {
 public:

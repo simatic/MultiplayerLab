@@ -1,10 +1,13 @@
 #ifndef BOOK_APPLICATION_HPP
 #define BOOK_APPLICATION_HPP
 
+#include <vector>
+
 #include "ResourceHolder.h"
 #include "ResourceIdentifiers.h"
 #include "KeyBinding.h"
 #include "StateStack.h"
+#include "Client.h"
 
 #include <SFML/System/Time.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -19,28 +22,31 @@ class Application
 		
 
 	private:
-		void					processInput();
+		void launchClientThread();
+		/*void					processInput();
 		void					update(sf::Time dt);
 		void					tick();
 		void					render();
 
 		void					updateStatistics(sf::Time dt);
-		void					registerStates();
+		void					registerStates();*/
 
 
 	private:
 
 		sf::RenderWindow		mWindow;
-		TextureHolder			mTextures;
-	  	FontHolder				mFonts;
+		/*TextureHolder			mTextures;
+	  	FontHolder				mFonts;*/
 
 		KeyBinding				mKeyBinding1;
 		KeyBinding				mKeyBinding2;
-		StateStack				mStateStack;
+		//StateStack				mStateStack;
+		int _clientCount;
+		sf::Mutex _mutex;
 
-		sf::Text				mStatisticsText;
+		/*sf::Text				mStatisticsText;
 		sf::Time				mStatisticsUpdateTime;
-		std::size_t				mStatisticsNumFrames;
+		std::size_t				mStatisticsNumFrames;*/
 };
 
 #endif // BOOK_APPLICATION_HPP
