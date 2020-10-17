@@ -31,6 +31,7 @@ Application::Application()
 	mWindow.setKeyRepeatEnabled(false);
 	mWindow.setVerticalSyncEnabled(true);
 
+
 	/* Rajouter 1 sf::RenderWindow pour chaque client.
 	 On va fusionner thread et Player. Player n'appartient plus à World mais
 	 Wolrd sera en-dessous de Player.
@@ -108,6 +109,7 @@ void Application::run()
 				mWindow.close();
 			}
 		}
+
 	}
 }
 
@@ -126,6 +128,7 @@ void Application::launchClientThread() {
 	}
 	client->run();
 }
+
 
 //void Application::processInput()
 //{
@@ -182,6 +185,4 @@ void Application::launchClientThread() {
 //	mStateStack.registerState<SettingsState>(States::Settings);
 //	mStateStack.registerState<MultiplayerGameState>(States::HostGame, true);
 //	mStateStack.registerState<MultiplayerGameState>(States::JoinGame, false);
-//	//mStateStack.registerState<PauseState>(States::Pause);
-//	//mStateStack.registerState<PauseState>(States::NetworkPause, true);
 //}

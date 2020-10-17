@@ -12,15 +12,12 @@ SettingsState::SettingsState(StateStack& stack, Context context)
 	mBackgroundSprite.setTexture(context.textures->get(Textures::TitleScreen));
 	
 	// Build key binding buttons and labels
-	for (std::size_t x = 0; x < 2; ++x)
-	{
-		addButtonLabel(PlayerAction::TurnLeft,		x, 0, "Turn Left", context);
-		addButtonLabel(PlayerAction::TurnRight,		x, 1, "Turn Right", context);
-		addButtonLabel(PlayerAction::Accelerate,	x, 2, "Accelerate", context);
-		addButtonLabel(PlayerAction::Brake,			x, 3, "Brake", context);
-		addButtonLabel(PlayerAction::DoAction,			x, 4, "Fire", context);
-		addButtonLabel(PlayerAction::ChangeAction,	x, 5, "Change Weapon", context);
-	}
+	addButtonLabel(PlayerAction::TurnLeft,		0, 0, "Turn Left", context);
+	addButtonLabel(PlayerAction::TurnRight,		0, 1, "Turn Right", context);
+	addButtonLabel(PlayerAction::Accelerate,	0, 2, "Accelerate", context);
+	addButtonLabel(PlayerAction::Brake,			0, 3, "Brake", context);
+	addButtonLabel(PlayerAction::DoAction,		0, 4, "Fire", context);
+	addButtonLabel(PlayerAction::ChangeAction,	0, 5, "Change Weapon", context);
 
 	updateLabels();
 
@@ -54,20 +51,14 @@ bool SettingsState::handleEvent(const sf::Event& event)
 	bool isKeyBinding = false;
 
 	// Iterate through all key binding buttons to see if they are being pressed, waiting for the user to enter a key
-	for (std::size_t i = 0; i < 2*PlayerAction::Count; ++i)
+	for (std::size_t i = 0; i < PlayerAction::Count; ++i)
 	{
 		if (mBindingButtons[i]->isActive())
 		{
 			isKeyBinding = true;
 			if (event.type == sf::Event::KeyReleased)
 			{
-				// Player 1
-				if (i < PlayerAction::Count)
-					getContext().keys1->assignKey(static_cast<PlayerAction::Type>(i), event.key.code);
-				
-				// Player 2
-				else
-					getContext().keys2->assignKey(static_cast<PlayerAction::Type>(i - PlayerAction::Count), event.key.code);
+				getContext().keys->assignKey(static_cast<PlayerAction::Type>(i), event.key.code);
 
 				mBindingButtons[i]->deactivate();
 			}
@@ -90,13 +81,11 @@ void SettingsState::updateLabels()
 	{
 		auto action = static_cast<PlayerAction::Type>(i);
 
-		// Get keys of both players
-		sf::Keyboard::Key key1 = getContext().keys1->getAssignedKey(action);
-		sf::Keyboard::Key key2 = getContext().keys2->getAssignedKey(action);
+		// Get keys of the player
+		sf::Keyboard::Key key = getContext().keys->getAssignedKey(action);
 
 		// Assign both key strings to labels
-		mBindingLabels[i]->setText(toString(key1));
-		mBindingLabels[i + PlayerAction::Count]->setText(toString(key2));
+		mBindingLabels[i]->setText(toString(key));
 	}
 }
 

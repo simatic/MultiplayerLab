@@ -10,7 +10,7 @@
 class World
 {
 public:
-							World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2, const FontHolder& fonts, bool local);
+							World(sf::RenderTarget& outputTarget, KeyBinding* keys1, const FontHolder& fonts, bool local);
 	void					initialize(EntityStruct p1, EntityStruct p2);
 
 	void					update(sf::Time dt);
@@ -41,7 +41,6 @@ private:
 	TextureHolder				mTextures;
 
 	KeyBinding*					mPlayerOneKeys;
-	KeyBinding*					mPlayerTwoKeys;
 
 	GUI::PlayerGUI				mPlayerOneGUI;
 	GUI::PlayerGUI				mPlayerTwoGUI;

@@ -6,30 +6,25 @@
 #include <Projectile.h>
 #include <Wall.h>
 
-World::World(sf::RenderTarget& outputTarget, KeyBinding* keys1, KeyBinding* keys2, const FontHolder& fonts, bool local)
+World::World(sf::RenderTarget& outputTarget, KeyBinding* keys, const FontHolder& fonts, bool local)
 	: mTarget(outputTarget)
 	, mTextures()
 	, mPlayerOneGUI(fonts)
 	, mPlayerTwoGUI(fonts)
 	, mWorldWidth(16000.f)
 	, mWorldHeight(9000.f)
-	, mPlayerOneKeys(keys1)
-	, mPlayerTwoKeys(keys2)
+	, mPlayerOneKeys(keys)
 {
 	loadTextures();
 
 	if (local)
 	{
-		Player* p1 = new Player(0, keys1, mTextures);
-		Player* p2 = new Player(1, keys2, mTextures);
-		mPlayers.push_back(p1);
-		mPlayers.push_back(p2);
+		Player* player = new Player(0, keys, mTextures);
+		mPlayers.push_back(player);
 
-		mEntities.push_back(p1->getCar());
-		mEntities.push_back(p2->getCar());
+		mEntities.push_back(player->getCar());
 
-		mPlayerOneGUI.initialize(p1);
-		mPlayerTwoGUI.initialize(p2);
+		mPlayerOneGUI.initialize(player);
 
 		addWalls();
 	}
@@ -41,7 +36,7 @@ void World::initialize(EntityStruct p1, EntityStruct p2)
 	std::cout << "initializing world with car1 " << p1.id << " and car2 " << p2.id << std::endl;
 	Car* car1 = new Car(100, p1.position, sf::RectangleShape(sf::Vector2f(80, 40)), mPlayerOneKeys, mTextures);
 	car1->setID(p1.id);
-	Car* car2 = new Car(100, p2.position, sf::RectangleShape(sf::Vector2f(80, 40)), mPlayerTwoKeys, mTextures);
+	Car* car2 = new Car(100, p2.position, sf::RectangleShape(sf::Vector2f(80, 40)), mTextures);
 	car2->setID(p2.id);
 
 	Player* player1 = new Player(0, car1);
@@ -53,7 +48,6 @@ void World::initialize(EntityStruct p1, EntityStruct p2)
 	mEntities.push_back(car2);
 
 	mPlayerOneGUI.initialize(player1);
-	mPlayerTwoGUI.initialize(player2);
 
 	addWalls();
 }
@@ -146,9 +140,6 @@ void World::draw()
 
 	mPlayerOneGUI.updateElements(mTarget, mEntities, getWorldSize());
 	mTarget.draw(mPlayerOneGUI);
-
-	mPlayerTwoGUI.updateElements(mTarget, mEntities, getWorldSize());
-	mTarget.draw(mPlayerTwoGUI);
 }
 
 bool World::handleEvent(const sf::Event& event)

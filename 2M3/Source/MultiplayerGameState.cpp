@@ -7,7 +7,7 @@
 
 MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, bool isHost)
 	: State(stack, context)
-	, mWorld(*context.window, context.keys1, context.keys2, *context.fonts, false)
+	, mWorld(*context.window, context.keys, *context.fonts, false)
 	, mClock()
 	, mGameClient()
 	, mIsHost(isHost)

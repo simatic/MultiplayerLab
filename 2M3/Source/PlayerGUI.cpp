@@ -17,8 +17,7 @@ namespace GUI
 		mSpeedometerBackground(),
 		mMiniMap()
 	{
-		if (mPlayer->getID() == 0) setPosition(0, 800);
-		else setPosition(800, 800);
+		setPosition(0, 800);
 
 		mAction.setPosition(getPosition());
 
@@ -37,8 +36,7 @@ namespace GUI
 	void GUI::PlayerGUI::initialize(Player* player)
 	{
 		mPlayer = player;
-		if (mPlayer->getID() == 0) setPosition(0, 800);
-		else setPosition(800, 800);
+		setPosition(400, 800);
 
 		mAction.setPosition(getPosition());
 

@@ -7,19 +7,17 @@
 KeyBinding::KeyBinding(int controlPreconfiguration)
 : mKeyMap()
 {
-	// Set initial key bindings for player 1
 	if (controlPreconfiguration == 1)
 	{
-		mKeyMap[sf::Keyboard::Left]		= PlayerAction::Type::TurnLeft;
-		mKeyMap[sf::Keyboard::Right]	= PlayerAction::Type::TurnRight;
-		mKeyMap[sf::Keyboard::Up]		= PlayerAction::Type::Accelerate;
-		mKeyMap[sf::Keyboard::Down]		= PlayerAction::Type::Brake;
-		mKeyMap[sf::Keyboard::RControl]	= PlayerAction::Type::DoAction;
-		mKeyMap[sf::Keyboard::RShift]	= PlayerAction::Type::ChangeAction;
+		mKeyMap[sf::Keyboard::Left] = PlayerAction::Type::TurnLeft;
+		mKeyMap[sf::Keyboard::Right] = PlayerAction::Type::TurnRight;
+		mKeyMap[sf::Keyboard::Up] = PlayerAction::Type::Accelerate;
+		mKeyMap[sf::Keyboard::Down] = PlayerAction::Type::Brake;
+		mKeyMap[sf::Keyboard::RControl] = PlayerAction::Type::DoAction;
+		mKeyMap[sf::Keyboard::RShift] = PlayerAction::Type::ChangeAction;
 	}
 	else if (controlPreconfiguration == 2)
 	{
-		// Player 2
 		mKeyMap[sf::Keyboard::Q] = PlayerAction::Type::TurnLeft;
 		mKeyMap[sf::Keyboard::D] = PlayerAction::Type::TurnRight;
 		mKeyMap[sf::Keyboard::Z] = PlayerAction::Type::Accelerate;
