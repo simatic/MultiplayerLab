@@ -2,17 +2,16 @@
 #include <iostream>
 #include "ResourceHolder.h"
 
-Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder& textures) :
+Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
 	mPosition(pos),
-	mShape(rect),
+	mColliderShape(rect),
 	mRotation(0),
 	mType(Type::Count),
 	mToRemove(false),
-	mTextures(textures),
 	mID(0)
 {
-	sf::FloatRect bounds = mShape.getLocalBounds();
-	mShape.setOrigin(bounds.width / 2, bounds.height / 2);
+	sf::FloatRect bounds = mColliderShape.getLocalBounds();
+	mColliderShape.setOrigin(bounds.width / 2, bounds.height / 2);
 
 }
 
@@ -22,11 +21,8 @@ void Entity::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Enti
 
 	mPosition += mVelocity * dt.asSeconds();
 
-	mShape.setPosition(mPosition);
-	mShape.setRotation(mRotation);
-
-	mSprite.setPosition(mPosition);
-	mSprite.setRotation(mRotation);
+	mColliderShape.setPosition(mPosition);
+	mColliderShape.setRotation(mRotation);
 }
 
 void Entity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
@@ -36,7 +32,7 @@ void Entity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*>
 
 void Entity::draw(sf::RenderTarget& target)
 {
-	target.draw(mShape);
+	target.draw(mColliderShape);
 	target.draw(mSprite);
 }
 
@@ -64,7 +60,7 @@ sf::Vector2f Entity::getVelocity()
 
 sf::RectangleShape Entity::getShape()
 {
-	return mShape;
+	return mColliderShape;
 }
 
 Entity::Type Entity::getType()
@@ -103,7 +99,7 @@ bool Entity::collide(Entity* other, sf::Time dt)
 	//if (mShape.getGlobalBounds().intersects(other->getShape().getGlobalBounds())) return false;
 
 	Rectangle rect = getRectangle();
-	if (mShape.getGlobalBounds().intersects(other->mShape.getGlobalBounds()))
+	if (mColliderShape.getGlobalBounds().intersects(other->mColliderShape.getGlobalBounds()))
 	{
 		CollisionResult res = collision(rect, other->getRectangle(), mVelocity, other->getVelocity(), dt);
 
@@ -130,7 +126,7 @@ void Entity::checkCollisions(std::vector<Entity*>& entities, std::set<Pair>& pai
 
 Rectangle Entity::getRectangle()
 {
-	sf::FloatRect baseRect = mShape.getLocalBounds();
+	sf::FloatRect baseRect = mColliderShape.getLocalBounds();
 	std::vector<sf::Vector2f> points;
 	float halfW = baseRect.width / 2.f;
 	float halfH = baseRect.height / 2.f;
@@ -141,10 +137,10 @@ Rectangle Entity::getRectangle()
 
 	for (int i = 0; i < 4; i++)
 	{
-		points[i].x *= mShape.getScale().x;
-		points[i].y *= mShape.getScale().y;
-		points[i] = rotate(points[i], -toRadians(mShape.getRotation()));
-		points[i] += mShape.getPosition();
+		points[i].x *= mColliderShape.getScale().x;
+		points[i].y *= mColliderShape.getScale().y;
+		points[i] = rotate(points[i], -toRadians(mColliderShape.getRotation()));
+		points[i] += mColliderShape.getPosition();
 	}
 
 	Rectangle rect;
@@ -160,21 +156,6 @@ bool Entity::handleEvent(const sf::Event& event)
 
 void Entity::cleanUp(sf::Vector2f worldSize, sf::Time dt)
 {
-}
-
-void Entity::setSprite()
-{
-	if (mType == Type::CarType) {
-		mSprite.setTexture(mTextures.get(Textures::Car)); mSprite.setScale(sf::Vector2f(0.132f, 0.132f));
-	}
-
-	sf::FloatRect bounds = mSprite.getLocalBounds();
-	mSprite.setOrigin(bounds.width / 2, bounds.height / 2);
-}
-
-const TextureHolder& Entity::getTextures()
-{
-	return mTextures;
 }
 
 sf::Uint64 Entity::getID()

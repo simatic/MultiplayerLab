@@ -20,7 +20,7 @@ public:
 	};
 
 public:
-	Entity(sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder& textures);
+	Entity(sf::Vector2f pos, sf::RectangleShape colliderShape);
 
 	virtual void		update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs);
 	virtual void		serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs);
@@ -35,14 +35,12 @@ public:
 	sf::RectangleShape	getShape();
 	Rectangle			getRectangle();
 	Type				getType();
-	const TextureHolder&getTextures();
 	sf::Uint64			getID();
 
 	void				setID(sf::Uint64 id);
 	void				setPosition(sf::Vector2f p);
 	void				offset(sf::Vector2f o);
 	void				setVelocity(sf::Vector2f v);
-	virtual void		setSprite();
 
 	bool				toRemove();
 	void				remove();
@@ -58,8 +56,7 @@ protected:
 	float				mRotation;
 
 	sf::Sprite			mSprite;
-	sf::RectangleShape	mShape;
-	const TextureHolder&mTextures;
+	sf::RectangleShape	mColliderShape;
 
 	Type				mType;
 

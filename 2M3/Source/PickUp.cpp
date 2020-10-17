@@ -2,13 +2,13 @@
 #include <Car.h>
 
 PickUp::PickUp(const TextureHolder& textures) :
-	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)), textures),
+	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0))),
 	mType(PickUpType::HealthPack)
 {
 }
 
 PickUp::PickUp(PickUpType type, sf::Vector2f pos, const TextureHolder& textures) :
-	Entity(pos, sf::RectangleShape(sf::Vector2f(15, 15)), textures),
+	Entity(pos, sf::RectangleShape(sf::Vector2f(15, 15))),
 	mType(type)
 {
 }

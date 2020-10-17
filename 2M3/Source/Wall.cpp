@@ -4,13 +4,15 @@
 
 #include "Wall.h"
 
-Wall::Wall(sf::Vector2f position, sf::RectangleShape shape, TextureHolder& textures):
-    Entity(position, std::move(shape), textures) {
-    mShape.setFillColor(sf::Color::Blue);
-    mShape.setPosition(mPosition+mShape.getSize()/2.0f);
+Wall::Wall(sf::Vector2f position, sf::RectangleShape colliderShape, sf::RectangleShape renderedShape) :
+    WallLogic(position, std::move(colliderShape)),
+    mRenderedShape(renderedShape)
+{
+    mRenderedShape.setPosition(position);
+    mRenderedShape.setFillColor(sf::Color::Blue);
 }
 
-// don't do anything on collision
-void Wall::onCollision(Entity *other) {}
-
-void Wall::update(sf::Time dt, std::vector<Entity *> entities, std::vector<Entity *> &newEntities, std::set<Pair> &pairs) {}
+void Wall::draw(sf::RenderTarget& target)
+{
+    target.draw(mRenderedShape);
+}

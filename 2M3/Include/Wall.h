@@ -1,13 +1,14 @@
 #pragma once
-#include <Entity.h>
+#include "Renderable.h"
+#include "WallLogic.h"
 
-class Wall : public Entity {
+class Wall : public WallLogic, public Renderable {
 
 public:
-    Wall(sf::Vector2f position, sf::RectangleShape shape, TextureHolder &textures);
+    Wall(sf::Vector2f position, sf::RectangleShape colliderShape, sf::RectangleShape renderedShape);
 
-    void onCollision(Entity *other) override;
+    void draw(sf::RenderTarget& target) override;
 
-    void update(sf::Time dt, std::vector<Entity *> entities, std::vector<Entity *> &newEntities,
-                std::set<Pair> &pairs) override;
+private:
+    sf::RectangleShape mRenderedShape;
 };

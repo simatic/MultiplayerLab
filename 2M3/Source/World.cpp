@@ -56,13 +56,13 @@ void World::addWalls() {
     auto horizontalWall = sf::RectangleShape(sf::Vector2f(mWorldWidth, 10.0f));
     auto verticalWall = sf::RectangleShape(sf::Vector2f(10.0f, mWorldHeight));
     // north
-    mEntities.push_back(new Wall(sf::Vector2f(0, -10), horizontalWall, mTextures));
+    mEntities.push_back(new Wall(sf::Vector2f(0, -10), horizontalWall, horizontalWall));
     // south
-    mEntities.push_back(new Wall(sf::Vector2f(0, mWorldHeight), horizontalWall, mTextures));
+    mEntities.push_back(new Wall(sf::Vector2f(0, mWorldHeight), horizontalWall, horizontalWall));
     // west
-    mEntities.push_back(new Wall(sf::Vector2f(-10, 0), verticalWall, mTextures));
+    mEntities.push_back(new Wall(sf::Vector2f(-10, 0), verticalWall, verticalWall));
     // east
-    mEntities.push_back(new Wall(sf::Vector2f(mWorldWidth, 0), verticalWall, mTextures));
+    mEntities.push_back(new Wall(sf::Vector2f(mWorldWidth, 0), verticalWall, verticalWall));
 }
 
 void World::update(sf::Time dt)
