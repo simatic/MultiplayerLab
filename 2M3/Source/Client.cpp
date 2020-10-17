@@ -8,11 +8,11 @@
 
 Client::Client(int uid, sf::RenderWindow* mainWindow, std::string clientTitle, KeyBinding keyBindingConfig) :
 	_uid(uid),
-	_mainWindow(/*mainWindow // TODO uncomment for having 1 window */new sf::RenderWindow(sf::VideoMode::getDesktopMode(),"Client", sf::Style::Close)),
+	_mainWindow(/*mainWindow // TODO uncomment for having 1 window */new sf::RenderWindow(sf::VideoMode::getDesktopMode(),clientTitle, sf::Style::Close)),
 	_view(),
 	_textures(),
 	_fonts(),
-	_stateStack(State::Context(*_mainWindow, _textures, _fonts, keyBindingConfig, keyBindingConfig/* last argument will be deleted*/)),
+	_stateStack(State::Context(*_mainWindow, _textures, _fonts, keyBindingConfig)),
 	_statisticsText(),
 	_statisticsUpdateTime(),
 	_statisticsNumFrames(0)
@@ -144,6 +144,4 @@ void Client::registerStates()
 	_stateStack.registerState<SettingsState>(States::Settings);
 	_stateStack.registerState<MultiplayerGameState>(States::HostGame, true);
 	_stateStack.registerState<MultiplayerGameState>(States::JoinGame, false);
-	//mStateStack.registerState<PauseState>(States::Pause);
-	//mStateStack.registerState<PauseState>(States::NetworkPause, true);
 }

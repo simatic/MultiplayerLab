@@ -38,7 +38,8 @@ class Application
 		/*TextureHolder			mTextures;
 	  	FontHolder				mFonts;*/
 
-		KeyBinding				mKeyBinding;
+		KeyBinding				mKeyBinding1;
+		KeyBinding				mKeyBinding2;
 		//StateStack				mStateStack;
 		int _clientCount;
 		sf::Mutex _mutex;
