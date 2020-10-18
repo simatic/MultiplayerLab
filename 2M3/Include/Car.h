@@ -26,6 +26,9 @@ public:
 
 	void setSprite();
 
+protected:
+	void instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<Entity*>& newEntities) override;
+
 private:
 	const TextureHolder& mTextures;
 	sf::Sprite mSprite;

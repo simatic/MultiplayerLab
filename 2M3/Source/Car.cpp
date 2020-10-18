@@ -19,23 +19,8 @@ Car::Car(const TextureHolder& textures) :
 }
 
 Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder& textures) :
-	CarLogic(hp, pos, rect),
-	mShowMap(false),
-	mTrajectory(),
-	mTextures(textures),
-	mDust(sf::Color::Black, sf::Time::Zero)
-{
-	setSprite();
-
-	mTires = sf::VertexArray(sf::Lines, 1);
-	mTires[0].position = mPosition;
-
-	mHpBackgroundBar = sf::RectangleShape(sf::Vector2f(40, 10));
-	mHpBackgroundBar.setFillColor(sf::Color(127, 127, 127));
-	mHpBackgroundBar.setOrigin(sf::Vector2f(20, 5));
-	mHpBar = sf::RectangleShape(sf::Vector2f(40, 10));
-	mHpBar.setFillColor(sf::Color::Green);
-}
+	Car(hp, pos, rect, nullptr, textures)
+{}
 
 Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, const TextureHolder& textures) :
 	CarLogic(hp, pos, rect, keys),
@@ -54,6 +39,16 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, co
 	mHpBackgroundBar.setOrigin(sf::Vector2f(20, 5));
 	mHpBar = sf::RectangleShape(sf::Vector2f(40, 10));
 	mHpBar.setFillColor(sf::Color::Green);
+
+	mInstanciateMissile = [this](sf::Vector2f position, sf::Vector2f direction) -> ProjectileLogic*
+	{
+		return new Projectile(5, sf::seconds(10), 400, 400, position + 25.f * direction, direction, sf::RectangleShape(sf::Vector2f(30, 10)), this, mTextures);
+	};
+
+	mInstanciateBullet = [this](sf::Vector2f position, sf::Vector2f direction) -> ProjectileLogic*
+	{
+		return new Projectile(1, sf::seconds(1), 1500, position + 25.f * direction, direction, sf::RectangleShape(sf::Vector2f(5, 5)), this, mTextures);
+	};
 }
 
 void Car::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
@@ -158,4 +153,11 @@ void Car::setSprite()
 
 	sf::FloatRect bounds = mSprite.getLocalBounds();
 	mSprite.setOrigin(bounds.width / 2, bounds.height / 2);
+}
+
+void Car::instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<Entity*>& newEntities)
+{
+	std::cout << "Car" << std::endl;
+	Projectile* proj = new Projectile(1, sf::seconds(1), 1500, position + 25.f * direction, direction, sf::RectangleShape(sf::Vector2f(5, 5)), this, mTextures);
+	newEntities.push_back(proj);
 }

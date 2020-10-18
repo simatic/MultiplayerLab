@@ -9,39 +9,12 @@
 
 
 CarLogic::CarLogic() :
-	mHP(1),
-	mHpMax(1),
-	mDrifting(false),
-	mForward(true),
-	mPrevDriftingSign(0),
-	mCrash(false),
-	mAction(CarAction::ShootBullet),
-	mLaunchedMissile(false),
-	mMissileAmmo(5),
-	mInputs({ false, false, false, false, false, false, false }),
-	Entity(sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)))
-{
-	mType = Type::CarType;
-}
+	CarLogic(1, sf::Vector2f(0, 0), sf::RectangleShape(sf::Vector2f(0, 0)))
+{}
 
 CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect) :
-	mHP(hp),
-	mHpMax(hp),
-	mKeyBindings(nullptr),
-	mShootDelay(sf::seconds(0.1)),
-	mCrash(false),
-	mAction(CarAction::ShootBullet),
-	mLaunchedMissile(false),
-	mMissileAmmo(5),
-	mInputs({ false, false, false, false, false, false, false }),
-	mTrajectory(),
-	Entity(pos, rect)
-{
-	mType = Type::CarType;
-	mCarDirection = sf::Vector2f(1, 0);
-
-	mType = Type::CarType;
-}
+	CarLogic(hp, pos, rect, nullptr)
+{}
 
 CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys) :
 	mHP(hp),
@@ -53,10 +26,21 @@ CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding
 	mLaunchedMissile(false),
 	mMissileAmmo(5),
 	mInputs({ false, false, false, false, false, false, false }),
+	mTrajectory(),
+	mCarDirection(sf::Vector2f(1, 0)),
 	Entity(pos, rect)
 {
 	mType = Type::CarType;
-	mCarDirection = sf::Vector2f(1, 0);
+
+	mInstanciateMissile = [this](sf::Vector2f position, sf::Vector2f direction) -> ProjectileLogic* 
+	{ 
+		return new ProjectileLogic(5, sf::seconds(10), 400, 400, position + 25.f * direction, direction, sf::RectangleShape(sf::Vector2f(30, 10)), this); 
+	};
+
+	mInstanciateBullet = [this](sf::Vector2f position, sf::Vector2f direction) -> ProjectileLogic*
+	{
+		return new ProjectileLogic(1, sf::seconds(1), 1500, position + 25.f * direction, direction, sf::RectangleShape(sf::Vector2f(5, 5)), this);
+	};
 }
 
 void CarLogic::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
@@ -238,7 +222,7 @@ void CarLogic::useInputs(sf::Time dt, std::vector<Entity*>& newEntities)
 		mLaunchedMissile = false;
 		mMissileAmmo--;
 
-		ProjectileLogic* proj = new ProjectileLogic(5, sf::seconds(10), 400, 400, mPosition + 25.f * projDir, projDir, sf::RectangleShape(sf::Vector2f(30, 10)), this);
+		ProjectileLogic* proj = mInstanciateMissile(mPosition, projDir);
 		newEntities.push_back(proj);
 	}
 
@@ -252,8 +236,7 @@ void CarLogic::useInputs(sf::Time dt, std::vector<Entity*>& newEntities)
 			{
 				mCurrentShootDelay = mShootDelay;
 
-				ProjectileLogic* proj = new ProjectileLogic(1, sf::seconds(1), 1500, mPosition + 25.f * projDir, projDir, sf::RectangleShape(sf::Vector2f(5, 5)), this);
-				newEntities.push_back(proj);
+				instanciateBullet(mPosition, projDir, newEntities);
 			}
 			break;
 		}
@@ -473,8 +456,9 @@ void CarLogic::setCarDirection(sf::Vector2f d)
 	mCarDirection = d;
 }
 
-/*
-ProjectileLogic* CarLogic::instanciateProjectile(int dmg, sf::Time lifetime, float speed, sf::Vector2f pos, sf::Vector2f direction, sf::RectangleShape rect)
+void CarLogic::instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<Entity*>& newEntities)
 {
-	return new ProjectileLogic(dmg, lifetime, speed, pos, direction, rect, this);
-}*/
+	std::cout << "CarLogic" << std::endl;
+	ProjectileLogic* proj = new ProjectileLogic(1, sf::seconds(1), 1500, position + 25.f * direction, direction, sf::RectangleShape(sf::Vector2f(5, 5)), this);
+	newEntities.push_back(proj); 
+}

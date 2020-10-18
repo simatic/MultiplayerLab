@@ -25,6 +25,14 @@ void Projectile::setSprite()
 	mSprite.setOrigin(bounds.width / 2, bounds.height / 2);
 }
 
+void Projectile::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
+{
+	ProjectileLogic::update(dt, entities, newEntities, pairs);
+
+	mSprite.setPosition(mPosition);
+	mSprite.setRotation(mRotation);
+}
+
 void Projectile::draw(sf::RenderTarget& target)
 {
 	target.draw(mSprite);

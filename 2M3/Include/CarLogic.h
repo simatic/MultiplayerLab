@@ -5,6 +5,7 @@
 #include <KeyBinding.h>
 #include <Particles.h>
 #include <queue>
+#include <functional>
 
 struct Inputs
 {
@@ -69,7 +70,7 @@ public:
 	void stepUpDeadReckoning();
 
 protected:
-	//virtual ProjectileLogic* instanciateProjectile(int dmg, sf::Time lifetime, float speed, sf::Vector2f pos, sf::Vector2f direction, sf::RectangleShape rect);
+	virtual void instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<Entity*>& newEntities);
 
 protected:
 	Inputs mInputs;
@@ -82,6 +83,9 @@ protected:
 	CarAction mAction;
 
 	int mMissileAmmo;
+
+	std::function<ProjectileLogic* (sf::Vector2f position, sf::Vector2f direction)> mInstanciateMissile;
+	std::function<ProjectileLogic* (sf::Vector2f position, sf::Vector2f direction)> mInstanciateBullet;
 
 private:
 	KeyBinding* mKeyBindings;
