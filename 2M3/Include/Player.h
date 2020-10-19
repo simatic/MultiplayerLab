@@ -5,7 +5,6 @@
 #include <KeyBinding.h>
 #include "ResourceIdentifiers.h"
 
-// A voir en rapport à sa nouvelle place (au niveau de thread lorsqu'il est initialisé dans Application.
 class Player
 {
 public:

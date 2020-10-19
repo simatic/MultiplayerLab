@@ -24,10 +24,6 @@ struct SpatialVars
 	sf::Vector2f direction;
 };
 
-/* Faire une classe fille CarClient et séparer les données minimales recquises par le serveur qui resteront dans la classe Car, des
-données que le client a besoin en supplément comme par exemple la texture. Rajouter la classe Renderer pour implémenter les méthodes
-de rendering dont héritera aussi la classe CarClient.
-*/
 class Car : public Entity
 {
 public:
