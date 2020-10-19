@@ -105,6 +105,7 @@ void Application::run()
 				std::cout << "First thread ended.\n";
 				threadClient2.wait();
 				std::cout << "Second thread ended.\n";
+				//_clients.clear();
 				mWindow.close();
 			}
 		}
