@@ -12,14 +12,14 @@ void delayThread(sf::UdpSocket* socketPtr){
     sf::Time lastTime = clock.getElapsedTime();
     sf::Time time = clock.getElapsedTime();
     sf::Time deltaTime = time - lastTime;
-    while(true){
+    while(true) {
         Delay::mutex4Packet4Delay.lock();
         while (!Delay::packet4DelayList.empty()){
             packetWithDelay packet;
             packet.logicalPacket = std::move(Delay::packet4DelayList[0].logicalPacket);
             packet.remoteAddress = Delay::packet4DelayList[0].remoteAddress;
             packet.remotePort = Delay::packet4DelayList[0].remotePort;
-            packet.delayMilliseconds = 1000;
+            packet.delay = 1.0;
             packetWithDelayList.push_back(std::move(packet));
             Delay::packet4DelayList.erase(Delay::packet4DelayList.begin());
         }
@@ -29,8 +29,8 @@ void delayThread(sf::UdpSocket* socketPtr){
         lastTime = time;
         for (auto it = packetWithDelayList.begin(); it!=packetWithDelayList.end();){
             packetWithDelay& packet = *it;
-            packet.delayMilliseconds -= deltaTime.asMilliseconds();
-            if(packet.delayMilliseconds <= 0){
+            packet.delay -= deltaTime.asSeconds();
+            if(packet.delay <= 0){
                 std::cout << "[Debug] Received packet with ID " << packet.logicalPacket->getID() << std::endl;
                 auto& client = ServerNetworkHandling::getOrCreateClient(packet.remoteAddress, packet.remotePort);
                 if(!client.settings.inComingPacketLost()){

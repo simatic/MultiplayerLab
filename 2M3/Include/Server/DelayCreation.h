@@ -3,17 +3,19 @@
 #include "Common/Network.h"
 #include <mutex>
 
-struct packet4Delay{
+struct packet4Delay {
     std::unique_ptr<Packet> logicalPacket;
     sf::IpAddress remoteAddress;
     unsigned short remotePort;
 };
 
-struct packetWithDelay{
+struct packetWithDelay {
     std::unique_ptr<Packet> logicalPacket;
     sf::IpAddress remoteAddress;
     unsigned short remotePort;
-    int delayMilliseconds;
+
+    /// in seconds
+    float delay;
 };
 
 class Delay {
