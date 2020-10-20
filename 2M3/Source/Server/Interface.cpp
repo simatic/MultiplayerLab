@@ -40,15 +40,6 @@ void DragFloat(const char* label, Getter get, Setter set, float min = 0.0f, floa
     }
 }
 
-float tmp = 0.0f;
-void setTest(float v) {
-    tmp = v;
-}
-
-float getTest() {
-    return tmp;
-}
-
 ImVec4 TITLE_COLOR = ImVec4(1,1,0,1);
 
 sf::Clock interfaceClock{};
@@ -77,10 +68,10 @@ void Interface::renderClientWindow(const std::string& title, UdpClient& client) 
         ImGui::Separator();
         ImGui::TextColored(TITLE_COLOR, "Délais");
         ImGui::Text("Délai avant traitement");
-        DragFloat("Délai avant traitement (en secondes)", getTest, setTest, 0, 10.0f);
+        DragFloat("Délai avant traitement (en secondes)", [&]{return client.settings.getIncomingDelay();}, [&](float v){client.settings.setIncomingDelay(v);}, 0, 10.0f);
 
         ImGui::Text("Avant envoi");
-        DragFloat("Délai avant envoi (en secondes)", getTest, setTest, 0, 10.0f);
+        DragFloat("Délai avant envoi (en secondes)", [&]{return client.settings.getOutgoingDelay();}, [&](float v){client.settings.setOutgoingDelay(v);}, 0, 10.0f);
 
         ImGui::Separator();
 

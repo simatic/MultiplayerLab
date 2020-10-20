@@ -4,6 +4,8 @@
 NetworkSettings::NetworkSettings() {
     percentageOutGoingPacketLost = 0.0;
     percentageInComingPacketLost = 0.0;
+    incomingDelay = 0.0;
+    outgoingDelay = 0.0;
 }
 
 float NetworkSettings::getPercentageOutGoingPacketLost() const {
@@ -27,17 +29,33 @@ void NetworkSettings::setPercentageInComingPacketLost(float percentage) {
 }
 
 
-bool NetworkSettings::outGoingPacketLost(){
+bool NetworkSettings::outGoingPacketLost() const {
     static std::random_device rd;
     static std::mt19937 gen(rd());
     static std::uniform_real_distribution<float> dist(0,1);
     return dist(gen) < percentageOutGoingPacketLost;
 }
 
-bool NetworkSettings::inComingPacketLost(){
+bool NetworkSettings::inComingPacketLost() const {
     static std::random_device rd;
     static std::mt19937 gen(rd());
     static std::uniform_real_distribution<float> dist(0,1);
     return dist(gen) < percentageInComingPacketLost;
+}
+
+float NetworkSettings::getIncomingDelay() const {
+    return incomingDelay;
+}
+
+float NetworkSettings::getOutgoingDelay() const {
+    return outgoingDelay;
+}
+
+void NetworkSettings::setIncomingDelay(float delay) {
+    incomingDelay = delay;
+}
+
+void NetworkSettings::setOutgoingDelay(float delay) {
+    outgoingDelay = delay;
 }
 

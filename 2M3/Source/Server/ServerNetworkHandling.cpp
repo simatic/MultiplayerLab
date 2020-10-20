@@ -44,6 +44,7 @@ sf::Clock timeClock;
 
         auto logicalPacket = deserializePacket(packet);
         if(logicalPacket) {
+            ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{timeClock.getElapsedTime(), NetworkEvent::Type::PacketReceived});
             Delay::mutex4Packet4Delay.lock();
             Delay::packet4DelayList.push_back(std::make_unique<packet4Delay>(std::move(logicalPacket), client));
             Delay::mutex4Packet4Delay.unlock();

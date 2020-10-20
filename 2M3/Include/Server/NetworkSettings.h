@@ -6,6 +6,8 @@ class NetworkSettings{
 private:
     float percentageOutGoingPacketLost;
     float percentageInComingPacketLost;
+    float incomingDelay;
+    float outgoingDelay;
 
 public:
     NetworkSettings();
@@ -15,6 +17,11 @@ public:
     float getPercentageInComingPacketLost() const;
     void setPercentageInComingPacketLost(float percentageInComingPacketLost);
 
-    bool outGoingPacketLost();
-    bool inComingPacketLost();
+    float getIncomingDelay() const;
+    float getOutgoingDelay() const;
+    void setIncomingDelay(float delay);
+    void setOutgoingDelay(float delay);
+
+    bool outGoingPacketLost() const;
+    bool inComingPacketLost() const;
 };

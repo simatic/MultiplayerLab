@@ -16,7 +16,7 @@
         Delay::mutex4Packet4Delay.lock();
         while (!Delay::packet4DelayList.empty()){
             auto& packetToDelay = Delay::packet4DelayList[0];
-            float delayToApply = 1.0f; // TODO
+            float delayToApply = packetToDelay->client.settings.getIncomingDelay();
             auto packet = std::make_unique<packetWithDelay>(std::move(packetToDelay->logicalPacket), packetToDelay->client, delayToApply);
             packetWithDelayList.push_back(std::move(packet));
             Delay::packet4DelayList.erase(Delay::packet4DelayList.begin());
@@ -32,9 +32,10 @@
                 std::cout << "[Debug] Received packet with ID " << packet->logicalPacket->getID() << std::endl;
                 auto& client = packet->client;
                 if(!client.settings.inComingPacketLost()){
-                    ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{clock.getElapsedTime(), NetworkEvent::Type::PacketReceived});
+                    ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{clock.getElapsedTime(), NetworkEvent::Type::PacketDelayed});
                     auto response = packet->logicalPacket->handle();
                     if(response) {
+                        // TODO: outgoing delay
                         if(!client.settings.outGoingPacketLost()){
                             response->send(socket, client.address, client.port);
                         }
