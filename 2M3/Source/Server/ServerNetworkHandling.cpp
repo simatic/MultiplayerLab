@@ -12,12 +12,12 @@
 
 sf::UdpSocket socket;
 std::mutex Delay::mutex4Packet4Delay;
-std::vector<packet4Delay> Delay::packet4DelayList;
+std::vector<std::unique_ptr<packet4Delay>> Delay::packet4DelayList;
 ClientID ServerNetworkHandling::currentClientID = 0;
 std::vector<UdpClient> ServerNetworkHandling::clients{};
 sf::Clock timeClock;
 
-void networkThread(int port) {
+[[noreturn]] void networkThread(int port) {
     // Bind to port
     sf::Socket::Status status = socket.bind(port);
     if (status != sf::Socket::Done) {
@@ -44,13 +44,8 @@ void networkThread(int port) {
 
         auto logicalPacket = deserializePacket(packet);
         if(logicalPacket) {
-
-            packet4Delay packetToHandle;
-            packetToHandle.logicalPacket = std::move(logicalPacket);
-            packetToHandle.remoteAddress = remoteAddress;
-            packetToHandle.remotePort = remotePort;
             Delay::mutex4Packet4Delay.lock();
-            Delay::packet4DelayList.push_back(std::move(packetToHandle));
+            Delay::packet4DelayList.push_back(std::make_unique<packet4Delay>(std::move(logicalPacket), client));
             Delay::mutex4Packet4Delay.unlock();
         }
     }

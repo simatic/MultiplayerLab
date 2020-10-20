@@ -5,8 +5,8 @@
 #include "Server/DelayCreation.h"
 
 
-void delayThread(sf::UdpSocket* socketPtr){
-    std::vector<packetWithDelay> packetWithDelayList;
+[[noreturn]] void delayThread(sf::UdpSocket* socketPtr){
+    std::vector<std::unique_ptr<packetWithDelay>> packetWithDelayList;
     sf::UdpSocket& socket = *socketPtr;
     sf::Clock clock;
     sf::Time lastTime = clock.getElapsedTime();
@@ -15,11 +15,9 @@ void delayThread(sf::UdpSocket* socketPtr){
     while(true) {
         Delay::mutex4Packet4Delay.lock();
         while (!Delay::packet4DelayList.empty()){
-            packetWithDelay packet;
-            packet.logicalPacket = std::move(Delay::packet4DelayList[0].logicalPacket);
-            packet.remoteAddress = Delay::packet4DelayList[0].remoteAddress;
-            packet.remotePort = Delay::packet4DelayList[0].remotePort;
-            packet.delay = 1.0;
+            auto& packetToDelay = Delay::packet4DelayList[0];
+            float delayToApply = 1.0f; // TODO
+            auto packet = std::make_unique<packetWithDelay>(std::move(packetToDelay->logicalPacket), packetToDelay->client, delayToApply);
             packetWithDelayList.push_back(std::move(packet));
             Delay::packet4DelayList.erase(Delay::packet4DelayList.begin());
         }
@@ -28,17 +26,17 @@ void delayThread(sf::UdpSocket* socketPtr){
         deltaTime = time - lastTime;
         lastTime = time;
         for (auto it = packetWithDelayList.begin(); it!=packetWithDelayList.end();){
-            packetWithDelay& packet = *it;
-            packet.delay -= deltaTime.asSeconds();
-            if(packet.delay <= 0){
-                std::cout << "[Debug] Received packet with ID " << packet.logicalPacket->getID() << std::endl;
-                auto& client = ServerNetworkHandling::getOrCreateClient(packet.remoteAddress, packet.remotePort);
+            auto& packet = *it;
+            packet->delay -= deltaTime.asSeconds();
+            if(packet->delay <= 0){
+                std::cout << "[Debug] Received packet with ID " << packet->logicalPacket->getID() << std::endl;
+                auto& client = packet->client;
                 if(!client.settings.inComingPacketLost()){
                     ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{clock.getElapsedTime(), NetworkEvent::Type::PacketReceived});
-                    auto response = packet.logicalPacket->handle();
+                    auto response = packet->logicalPacket->handle();
                     if(response) {
                         if(!client.settings.outGoingPacketLost()){
-                            response->send(socket, packet.remoteAddress, packet.remotePort);
+                            response->send(socket, client.address, client.port);
                         }
                     }
                 }
