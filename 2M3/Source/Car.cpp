@@ -157,7 +157,6 @@ void Car::setSprite()
 
 void Car::instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<Entity*>& newEntities)
 {
-	std::cout << "Car" << std::endl;
 	Projectile* proj = new Projectile(1, sf::seconds(1), 1500, position + 25.f * direction, direction, sf::RectangleShape(sf::Vector2f(5, 5)), this, mTextures);
 	newEntities.push_back(proj);
 }

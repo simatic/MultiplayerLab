@@ -384,33 +384,6 @@ sf::Vector2f CarLogic::getCarDirection()
 	return mCarDirection;
 }
 
-std::string CarLogic::getActionText()
-{
-	std::string res = "null";
-	switch (mAction)
-	{
-	case CarAction::ShootBullet:
-	{
-		res = "Shoot Bullets";
-		break;
-	}
-	case CarAction::LaunchMissile:
-	{
-		res = "Launch Missile (x" + std::to_string(mMissileAmmo) + ")";
-		break;
-	}
-	case CarAction::ToggleMap:
-	{
-		res = "Toggle Map";
-		break;
-	}
-	default:
-		break;
-	}
-
-	return res;
-}
-
 float CarLogic::getSpeedRatio()
 {
 	return length(mVelocity) / mCarMaxSpeed;
