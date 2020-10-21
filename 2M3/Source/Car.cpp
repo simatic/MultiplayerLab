@@ -13,7 +13,7 @@ Car::Car(const TextureHolder& textures) :
 	mShowMap(false),
 	mTrajectory(),
 	mTextures(textures),
-	mDust(sf::Color::Black, sf::Time::Zero)
+	mDust(sf::Color::White, sf::seconds(0.7))
 {
 	setSprite();
 }
@@ -27,7 +27,7 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, co
 	mShowMap(false),
 	mTrajectory(),
 	mTextures(textures),
-	mDust(sf::Color::Black, sf::Time::Zero)
+	mDust(sf::Color::White, sf::seconds(0.7))
 {
 	setSprite();
 
@@ -74,6 +74,9 @@ void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> en
 
 	mDust.setPosition(mPosition - (float)20 * mCarDirection);
 	mDust.update(dt);
+
+	mSprite.setPosition(mPosition);
+	mSprite.setRotation(mRotation);
 }
 
 void Car::useInputs(sf::Time dt, std::vector<Entity*>& newEntities)
