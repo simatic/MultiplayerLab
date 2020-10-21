@@ -5,8 +5,23 @@
 
 class Interface {
 
+    struct CompiledEvents {
+        std::vector<float> timestamps;
+        std::vector<float> values;
+        std::vector<sf::Uint64> packetIndices;
+    };
+
+    struct PacketLifecycle {
+        const sf::Uint64 packetIndex;
+        std::pair<sf::Vector2f, sf::Vector2f> edges;
+    };
+
+    typedef std::map<NetworkEvent::Type, CompiledEvents> CompiledEventsMap;
+
+
 private:
-    static std::map<ClientID, std::vector<NetworkEvent::Event>> clientEvents;
+    static std::map<ClientID, CompiledEventsMap> clientEvents;
+    static std::map<ClientID, std::vector<PacketLifecycle>> clientPacketLifecycles;
 
 public:
     static void pollEvents(sf::Window& window);
