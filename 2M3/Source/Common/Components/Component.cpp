@@ -6,3 +6,8 @@ Component::Component(Entity* entity)
 	assert(entity != nullptr);
 	this->entity = entity;
 }
+
+void update()
+{
+	return;
+}
