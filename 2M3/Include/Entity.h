@@ -5,6 +5,7 @@
 #include <Utility.h>
 #include "ResourceIdentifiers.h"
 #include "Common/Components/Transform.h"
+#include "Common/Components/Collider.h"
 
 class Entity
 {
@@ -56,7 +57,7 @@ protected:
 	sf::Vector2f		mVelocity;
 
 	sf::Sprite			mSprite;
-	sf::RectangleShape	mColliderShape;
+	Collider			mCollider;
 
 	Type				mType;
 

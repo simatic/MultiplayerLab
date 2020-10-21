@@ -1,6 +1,6 @@
 #include "Common/Components/Transform.h"
 
-Transform::Transform(sf::Vector2f position, float rotation) :
+Transform::Transform(const sf::Vector2f& position, const float rotation) :
 	position(position),
 	rotation(rotation)
 {}

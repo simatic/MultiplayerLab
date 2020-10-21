@@ -7,5 +7,5 @@ struct Transform : Component
 	sf::Vector2f position;
 	float rotation;
 
-	Transform(sf::Vector2f position, float rotation);
+	Transform(const sf::Vector2f& position, const float rotation);
 };

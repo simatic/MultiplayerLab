@@ -4,13 +4,13 @@
 
 Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
 	mTransform(pos, 0.0f),
-	mColliderShape(rect),
+	mCollider(rect),
 	mType(Type::Count),
 	mToRemove(false),
 	mID(0)
 {
-	sf::FloatRect bounds = mColliderShape.getLocalBounds();
-	mColliderShape.setOrigin(bounds.width / 2, bounds.height / 2);
+	sf::FloatRect bounds = mCollider.shape.getLocalBounds();
+	mCollider.shape.setOrigin(bounds.width / 2, bounds.height / 2);
 
 }
 
@@ -20,8 +20,8 @@ void Entity::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Enti
 
 	mTransform.position += mVelocity * dt.asSeconds();
 
-	mColliderShape.setPosition(mTransform.position);
-	mColliderShape.setRotation(mTransform.rotation);
+	mCollider.shape.setPosition(mTransform.position);
+	mCollider.shape.setRotation(mTransform.rotation);
 }
 
 void Entity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
@@ -31,7 +31,7 @@ void Entity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*>
 
 void Entity::draw(sf::RenderTarget& target)
 {
-	target.draw(mColliderShape);
+	target.draw(mCollider.shape);
 	target.draw(mSprite);
 }
 
@@ -59,7 +59,7 @@ sf::Vector2f Entity::getVelocity()
 
 sf::RectangleShape Entity::getShape()
 {
-	return mColliderShape;
+	return mCollider.shape;
 }
 
 Entity::Type Entity::getType()
@@ -98,7 +98,7 @@ bool Entity::collide(Entity* other, sf::Time dt)
 	//if (mShape.getGlobalBounds().intersects(other->getShape().getGlobalBounds())) return false;
 
 	Rectangle rect = getRectangle();
-	if (mColliderShape.getGlobalBounds().intersects(other->mColliderShape.getGlobalBounds()))
+	if (mCollider.shape.getGlobalBounds().intersects(other->mCollider.shape.getGlobalBounds()))
 	{
 		CollisionResult res = collision(rect, other->getRectangle(), mVelocity, other->getVelocity(), dt);
 
@@ -125,7 +125,7 @@ void Entity::checkCollisions(std::vector<Entity*>& entities, std::set<Pair>& pai
 
 Rectangle Entity::getRectangle()
 {
-	sf::FloatRect baseRect = mColliderShape.getLocalBounds();
+	sf::FloatRect baseRect = mCollider.shape.getLocalBounds();
 	std::vector<sf::Vector2f> points;
 	float halfW = baseRect.width / 2.f;
 	float halfH = baseRect.height / 2.f;
@@ -136,10 +136,10 @@ Rectangle Entity::getRectangle()
 
 	for (int i = 0; i < 4; i++)
 	{
-		points[i].x *= mColliderShape.getScale().x;
-		points[i].y *= mColliderShape.getScale().y;
-		points[i] = rotate(points[i], -toRadians(mColliderShape.getRotation()));
-		points[i] += mColliderShape.getPosition();
+		points[i].x *= mCollider.shape.getScale().x;
+		points[i].y *= mCollider.shape.getScale().y;
+		points[i] = rotate(points[i], -toRadians(mCollider.shape.getRotation()));
+		points[i] += mCollider.shape.getPosition();
 	}
 
 	Rectangle rect;
