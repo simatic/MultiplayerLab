@@ -7,7 +7,7 @@ private:
     unsigned long long timestamp;
 
 public:
-    explicit PingPacket(sf::Packet& source);
+    explicit PingPacket(sf::Uint64 index, sf::Packet& source);
     explicit PingPacket();
     std::unique_ptr<Packet> handle() const override;
     void write(sf::Packet &destination) const override;
@@ -22,7 +22,7 @@ private:
     unsigned long long clientTimestamp;
 
 public:
-    explicit PongPacket(sf::Packet& source);
+    explicit PongPacket(sf::Uint64 index, sf::Packet& source);
     explicit PongPacket(unsigned long long clientTimestamp);
 
     std::unique_ptr<Packet> handle() const override;

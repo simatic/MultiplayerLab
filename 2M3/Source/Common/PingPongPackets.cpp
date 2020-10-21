@@ -8,11 +8,11 @@
 
 using namespace std::chrono;
 
-PingPacket::PingPacket(): timestamp(duration_cast< milliseconds >(
+PingPacket::PingPacket(): Packet(Packet::newPacketIndex()), timestamp(duration_cast< milliseconds >(
         system_clock::now().time_since_epoch()
 ).count()) {}
 
-PingPacket::PingPacket(sf::Packet &source): timestamp(0) {
+PingPacket::PingPacket(sf::Uint64 index, sf::Packet &source): Packet(index), timestamp(0) {
     source >> timestamp;
 }
 
@@ -25,9 +25,9 @@ void PingPacket::write(sf::Packet &destination) const {
     destination << timestamp;
 }
 
-PongPacket::PongPacket(unsigned long long clientTimestamp): clientTimestamp(clientTimestamp) {}
+PongPacket::PongPacket(unsigned long long clientTimestamp): Packet(Packet::newPacketIndex()), clientTimestamp(clientTimestamp) {}
 
-PongPacket::PongPacket(sf::Packet &source): clientTimestamp(0) {
+PongPacket::PongPacket(sf::Uint64 index, sf::Packet &source): Packet(index), clientTimestamp(0) {
     source >> clientTimestamp;
 }
 

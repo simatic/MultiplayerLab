@@ -32,6 +32,7 @@ namespace NetworkEvent {
     struct Event {
         const sf::Time timestamp;
         const Type type;
+        const sf::Uint64 id;
     };
 
     const char* name(Type t);

@@ -8,7 +8,7 @@ private:
     int number;
 
 public:
-    explicit EchoPacket(sf::Packet& source);
+    explicit EchoPacket(sf::Uint64 index, sf::Packet& source);
     explicit EchoPacket(int number);
     std::unique_ptr<Packet> handle() const override;
     void write(sf::Packet &destination) const override;

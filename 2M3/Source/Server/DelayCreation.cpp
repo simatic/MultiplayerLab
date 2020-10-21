@@ -32,7 +32,7 @@
                 std::cout << "[Debug] Received packet with ID " << packet->logicalPacket->getID() << std::endl;
                 auto& client = packet->client;
                 if(!client.settings.inComingPacketLost()){
-                    ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{clock.getElapsedTime(), NetworkEvent::Type::PacketDelayed});
+                    ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{clock.getElapsedTime(), NetworkEvent::Type::PacketDelayed, packet->logicalPacket->getIndex()});
                     auto response = packet->logicalPacket->handle();
                     if(response) {
                         // TODO: outgoing delay
