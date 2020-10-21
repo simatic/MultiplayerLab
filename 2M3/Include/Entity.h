@@ -4,6 +4,7 @@
 #include <Collider.h>
 #include <Utility.h>
 #include "ResourceIdentifiers.h"
+#include "Common/Components/Transform.h"
 
 class Entity
 {
@@ -51,9 +52,8 @@ public:
 	virtual void		onCollision(Entity* other) = 0;
 
 protected:
-	sf::Vector2f		mPosition;
+	Transform			mTransform;
 	sf::Vector2f		mVelocity;
-	float				mRotation;
 
 	sf::Sprite			mSprite;
 	sf::RectangleShape	mColliderShape;

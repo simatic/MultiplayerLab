@@ -3,9 +3,8 @@
 #include "ResourceHolder.h"
 
 Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
-	mPosition(pos),
+	mTransform(pos, 0.0f),
 	mColliderShape(rect),
-	mRotation(0),
 	mType(Type::Count),
 	mToRemove(false),
 	mID(0)
@@ -19,10 +18,10 @@ void Entity::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Enti
 {
 	checkCollisions(entities, pairs, dt);
 
-	mPosition += mVelocity * dt.asSeconds();
+	mTransform.position += mVelocity * dt.asSeconds();
 
-	mColliderShape.setPosition(mPosition);
-	mColliderShape.setRotation(mRotation);
+	mColliderShape.setPosition(mTransform.position);
+	mColliderShape.setRotation(mTransform.rotation);
 }
 
 void Entity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
@@ -38,18 +37,18 @@ void Entity::draw(sf::RenderTarget& target)
 
 sf::Vector2f Entity::getPosition()
 {
-	return mPosition;
+	return mTransform.position;
 }
 
 float Entity::getRotation()
 {
-	return mRotation;
+	return mTransform.rotation;
 }
 
 sf::Vector2f Entity::getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f mapSize)
 {
-	float x = mapSize.x * mPosition.x / worldSize.x;
-	float y = mapSize.y *  mPosition.y / worldSize.y;
+	float x = mapSize.x * mTransform.position.x / worldSize.x;
+	float y = mapSize.y *  mTransform.position.y / worldSize.y;
 	return sf::Vector2f(x, y);
 }
 
@@ -70,7 +69,7 @@ Entity::Type Entity::getType()
 
 void Entity::offset(sf::Vector2f o)
 {
-	mPosition += o;
+	mTransform.position += o;
 }
 
 void Entity::setVelocity(sf::Vector2f v)
@@ -95,7 +94,7 @@ void Entity::unremove()
 
 bool Entity::collide(Entity* other, sf::Time dt)
 {
-	if (length(mPosition - other->getPosition()) > 100) return false;
+	if (length(mTransform.position - other->getPosition()) > 100) return false;
 	//if (mShape.getGlobalBounds().intersects(other->getShape().getGlobalBounds())) return false;
 
 	Rectangle rect = getRectangle();
@@ -170,5 +169,5 @@ void Entity::setID(sf::Uint64 id)
 
 void Entity::setPosition(sf::Vector2f p)
 {
-	mPosition = p;
+	mTransform.position = p;
 }

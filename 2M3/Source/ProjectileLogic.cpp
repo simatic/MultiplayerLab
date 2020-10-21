@@ -82,7 +82,7 @@ void ProjectileLogic::update(sf::Time dt, std::vector<Entity*> entities, std::ve
 	{
 		mToRemove = true;
 	}
-	//mRotation = mCar->getRotation();
+	//mTransform.rotation = mCar->getRotation();
 
 	if (mTarget != nullptr && mTarget->toRemove()) mTarget = nullptr;
 
@@ -90,7 +90,7 @@ void ProjectileLogic::update(sf::Time dt, std::vector<Entity*> entities, std::ve
 	{
 		if (mTarget != nullptr)
 		{
-			sf::Vector2f acceleration = unitVector(mTarget->getPosition() - mPosition);
+			sf::Vector2f acceleration = unitVector(mTarget->getPosition() - mTransform.position);
 			sf::Vector2f velocity = unitVector(unitVector(mVelocity) + mGuideRate * acceleration) * mMaxSpeed;
 			setVelocity(velocity);
 		}
@@ -100,7 +100,7 @@ void ProjectileLogic::update(sf::Time dt, std::vector<Entity*> entities, std::ve
 			Entity* target = nullptr;
 			for (const auto ent : entities)
 			{
-				float dist = length(mPosition - ent->getPosition());
+				float dist = length(mTransform.position - ent->getPosition());
 				if (dist < minDist && ent->getType() == Type::CarType && ent != mCar)
 				{
 					minDist = dist;
@@ -114,7 +114,7 @@ void ProjectileLogic::update(sf::Time dt, std::vector<Entity*> entities, std::ve
 	float angle = 0;
 	if (mVelocity.x != 0) angle = -atan2(mVelocity.y, mVelocity.x);
 	if (mVelocity.x == 0 && mVelocity.y != 0) angle = M_PI_2 * mVelocity.y / abs(mVelocity.y);
-	mRotation = -toDegrees(angle);
+	mTransform.rotation = -toDegrees(angle);
 
 	Entity::update(dt, entities, newEntities, pairs);
 }
