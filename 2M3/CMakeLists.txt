@@ -29,7 +29,7 @@ endif()
 
 add_executable(2M3
   ${SOURCES}
-   "Include/Renderable.h"  "Include/WallLogic.h" "Source/WallLogic.cpp" "Include/ProjectileLogic.h" "Source/ProjectileLogic.cpp" "Include/CarLogic.h" "Source/CarLogic.cpp")
+   "Include/Renderable.h"  "Include/WallLogic.h" "Source/WallLogic.cpp" "Include/ProjectileLogic.h" "Source/ProjectileLogic.cpp" "Include/CarLogic.h" "Source/CarLogic.cpp" "Include/Common/Components/Component.h" "Source/Common/Components/Component.cpp")
 
 target_link_libraries(2M3 PUBLIC sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
 
