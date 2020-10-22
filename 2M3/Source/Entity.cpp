@@ -1,5 +1,6 @@
 #include <Entity.h>
 #include <iostream>
+#include "Common/Systems/RenderSystem.h"
 #include "ResourceHolder.h"
 
 Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
@@ -31,8 +32,8 @@ void Entity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*>
 
 void Entity::draw(sf::RenderTarget& target)
 {
-	target.draw(mCollider.shape);
-	target.draw(mSprite);
+	//target.draw(mCollider.shape);
+	RenderSystem::render(target, mTransform, Sprite(mSprite));
 }
 
 sf::Vector2f Entity::getPosition()
