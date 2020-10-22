@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Common/Systems/RenderSystem.h"
 #include "Common/Systems/CollisionSystem.h"
+#include "Common/Systems/MovementSystem.h"
 #include "ResourceHolder.h"
 
 Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
@@ -19,8 +20,7 @@ Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
 void Entity::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
 {
 	CollisionSystem::update(dt, this, entities, pairs);
-
-	mTransform.position += mVelocity * dt.asSeconds();
+	MovementSystem::update(dt, this);
 
 	mCollider.shape.setPosition(mTransform.position);
 	mCollider.shape.setRotation(mTransform.rotation);
@@ -37,7 +37,7 @@ void Entity::draw(sf::RenderTarget& target)
 	RenderSystem::render(target, mTransform, Sprite(mSprite));
 }
 
-sf::Vector2f Entity::getPosition()
+sf::Vector2f& Entity::getPosition()
 {
 	return mTransform.position;
 }
