@@ -4,7 +4,8 @@
 
 struct Collider
 {
-	sf::RectangleShape shape;
+	sf::RectangleShape	shape;
+	bool				collides = false;
 
 	Collider(const sf::Vector2f& size);
 	Collider(const sf::RectangleShape& shape);

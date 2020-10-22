@@ -34,7 +34,7 @@ public:
 	float				getRotation();
 	sf::Vector2f		getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f mapSize);
 	sf::Vector2f		getVelocity();
-	sf::RectangleShape	getShape();
+	Collider&			getCollider();
 	Rectangle			getRectangle();
 	Type				getType();
 	sf::Uint64			getID();
@@ -48,8 +48,6 @@ public:
 	void				remove();
 	void				unremove();
 
-	void				checkCollisions(std::vector<Entity*>& entities, std::set<Pair>& pairs, sf::Time dt);
-	bool				collide(Entity* other, sf::Time dt);
 	virtual void		onCollision(Entity* other) = 0;
 
 protected:

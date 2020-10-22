@@ -22,7 +22,10 @@ World::World(sf::RenderTarget& outputTarget, KeyBinding* keys, const FontHolder&
 		Player* player = new Player(0, keys, mTextures);
 		mPlayers.push_back(player);
 
+		Car* car2 = new Car(100, sf::Vector2f(200, 200), sf::RectangleShape(sf::Vector2f(80, 40)), mTextures);
+
 		mEntities.push_back(player->getCar());
+		mEntities.push_back(car2);
 
 		mPlayerOneGUI.initialize(player);
 

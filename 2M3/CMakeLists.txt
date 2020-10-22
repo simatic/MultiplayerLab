@@ -29,7 +29,7 @@ endif()
 
 add_executable(2M3
   ${SOURCES}
-   "Include/Renderable.h"  "Include/WallLogic.h" "Source/WallLogic.cpp" "Include/ProjectileLogic.h" "Source/ProjectileLogic.cpp" "Include/CarLogic.h" "Source/CarLogic.cpp" "Include/Common/Components/Component.h" "Source/Common/Components/Component.cpp" "Include/Common/Components/Transform.h" "Source/Common/Components/Transform.cpp" "Include/Common/Components/Collider.h" "Source/Common/Components/Collider.cpp" "Include/Common/Systems/CollisionSystem.h" "Include/Common/Components/Sprite.h" "Source/Common/Systems/RenderSystem.cpp" "Source/Common/Components/Sprite.cpp")
+   "Include/Renderable.h"  "Include/WallLogic.h" "Source/WallLogic.cpp" "Include/ProjectileLogic.h" "Source/ProjectileLogic.cpp" "Include/CarLogic.h" "Source/CarLogic.cpp" "Include/Common/Components/Component.h" "Source/Common/Components/Component.cpp" "Include/Common/Components/Transform.h" "Source/Common/Components/Transform.cpp" "Include/Common/Components/Collider.h" "Source/Common/Components/Collider.cpp" "Include/Common/Systems/CollisionSystem.h" "Include/Common/Components/Sprite.h" "Source/Common/Systems/RenderSystem.cpp" "Source/Common/Components/Sprite.cpp" "Source/Common/Systems/CollisionSystem.cpp")
 
 target_link_libraries(2M3 PUBLIC sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
 

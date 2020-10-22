@@ -1,6 +1,7 @@
 #include <Entity.h>
 #include <iostream>
 #include "Common/Systems/RenderSystem.h"
+#include "Common/Systems/CollisionSystem.h"
 #include "ResourceHolder.h"
 
 Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
@@ -17,7 +18,7 @@ Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
 
 void Entity::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
 {
-	checkCollisions(entities, pairs, dt);
+	CollisionSystem::update(dt, this, entities, pairs);
 
 	mTransform.position += mVelocity * dt.asSeconds();
 
@@ -58,9 +59,9 @@ sf::Vector2f Entity::getVelocity()
 	return mVelocity;
 }
 
-sf::RectangleShape Entity::getShape()
+Collider& Entity::getCollider()
 {
-	return mCollider.shape;
+	return mCollider;
 }
 
 Entity::Type Entity::getType()
@@ -91,37 +92,6 @@ void Entity::remove()
 void Entity::unremove()
 {
 	mToRemove = false;
-}
-
-bool Entity::collide(Entity* other, sf::Time dt)
-{
-	if (length(mTransform.position - other->getPosition()) > 100) return false;
-	//if (mShape.getGlobalBounds().intersects(other->getShape().getGlobalBounds())) return false;
-
-	Rectangle rect = getRectangle();
-	if (mCollider.shape.getGlobalBounds().intersects(other->mCollider.shape.getGlobalBounds()))
-	{
-		CollisionResult res = collision(rect, other->getRectangle(), mVelocity, other->getVelocity(), dt);
-
-		/*mVelocity += res.speedReductionA;
-		other->setVelocity(other->getVelocity() + res.speedReductionB);*/
-		/*mPosition -= res.speedReductionA;
-		other->offset(-res.speedReductionB);*/
-
-		return res.intersect || res.willIntersect;
-	}
-	return false;
-}
-
-void Entity::checkCollisions(std::vector<Entity*>& entities, std::set<Pair>& pairs, sf::Time dt)
-{
-	for (auto ent : entities)
-	{
-		if (ent != this && collide(ent, dt))
-		{
-			pairs.insert(std::minmax(this, ent));
-		}
-	}
 }
 
 Rectangle Entity::getRectangle()
