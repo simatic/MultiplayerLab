@@ -46,10 +46,10 @@ ImVec4 TITLE_COLOR = ImVec4(1,1,0,1);
 sf::Clock interfaceClock{};
 
 void Interface::render() {
-    std::vector<UdpClient>& clients = ServerNetworkHandling::getClients();
+    std::vector<std::unique_ptr<UdpClient>>& clients = ServerNetworkHandling::getClients();
     for (int i = 0; i < clients.size(); ++i) {
         auto& client = clients.at(i);
-        renderClientWindow("Client #" + std::to_string(i+1), client);
+        renderClientWindow("Client #" + std::to_string(i+1), *client);
     }
 }
 
