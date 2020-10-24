@@ -1,5 +1,6 @@
 #pragma once
 #include <Entity.h>
+#include "Common/Components/Bullet.h"
 
 class CarLogic; // CarLogic forward declaration
 
@@ -17,9 +18,7 @@ public:
 	bool isGuided();
 
 protected:
-	int mDamage;
-	float mMaxSpeed;
-	sf::Time mLifetime;
+	Bullet bullet;
 
 	bool mGuided;
 	Entity* mTarget;

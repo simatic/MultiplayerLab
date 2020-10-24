@@ -2,10 +2,11 @@
 #include <SFML/System/Time.hpp>
 #include "Common/Components/Component.h"
 
-struct Projectile : Component
+struct Bullet : Component
 {
 	unsigned int damage;
+	float maxSpeed;
 	sf::Time lifetime;
 	
-	Projectile(const unsigned int damage, const sf::Time& lifetime);
+	Bullet(const unsigned int damage, const float maxSpeed, const sf::Time& lifetime);
 };

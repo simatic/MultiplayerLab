@@ -3,9 +3,7 @@
 
 ProjectileLogic::ProjectileLogic(int dmg, sf::Time lifetime, float speed, sf::Vector2f pos, sf::Vector2f direction, sf::RectangleShape rect, CarLogic* car) :
 	Entity(pos, rect),
-	mDamage(dmg),
-	mLifetime(lifetime),
-	mMaxSpeed(speed),
+	bullet(dmg, speed, lifetime),
 	mGuided(false),
 	mTarget(nullptr),
 	mDetectionRange(0),
@@ -18,9 +16,7 @@ ProjectileLogic::ProjectileLogic(int dmg, sf::Time lifetime, float speed, sf::Ve
 
 ProjectileLogic::ProjectileLogic(int dmg, sf::Time lifetime, float speed, float detection, sf::Vector2f pos, sf::Vector2f direction, sf::RectangleShape rect, CarLogic* car) :
 	Entity(pos, rect),
-	mDamage(dmg),
-	mLifetime(lifetime),
-	mMaxSpeed(speed),
+	bullet(dmg, speed, lifetime),
 	mGuided(true),
 	mTarget(nullptr),
 	mDetectionRange(detection),
@@ -33,7 +29,7 @@ ProjectileLogic::ProjectileLogic(int dmg, sf::Time lifetime, float speed, float 
 
 int ProjectileLogic::getDamage()
 {
-	return mDamage;
+	return bullet.damage;
 }
 
 void ProjectileLogic::onCollision(Entity* other)
@@ -55,7 +51,7 @@ void ProjectileLogic::onCollision(Entity* other)
 			break;
 		}
 
-		otherCar->damage(mDamage);
+		otherCar->damage(bullet.damage);
 		remove();
 		break;
 	}
@@ -77,8 +73,8 @@ bool ProjectileLogic::isGuided()
 
 void ProjectileLogic::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
 {
-	mLifetime -= dt;
-	if (mLifetime < sf::Time::Zero)
+	bullet.lifetime -= dt;
+	if (bullet.lifetime < sf::Time::Zero)
 	{
 		mToRemove = true;
 	}
@@ -91,7 +87,7 @@ void ProjectileLogic::update(sf::Time dt, std::vector<Entity*> entities, std::ve
 		if (mTarget != nullptr)
 		{
 			sf::Vector2f acceleration = unitVector(mTarget->getPosition() - mTransform.position);
-			sf::Vector2f velocity = unitVector(unitVector(mVelocity) + mGuideRate * acceleration) * mMaxSpeed;
+			sf::Vector2f velocity = unitVector(unitVector(mVelocity) + mGuideRate * acceleration) * bullet.maxSpeed;
 			setVelocity(velocity);
 		}
 		else
