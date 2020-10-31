@@ -1,10 +1,12 @@
-#include <World.h>
-#include <Car.h>
-#include <PickUp.h>
+#include "World.h"
+#include "Car.h"
+#include "PickUp.h"
 #include <functional>
 #include <iostream>
-#include <Projectile.h>
-#include <Wall.h>
+#include "Projectile.h"
+#include "Wall.h"
+#include "Entity.h"
+#include "Common/Components/Transform.h"
 
 World::World(sf::RenderTarget& outputTarget, KeyBinding* keys, const FontHolder& fonts, bool local)
 	: mTarget(outputTarget)

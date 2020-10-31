@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
-#include <Entity.h>
+#include "Entity.h"
+#include "Common/Components/Component.h"
 #include <SFML/System.hpp>
 #include "ResourceIdentifiers.h"
 #include <PlayerGUI.h>
