@@ -2,7 +2,7 @@
 #include <SFML/System/Vector2.hpp>
 #include "Common/Components/Component.h"
 
-struct Transform : Component
+struct Transform : public IdentifiableComponent<Transform>
 {
 	sf::Vector2f position;
 	float rotation;

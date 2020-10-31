@@ -1,9 +1,14 @@
 #pragma once
-#include <SFML/System/Time.hpp>
+#include <typeinfo>
 
-/*
-* \struct Component
-* \brief Base struct for all components.
-*/
 struct Component
 {};
+
+template <typename T>
+struct IdentifiableComponent : Component
+{
+    static const std::size_t id;
+};
+
+template <typename T>
+const std::size_t IdentifiableComponent<T>::id = typeid(T).hash_code();

@@ -2,7 +2,7 @@
 #include <SFML/System/Time.hpp>
 #include "Common/Components/Component.h"
 
-struct Bullet : Component
+struct Bullet : public IdentifiableComponent<Bullet>
 {
 	unsigned int damage;
 	float maxSpeed;

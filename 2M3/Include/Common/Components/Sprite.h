@@ -2,7 +2,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include "Component.h"
 
-struct Sprite
+struct Sprite : public IdentifiableComponent<Sprite>
 {
 	sf::Sprite sprite;
 

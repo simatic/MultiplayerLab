@@ -2,7 +2,7 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include "Common/Components/Component.h"
 
-struct Collider
+struct Collider : public IdentifiableComponent<Collider>
 {
 	sf::RectangleShape	shape;
 	bool				collides = false;
