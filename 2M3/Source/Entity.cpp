@@ -7,6 +7,7 @@
 
 Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
 	mTransform(pos, 0.0f),
+	mVelocity(0.0f, 0.0f),
 	mCollider(rect),
 	mType(Type::Count),
 	mToRemove(false),

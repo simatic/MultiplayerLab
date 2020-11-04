@@ -4,6 +4,7 @@
 #include <Collider.h>
 #include <Utility.h>
 #include "ResourceIdentifiers.h"
+#include "Common/Components/Component.h"
 #include "Common/Components/Transform.h"
 #include "Common/Components/Collider.h"
 
