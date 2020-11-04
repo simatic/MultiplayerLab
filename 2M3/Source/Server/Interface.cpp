@@ -36,7 +36,7 @@ void interfaceThread() {
 template<typename Getter, typename Setter>
 void DragFloat(const char* label, Getter get, Setter set, float min = 0.0f, float max = 1.0f) {
     float value = get();
-    if(ImGui::DragFloat(label, &value, (max-min)/100.0f, min, max)) {
+    if(ImGui::SliderFloat(label, &value, min, max)) {
         set(value);
     }
 }
@@ -57,23 +57,6 @@ void Interface::renderClientWindow(const std::string& title, UdpClient& client) 
     if(ImGui::Begin(("Contrôles "+title).c_str())) {
         ImGui::Text("IP du client: %s", client.address.toString().c_str());
         ImGui::Text("Port du client: %i", client.port);
-        ImGui::Separator();
-
-        ImGui::TextColored(TITLE_COLOR, "Pertes de packets");
-        ImGui::Text("Pertes de packets venant du client");
-        DragFloat("Pourcentage de pertes client", [&]{return client.settings.getPercentageInComingPacketLost();}, [&](float v){client.settings.setPercentageInComingPacketLost(v);});
-
-        ImGui::Text("Pertes de packets partant du serveur");
-        DragFloat("Pourcentage de pertes serveur", [&]{return client.settings.getPercentageOutGoingPacketLost();}, [&](float v){client.settings.setPercentageOutGoingPacketLost(v);});
-
-        ImGui::Separator();
-        ImGui::TextColored(TITLE_COLOR, "Délais");
-        ImGui::Text("Délai avant traitement");
-        DragFloat("Délai avant traitement (en secondes)", [&]{return client.settings.getIncomingDelay();}, [&](float v){client.settings.setIncomingDelay(v);}, 0, 10.0f);
-
-        ImGui::Text("Avant envoi");
-        DragFloat("Délai avant envoi (en secondes)", [&]{return client.settings.getOutgoingDelay();}, [&](float v){client.settings.setOutgoingDelay(v);}, 0, 10.0f);
-
         ImGui::Separator();
 
         if(ImGui::TreeNode("Graphes des packets")) {
@@ -103,6 +86,23 @@ void Interface::renderClientWindow(const std::string& title, UdpClient& client) 
             }
             ImGui::TreePop();
         }
+
+        ImGui::Separator();
+
+        ImGui::TextColored(TITLE_COLOR, "Pertes de packets");
+        ImGui::Text("Pertes de packets venant du client");
+        DragFloat("Pourcentage de pertes client", [&]{return client.settings.getPercentageInComingPacketLost();}, [&](float v){client.settings.setPercentageInComingPacketLost(v);});
+
+        ImGui::Text("Pertes de packets partant du serveur");
+        DragFloat("Pourcentage de pertes serveur", [&]{return client.settings.getPercentageOutGoingPacketLost();}, [&](float v){client.settings.setPercentageOutGoingPacketLost(v);});
+
+        ImGui::Separator();
+        ImGui::TextColored(TITLE_COLOR, "Délais");
+        ImGui::Text("Délai avant traitement");
+        DragFloat("Délai avant traitement (en secondes)", [&]{return client.settings.getIncomingDelay();}, [&](float v){client.settings.setIncomingDelay(v);}, 0, 10.0f);
+
+        ImGui::Text("Avant envoi");
+        DragFloat("Délai avant envoi (en secondes)", [&]{return client.settings.getOutgoingDelay();}, [&](float v){client.settings.setOutgoingDelay(v);}, 0, 10.0f);
     }
     ImGui::End();
 }
