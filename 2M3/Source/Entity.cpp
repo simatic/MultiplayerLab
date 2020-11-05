@@ -1,5 +1,4 @@
 #include <Entity.h>
-#include <iostream>
 #include "Common/Systems/RenderSystem.h"
 #include "Common/Systems/CollisionSystem.h"
 #include "Common/Systems/MovementSystem.h"
