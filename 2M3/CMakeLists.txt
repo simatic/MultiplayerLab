@@ -14,6 +14,9 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(sfml)
 
+set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+
 include_directories("Include")
 file(GLOB SOURCES CONFIGURE_DEPENDS Include/*.h Include/*.inl Source/*.cpp)
 
@@ -29,7 +32,7 @@ endif()
 
 add_executable(2M3
   ${SOURCES}
-   "Include/Renderable.h"  "Include/WallLogic.h" "Source/WallLogic.cpp" "Include/ProjectileLogic.h" "Source/ProjectileLogic.cpp" "Include/CarLogic.h" "Source/CarLogic.cpp" "Include/Common/Components/Component.h" "Source/Common/Components/Component.cpp" "Include/Common/Components/Transform.h" "Source/Common/Components/Transform.cpp" "Include/Common/Components/Collider.h" "Source/Common/Components/Collider.cpp" "Include/Common/Systems/CollisionSystem.h" "Include/Common/Components/Sprite.h" "Source/Common/Systems/RenderSystem.cpp" "Source/Common/Components/Sprite.cpp" "Source/Common/Systems/CollisionSystem.cpp" "Include/Common/Systems/MovementSystem.h" "Source/Common/Systems/MovementSystem.cpp" "Include/Common/Components/Bullet.h" "Source/Common/Components/Bullet.cpp" "Include/Common/Systems/System.h")
+   "Include/Renderable.h"  "Include/WallLogic.h" "Source/WallLogic.cpp" "Include/ProjectileLogic.h" "Source/ProjectileLogic.cpp" "Include/CarLogic.h" "Source/CarLogic.cpp" "Include/Common/Components/Component.h" "Source/Common/Components/Component.cpp" "Include/Common/Components/Transform.h" "Source/Common/Components/Transform.cpp" "Include/Common/Components/Collider.h" "Source/Common/Components/Collider.cpp" "Include/Common/Systems/CollisionSystem.h" "Include/Common/Components/Sprite.h" "Source/Common/Systems/RenderSystem.cpp" "Source/Common/Components/Sprite.cpp" "Source/Common/Systems/CollisionSystem.cpp" "Include/Common/Systems/MovementSystem.h" "Source/Common/Systems/MovementSystem.cpp" "Include/Common/Components/Bullet.h" "Source/Common/Components/Bullet.cpp" "Include/Common/Systems/System.h" "Include/Common/Managers/Signature.h" "Source/Common/Managers/Signature.cpp")
 
 target_link_libraries(2M3 PUBLIC sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
 

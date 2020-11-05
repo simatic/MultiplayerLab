@@ -5,9 +5,16 @@
 #include <math.h>
 #include "World.h"
 #include "Application.h"
+#include "Common/Managers/Signature.h"
 
 int main()
-{	
+{
+	Signature sig;
+	sig.addComponent<Transform, Bullet>();
+	sig.removeComponent<Transform>();
+
+	std::cout << sig << std::endl;
+
 	Application application;
 	application.run();
 	//sf::Clock clock;
