@@ -23,6 +23,8 @@ private:
     static std::map<ClientID, CompiledEventsMap> clientEvents;
     static std::map<ClientID, std::vector<PacketLifecycle>> clientPacketLifecycles;
 
+    static const PacketLifecycle* getClosest(const std::vector<PacketLifecycle>& lifecycles, float x, float y);
+
 public:
     static void pollEvents(sf::Window& window);
     static void render();

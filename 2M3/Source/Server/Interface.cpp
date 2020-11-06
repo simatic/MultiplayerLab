@@ -7,6 +7,7 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 #include <implot.h>
+#include <Server/ServerClock.h>
 
 std::map<ClientID, Interface::CompiledEventsMap> Interface::clientEvents{};
 std::map<ClientID, std::vector<Interface::PacketLifecycle>> Interface::clientPacketLifecycles{};
@@ -43,8 +44,6 @@ void DragFloat(const char* label, Getter get, Setter set, float min = 0.0f, floa
 
 ImVec4 TITLE_COLOR = ImVec4(1,1,0,1);
 
-sf::Clock interfaceClock{};
-
 void Interface::render() {
     std::vector<std::unique_ptr<UdpClient>>& clients = ServerNetworkHandling::getClients();
     for (int i = 0; i < clients.size(); ++i) {
@@ -54,12 +53,21 @@ void Interface::render() {
 }
 
 void Interface::renderClientWindow(const std::string& title, UdpClient& client) {
+    static bool followLastPacket = true;
     if(ImGui::Begin(("Contrôles "+title).c_str())) {
         ImGui::Text("IP du client: %s", client.address.toString().c_str());
         ImGui::Text("Port du client: %i", client.port);
         ImGui::Separator();
 
         if(ImGui::TreeNode("Graphes des packets")) {
+
+            ImGui::Checkbox("Suivre les derniers packets", &followLastPacket);
+
+            float time = ServerClock::getInstance().asSeconds();
+
+            // pause? => ImGuiCond_Once
+            ImPlot::SetNextPlotLimitsX(time-10, time, followLastPacket ? ImGuiCond_Always : ImGuiCond_Once);
+
             if(ImPlot::BeginPlot("Evénements")) {
                 CompiledEventsMap& events = clientEvents[client.id];
 
@@ -82,6 +90,25 @@ void Interface::renderClientWindow(const std::string& title, UdpClient& client) 
                     ImPlot::PlotLine("", times, values, 2);
                 }
 
+
+                {
+                    ImPlotPoint mouse = ImPlot::GetPlotMousePos();
+
+                    const PacketLifecycle* closestToMouse = getClosest(packetLives, mouse.x, mouse.y);
+
+                    if(closestToMouse != nullptr) {
+                        ImGui::BeginTooltip();
+                        ImGui::TextColored(TITLE_COLOR, "Informations du packet");
+
+                        const auto& firstPoint = closestToMouse->edges.first;
+                        const auto& secondPoint = closestToMouse->edges.second;
+                        long delay = static_cast<long>((secondPoint.x-firstPoint.x)*1000);
+                        ImGui::Text("N° de packet: %llu", closestToMouse->packetIndex);
+                        ImGui::Text("Délai: %ldms", delay);
+                        ImGui::EndTooltip();
+                    }
+                }
+
                 ImPlot::EndPlot();
             }
             ImGui::TreePop();
@@ -89,20 +116,27 @@ void Interface::renderClientWindow(const std::string& title, UdpClient& client) 
 
         ImGui::Separator();
 
-        ImGui::TextColored(TITLE_COLOR, "Pertes de packets");
-        ImGui::Text("Pertes de packets venant du client");
-        DragFloat("Pourcentage de pertes client", [&]{return client.settings.getPercentageInComingPacketLost();}, [&](float v){client.settings.setPercentageInComingPacketLost(v);});
+        ImGui::BeginGroup();
+        {
+            ImGui::BeginChild("PacketLoss", ImVec2(600, 0), false);
+            ImGui::TextColored(TITLE_COLOR, "Pertes de packets");
+            DragFloat("Pourcentage de pertes client", [&]{return client.settings.getPercentageInComingPacketLost();}, [&](float v){client.settings.setPercentageInComingPacketLost(v);});
+            DragFloat("Pourcentage de pertes serveur", [&]{return client.settings.getPercentageOutGoingPacketLost();}, [&](float v){client.settings.setPercentageOutGoingPacketLost(v);});
+            ImGui::EndChild();
+        }
+        ImGui::EndGroup();
 
-        ImGui::Text("Pertes de packets partant du serveur");
-        DragFloat("Pourcentage de pertes serveur", [&]{return client.settings.getPercentageOutGoingPacketLost();}, [&](float v){client.settings.setPercentageOutGoingPacketLost(v);});
+        ImGui::SameLine();
 
-        ImGui::Separator();
-        ImGui::TextColored(TITLE_COLOR, "Délais");
-        ImGui::Text("Délai avant traitement");
-        DragFloat("Délai avant traitement (en secondes)", [&]{return client.settings.getIncomingDelay();}, [&](float v){client.settings.setIncomingDelay(v);}, 0, 10.0f);
-
-        ImGui::Text("Avant envoi");
-        DragFloat("Délai avant envoi (en secondes)", [&]{return client.settings.getOutgoingDelay();}, [&](float v){client.settings.setOutgoingDelay(v);}, 0, 10.0f);
+        ImGui::BeginGroup();
+        {
+            ImGui::BeginChild("Delays", ImVec2(700, 0), false);
+            ImGui::TextColored(TITLE_COLOR, "Délais");
+            DragFloat("Avant traitement (en secondes)", [&]{return client.settings.getIncomingDelay();}, [&](float v){client.settings.setIncomingDelay(v);}, 0, 10.0f);
+            DragFloat("Avant envoi (en secondes)", [&]{return client.settings.getOutgoingDelay();}, [&](float v){client.settings.setOutgoingDelay(v);}, 0, 10.0f);
+            ImGui::EndChild();
+        }
+        ImGui::EndGroup();
     }
     ImGui::End();
 }
@@ -150,6 +184,38 @@ void Interface::onEvent(UdpClient &client, NetworkEvent::Event event) {
                                                sf::Vector2f(event.timestamp.asSeconds(), static_cast<float>(event.type))
                                                )});
     }
+}
+
+float sqDist(sf::Vector2f vec, float x, float y) {
+    float dx = vec.x - x;
+    float dy = vec.y - y;
+    return dx*dx+dy*dy;
+}
+
+const Interface::PacketLifecycle* Interface::getClosest(const std::vector<PacketLifecycle> &lifecycles, float x, float y) {
+    const PacketLifecycle* closest = nullptr;
+    // TODO: optimize via binary search (via order of 'first.x' and 'second.x') ?
+    float smallestDistance = INFINITY;
+    for(const PacketLifecycle& lifecycle : lifecycles) {
+        float distanceSentTime = sqDist(lifecycle.edges.first, x, y);
+        float distanceReceivedTime = sqDist(lifecycle.edges.second, x, y);
+
+        if(smallestDistance > distanceSentTime) {
+            smallestDistance = distanceSentTime;
+            closest = &lifecycle;
+        }
+
+        if(smallestDistance > distanceReceivedTime) {
+            smallestDistance = distanceReceivedTime;
+            closest = &lifecycle;
+        }
+    }
+
+    constexpr float minDistanceSq = 1*1;
+    if(smallestDistance > minDistanceSq) { // needs to be at least close!
+        return nullptr;
+    }
+    return closest;
 }
 
 void ServerNetworkHandling::triggerEvent(UdpClient &client, NetworkEvent::Event event) {

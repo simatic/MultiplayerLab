@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <thread>
+#include <Server/ServerClock.h>
 #include "Server/NetworkSettings.h"
 #include "Common/Network.h"
 #include "Server/ServerNetworkHandling.h"
@@ -16,7 +17,6 @@ std::vector<std::unique_ptr<packet4Delay>> Delay::packet4DelayList;
 ClientID ServerNetworkHandling::currentClientID = 0;
 std::vector<std::unique_ptr<UdpClient>> ServerNetworkHandling::clients{};
 std::map<ClientID, float> ServerNetworkHandling::lastPacketTimes{};
-sf::Clock timeClock;
 bool ServerNetworkHandling::running = true;
 
 [[noreturn]] void networkThread(int port) {
@@ -48,7 +48,7 @@ bool ServerNetworkHandling::running = true;
 
         auto logicalPacket = deserializePacket(packet);
         if(logicalPacket) {
-            ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{timeClock.getElapsedTime(), NetworkEvent::Type::PacketReceived, logicalPacket->getIndex()});
+            ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::PacketReceived, logicalPacket->getIndex()});
             Delay::mutex4Packet4Delay.lock();
             Delay::packet4DelayList.push_back(std::make_unique<packet4Delay>(std::move(logicalPacket), client));
             Delay::mutex4Packet4Delay.unlock();
@@ -71,7 +71,7 @@ UdpClient& ServerNetworkHandling::getOrCreateClient(sf::IpAddress address, unsig
     clients.push_back(std::make_unique<UdpClient>(currentClientID++, address, port, NetworkSettings()));
 
     auto& client = *clients.at(clients.size()-1);
-    triggerEvent(client, NetworkEvent::Event{timeClock.getElapsedTime(), NetworkEvent::Type::Connected});
+    triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::Connected});
     return client;
 }
 
@@ -85,7 +85,7 @@ void ServerNetworkHandling::updateNonConnectedClients() {
     while(running) {
         std::vector<ClientID> toDisconnect{};
         for(auto& client : clients) {
-            if(lastPacketTimes[client->id]+ServerNetworkHandling::DelayBeforeDeconnection < timeClock.getElapsedTime().asSeconds()) {
+            if(lastPacketTimes[client->id]+ServerNetworkHandling::DelayBeforeDeconnection < ServerClock::getInstance().asSeconds()) {
                 toDisconnect.push_back(client->id);
             }
         }
@@ -98,7 +98,7 @@ void ServerNetworkHandling::updateNonConnectedClients() {
 }
 
 void ServerNetworkHandling::updateLastPacketTime(const UdpClient &client) {
-    lastPacketTimes[client.id] = timeClock.getElapsedTime().asSeconds();
+    lastPacketTimes[client.id] = ServerClock::getInstance().asSeconds();
 }
 
 const char *NetworkEvent::name(NetworkEvent::Type t)  {
@@ -108,13 +108,13 @@ const char *NetworkEvent::name(NetworkEvent::Type t)  {
         case Disconnected:
             return "Déconnexion";
         case PacketReceived:
-            return "Packet reçu";
+            return "Packet envoyé par le client";
         case PacketDelayed:
-            return "Packet délayé";
+            return "Packet reçu par le serveur";
         case SendingPacket:
-            return "Packet prêt à l'envoi";
+            return "Packet envoyé par le serveur";
         case SentPacket:
-            return "Packet envoyé";
+            return "Packet reçu par le client";
 
         default:
             return "Unknown type";
