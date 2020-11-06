@@ -38,13 +38,13 @@ private:
 };
 
 template <typename Component>
-static bool Signature::isComponentRegistered()
+bool Signature::isComponentRegistered()
 {
 	return Signature::idToBitIndexMap.find(Component::id) == Signature::idToBitIndexMap.end();
 }
 
 template <typename Component>
-static void Signature::registerComponent()
+void Signature::registerComponent()
 {
 	Signature::idToBitIndexMap[Component::id] = Signature::registeredComponentsCount++;
 }
