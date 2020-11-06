@@ -13,13 +13,14 @@
 #include <functional>
 #include <map>
 
+
 namespace sf
 {
 	class Event;
 	class RenderWindow;
 }
 
-class StateStack //: private sf::NonCopyable
+class StateStack : private sf::NonCopyable
 {
 	public:
 		enum Action

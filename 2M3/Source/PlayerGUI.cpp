@@ -54,7 +54,7 @@ namespace GUI
 		mMiniMap.setSize(sf::Vector2f(800, 450));
 		if (mPlayer->getID() == 0) mMiniMap.setPosition(0, 225);
 		else mMiniMap.setPosition(800, 225);
-		mMiniMap.setFillColor(sf::Color::Color(255, 255, 255, 200));
+		mMiniMap.setFillColor(sf::Color(255, 255, 255, 200));
 	}
 
 	bool PlayerGUI::isSelectable() const

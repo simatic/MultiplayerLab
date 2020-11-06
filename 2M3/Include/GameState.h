@@ -4,7 +4,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 
-// Fusionner World avec GameState mais priorité très minim.
+
 class GameState : public State
 {
 	public:

@@ -1,7 +1,6 @@
 #pragma once
 #include <Entity.h>
 
-// Voir note Car.h
 class Wall : public Entity {
 
 public:

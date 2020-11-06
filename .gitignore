@@ -39,3 +39,9 @@
 .vs
 out
 build
+
+#Visual studio code files
+.vscode
+
+#Build directory
+[Bb]uild
