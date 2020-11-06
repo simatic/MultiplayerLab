@@ -1,16 +1,15 @@
 #include <iostream>
 #include <Server/ServerNetworkHandling.h>
+#include <Server/ServerClock.h>
 #include "Server/ServerMain.h"
-#include "Server/NetworkSettings.h"
 #include "Server/DelayCreation.h"
 
 
 [[noreturn]] void delayThread(sf::UdpSocket* socketPtr){
     std::vector<std::unique_ptr<packetWithDelay>> packetWithDelayList;
     sf::UdpSocket& socket = *socketPtr;
-    sf::Clock clock;
-    sf::Time lastTime = clock.getElapsedTime();
-    sf::Time time = clock.getElapsedTime();
+    sf::Time lastTime = ServerClock::getInstance().get();
+    sf::Time time = ServerClock::getInstance().get();
     sf::Time deltaTime = time - lastTime;
     while(true) {
         Delay::mutex4Packet4Delay.lock();
@@ -23,7 +22,7 @@
             Delay::packet4DelayList.erase(Delay::packet4DelayList.begin());
         }
         Delay::mutex4Packet4Delay.unlock();
-        time = clock.getElapsedTime();
+        time = ServerClock::getInstance().get();
         deltaTime = time - lastTime;
         lastTime = time;
         for (auto it = packetWithDelayList.begin(); it!=packetWithDelayList.end();){
@@ -34,7 +33,7 @@
                 std::cout << "[Debug] Received packet with ID " << packet->logicalPacket->getID() << std::endl;
                 auto& client = packet->client;
                 if(!client.settings.inComingPacketLost()){
-                    ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{clock.getElapsedTime(), NetworkEvent::Type::PacketDelayed, packet->logicalPacket->getIndex()});
+                    ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::PacketDelayed, packet->logicalPacket->getIndex()});
                     auto response = packet->logicalPacket->handle();
                     if(response) {
                         // TODO: outgoing delay

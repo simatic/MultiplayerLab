@@ -5,7 +5,6 @@
 #include "Common/Network.h"
 
 [[noreturn]] void networkThread(int port);
-void killNetworkThread();
 void interfaceThread();
 
 [[noreturn]] void delayThread(sf::UdpSocket* socketPtr);
