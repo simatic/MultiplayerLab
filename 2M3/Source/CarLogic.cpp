@@ -149,21 +149,21 @@ void CarLogic::useInputs(sf::Time dt, std::vector<Entity*>& newEntities)
 	{
 		float f = 1;
 		if (!mForward) f = 10;
-		accel += f * mCarAcceleration;
+		accel += f * engine.acceleration;
 	}
 	if (mInputs.down)
 	{
-		if (mForward && l > mDriftTheshold && angleSign != 0) driftBrake = true;
+		if (mForward && l > engine.driftThreshold && angleSign != 0) driftBrake = true;
 		else
 		{
 			float f = 1;
 			if (mForward) f = 10;
-			accel -= f * mCarAcceleration;
+			accel -= f * engine.acceleration;
 		}
 	}
 	if (accel == 0 && l > 200)
 	{
-		accel = (l * l + 2 * l) * mDrag;
+		accel = (l * l + 2 * l) * engine.drag;
 		if (mForward) accel *= -1;
 	}
 	else if (accel == 0)
@@ -176,19 +176,19 @@ void CarLogic::useInputs(sf::Time dt, std::vector<Entity*>& newEntities)
 	sf::Vector2f tangAccelVector = tangAccel * mCarDirection;
 	mVelocity += tangAccelVector * dt.asSeconds();
 	l = length(mVelocity);
-	if (mForward && l > mCarMaxSpeed)
+	if (mForward && l > engine.maxSpeed)
 	{
-		mVelocity *= mCarMaxSpeed / l;
+		mVelocity *= engine.maxSpeed / l;
 	}
-	else if (!mForward && l > mCarBackwardsMaxSpeed)
+	else if (!mForward && l > engine.backwardsMaxSpeed)
 	{
-		mVelocity *= mCarBackwardsMaxSpeed / l;
+		mVelocity *= engine.backwardsMaxSpeed / l;
 	}
 
 	bool prevDrifting = mDrifting;
-	mDrifting = mForward && l > mDriftTheshold && angleSign != 0 && driftBrake;
+	mDrifting = mForward && l > engine.driftThreshold && angleSign != 0 && driftBrake;
 
-	float theta = sqrt(abs(radAccel) / mTurnRadius) * dt.asSeconds();
+	float theta = sqrt(abs(radAccel) / engine.turnRadius) * dt.asSeconds();
 	mForward = dotProduct(mVelocity, mCarDirection) >= 0;
 	if (!mForward)
 	{
@@ -203,19 +203,19 @@ void CarLogic::useInputs(sf::Time dt, std::vector<Entity*>& newEntities)
 
 	if (prevDrifting && !mDrifting)
 	{
-		mCarDirection = rotate(mCarDirection, mPrevDriftingSign * mDriftAngle);
-		mVelocity = rotate(mVelocity, mPrevDriftingSign * mDriftAngle);
+		mCarDirection = rotate(mCarDirection, mPrevDriftingSign * engine.driftThreshold);
+		mVelocity = rotate(mVelocity, mPrevDriftingSign * engine.driftAngle);
 	}
 	mPrevDriftingSign = angleSign;
 
 	float carAngle = 0;
 	if (mCarDirection.x != 0) carAngle = -atan2(mCarDirection.y, mCarDirection.x);
 	if (mCarDirection.x == 0 && mCarDirection.y != 0) carAngle = M_PI_2 * mCarDirection.y / abs(mCarDirection.y);
-	if (mDrifting) carAngle += angleSign * mDriftAngle;
+	if (mDrifting) carAngle += angleSign * engine.driftAngle;
 	mTransform.rotation = -carAngle * 180.0 / M_PI;
 
 	sf::Vector2f projDir = mCarDirection;
-	if (mDrifting) projDir = rotate(projDir, angleSign * mDriftAngle);
+	if (mDrifting) projDir = rotate(projDir, angleSign * engine.driftAngle);
 
 	if (mAction == CarAction::LaunchMissile && mLaunchedMissile)
 	{
@@ -386,7 +386,7 @@ sf::Vector2f CarLogic::getCarDirection()
 
 float CarLogic::getSpeedRatio()
 {
-	return length(mVelocity) / mCarMaxSpeed;
+	return length(mVelocity) / engine.maxSpeed;
 }
 
 Inputs CarLogic::getSavedInputs()

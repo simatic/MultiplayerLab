@@ -6,6 +6,7 @@
 #include <Particles.h>
 #include <queue>
 #include <functional>
+#include "Common/Components/CarEngine.h"
 
 struct Inputs
 {
@@ -92,13 +93,7 @@ private:
 
 	std::map<sf::Time, Inputs> mServerInputs;
 
-	const float mCarMaxSpeed = 1000;
-	const float mCarBackwardsMaxSpeed = mCarMaxSpeed / 3;
-	const float mCarAcceleration = 200;
-	const float mTurnRadius = 24;
-	const float mDriftTheshold = mCarMaxSpeed - 200;
-	const float mDriftAngle = M_PI / 3;
-	const float mDrag = 0.001f;
+	CarEngine engine = CarEngine(1000, 1000 / 3, 200, 24, 800, M_PI / 3, 0.001f);
 
 	bool mForward;
 	bool mDrifting;
