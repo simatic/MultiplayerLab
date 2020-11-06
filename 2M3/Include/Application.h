@@ -17,36 +17,36 @@
 class Application
 {
 	public:
-								Application();
-		void					run();
+		Application();
+		void run();
 		
 
 	private:
 		void launchClientThread();
-		/*void					processInput();
-		void					update(sf::Time dt);
-		void					tick();
-		void					render();
-
-		void					updateStatistics(sf::Time dt);
-		void					registerStates();*/
+		void addClientThread();
+		void terminateClientThreads();
 
 
 	private:
-
+		// Main window in which the Clients' views will be rendered.
 		sf::RenderWindow		mWindow;
-		/*TextureHolder			mTextures;
-	  	FontHolder				mFonts;*/
 
-		KeyBinding				mKeyBinding1;
-		KeyBinding				mKeyBinding2;
-		//StateStack				mStateStack;
+		// Vector of Clients.
+		std::vector<Client*> _clients;
+
+		// Number of Clients in _clients.
 		int _clientCount;
+
+		// Thread : _clientThreads[i] corresponds to the Client : _clients[i] 
+		std::vector<sf::Thread*> _clientThreads;
+
+		// Common mutex between all the threads to lock variables.
 		sf::Mutex _mutex;
 
-		/*sf::Text				mStatisticsText;
-		sf::Time				mStatisticsUpdateTime;
-		std::size_t				mStatisticsNumFrames;*/
+		/* Index of the last launched Thread to keep a track of launched Threads
+		 * and not yet launched Threads.
+		*/
+		int _clientThreadLaunchedIndex;
 };
 
 #endif // BOOK_APPLICATION_HPP

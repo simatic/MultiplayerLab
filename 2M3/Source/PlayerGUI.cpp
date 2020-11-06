@@ -36,7 +36,7 @@ namespace GUI
 	void GUI::PlayerGUI::initialize(Player* player)
 	{
 		mPlayer = player;
-		setPosition(400, 800);
+		setPosition(0, 800);
 
 		mAction.setPosition(getPosition());
 
@@ -71,9 +71,8 @@ namespace GUI
 		if (mPlayer != nullptr)
 		{
 			Car* car = mPlayer->getCar();
-
-			if (mPlayer->getID() == 0) setPosition(target.mapPixelToCoords(sf::Vector2i(0, 800)));
-			else setPosition(target.mapPixelToCoords(sf::Vector2i(800, 800)));
+			if (mPlayer->getID() == 0) setPosition(target.mapPixelToCoords(sf::Vector2i(0, target.getSize().y*0.75)));
+			else setPosition(target.mapPixelToCoords(sf::Vector2i(target.getSize().x * 0.5, target.getSize().y * 0.75))); // useless 'cuz there is only one player now
 
 			mAction.setPosition(getPosition());
 			mSpeedometerBackground.setPosition(getPosition() + sf::Vector2f(400, 100));
