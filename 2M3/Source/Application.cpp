@@ -9,7 +9,7 @@
 #include "MultiplayerGameState.h"
 #include "NetworkCommon.h"
 
-#include <iostream>
+
 
 Application::Application() :
 	mWindow(sf::VideoMode::getDesktopMode()/*sf::VideoMode(1600, 900)*/, "2M3", sf::Style::Close | sf::Style::Resize),
@@ -19,15 +19,19 @@ Application::Application() :
 {
 	mWindow.setKeyRepeatEnabled(false);
 	mWindow.setVerticalSyncEnabled(true);
+	
 }
 
 void Application::run()
 {
+	
+
 	addClientThread();
 	addClientThread();
 	std::cout << "Launch the thread of Client 1.\n";
 	_clientThreads[0]->launch();
 
+	
 	std::cout << "Launch the thread of Client 2.\n";
 	_clientThreads[1]->launch();
 	
@@ -72,7 +76,6 @@ void Application::launchClientThread() {
 		sf::sleep(sf::seconds(0.1));
 		client->initialize(1);
 	}
-	client->run();
 }
 
 void Application::terminateClientThreads() {

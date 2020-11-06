@@ -1,8 +1,6 @@
 #ifndef BOOK_APPLICATION_HPP
 #define BOOK_APPLICATION_HPP
 
-#include <vector>
-
 #include "ResourceHolder.h"
 #include "ResourceIdentifiers.h"
 #include "KeyBinding.h"
