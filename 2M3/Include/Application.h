@@ -30,16 +30,16 @@ class Application
 		sf::RenderWindow		mWindow;
 
 		// Vector of Clients.
-		std::vector<Client*> _clients;
+		std::vector<std::shared_ptr<Client>> _clients;
 
 		// Number of Clients in _clients.
 		int _clientCount;
 
 		// Thread : _clientThreads[i] corresponds to the Client : _clients[i] 
-		std::vector<sf::Thread*> _clientThreads;
+		std::vector<std::unique_ptr<sf::Thread>> _clientThreads;
 
 		// Common mutex between all the threads to lock variables.
-		sf::Mutex _mutex;
+		std::shared_ptr<sf::Mutex> _mutex;
 
 		/* Index of the last launched Thread to keep a track of launched Threads
 		 * and not yet launched Threads.

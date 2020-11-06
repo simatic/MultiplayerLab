@@ -5,7 +5,7 @@
 #include "GameState.h"
 #include "MultiplayerGameState.h"
 
-Client::Client(int uid, sf::RenderWindow* mainWindow, std::string clientTitle,  sf::Mutex* mutex) :
+Client::Client(int uid, sf::RenderWindow* mainWindow, std::string clientTitle, std::shared_ptr <sf::Mutex> mutex) :
 	_uid(uid),
 	_mainWindow(/*mainWindow*/ /* TODO uncomment for having 1 window */ nullptr),
 	_applicationMutex(mutex),
@@ -31,12 +31,13 @@ Client::Client(int uid, sf::RenderWindow* mainWindow, std::string clientTitle,  
 }
 
 void Client::initialize(int keyBindingConfiguration) {
-	_mainWindow = new sf::RenderWindow(sf::VideoMode::getDesktopMode(), toString(_uid), sf::Style::Close | sf::Style::Resize);
+	/* TODO Comment the 3 lines about _mainWindow when adding View*/
+	_mainWindow.reset(new sf::RenderWindow(sf::VideoMode::getDesktopMode(), toString(_uid), sf::Style::Close | sf::Style::Resize));
 	_mainWindow->setKeyRepeatEnabled(false);
 	_mainWindow->setVerticalSyncEnabled(true);
 
-	_textures = new TextureHolder();
-	_fonts = new FontHolder();
+	_textures.reset(new TextureHolder());
+	_fonts.reset( new FontHolder());
 	
 	_fonts->load(Fonts::Main, "Media/Sansation.ttf");
 
@@ -48,8 +49,8 @@ void Client::initialize(int keyBindingConfiguration) {
 	_statisticsText.setPosition(5.f, 5.f);
 	_statisticsText.setCharacterSize(10u);
 
-	_keybinding = new KeyBinding(keyBindingConfiguration);
-	_stateStack = new StateStack(State::Context(*_mainWindow, *_textures, *_fonts, *_keybinding));
+	_keybinding.reset(new KeyBinding(keyBindingConfiguration));
+	_stateStack.reset(new StateStack(State::Context(*_mainWindow, *_textures, *_fonts, *_keybinding)));
 	registerStates();
 	_stateStack->pushState(States::Title);
 }

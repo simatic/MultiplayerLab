@@ -11,7 +11,7 @@
 class Client
 {
 public :
-	Client(int uid, sf::RenderWindow* mainWindow, std::string, sf::Mutex*);
+	Client(int uid, sf::RenderWindow* mainWindow, std::string, std::shared_ptr <sf::Mutex>);
 
 	// To call in the thread corresponding to its Client.
 	void initialize(int keyBindingConfiguration);
@@ -36,20 +36,20 @@ private :
 	int _uid;
 
 	// Main Window of Application in which _view will be rendered.
-	sf::RenderWindow* _mainWindow;
+	std::shared_ptr<sf::RenderWindow> _mainWindow;
 	sf::View _view;
 	
 	// Common mutex - coming from Application - between all the threads to lock variables.
-	sf::Mutex* _applicationMutex;
+	std::shared_ptr<sf::Mutex> _applicationMutex;
 
 	// False if the Thread is still running and true if the Thread has to terminate or is terminated.
 	bool _isThreadTerminated;
 
-	TextureHolder* _textures;
-	FontHolder* _fonts;
+	std::shared_ptr<TextureHolder> _textures;
+	std::shared_ptr <FontHolder> _fonts;
 
-	KeyBinding* _keybinding;
-	StateStack* _stateStack;
+	std::shared_ptr <KeyBinding> _keybinding;
+	std::shared_ptr <StateStack> _stateStack;
 
 	sf::Text _statisticsText;
 	sf::Time _statisticsUpdateTime;

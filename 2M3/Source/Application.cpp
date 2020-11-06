@@ -14,7 +14,7 @@
 Application::Application() :
 	mWindow(sf::VideoMode::getDesktopMode()/*sf::VideoMode(1600, 900)*/, "2M3", sf::Style::Close | sf::Style::Resize),
 	_clientCount(0),
-	_mutex(),
+	_mutex(std::shared_ptr<sf::Mutex>(new sf::Mutex())),
 	_clientThreadLaunchedIndex(0)
 {
 	mWindow.setKeyRepeatEnabled(false);
@@ -50,18 +50,17 @@ void Application::addClientThread() {
 	{
 		title = "Client 2";
 	}
-	_clients.push_back(new Client(_clientCount, &mWindow, title, &_mutex));
-	_clientThreads.push_back(new sf::Thread(&Application::launchClientThread, this));
+	_clients.push_back(std::shared_ptr<Client>(new Client(_clientCount, &mWindow, title, _mutex)));
+	_clientThreads.push_back(std::unique_ptr<sf::Thread>(new sf::Thread(&Application::launchClientThread, this)));
 	++_clientCount;
 }
 
 void Application::launchClientThread() {
-	Client* client;
-	_mutex.lock();
+	_mutex->lock();
 	int clientUID = _clientThreadLaunchedIndex;
 	_clientThreadLaunchedIndex++;
-	client = _clients[clientUID];
-	_mutex.unlock();
+	std::shared_ptr<Client> client(_clients[clientUID]);
+	_mutex->unlock();
 	if (clientUID == 0) {
 		client->initialize(2);
 	}
