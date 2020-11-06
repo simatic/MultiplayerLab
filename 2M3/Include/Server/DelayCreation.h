@@ -15,9 +15,10 @@ struct packetWithDelay {
     UdpClient& client;
 
     /// in seconds
-    float delay;
+    float incomingDelay;
+    float outgoingDelay;
 
-    packetWithDelay(std::unique_ptr<Packet>&& logicalPacket, UdpClient& client, float delay): logicalPacket(std::move(logicalPacket)), client(client), delay(delay) {}
+    packetWithDelay(std::unique_ptr<Packet>&& logicalPacket, UdpClient& client, float incomingDelay, float outgoingDelay): logicalPacket(std::move(logicalPacket)), client(client), incomingDelay(incomingDelay), outgoingDelay(outgoingDelay) {}
 };
 
 class Delay {

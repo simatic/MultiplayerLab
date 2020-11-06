@@ -16,8 +16,9 @@
         Delay::mutex4Packet4Delay.lock();
         while (!Delay::packet4DelayList.empty()){
             auto& packetToDelay = Delay::packet4DelayList[0];
-            float delayToApply = packetToDelay->client.settings.getIncomingDelay();
-            auto packet = std::make_unique<packetWithDelay>(std::move(packetToDelay->logicalPacket), packetToDelay->client, delayToApply);
+            float incomingDelayToApply = packetToDelay->client.settings.getIncomingDelay();
+            float outgoingDelayToApply = packetToDelay->client.settings.getOutgoingDelay();
+            auto packet = std::make_unique<packetWithDelay>(std::move(packetToDelay->logicalPacket), packetToDelay->client, incomingDelayToApply, outgoingDelayToApply);
             packetWithDelayList.push_back(std::move(packet));
             Delay::packet4DelayList.erase(Delay::packet4DelayList.begin());
         }
@@ -27,8 +28,9 @@
         lastTime = time;
         for (auto it = packetWithDelayList.begin(); it!=packetWithDelayList.end();){
             auto& packet = *it;
-            packet->delay -= deltaTime.asSeconds();
-            if(packet->delay <= 0){
+            packet->incomingDelay -= deltaTime.asSeconds();
+            packet->outgoingDelay -= deltaTime.asSeconds();
+            if(packet->incomingDelay <= 0){
                 std::cout << "[Debug] Received packet with ID " << packet->logicalPacket->getID() << std::endl;
                 auto& client = packet->client;
                 if(!client.settings.inComingPacketLost()){
