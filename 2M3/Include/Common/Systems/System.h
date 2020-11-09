@@ -1,14 +1,15 @@
 #pragma once
-#include <bitset>
-
-using Signature = std::bitset<8>;
+#include "Common/Managers/Signature.h"
 
 class System
-{
+{};
 
+template <typename... Components>
+class SignedSystem : public System
+{
+public:
+	static const Signature signature;
 };
 
-Signature signature()
-{
-	Signature sig;
-}
+template <typename... Components>
+const Signature SignedSystem<Components...>::signature = Signature::generate<Components...>();

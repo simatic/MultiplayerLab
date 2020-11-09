@@ -10,6 +10,9 @@ class Signature
 public:
 	Signature();
 
+	template <typename... Components>
+	static Signature generate();
+
 	template <typename First, typename... Components>
 	void addComponent();
 	
@@ -36,6 +39,19 @@ private:
 
 	std::bitset<MAX_COMPONENTS> signature;
 };
+
+template <typename... Components>
+Signature Signature::generate()
+{
+	Signature signature;
+	
+	if (sizeof...(Components) > 0)
+	{
+		signature.addComponent<Components...>();
+	}
+
+	return signature;
+}
 
 template <typename Component>
 bool Signature::isComponentRegistered()
