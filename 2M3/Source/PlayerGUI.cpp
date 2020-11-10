@@ -66,7 +66,7 @@ namespace GUI
 	{
 	}
 
-	void PlayerGUI::updateElements(sf::RenderTarget& target, std::vector<Entity*> entities, sf::Vector2f worldSize)
+	void PlayerGUI::updateElements(sf::RenderTarget& target, std::vector<OldEntity*> entities, sf::Vector2f worldSize)
 	{
 		if (mPlayer != nullptr)
 		{
@@ -90,13 +90,13 @@ namespace GUI
 		}
 	}
 
-	void GUI::PlayerGUI::updateMap(std::vector<Entity*> entities, sf::Vector2f worldSize)
+	void GUI::PlayerGUI::updateMap(std::vector<OldEntity*> entities, sf::Vector2f worldSize)
 	{
 		for (auto& ent : entities)
 		{
 			switch (ent->getType())
 			{
-			case Entity::Type::CarType:
+			case OldEntity::Type::CarType:
 			{
 				sf::ConvexShape triangle = sf::ConvexShape(3);
 				triangle.setPoint(0, sf::Vector2f(0, 0));

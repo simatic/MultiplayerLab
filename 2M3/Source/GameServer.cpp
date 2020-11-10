@@ -102,8 +102,8 @@ void GameServer::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		ClientData client = ClientData(newID, remoteAddress, remotePort);
 		mClients.push_back(client);
 
-		EntityStruct p1 = { getNewEntityID(), Entity::Type::CarType, sf::Vector2f(8000, 4500), sf::Vector2f(0, 0) };
-		EntityStruct p2 = { getNewEntityID(), Entity::Type::CarType, sf::Vector2f(8100, 4500), sf::Vector2f(0, 0) };
+		EntityStruct p1 = { getNewEntityID(), OldEntity::Type::CarType, sf::Vector2f(8000, 4500), sf::Vector2f(0, 0) };
+		EntityStruct p2 = { getNewEntityID(), OldEntity::Type::CarType, sf::Vector2f(8100, 4500), sf::Vector2f(0, 0) };
 
 		mWorld.createCar(p1);
 		mWorld.createCar(p2);
@@ -194,14 +194,14 @@ void GameServer::sendPing(ClientData& client)
 	mSocket.send(packet, client.getAddress(), client.getPort());
 }
 
-void GameServer::sendCarsUpdate(ClientData& client, const std::vector<Entity*>& cars)
+void GameServer::sendCarsUpdate(ClientData& client, const std::vector<OldEntity*>& cars)
 {
 	sf::Packet packet;
 	for (auto& carEnt : cars)
 	{
 		packet << ServerMsgType::CarUpdate;
 
-		EntityStruct carStruct = { carEnt->getID(), Entity::Type::CarType, carEnt->getPosition(), carEnt->getVelocity() };
+		EntityStruct carStruct = { carEnt->getID(), OldEntity::Type::CarType, carEnt->getPosition(), carEnt->getVelocity() };
 		packet << carStruct;
 
 		Car* car = dynamic_cast<Car*>(carEnt);

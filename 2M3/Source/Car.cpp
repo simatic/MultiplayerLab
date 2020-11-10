@@ -51,7 +51,7 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, co
 	};
 }
 
-void Car::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
+void Car::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
 	CarLogic::update(dt, entities, newEntities, pairs);
 
@@ -65,7 +65,7 @@ void Car::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*
 	mSprite.setRotation(mTransform.rotation);
 }
 
-void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
+void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
 	CarLogic::serverUpdate(serverTime, dt, entities, newEntities, pairs);
 
@@ -79,7 +79,7 @@ void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> en
 	mSprite.setRotation(mTransform.rotation);
 }
 
-void Car::useInputs(sf::Time dt, std::vector<Entity*>& newEntities)
+void Car::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 {
 	CarLogic::useInputs(dt, newEntities);
 
@@ -158,7 +158,7 @@ void Car::setSprite()
 	mSprite.setOrigin(bounds.width / 2, bounds.height / 2);
 }
 
-void Car::instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<Entity*>& newEntities)
+void Car::instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<OldEntity*>& newEntities)
 {
 	Projectile* proj = new Projectile(1, sf::seconds(1), 1500, position + 25.f * direction, direction, sf::RectangleShape(sf::Vector2f(5, 5)), this, mTextures);
 	newEntities.push_back(proj);

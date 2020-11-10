@@ -12,7 +12,7 @@ sf::Packet& operator>>(sf::Packet& packet, EntityStruct& entity)
 	
 	sf::Uint64 type;
 	packet >> type;
-	entity.entityType = static_cast<Entity::Type>(type);
+	entity.entityType = static_cast<OldEntity::Type>(type);
 	//std::cout << "operator packet << entityStruct : received id " << entity.id << " and type " << type << " translated to type " << (int)entity.entityType << std::endl;
 
 	packet >> entity.position.x >> entity.position.y >> entity.velocity.x >> entity.velocity.y;

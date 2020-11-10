@@ -17,8 +17,8 @@ namespace GUI
 		bool isSelectable() const;
 		void handleEvent(const sf::Event& event);
 
-		void updateElements(sf::RenderTarget& target, std::vector<Entity*> entities, sf::Vector2f worldSize);
-		void updateMap(std::vector<Entity*> entities, sf::Vector2f worldSize);
+		void updateElements(sf::RenderTarget& target, std::vector<OldEntity*> entities, sf::Vector2f worldSize);
+		void updateMap(std::vector<OldEntity*> entities, sf::Vector2f worldSize);
 
 	private:
 		void draw(sf::RenderTarget& target, sf::RenderStates states) const;

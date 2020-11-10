@@ -35,7 +35,7 @@ void Player::update(sf::Time dt) //, std::vector<Entity*>& newEntities)
 	mPlayerView.setCenter(mPlayerCar->getPosition());
 }
 
-void Player::draw(sf::RenderTarget& target, std::vector<Entity*>& entities)
+void Player::draw(sf::RenderTarget& target, std::vector<OldEntity*>& entities)
 {
 	target.setView(mPlayerView);
 	for (auto& ent : entities)

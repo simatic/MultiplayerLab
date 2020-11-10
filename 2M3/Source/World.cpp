@@ -5,7 +5,7 @@
 #include <iostream>
 #include "Projectile.h"
 #include "Wall.h"
-#include "Entity.h"
+#include "OldEntity.h"
 #include "Common/Components/Transform.h"
 
 World::World(sf::RenderTarget& outputTarget, KeyBinding* keys, const FontHolder& fonts, bool local)
@@ -85,7 +85,7 @@ void World::update(sf::Time dt)
 	{
 		pair.first->onCollision(pair.second);
 	}
-	auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&Entity::toRemove));
+	auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&OldEntity::toRemove));
 	mEntities.erase(removeBegin, mEntities.end());
 
 	for (auto& ent : mEntities)
@@ -103,7 +103,7 @@ void World::update(sf::Time dt)
 
 void World::clientUpdate(sf::Time dt)
 {
-	std::set<Entity::Pair> tmpPairs = std::set<Entity::Pair>(); //fake set of collision pairs, it is used to ignore local collisions
+	std::set<OldEntity::Pair> tmpPairs = std::set<OldEntity::Pair>(); //fake set of collision pairs, it is used to ignore local collisions
 	for (auto& ent : mEntities)
 	{
 		ent->update(dt, mEntities, mNewEntities, tmpPairs);
@@ -170,7 +170,7 @@ void World::loadTextures()
 	mTextures.load(Textures::Missile,	"Media/Textures/Missile.png");
 }
 
-Entity* World::getEntityFromId(sf::Uint64 id)
+OldEntity* World::getEntityFromId(sf::Uint64 id)
 {
 	for (auto& ent : mEntities)
 	{
@@ -189,14 +189,14 @@ std::vector<Player*>& World::getPlayers()
 	return mPlayers;
 }
 
-Entity* World::getUnassignedEntity()
+OldEntity* World::getUnassignedEntity()
 {
-	Entity* res = mToBeAssignedID.front();
+	OldEntity* res = mToBeAssignedID.front();
 	mToBeAssignedID.pop();
 	return res;
 }
 
-void World::addCollision(Entity* ent1, Entity* ent2)
+void World::addCollision(OldEntity* ent1, OldEntity* ent2)
 {
 	mPairs.insert(std::minmax(ent1, ent2));
 }

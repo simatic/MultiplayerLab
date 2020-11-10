@@ -1,10 +1,10 @@
-#include <Entity.h>
+#include <OldEntity.h>
 #include "Common/Systems/RenderSystem.h"
 #include "Common/Systems/CollisionSystem.h"
 #include "Common/Systems/MovementSystem.h"
 #include "ResourceHolder.h"
 
-Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
+OldEntity::OldEntity(sf::Vector2f pos, sf::RectangleShape rect) :
 	mTransform(pos, 0.0f),
 	mVelocity(0.0f, 0.0f),
 	mCollider(rect),
@@ -17,7 +17,7 @@ Entity::Entity(sf::Vector2f pos, sf::RectangleShape rect) :
 
 }
 
-void Entity::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
+void OldEntity::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
 	CollisionSystem::update(dt, this, entities, pairs);
 	MovementSystem::update(dt, this);
@@ -26,75 +26,75 @@ void Entity::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Enti
 	mCollider.shape.setRotation(mTransform.rotation);
 }
 
-void Entity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
+void OldEntity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
 	update(dt, entities, newEntities, pairs);
 }
 
-void Entity::draw(sf::RenderTarget& target)
+void OldEntity::draw(sf::RenderTarget& target)
 {
 	//target.draw(mCollider.shape);
 	RenderSystem::render(target, mTransform, Sprite(mSprite));
 }
 
-sf::Vector2f& Entity::getPosition()
+sf::Vector2f& OldEntity::getPosition()
 {
 	return mTransform.position;
 }
 
-float Entity::getRotation()
+float OldEntity::getRotation()
 {
 	return mTransform.rotation;
 }
 
-sf::Vector2f Entity::getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f mapSize)
+sf::Vector2f OldEntity::getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f mapSize)
 {
 	float x = mapSize.x * mTransform.position.x / worldSize.x;
 	float y = mapSize.y *  mTransform.position.y / worldSize.y;
 	return sf::Vector2f(x, y);
 }
 
-sf::Vector2f Entity::getVelocity()
+sf::Vector2f OldEntity::getVelocity()
 {
 	return mVelocity;
 }
 
-Collider& Entity::getCollider()
+Collider& OldEntity::getCollider()
 {
 	return mCollider;
 }
 
-Entity::Type Entity::getType()
+OldEntity::Type OldEntity::getType()
 {
 	return mType;
 }
 
-void Entity::offset(sf::Vector2f o)
+void OldEntity::offset(sf::Vector2f o)
 {
 	mTransform.position += o;
 }
 
-void Entity::setVelocity(sf::Vector2f v)
+void OldEntity::setVelocity(sf::Vector2f v)
 {
 	mVelocity = v;
 }
 
-bool Entity::toRemove()
+bool OldEntity::toRemove()
 {
 	return mToRemove;
 }
 
-void Entity::remove()
+void OldEntity::remove()
 {
 	mToRemove = true;
 }
 
-void Entity::unremove()
+void OldEntity::unremove()
 {
 	mToRemove = false;
 }
 
-Rectangle Entity::getRectangle()
+Rectangle OldEntity::getRectangle()
 {
 	sf::FloatRect baseRect = mCollider.shape.getLocalBounds();
 	std::vector<sf::Vector2f> points;
@@ -119,26 +119,26 @@ Rectangle Entity::getRectangle()
 
 }
 
-bool Entity::handleEvent(const sf::Event& event)
+bool OldEntity::handleEvent(const sf::Event& event)
 {
 	return true;
 }
 
-void Entity::cleanUp(sf::Vector2f worldSize, sf::Time dt)
+void OldEntity::cleanUp(sf::Vector2f worldSize, sf::Time dt)
 {
 }
 
-sf::Uint64 Entity::getID()
+sf::Uint64 OldEntity::getID()
 {
 	return mID;
 }
 
-void Entity::setID(sf::Uint64 id)
+void OldEntity::setID(sf::Uint64 id)
 {
 	mID = id;
 }
 
-void Entity::setPosition(sf::Vector2f p)
+void OldEntity::setPosition(sf::Vector2f p)
 {
 	mTransform.position = p;
 }

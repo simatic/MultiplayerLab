@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <Entity.h>
+#include <OldEntity.h>
 #include <SFML/System.hpp>
 #include <Player.h>
 #include <stack>
@@ -18,13 +18,13 @@
 
 struct UpdatedVelocity
 {
-	Entity* entity;
+	OldEntity* entity;
 	sf::Vector2f oldVelocity;
 };
 
 struct UpdatedEntityPresence
 {
-	Entity* entity;
+	OldEntity* entity;
 	bool added;
 };
 
@@ -45,9 +45,9 @@ public:
 	void					rollback(sf::Time present, sf::Time rollbackDate, sf::UdpSocket& socket, std::vector<ClientData>& clients, std::stack<sf::Uint64>& availableIDs);
 
 	sf::Vector2f			getWorldSize();
-	std::vector<Entity*>	getCars();
+	std::vector<OldEntity*>	getCars();
 
-	Entity*					getEntityFromId(sf::Uint64 id);
+	OldEntity*					getEntityFromId(sf::Uint64 id);
 	void					setCarInputs(sf::Uint64 id, Inputs inputs, sf::Time t);
 
 	void					createCar(EntityStruct car);
@@ -55,10 +55,10 @@ public:
 	void					sendWorld(ClientData client, sf::UdpSocket& socket, sf::Uint64 idCar1, sf::Uint64 idCar2);
 
 private:
-	std::vector<Entity*>		mEntities;
+	std::vector<OldEntity*>		mEntities;
 
-	std::vector<Entity*>		mNewEntities;
-	std::set<Entity::Pair>		mPairs;
+	std::vector<OldEntity*>		mNewEntities;
+	std::set<OldEntity::Pair>		mPairs;
 
 	//std::multiset<TimedInputs>	mInputs;
 	std::stack<UpdateFrame>		mFrames;

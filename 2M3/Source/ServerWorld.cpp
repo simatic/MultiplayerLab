@@ -34,7 +34,7 @@ void ServerWorld::update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket
 			socket.send(packet, client.getAddress(), client.getPort());
 		}
 	}
-	auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&Entity::toRemove));
+	auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&OldEntity::toRemove));
 	mEntities.erase(removeBegin, mEntities.end());
 
 	for (auto& ent : mEntities)
@@ -57,27 +57,27 @@ void ServerWorld::update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket
 		for (auto& client : clients)
 		{
 			sf::Packet packet;
-			Entity::Type type = newEnt->getType();
+			OldEntity::Type type = newEnt->getType();
 			EntityStruct entStruct = { newEnt->getID(), type, newEnt->getPosition(), newEnt->getVelocity() };
 			packet << ServerMsgType::ObjectCreation << entStruct;
 
 			switch (type)
 			{
-			case Entity::Type::CarType:
+			case OldEntity::Type::CarType:
 			{
 				Car* car = dynamic_cast<Car*>(newEnt);
 				packet << car->getCarDirection();
 
 				break;
 			}
-			case Entity::Type::ProjectileType:
+			case OldEntity::Type::ProjectileType:
 			{
 				Projectile* proj = dynamic_cast<Projectile*>(newEnt);
 				packet << proj->getCar()->getID() << proj->isGuided();
 
 				break;
 			}
-			case Entity::Type::PickUpType:
+			case OldEntity::Type::PickUpType:
 				break;
 			default:
 				break;
@@ -106,12 +106,12 @@ sf::Vector2f ServerWorld::getWorldSize()
 	return sf::Vector2f(mWorldWidth, mWorldHeight);
 }
 
-std::vector<Entity*> ServerWorld::getCars()
+std::vector<OldEntity*> ServerWorld::getCars()
 {
-	std::vector<Entity*> res;
+	std::vector<OldEntity*> res;
 	for (auto& ent : mEntities)
 	{
-		if (ent->getType() == Entity::Type::CarType)
+		if (ent->getType() == OldEntity::Type::CarType)
 		{
 			res.push_back(ent);
 		}
@@ -119,7 +119,7 @@ std::vector<Entity*> ServerWorld::getCars()
 	return res;
 }
 
-Entity* ServerWorld::getEntityFromId(sf::Uint64 id)
+OldEntity* ServerWorld::getEntityFromId(sf::Uint64 id)
 {
 	//std::cout << "searching for entity id " << id << std::endl;
 	for (auto& ent : mEntities)
@@ -142,7 +142,7 @@ Entity* ServerWorld::getEntityFromId(sf::Uint64 id)
 void ServerWorld::setCarInputs(sf::Uint64 id, Inputs inputs, sf::Time t)
 {
 	//std::cout << "setting car inputs " << id << std::endl;
-	Entity* entity = getEntityFromId(id);
+	OldEntity* entity = getEntityFromId(id);
 	Car* car = dynamic_cast<Car*>(entity);
 	car->insertInputs(t, inputs);
 
@@ -210,7 +210,7 @@ void ServerWorld::sendWorld(ClientData client, sf::UdpSocket& socket, sf::Uint64
 		//std::cout << id << std::endl;
 		if (id != idCar1 && id != idCar2)
 		{
-			Entity::Type type = ent->getType();
+			OldEntity::Type type = ent->getType();
 			EntityStruct entStruct = { id, type, ent->getPosition(), ent->getVelocity() };
 
 			sf::Packet packet;
@@ -218,7 +218,7 @@ void ServerWorld::sendWorld(ClientData client, sf::UdpSocket& socket, sf::Uint64
 
 			switch (type)
 			{
-			case Entity::Type::CarType:
+			case OldEntity::Type::CarType:
 			{
 				//std::cout << "car " << id << std::endl;
 				Car* car = dynamic_cast<Car*>(ent);
@@ -226,14 +226,14 @@ void ServerWorld::sendWorld(ClientData client, sf::UdpSocket& socket, sf::Uint64
 
 				break;
 			}
-			case Entity::Type::ProjectileType:
+			case OldEntity::Type::ProjectileType:
 			{
 				Projectile* proj = dynamic_cast<Projectile*>(ent);
 				packet << proj->getCar()->getID() << proj->isGuided();
 
 				break;
 			}
-			case Entity::Type::PickUpType:
+			case OldEntity::Type::PickUpType:
 				break;
 			default:
 				break;

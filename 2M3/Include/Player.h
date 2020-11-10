@@ -12,7 +12,7 @@ public:
 	Player(int i, Car* car);
 
 	void update(sf::Time dt); //, std::vector<Entity*>& newEntities);
-	void draw(sf::RenderTarget& target, std::vector<Entity*>& entities);
+	void draw(sf::RenderTarget& target, std::vector<OldEntity*>& entities);
 
 	Car* getCar();
 	int getID();

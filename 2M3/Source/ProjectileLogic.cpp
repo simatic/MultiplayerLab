@@ -2,7 +2,7 @@
 #include <Car.h>
 
 ProjectileLogic::ProjectileLogic(int dmg, sf::Time lifetime, float speed, sf::Vector2f pos, sf::Vector2f direction, sf::RectangleShape rect, CarLogic* car) :
-	Entity(pos, rect),
+	OldEntity(pos, rect),
 	bullet(dmg, speed, lifetime),
 	mGuided(false),
 	mTarget(nullptr),
@@ -15,7 +15,7 @@ ProjectileLogic::ProjectileLogic(int dmg, sf::Time lifetime, float speed, sf::Ve
 }
 
 ProjectileLogic::ProjectileLogic(int dmg, sf::Time lifetime, float speed, float detection, sf::Vector2f pos, sf::Vector2f direction, sf::RectangleShape rect, CarLogic* car) :
-	Entity(pos, rect),
+	OldEntity(pos, rect),
 	bullet(dmg, speed, lifetime),
 	mGuided(true),
 	mTarget(nullptr),
@@ -32,7 +32,7 @@ int ProjectileLogic::getDamage()
 	return bullet.damage;
 }
 
-void ProjectileLogic::onCollision(Entity* other)
+void ProjectileLogic::onCollision(OldEntity* other)
 {
 	switch (other->getType())
 	{
@@ -71,7 +71,7 @@ bool ProjectileLogic::isGuided()
 	return mGuided;
 }
 
-void ProjectileLogic::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
+void ProjectileLogic::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
 	bullet.lifetime -= dt;
 	if (bullet.lifetime < sf::Time::Zero)
@@ -93,7 +93,7 @@ void ProjectileLogic::update(sf::Time dt, std::vector<Entity*> entities, std::ve
 		else
 		{
 			float minDist = mDetectionRange;
-			Entity* target = nullptr;
+			OldEntity* target = nullptr;
 			for (const auto ent : entities)
 			{
 				float dist = length(mTransform.position - ent->getPosition());
@@ -112,5 +112,5 @@ void ProjectileLogic::update(sf::Time dt, std::vector<Entity*> entities, std::ve
 	if (mVelocity.x == 0 && mVelocity.y != 0) angle = M_PI_2 * mVelocity.y / abs(mVelocity.y);
 	mTransform.rotation = -toDegrees(angle);
 
-	Entity::update(dt, entities, newEntities, pairs);
+	OldEntity::update(dt, entities, newEntities, pairs);
 }

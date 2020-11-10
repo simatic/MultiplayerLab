@@ -36,7 +36,7 @@ enum class ClientMsgType
 struct EntityStruct
 {
 	sf::Uint64 id;
-	Entity::Type entityType;
+	OldEntity::Type entityType;
 	sf::Vector2f position;
 	sf::Vector2f velocity;
 };

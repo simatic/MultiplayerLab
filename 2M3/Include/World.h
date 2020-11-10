@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "Entity.h"
+#include "OldEntity.h"
 #include "Common/Components/Component.h"
 #include <SFML/System.hpp>
 #include "ResourceIdentifiers.h"
@@ -21,22 +21,22 @@ public:
 	bool					handleEvent(const sf::Event& event);
 
 	sf::Vector2f			getWorldSize();
-	Entity*					getEntityFromId(sf::Uint64 id);
+	OldEntity*					getEntityFromId(sf::Uint64 id);
 	std::vector<Player*>&	getPlayers();
-	Entity*					getUnassignedEntity();
+	OldEntity*					getUnassignedEntity();
 
-	void					addCollision(Entity* ent1, Entity* ent2);
+	void					addCollision(OldEntity* ent1, OldEntity* ent2);
 	void					createProjectile(sf::Uint64 id, sf::Vector2f pos, sf::Vector2f velocity, Car* creator, bool guided);
 	void					createCar(sf::Uint64 id, sf::Vector2f pos, sf::Vector2f velocity, sf::Vector2f direction);
 
 private:
-	std::vector<Entity*>		mEntities;
+	std::vector<OldEntity*>		mEntities;
 	std::vector<Player*>		mPlayers;
 
-	std::vector<Entity*>		mNewEntities;
-	std::set<Entity::Pair>		mPairs;
+	std::vector<OldEntity*>		mNewEntities;
+	std::set<OldEntity::Pair>		mPairs;
 
-	std::queue<Entity*>			mToBeAssignedID;
+	std::queue<OldEntity*>			mToBeAssignedID;
 
 	sf::RenderTarget&			mTarget;
 	TextureHolder				mTextures;

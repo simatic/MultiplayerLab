@@ -11,10 +11,10 @@
 #include "Common/Components/Collider.h"
 #include "Common/Components/Component.h"
 
-class Entity
+class OldEntity
 {
 public:
-	typedef std::pair<Entity*, Entity*> Pair;
+	typedef std::pair<OldEntity*, OldEntity*> Pair;
 
 public:
 	enum class Type
@@ -26,10 +26,10 @@ public:
 	};
 
 public:
-	Entity(sf::Vector2f pos, sf::RectangleShape colliderShape);
+	OldEntity(sf::Vector2f pos, sf::RectangleShape colliderShape);
 
-	virtual void		update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs);
-	virtual void		serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs);
+	virtual void		update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs);
+	virtual void		serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs);
 	virtual void		draw(sf::RenderTarget& target);
 	virtual bool		handleEvent(const sf::Event& event);
 	virtual void		cleanUp(sf::Vector2f worldSize, sf::Time dt);
@@ -52,7 +52,7 @@ public:
 	void				remove();
 	void				unremove();
 
-	virtual void		onCollision(Entity* other) = 0;
+	virtual void		onCollision(OldEntity* other) = 0;
 
 	template <typename T>
 	void addComponent(T& component);
@@ -81,19 +81,19 @@ private:
 };
 
 template <typename T>
-void Entity::addComponent(T& component)
+void OldEntity::addComponent(T& component)
 {
 	components[T::id] = std::make_unique<T>(component);
 }
 
 template <typename T>
-T* Entity::getComponent()
+T* OldEntity::getComponent()
 {
 	return static_cast<T*>(components[T::id].get());
 }
 
 template <typename T>
-void Entity::removeComponent()
+void OldEntity::removeComponent()
 {
 	components.erase(T::id);
 }

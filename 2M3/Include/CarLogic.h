@@ -1,5 +1,5 @@
 #pragma once
-#include "Entity.h"
+#include "OldEntity.h"
 #include <ProjectileLogic.h>
 #include <math.h>
 #include <KeyBinding.h>
@@ -26,7 +26,7 @@ struct SpatialVars
 	sf::Vector2f direction;
 };
 
-class CarLogic : public Entity
+class CarLogic : public OldEntity
 {
 public:
 	enum class CarAction
@@ -42,11 +42,11 @@ public:
 	CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect);
 	CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys);
 
-	virtual void update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs) override;
-	virtual void serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs) override;
+	virtual void update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
+	virtual void serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
 	void getInput();
 	void getInput(sf::Time serverTime);
-	virtual void useInputs(sf::Time dt, std::vector<Entity*>& newEntities);
+	virtual void useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities);
 	void crash(sf::Vector2f otherVelocity);
 	bool handleEvent(const sf::Event& event) override;
 	bool needsEventInput();
@@ -56,7 +56,7 @@ public:
 	void repair(int points);
 	void addMissileAmmo(int ammo);
 
-	void onCollision(Entity* other) override;
+	void onCollision(OldEntity* other) override;
 
 	sf::Vector2f getCarDirection();
 	std::string getActionText();
@@ -71,7 +71,7 @@ public:
 	void stepUpDeadReckoning();
 
 protected:
-	virtual void instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<Entity*>& newEntities);
+	virtual void instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<OldEntity*>& newEntities);
 
 protected:
 	Inputs mInputs;
@@ -100,8 +100,8 @@ private:
 	float mPrevDriftingSign;
 
 	bool mCrash;
-	std::vector<Entity*> mPrevCollidedWith;
-	std::vector<Entity*> mCollidedWith;
+	std::vector<OldEntity*> mPrevCollidedWith;
+	std::vector<OldEntity*> mCollidedWith;
 
 	sf::Time mShootDelay;
 	sf::Time mCurrentShootDelay;

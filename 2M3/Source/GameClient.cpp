@@ -87,7 +87,7 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		packet >> carStruct >> carDir;
 
 		//std::cout << "received car " << carStruct.id << " update" << std::endl;
-		Entity* carEnt = world.getEntityFromId(carStruct.id);
+		OldEntity* carEnt = world.getEntityFromId(carStruct.id);
 		Car* car = dynamic_cast<Car*>(carEnt);
 
 		if (!ownsCar(carStruct.id, world))
@@ -125,8 +125,8 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 		packet >> id1 >> id2;
 		std::cout << "searching colliding objects " << id1 << " and " << id2 << std::endl;
 
-		Entity* ent1 = world.getEntityFromId(id1);
-		Entity* ent2 = world.getEntityFromId(id2);
+		OldEntity* ent1 = world.getEntityFromId(id1);
+		OldEntity* ent2 = world.getEntityFromId(id2);
 
 		world.addCollision(ent1, ent2);
 
@@ -145,7 +145,7 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 
 		switch (baseEnt.entityType)
 		{
-		case Entity::Type::CarType:
+		case OldEntity::Type::CarType:
 		{
 			//std::cout << "creating car " << baseEnt.id << std::endl;
 			sf::Vector2f direction;
@@ -153,11 +153,11 @@ void GameClient::processReceivedPacket(sf::Packet& packet, sf::IpAddress& remote
 			if (!ownsCar(baseEnt.id, world)) world.createCar(baseEnt.id, baseEnt.position, baseEnt.velocity, direction);
 			break;
 		}
-		case Entity::Type::PickUpType:
+		case OldEntity::Type::PickUpType:
 		{
 			break;
 		}
-		case Entity::Type::ProjectileType:
+		case OldEntity::Type::ProjectileType:
 		{
 			std::cout << "porjectile" << std::endl;
 

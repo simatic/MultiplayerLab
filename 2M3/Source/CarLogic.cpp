@@ -28,7 +28,7 @@ CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding
 	mInputs({ false, false, false, false, false, false, false }),
 	mTrajectory(),
 	mCarDirection(sf::Vector2f(1, 0)),
-	Entity(pos, rect)
+	OldEntity(pos, rect)
 {
 	mType = Type::CarType;
 
@@ -43,7 +43,7 @@ CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding
 	};
 }
 
-void CarLogic::update(sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
+void CarLogic::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
 	if (mCurrentShootDelay > sf::Time::Zero) mCurrentShootDelay -= dt;
 
@@ -57,17 +57,17 @@ void CarLogic::update(sf::Time dt, std::vector<Entity*> entities, std::vector<En
 		useInputs(dt, newEntities);
 	}
 
-	Entity::update(dt, entities, newEntities, pairs);
+	OldEntity::update(dt, entities, newEntities, pairs);
 }
 
-void CarLogic::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<Entity*> entities, std::vector<Entity*>& newEntities, std::set<Pair>& pairs)
+void CarLogic::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
 	if (mCurrentShootDelay > sf::Time::Zero) mCurrentShootDelay -= dt;
 
 	getInput(serverTime);
 	useInputs(dt, newEntities);
 
-	Entity::update(dt, entities, newEntities, pairs);
+	OldEntity::update(dt, entities, newEntities, pairs);
 
 	mInputs = { false, false, false, false, false, false, false };
 }
@@ -105,7 +105,7 @@ inline CarLogic::CarAction operator++(CarLogic::CarAction& x)
 	return x = (CarLogic::CarAction)(((int)(x)+1));
 }
 
-void CarLogic::useInputs(sf::Time dt, std::vector<Entity*>& newEntities)
+void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 {
 	float l = length(mVelocity);
 
@@ -318,7 +318,7 @@ void CarLogic::addMissileAmmo(int ammo)
 	mMissileAmmo += ammo;
 }
 
-void CarLogic::onCollision(Entity* other)
+void CarLogic::onCollision(OldEntity* other)
 {
 	switch (other->getType())
 	{
@@ -429,7 +429,7 @@ void CarLogic::setCarDirection(sf::Vector2f d)
 	mCarDirection = d;
 }
 
-void CarLogic::instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<Entity*>& newEntities)
+void CarLogic::instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<OldEntity*>& newEntities)
 {
 	std::cout << "CarLogic" << std::endl;
 	ProjectileLogic* proj = new ProjectileLogic(1, sf::seconds(1), 1500, position + 25.f * direction, direction, sf::RectangleShape(sf::Vector2f(5, 5)), this);

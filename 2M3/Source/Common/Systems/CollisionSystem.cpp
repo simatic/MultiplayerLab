@@ -1,6 +1,6 @@
 #include "Common/Systems/CollisionSystem.h"
 
-void CollisionSystem::update(const sf::Time& dt, Entity* entity, std::vector<Entity*>& others, std::set<Entity::Pair>& pairs)
+void CollisionSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<OldEntity*>& others, std::set<OldEntity::Pair>& pairs)
 {
 	for (auto other : others)
 	{
