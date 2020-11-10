@@ -5,7 +5,6 @@
 #include <math.h>
 #include "World.h"
 #include "Application.h"
-#include "Common/Managers/Signature.h"
 
 int main()
 {

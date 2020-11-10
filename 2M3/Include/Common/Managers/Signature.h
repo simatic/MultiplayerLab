@@ -56,7 +56,7 @@ Signature Signature::generate()
 template <typename Component>
 bool Signature::isComponentRegistered()
 {
-	return Signature::idToBitIndexMap.find(Component::id) == Signature::idToBitIndexMap.end();
+	return Signature::idToBitIndexMap.find(Component::id) != Signature::idToBitIndexMap.end();
 }
 
 template <typename Component>
@@ -79,7 +79,7 @@ void Signature::addComponent()
 template <typename Component>
 void Signature::_addComponent()
 {
-	if (Signature::isComponentRegistered<Component>())
+	if (!Signature::isComponentRegistered<Component>())
 	{
 		Signature::registerComponent<Component>();
 	} 
@@ -101,7 +101,7 @@ void Signature::removeComponent()
 template <typename Component>
 void Signature::_removeComponent()
 {
-	if (Signature::isComponentRegistered<Component>())
+	if (!Signature::isComponentRegistered<Component>())
 	{
 		Signature::registerComponent<Component>();
 	}

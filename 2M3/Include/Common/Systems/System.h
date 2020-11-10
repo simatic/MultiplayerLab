@@ -8,8 +8,8 @@ template <typename... Components>
 class SignedSystem : public System
 {
 public:
-	static const Signature signature;
+	static Signature signature;
 };
 
 template <typename... Components>
-const Signature SignedSystem<Components...>::signature = Signature::generate<Components...>();
+Signature SignedSystem<Components...>::signature = Signature();
