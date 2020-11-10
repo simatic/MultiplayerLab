@@ -8,11 +8,11 @@ class Interface {
     struct CompiledEvents {
         std::vector<float> timestamps;
         std::vector<float> values;
-        std::vector<sf::Uint64> packetIndices;
+        std::vector<PacketSequenceIndex> packetIndices;
     };
 
     struct PacketLifecycle {
-        const sf::Uint64 packetIndex;
+        const PacketSequenceIndex sequenceIndex;
         std::pair<sf::Vector2f, sf::Vector2f> edges;
     };
 

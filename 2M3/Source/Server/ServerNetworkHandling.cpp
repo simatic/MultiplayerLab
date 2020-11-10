@@ -49,7 +49,8 @@ bool ServerNetworkHandling::running = true;
 
         auto logicalPacket = deserializePacket(packet);
         if(logicalPacket) {
-            ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::PacketReceived, logicalPacket->getIndex()});
+            ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::PacketReceived,
+                                                                            logicalPacket->getSequenceIndex()});
             Delay::mutex4Packet4Delay.lock();
             Delay::packet4DelayList.push_back(std::make_unique<packet4Delay>(std::move(logicalPacket), client));
             Delay::mutex4Packet4Delay.unlock();
@@ -127,6 +128,13 @@ UdpClient::UdpClient(ClientID id, sf::IpAddress address, unsigned short port, Ne
 
 void UdpClient::send(std::unique_ptr<Packet> packet) const {
     Delay::mutex4ResponsePacketWithDelay.lock();
-    Delay::responsePacketWithDelayList.push_back(std::make_unique<packetWithDelay>(std::move(packet), *this, this->settings.getOutgoingDelay()));
+    Delay::responsePacketWithDelayList.push_back(
+            std::make_unique<packetWithDelay>(std::move(packet), *this, this->settings.getOutgoingDelay()));
     Delay::mutex4ResponsePacketWithDelay.unlock();
+}
+
+PacketSequenceIndex Packet::packetIndexCounter = 1;
+
+PacketSequenceIndex Packet::newPacketIndex() {
+    return packetIndexCounter++;
 }

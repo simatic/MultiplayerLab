@@ -125,6 +125,8 @@ void Interface::renderGraph(const UdpClient &client) {
         {
             ImPlotPoint mouse = ImPlot::GetPlotMousePos();
 
+            // TODO: handle single events (example: a packet sent by the client is rejected due to forced loss ratios
+            //  will have no links, and will not be returned by this method. It will probably return a close link instead)
             const PacketLifecycle* closestToMouse = getClosest(packetLives, mouse.x, mouse.y);
 
             if(closestToMouse != nullptr) {
@@ -134,7 +136,15 @@ void Interface::renderGraph(const UdpClient &client) {
                 const auto& firstPoint = closestToMouse->edges.first;
                 const auto& secondPoint = closestToMouse->edges.second;
                 long delay = static_cast<long>((secondPoint.x-firstPoint.x)*1000);
-                ImGui::Text("N° de packet: %llu", closestToMouse->packetIndex);
+
+                const char* source;
+                auto sequenceIndex = closestToMouse->sequenceIndex;
+                if(sequenceIndex < 0) { // client-generated
+                    source = "Client";
+                } else {
+                    source = "Serveur";
+                }
+                ImGui::Text("N° de séquence: %lld (initié par le %s)", abs(sequenceIndex), source);
                 ImGui::Text("Délai: %ldms", delay);
                 float dy1 = abs(mouse.y-firstPoint.y);
                 float dy2 = abs(mouse.y-secondPoint.y);
