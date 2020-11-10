@@ -12,12 +12,12 @@ struct packet4Delay {
 
 struct packetWithDelay {
     std::unique_ptr<Packet> logicalPacket;
-    UdpClient& client;
+    const UdpClient& client;
 
     /// in seconds
     float delay;
 
-    packetWithDelay(std::unique_ptr<Packet>&& logicalPacket, UdpClient& client, float delay): logicalPacket(std::move(logicalPacket)), client(client), delay(delay) {}
+    packetWithDelay(std::unique_ptr<Packet>&& logicalPacket, const UdpClient& client, float delay): logicalPacket(std::move(logicalPacket)), client(client), delay(delay) {}
 };
 
 class Delay {
@@ -25,6 +25,10 @@ public:
     static std::vector<std::unique_ptr<packet4Delay>> packet4DelayList;
 
     static std::mutex mutex4Packet4Delay;
+
+    static std::vector<std::unique_ptr<packetWithDelay>> responsePacketWithDelayList;
+
+    static std::mutex mutex4ResponsePacketWithDelay;
 
 };
 

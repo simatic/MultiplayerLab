@@ -2,6 +2,7 @@
 
 #include <SFML/Network.hpp>
 #include <iostream>
+#include <Server/ServerNetworkHandling.h>
 
 enum PacketID: sf::Uint32 {
     Ping,
@@ -31,7 +32,7 @@ public:
 
     virtual ~Packet() = default;
 
-    void send(sf::UdpSocket& socket, const sf::IpAddress& address, unsigned short port) const;
+    void realSend(sf::UdpSocket& socket, const sf::IpAddress& address, unsigned short port) const;
 
     // static members
 private:

@@ -1,6 +1,7 @@
 #include <Common/Network.h>
 #include <iostream>
 #include <Common/PingPongPackets.h>
+#include <Server/DelayCreation.h>
 #include "Common/EchoPacket.h"
 
 std::unique_ptr<Packet> deserializePacket(sf::Packet& packet) {
@@ -24,7 +25,7 @@ std::unique_ptr<Packet> deserializePacket(sf::Packet& packet) {
     }
 }
 
-void Packet::send(sf::UdpSocket &socket, const sf::IpAddress &address, unsigned short port) const {
+void Packet::realSend(sf::UdpSocket &socket, const sf::IpAddress &address, unsigned short port) const {
     sf::Packet packet;
     packet << getID();
     packet << getIndex();

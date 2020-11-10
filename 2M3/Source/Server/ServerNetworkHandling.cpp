@@ -6,7 +6,6 @@
 #include <thread>
 #include <Server/ServerClock.h>
 #include "Server/NetworkSettings.h"
-#include "Common/Network.h"
 #include "Server/ServerNetworkHandling.h"
 #include "Server/ServerMain.h"
 #include "Server/DelayCreation.h"
@@ -75,9 +74,9 @@ UdpClient& ServerNetworkHandling::getOrCreateClient(sf::IpAddress address, unsig
     return client;
 }
 
-void ServerNetworkHandling::broadcast(Packet& toBroadcast) {
+void ServerNetworkHandling::broadcast(std::unique_ptr<Packet> toBroadcast) {
     for(auto& client : clients) {
-        toBroadcast.send(socket, client->address, client->port);
+        client->send(std::move(toBroadcast));
     }
 }
 
@@ -122,3 +121,10 @@ const char *NetworkEvent::name(NetworkEvent::Type t)  {
 }
 
 UdpClient::UdpClient(ClientID id, sf::IpAddress address, unsigned short port, NetworkSettings settings): id(id), address(address), port(port), settings(settings) {}
+
+
+void UdpClient::send(std::unique_ptr<Packet> packet) const {
+    Delay::mutex4ResponsePacketWithDelay.lock();
+    Delay::responsePacketWithDelayList.push_back(std::make_unique<packetWithDelay>(std::move(packet), *this, this->settings.getOutgoingDelay()));
+    Delay::mutex4ResponsePacketWithDelay.unlock();
+}

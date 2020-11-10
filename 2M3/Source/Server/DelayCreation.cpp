@@ -12,7 +12,6 @@
     sf::Time time = ServerClock::getInstance().get();
     sf::Time deltaTime = time - lastTime;
 
-    std::vector<std::unique_ptr<packetWithDelay>> reponsePacketWithDelayList;
     while(true) {
         Delay::mutex4Packet4Delay.lock();
         while (!Delay::packet4DelayList.empty()){
@@ -38,7 +37,9 @@
                     if(response) {
                         ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::SendingPacket, packet->logicalPacket->getIndex()});
                         float outgoingDelayToApply = client.settings.getOutgoingDelay();
-                        reponsePacketWithDelayList.push_back(std::make_unique<packetWithDelay>(std::move(response), client, outgoingDelayToApply));
+                        Delay::mutex4ResponsePacketWithDelay.lock();
+                        Delay::responsePacketWithDelayList.push_back(std::make_unique<packetWithDelay>(std::move(response), client, outgoingDelayToApply));
+                        Delay::mutex4ResponsePacketWithDelay.unlock();
                     }
                 }
                 it = packetWithDelayList.erase(it);
@@ -47,21 +48,23 @@
                 it++;
             }
         }
-        for(auto it = reponsePacketWithDelayList.begin(); it != reponsePacketWithDelayList.end();){
+        Delay::mutex4ResponsePacketWithDelay.lock();
+        for(auto it = Delay::responsePacketWithDelayList.begin(); it != Delay::responsePacketWithDelayList.end();){
             auto& packet = *it;
             auto& client = packet->client;
             packet->delay -= deltaTime.asSeconds();
             if(packet->delay <= 0){
                 if(!client.settings.outGoingPacketLost()){
                     ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::SentPacket, packet->logicalPacket->getIndex()});
-                    packet->logicalPacket->send(socket, client.address, client.port);
+                    packet->logicalPacket->realSend(socket, client.address, client.port);
                 }
-                it = reponsePacketWithDelayList.erase(it);
+                it = Delay::responsePacketWithDelayList.erase(it);
             }
             else{
                 it++;
             }
         }
+        Delay::mutex4ResponsePacketWithDelay.unlock();
     }
 }
 

@@ -30,7 +30,7 @@ public:
     static void render();
     static void renderClientWindow(const std::string& name, UdpClient& client);
 
-    static void onEvent(UdpClient &client, NetworkEvent::Event event);
+    static void onEvent(const UdpClient &client, NetworkEvent::Event event);
 
     static void linkPackets(const UdpClient &client, const NetworkEvent::Event &event,
                             const std::map<NetworkEvent::Type, Interface::CompiledEvents> &eventMap,

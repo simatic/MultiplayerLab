@@ -7,7 +7,6 @@
 #include <iostream>
 #include <Common/Constants.h>
 #include <sstream>
-#include <Server/ServerNetworkHandling.h>
 
 void usage(char* executableName) {
     std::cerr << executableName << " <port>" << std::endl;

@@ -167,7 +167,7 @@ void Interface::pollEvents(sf::Window& window) {
     }
 }
 
-void Interface::onEvent(UdpClient &client, NetworkEvent::Event event) {
+void Interface::onEvent(const UdpClient &client, NetworkEvent::Event event) {
     if(clientEvents.find(client.id) == clientEvents.end()) {
         clientEvents[client.id] = CompiledEventsMap{};
     }
@@ -245,6 +245,6 @@ const Interface::PacketLifecycle* Interface::getClosest(const std::vector<Packet
     return closest;
 }
 
-void ServerNetworkHandling::triggerEvent(UdpClient &client, NetworkEvent::Event event) {
+void ServerNetworkHandling::triggerEvent(const UdpClient &client, NetworkEvent::Event event) {
     Interface::onEvent(client, event);
 }

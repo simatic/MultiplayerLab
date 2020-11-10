@@ -5,6 +5,7 @@
 #include "Common/Network.h"
 #include "Server/NetworkSettings.h"
 
+
 using ClientID = unsigned int;
 
 /// Client connected to the server
@@ -15,6 +16,7 @@ struct UdpClient {
     NetworkSettings settings;
 
     UdpClient(ClientID id, sf::IpAddress address, unsigned short port, NetworkSettings settings);
+    void send(std::unique_ptr<Packet> packet) const;
 };
 
 namespace NetworkEvent {
@@ -54,13 +56,13 @@ public:
     static UdpClient& getOrCreateClient(sf::IpAddress address, unsigned short port);
 
     /// Send a packet to all clients
-    static void broadcast(Packet& toBroadcast);
+    static void broadcast(std::unique_ptr<Packet> toBroadcast);
 
     static std::vector<std::unique_ptr<UdpClient>>& getClients() {
         return clients;
     }
 
-    static void triggerEvent(UdpClient& client, NetworkEvent::Event event);
+    static void triggerEvent(const UdpClient& client, NetworkEvent::Event event);
 
     static void updateNonConnectedClients();
     static void updateLastPacketTime(const UdpClient& client);
