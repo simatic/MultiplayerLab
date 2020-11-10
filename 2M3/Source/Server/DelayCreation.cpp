@@ -36,7 +36,7 @@
                     ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::PacketDelayed, packet->logicalPacket->getIndex()});
                     auto response = packet->logicalPacket->handle();
                     if(response) {
-                        // TODO: outgoing delay
+                        ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::SendingPacket, packet->logicalPacket->getIndex()});
                         float outgoingDelayToApply = client.settings.getOutgoingDelay();
                         reponsePacketWithDelayList.push_back(std::make_unique<packetWithDelay>(std::move(response), client, outgoingDelayToApply));
                     }
@@ -53,6 +53,7 @@
             packet->delay -= deltaTime.asSeconds();
             if(packet->delay <= 0){
                 if(!client.settings.outGoingPacketLost()){
+                    ServerNetworkHandling::triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::SentPacket, packet->logicalPacket->getIndex()});
                     packet->logicalPacket->send(socket, client.address, client.port);
                 }
                 it = reponsePacketWithDelayList.erase(it);
