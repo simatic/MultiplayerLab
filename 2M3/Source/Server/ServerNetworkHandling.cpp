@@ -13,6 +13,8 @@
 sf::UdpSocket socket;
 std::mutex Delay::mutex4Packet4Delay;
 std::vector<std::unique_ptr<packet4Delay>> Delay::packet4DelayList;
+std::mutex Delay::mutex4ResponsePacketWithDelay;
+std::vector<std::unique_ptr<packetWithDelay>> Delay::responsePacketWithDelayList;
 ClientID ServerNetworkHandling::currentClientID = 0;
 std::vector<std::unique_ptr<UdpClient>> ServerNetworkHandling::clients{};
 std::map<ClientID, float> ServerNetworkHandling::lastPacketTimes{};

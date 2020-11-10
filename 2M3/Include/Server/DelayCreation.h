@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/Network.h"
+#include "ServerNetworkHandling.h"
 #include <mutex>
 
 struct packet4Delay {

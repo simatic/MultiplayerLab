@@ -18,7 +18,7 @@
 ///
 
 void send(sf::UdpSocket& socket, std::unique_ptr<Packet> packet, const sf::IpAddress& address, unsigned short port){
-
+    packet->realSend(socket, address, port);
 }
 
 void processWaitingPackets(sf::UdpSocket &socket)
@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
     socket.setBlocking(false);
-    send(socket, std::move(PingPacket().handle()), ip, remotePort);
+    send(socket, std::make_unique<PingPacket>(), ip, remotePort);
 
     sf::sleep(sf::milliseconds(1));
     int number = 0;
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
         processWaitingPackets(socket);
         sf::sleep(sf::milliseconds(100));
         // TODO: replace with game code?
-        send(socket, std::move(PingPacket().handle()), ip, remotePort);
+        send(socket, std::make_unique<PingPacket>(), ip, remotePort);
         number++;
         //EchoPacket(number).send(socket, ip, remotePort);
         sf::sleep(sf::milliseconds(1));

@@ -2,7 +2,6 @@
 
 #include <SFML/Network.hpp>
 #include <iostream>
-#include <Server/ServerNetworkHandling.h>
 
 enum PacketID: sf::Uint32 {
     Ping,
