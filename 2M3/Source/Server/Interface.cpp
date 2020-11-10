@@ -105,6 +105,16 @@ void Interface::renderClientWindow(const std::string& title, UdpClient& client) 
                         long delay = static_cast<long>((secondPoint.x-firstPoint.x)*1000);
                         ImGui::Text("N° de packet: %llu", closestToMouse->packetIndex);
                         ImGui::Text("Délai: %ldms", delay);
+                        float dy1 = abs(mouse.y-firstPoint.y);
+                        float dy2 = abs(mouse.y-secondPoint.y);
+                        float closestPointY;
+                        if(dy1 < dy2) {
+                            closestPointY = firstPoint.y;
+                        } else {
+                            closestPointY = secondPoint.y;
+                        }
+                        const auto& packetType = static_cast<NetworkEvent::Type>(static_cast<int>(closestPointY));
+                        ImGui::Text("Type de packet: %s", NetworkEvent::name(packetType));
                         ImGui::EndTooltip();
                     }
                 }
@@ -171,19 +181,33 @@ void Interface::onEvent(UdpClient &client, NetworkEvent::Event event) {
     compilation.packetIndices.push_back(event.id);
 
     // build connections between events
-    if(event.type == NetworkEvent::Type::PacketDelayed) {
-        auto& receivedPacketEvents = eventMap[NetworkEvent::Type::PacketReceived];
-        auto it = std::find(receivedPacketEvents.packetIndices.begin(), receivedPacketEvents.packetIndices.end(), event.id);
-        int position = std::distance(receivedPacketEvents.packetIndices.begin(), it);
-        float receivedTime = receivedPacketEvents.timestamps[position];
-        float receivedValue = receivedPacketEvents.values[position];
-        auto& lifecycles = clientPacketLifecycles[client.id];
-        // edge from received to delayed event
-        lifecycles.push_back(PacketLifecycle{event.id,
-                                std::make_pair(sf::Vector2f(receivedTime, receivedValue),
-                                               sf::Vector2f(event.timestamp.asSeconds(), static_cast<float>(event.type))
-                                               )});
+    if(event.type == NetworkEvent::Type::PacketDelayed
+   || event.type == NetworkEvent::Type::SendingPacket
+   || event.type == NetworkEvent::Type::SentPacket) {
+        linkPackets(client, event, eventMap, static_cast<NetworkEvent::Type>(event.type-1));
     }
+}
+
+void Interface::linkPackets(const UdpClient &client, const NetworkEvent::Event &event,
+                            const std::map<NetworkEvent::Type, Interface::CompiledEvents> &eventMap,
+                            const NetworkEvent::Type typeToLinkTo) {
+    auto receivedPacketEventsIt = eventMap.find(typeToLinkTo);
+    if(receivedPacketEventsIt == eventMap.end()) { // no event of given type
+        return;
+    }
+    auto& receivedPacketEvents = receivedPacketEventsIt->second;
+    auto it = std::find(receivedPacketEvents.packetIndices.begin(), receivedPacketEvents.packetIndices.end(), event.id);
+    if(it == receivedPacketEvents.packetIndices.end()) // no packet to link to
+        return;
+    int position = std::distance(receivedPacketEvents.packetIndices.begin(), it);
+    float receivedTime = receivedPacketEvents.timestamps[position];
+    float receivedValue = receivedPacketEvents.values[position];
+    auto& lifecycles = clientPacketLifecycles[client.id];
+    // edge from received to delayed event
+    lifecycles.push_back(PacketLifecycle{event.id,
+                            std::make_pair(sf::Vector2f(receivedTime, receivedValue),
+                                           sf::Vector2f(event.timestamp.asSeconds(), static_cast<float>(event.type))
+                                           )});
 }
 
 float sqDist(sf::Vector2f vec, float x, float y) {

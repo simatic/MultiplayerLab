@@ -75,9 +75,9 @@ int main(int argc, char** argv) {
         processWaitingPackets(socket);
         sf::sleep(sf::milliseconds(100));
         // TODO: replace with game code?
-        //PingPacket().send(socket, ip, remotePort);
+        PingPacket().send(socket, ip, remotePort);
         number++;
-        EchoPacket(number).send(socket, ip, remotePort);
+        //EchoPacket(number).send(socket, ip, remotePort);
         sf::sleep(sf::milliseconds(1));
     }
     return EXIT_SUCCESS;
