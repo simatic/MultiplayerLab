@@ -27,12 +27,12 @@ if (MSVC)
 else()
     # lots of warnings 
     # We do not put -Werror to consider all warnings as errors
-    add_compile_options(-Wall -Wextra)
+    add_compile_options(-g -Wall -Wextra)
 endif()
 
 add_executable(2M3
   ${SOURCES}
-   "Include/Renderable.h"  "Include/WallLogic.h" "Source/WallLogic.cpp" "Include/ProjectileLogic.h" "Source/ProjectileLogic.cpp" "Include/CarLogic.h" "Source/CarLogic.cpp" "Include/Common/Components/Component.h" "Source/Common/Components/Component.cpp" "Include/Common/Components/Transform.h" "Source/Common/Components/Transform.cpp" "Include/Common/Components/Collider.h" "Source/Common/Components/Collider.cpp" "Include/Common/Systems/CollisionSystem.h" "Include/Common/Components/Sprite.h" "Source/Common/Systems/RenderSystem.cpp" "Source/Common/Components/Sprite.cpp" "Source/Common/Systems/CollisionSystem.cpp" "Include/Common/Systems/MovementSystem.h" "Source/Common/Systems/MovementSystem.cpp" "Include/Common/Components/Bullet.h" "Source/Common/Components/Bullet.cpp" "Include/Common/Systems/System.h" "Include/Common/Managers/Signature.h" "Source/Common/Managers/Signature.cpp" "Include/Common/Components/CarEngine.h" "Source/Common/Components/CarEngine.cpp")
+   "Include/Renderable.h"  "Include/WallLogic.h" "Source/WallLogic.cpp" "Include/ProjectileLogic.h" "Source/ProjectileLogic.cpp" "Include/CarLogic.h" "Source/CarLogic.cpp" "Include/Common/Components/Component.h" "Source/Common/Components/Component.cpp" "Include/Common/Components/Transform.h" "Source/Common/Components/Transform.cpp" "Include/Common/Components/Collider.h" "Source/Common/Components/Collider.cpp" "Include/Common/Systems/CollisionSystem.h" "Include/Common/Components/Sprite.h" "Source/Common/Systems/RenderSystem.cpp" "Source/Common/Components/Sprite.cpp" "Source/Common/Systems/CollisionSystem.cpp" "Include/Common/Systems/MovementSystem.h" "Source/Common/Systems/MovementSystem.cpp" "Include/Common/Components/Bullet.h" "Source/Common/Components/Bullet.cpp" "Include/Common/Systems/System.h" "Include/Common/Managers/Signature.h" "Source/Common/Managers/Signature.cpp" "Include/Common/Components/CarEngine.h" "Source/Common/Components/CarEngine.cpp" "Include/Common/Components/CarInput.h")
 
 target_link_libraries(2M3 PUBLIC sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
 
