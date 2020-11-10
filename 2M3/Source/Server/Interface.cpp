@@ -53,74 +53,13 @@ void Interface::render() {
 }
 
 void Interface::renderClientWindow(const std::string& title, UdpClient& client) {
-    static bool followLastPacket = true;
     if(ImGui::Begin(("Contrôles "+title).c_str())) {
         ImGui::Text("IP du client: %s", client.address.toString().c_str());
         ImGui::Text("Port du client: %i", client.port);
         ImGui::Separator();
 
         if(ImGui::TreeNode("Graphes des packets")) {
-
-            ImGui::Checkbox("Suivre les derniers packets", &followLastPacket);
-
-            float time = ServerClock::getInstance().asSeconds();
-
-            // pause? => ImGuiCond_Once
-            ImPlot::SetNextPlotLimitsX(time-10, time, followLastPacket ? ImGuiCond_Always : ImGuiCond_Once);
-
-            if(ImPlot::BeginPlot("Evénements")) {
-                CompiledEventsMap& events = clientEvents[client.id];
-
-                for(unsigned int typeID = 0; typeID < NetworkEvent::Type::Last; typeID++) {
-                    auto type = static_cast<NetworkEvent::Type>(typeID);
-
-                    if(events.find(type) == events.end())
-                        continue;
-
-                    std::vector<float>& timestamps = events[type].timestamps;
-                    std::vector<float>& values = events[type].values;
-
-                    ImPlot::PlotScatter(NetworkEvent::name(type), timestamps.data(), values.data(), values.size());
-                }
-
-                std::vector<PacketLifecycle>& packetLives = clientPacketLifecycles[client.id];
-                for(auto& lifecycle : packetLives) {
-                    float times[2] = { lifecycle.edges.first.x, lifecycle.edges.second.x };
-                    float values[2] = { lifecycle.edges.first.y, lifecycle.edges.second.y };
-                    ImPlot::PlotLine("", times, values, 2);
-                }
-
-
-                {
-                    ImPlotPoint mouse = ImPlot::GetPlotMousePos();
-
-                    const PacketLifecycle* closestToMouse = getClosest(packetLives, mouse.x, mouse.y);
-
-                    if(closestToMouse != nullptr) {
-                        ImGui::BeginTooltip();
-                        ImGui::TextColored(TITLE_COLOR, "Informations du packet");
-
-                        const auto& firstPoint = closestToMouse->edges.first;
-                        const auto& secondPoint = closestToMouse->edges.second;
-                        long delay = static_cast<long>((secondPoint.x-firstPoint.x)*1000);
-                        ImGui::Text("N° de packet: %llu", closestToMouse->packetIndex);
-                        ImGui::Text("Délai: %ldms", delay);
-                        float dy1 = abs(mouse.y-firstPoint.y);
-                        float dy2 = abs(mouse.y-secondPoint.y);
-                        float closestPointY;
-                        if(dy1 < dy2) {
-                            closestPointY = firstPoint.y;
-                        } else {
-                            closestPointY = secondPoint.y;
-                        }
-                        const auto& packetType = static_cast<NetworkEvent::Type>(static_cast<int>(closestPointY));
-                        ImGui::Text("Type de packet: %s", NetworkEvent::name(packetType));
-                        ImGui::EndTooltip();
-                    }
-                }
-
-                ImPlot::EndPlot();
-            }
+            renderGraph(client);
             ImGui::TreePop();
         }
 
@@ -149,6 +88,70 @@ void Interface::renderClientWindow(const std::string& title, UdpClient& client) 
         ImGui::EndGroup();
     }
     ImGui::End();
+}
+
+void Interface::renderGraph(const UdpClient &client) {
+    static bool followLastPacket = true;
+    ImGui::Checkbox("Suivre les derniers packets", &followLastPacket);
+
+    float time = ServerClock::getInstance().asSeconds();
+
+    // pause? => ImGuiCond_Once
+    ImPlot::SetNextPlotLimitsX(time-10, time, followLastPacket ? ImGuiCond_Always : ImGuiCond_Once);
+
+    if(ImPlot::BeginPlot("Evénements")) {
+        CompiledEventsMap& events = clientEvents[client.id];
+
+        for(unsigned int typeID = 0; typeID < NetworkEvent::Last; typeID++) {
+            auto type = static_cast<NetworkEvent::Type>(typeID);
+
+            if(events.find(type) == events.end())
+                continue;
+
+            std::vector<float>& timestamps = events[type].timestamps;
+            std::vector<float>& values = events[type].values;
+
+            ImPlot::PlotScatter(NetworkEvent::name(type), timestamps.data(), values.data(), values.size());
+        }
+
+        std::vector<PacketLifecycle>& packetLives = clientPacketLifecycles[client.id];
+        for(auto& lifecycle : packetLives) {
+            float times[2] = { lifecycle.edges.first.x, lifecycle.edges.second.x };
+            float values[2] = { lifecycle.edges.first.y, lifecycle.edges.second.y };
+            ImPlot::PlotLine("", times, values, 2);
+        }
+
+
+        {
+            ImPlotPoint mouse = ImPlot::GetPlotMousePos();
+
+            const PacketLifecycle* closestToMouse = getClosest(packetLives, mouse.x, mouse.y);
+
+            if(closestToMouse != nullptr) {
+                ImGui::BeginTooltip();
+                ImGui::TextColored(TITLE_COLOR, "Informations du packet");
+
+                const auto& firstPoint = closestToMouse->edges.first;
+                const auto& secondPoint = closestToMouse->edges.second;
+                long delay = static_cast<long>((secondPoint.x-firstPoint.x)*1000);
+                ImGui::Text("N° de packet: %llu", closestToMouse->packetIndex);
+                ImGui::Text("Délai: %ldms", delay);
+                float dy1 = abs(mouse.y-firstPoint.y);
+                float dy2 = abs(mouse.y-secondPoint.y);
+                float closestPointY;
+                if(dy1 < dy2) {
+                    closestPointY = firstPoint.y;
+                } else {
+                    closestPointY = secondPoint.y;
+                }
+                const auto& packetType = static_cast<NetworkEvent::Type>(static_cast<int>(closestPointY));
+                ImGui::Text("Type de packet: %s", NetworkEvent::name(packetType));
+                ImGui::EndTooltip();
+            }
+        }
+
+        ImPlot::EndPlot();
+    }
 }
 
 void Interface::pollEvents(sf::Window& window) {

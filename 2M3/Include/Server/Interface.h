@@ -35,4 +35,6 @@ public:
     static void linkPackets(const UdpClient &client, const NetworkEvent::Event &event,
                             const std::map<NetworkEvent::Type, Interface::CompiledEvents> &eventMap,
                             const NetworkEvent::Type typeToLinkTo);
+
+    static void renderGraph(const UdpClient &client);
 };
