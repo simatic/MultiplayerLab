@@ -10,17 +10,25 @@ enum PacketID: sf::Uint32 {
     // TODO
 };
 
+/// > 0 for server-generated indices
+/// < 0 for client-generated
+/// Used to keep track of sequences (Client sends A->Upon reception, the Server sends B as an answer with the same PacketSequenceIndex)
+typedef sf::Int64 PacketSequenceIndex;
+
 class Packet {
 private:
     /// used to represent a packet inside the server interface
-    sf::Uint64 index;
+    /// > 0 for server-generated indices
+    /// < 0 for client-generated
+    /// Used to keep track of sequences (Client sends A->Upon reception, the Server sends B as an answer with the same PacketSequenceIndex)
+    PacketSequenceIndex sequenceIndex;
 
 protected:
-    explicit Packet(sf::Uint64 index);
+    explicit Packet(PacketSequenceIndex index);
 
 public:
     /// used to represent a packet inside the server interface
-    sf::Uint64 getIndex() const;
+    PacketSequenceIndex getSequenceIndex() const;
 
     /// What is this packet supposed to do?
     virtual std::unique_ptr<Packet> handle() const = 0;
@@ -35,10 +43,10 @@ public:
 
     // static members
 private:
-    static sf::Uint64 packetIndexCounter;
+    static PacketSequenceIndex packetIndexCounter;
 
 public:
-    static sf::Uint64 newPacketIndex();
+    static PacketSequenceIndex newPacketIndex();
 };
 
 std::unique_ptr<Packet> deserializePacket(sf::Packet& packet);

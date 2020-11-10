@@ -18,14 +18,14 @@ PingPacket::PingPacket(sf::Uint64 index, sf::Packet &source): Packet(index), tim
 
 std::unique_ptr<Packet> PingPacket::handle() const {
     // send pong packet with client timestamp to measure ping on its side
-    return std::make_unique<PongPacket>(timestamp);
+    return std::make_unique<PongPacket>(getSequenceIndex(), timestamp);
 }
 
 void PingPacket::write(sf::Packet &destination) const {
     destination << timestamp;
 }
 
-PongPacket::PongPacket(unsigned long long clientTimestamp): Packet(Packet::newPacketIndex()), clientTimestamp(clientTimestamp) {}
+PongPacket::PongPacket(sf::Uint64 pingPacketId, unsigned long long clientTimestamp): Packet(pingPacketId), clientTimestamp(clientTimestamp) {}
 
 PongPacket::PongPacket(sf::Uint64 index, sf::Packet &source): Packet(index), clientTimestamp(0) {
     source >> clientTimestamp;
