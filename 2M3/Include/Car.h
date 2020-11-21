@@ -31,7 +31,6 @@ protected:
 
 private:
 	const TextureHolder& mTextures;
-	sf::Sprite mSprite;
 
 	sf::RectangleShape mHpBackgroundBar;
 	sf::RectangleShape mHpBar;

@@ -5,6 +5,8 @@
 #include <PickUp.h>
 #include "ResourceHolder.h"
 #include "NetworkCommon.h"
+#include "Common/Components/Sprite.h"
+#include "Common/Systems/RenderSystem.h"
 #include <math.h>
 
 
@@ -98,8 +100,6 @@ void Car::draw(sf::RenderTarget& target)
 	target.draw(mTires);
 	mDust.draw(target);
 
-	target.draw(mSprite);
-
 	mHpBackgroundBar.setPosition(mTransform.position + sf::Vector2f(0, 50));
 	target.draw(mHpBackgroundBar);
 	float hpWidth = mHpBackgroundBar.getSize().x;
@@ -108,6 +108,8 @@ void Car::draw(sf::RenderTarget& target)
 	mHpBar.setPosition(mHpBackgroundBar.getPosition() - sf::Vector2f(hpWidth / 2.f, hpHeight / 2.f));
 	mHpBar.setSize(sf::Vector2f(hpBarWidth, hpHeight));
 	target.draw(mHpBar);
+
+	RenderSystem::render(this, target, mTransform);
 
 	//draw hitbox
 	/*sf::VertexArray hitbox = sf::VertexArray(sf::Quads, 4);
@@ -152,10 +154,14 @@ bool Car::getShowMap()
 
 void Car::setSprite()
 {
-	mSprite.setTexture(mTextures.get(Textures::Car)); mSprite.setScale(sf::Vector2f(0.132f, 0.132f));
+	sf::Sprite s = sf::Sprite(mTextures.get(Textures::Car));
+	s.setScale(sf::Vector2f(0.132f, 0.132f));
 
-	sf::FloatRect bounds = mSprite.getLocalBounds();
-	mSprite.setOrigin(bounds.width / 2, bounds.height / 2);
+	sf::FloatRect bounds = s.getLocalBounds();
+	s.setOrigin(bounds.width / 2, bounds.height / 2);
+
+	Sprite sprite = Sprite(s);
+	addComponent<Sprite>(sprite);
 }
 
 void Car::instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<OldEntity*>& newEntities)

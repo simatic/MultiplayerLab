@@ -1,4 +1,5 @@
 #include "GameState.h"
+#include <iostream>
 
 #include <SFML/Graphics/RenderWindow.hpp>
 

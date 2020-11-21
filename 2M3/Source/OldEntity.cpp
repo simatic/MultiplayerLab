@@ -34,7 +34,7 @@ void OldEntity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEn
 void OldEntity::draw(sf::RenderTarget& target)
 {
 	//target.draw(mCollider.shape);
-	RenderSystem::render(target, mTransform, Sprite(mSprite));
+	RenderSystem::render(this, target, mTransform);
 }
 
 sf::Vector2f& OldEntity::getPosition()

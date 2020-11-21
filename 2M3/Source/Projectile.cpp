@@ -1,6 +1,8 @@
 #include <Projectile.h>
 #include <Car.h>
 #include "ResourceHolder.h"
+#include "Common/Components/Sprite.h"
+#include "Common/Systems/RenderSystem.h"
 
 Projectile::Projectile(int dmg, sf::Time lifetime, float speed, sf::Vector2f pos, sf::Vector2f direction, sf::RectangleShape rect, Car* car, const TextureHolder& textures) :
 	ProjectileLogic(dmg, lifetime, speed, pos, direction, rect, car),
@@ -18,11 +20,16 @@ Projectile::Projectile(int dmg, sf::Time lifetime, float speed, float detection,
 
 void Projectile::setSprite()
 {
-	if (mGuided) { mSprite.setTexture(mTextures.get(Textures::Missile)); mSprite.setScale(sf::Vector2f(1.2f, 1.45f)); }
-	else { mSprite.setTexture(mTextures.get(Textures::Bullet)); mSprite.setScale(sf::Vector2f(0.5f, 0.5f)); }
+	sf::Sprite s = sf::Sprite();
 
-	sf::FloatRect bounds = mSprite.getLocalBounds();
-	mSprite.setOrigin(bounds.width / 2, bounds.height / 2);
+	if (mGuided) { s.setTexture(mTextures.get(Textures::Missile)); s.setScale(sf::Vector2f(1.2f, 1.45f)); }
+	else { s.setTexture(mTextures.get(Textures::Bullet)); s.setScale(sf::Vector2f(0.5f, 0.5f)); }
+
+	sf::FloatRect bounds = s.getLocalBounds();
+	s.setOrigin(bounds.width / 2, bounds.height / 2);
+
+	Sprite sprite = Sprite(s);
+	addComponent<Sprite>(sprite);
 }
 
 void Projectile::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
@@ -35,5 +42,5 @@ void Projectile::update(sf::Time dt, std::vector<OldEntity*> entities, std::vect
 
 void Projectile::draw(sf::RenderTarget& target)
 {
-	target.draw(mSprite);
+	RenderSystem::render(this, target, mTransform);
 }

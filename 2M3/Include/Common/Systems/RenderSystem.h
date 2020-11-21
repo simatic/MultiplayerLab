@@ -3,9 +3,10 @@
 #include "Common/Systems/System.h"
 #include "../Components/Sprite.h"
 #include "../Components/Transform.h"
+#include "OldEntity.h"
 
 class RenderSystem : public SignedSystem<Transform, Sprite>
 {
 public:
-	static void render(sf::RenderTarget& target, Transform transform, Sprite sprite);
+	static void render(OldEntity* entity, sf::RenderTarget& target, Transform transform);
 };
