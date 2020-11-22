@@ -35,9 +35,6 @@ void Projectile::setSprite()
 void Projectile::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
 	ProjectileLogic::update(dt, entities, newEntities, pairs);
-
-	mSprite.setPosition(getPosition());
-	mSprite.setRotation(getRotation());
 }
 
 void Projectile::draw(sf::RenderTarget& target)

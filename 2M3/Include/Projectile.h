@@ -18,6 +18,4 @@ public:
 
 private:
 	const TextureHolder&	mTextures;
-
-	sf::Sprite				mSprite;
 };
