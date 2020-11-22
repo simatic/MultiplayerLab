@@ -6,7 +6,6 @@
 
 OldEntity::OldEntity(sf::Vector2f pos, sf::RectangleShape rect) :
 	mVelocity(0.0f, 0.0f),
-	mCollider(rect),
 	mType(Type::Count),
 	mToRemove(false),
 	mID(0)
@@ -14,9 +13,10 @@ OldEntity::OldEntity(sf::Vector2f pos, sf::RectangleShape rect) :
 	Transform t = Transform(pos, 0.0f);
 	addComponent<Transform>(t);
 
-	sf::FloatRect bounds = mCollider.shape.getLocalBounds();
-	mCollider.shape.setOrigin(bounds.width / 2, bounds.height / 2);
-
+	Collider c = Collider(rect);
+	sf::FloatRect bounds = c.shape.getLocalBounds();
+	c.shape.setOrigin(bounds.width / 2, bounds.height / 2);
+	addComponent<Collider>(c);
 }
 
 void OldEntity::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
@@ -25,9 +25,10 @@ void OldEntity::update(sf::Time dt, std::vector<OldEntity*> entities, std::vecto
 	MovementSystem::update(dt, this);
 
 	Transform* t = getComponent<Transform>();
+	Collider* c = getComponent<Collider>();
 
-	mCollider.shape.setPosition(t->position);
-	mCollider.shape.setRotation(t->rotation);
+	c->shape.setPosition(t->position);
+	c->shape.setRotation(t->rotation);
 }
 
 void OldEntity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
@@ -37,7 +38,7 @@ void OldEntity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEn
 
 void OldEntity::draw(sf::RenderTarget& target)
 {
-	//target.draw(mCollider.shape);
+	//target.draw(getCollider().shape);
 	RenderSystem::render(this, target, *getComponent<Transform>());
 }
 
@@ -65,7 +66,7 @@ sf::Vector2f OldEntity::getVelocity()
 
 Collider& OldEntity::getCollider()
 {
-	return mCollider;
+	return *getComponent<Collider>();
 }
 
 OldEntity::Type OldEntity::getType()
@@ -105,7 +106,7 @@ void OldEntity::unremove()
 
 Rectangle OldEntity::getRectangle()
 {
-	sf::FloatRect baseRect = mCollider.shape.getLocalBounds();
+	sf::FloatRect baseRect = getCollider().shape.getLocalBounds();
 	std::vector<sf::Vector2f> points;
 	float halfW = baseRect.width / 2.f;
 	float halfH = baseRect.height / 2.f;
@@ -116,10 +117,10 @@ Rectangle OldEntity::getRectangle()
 
 	for (int i = 0; i < 4; i++)
 	{
-		points[i].x *= mCollider.shape.getScale().x;
-		points[i].y *= mCollider.shape.getScale().y;
-		points[i] = rotate(points[i], -toRadians(mCollider.shape.getRotation()));
-		points[i] += mCollider.shape.getPosition();
+		points[i].x *= getCollider().shape.getScale().x;
+		points[i].y *= getCollider().shape.getScale().y;
+		points[i] = rotate(points[i], -toRadians(getCollider().shape.getRotation()));
+		points[i] += getCollider().shape.getPosition();
 	}
 
 	Rectangle rect;

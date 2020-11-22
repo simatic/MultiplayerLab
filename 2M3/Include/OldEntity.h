@@ -68,7 +68,6 @@ protected:
 	sf::Vector2f		mVelocity;
 
 	sf::Sprite			mSprite;
-	Collider			mCollider;
 
 	Type				mType;
 
