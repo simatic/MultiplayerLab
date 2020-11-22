@@ -62,9 +62,6 @@ void Car::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldE
 
 	mDust.setPosition(getPosition() - (float)20 * mCarDirection);
 	mDust.update(dt);
-
-	mSprite.setPosition(getPosition());
-	mSprite.setRotation(getRotation());
 }
 
 void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
@@ -76,9 +73,6 @@ void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*>
 
 	mDust.setPosition(getPosition() - (float)20 * mCarDirection);
 	mDust.update(dt);
-
-	mSprite.setPosition(getPosition());
-	mSprite.setRotation(getRotation());
 }
 
 void Car::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
