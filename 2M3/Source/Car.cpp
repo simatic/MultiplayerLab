@@ -14,11 +14,14 @@
 Car::Car(const TextureHolder& textures) :
 	CarLogic(),
 	mShowMap(false),
-	mTrajectory(),
 	mTextures(textures),
 	mDust(sf::Color::White, sf::seconds(0.7))
 {
 	setSprite();
+
+	Trajectory tr = Trajectory();
+	tr.trajectory[0].position = getPosition();
+	addComponent<Trajectory>(tr);
 }
 
 Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder& textures) :
@@ -28,7 +31,6 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder&
 Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, const TextureHolder& textures) :
 	CarLogic(hp, pos, rect, keys),
 	mShowMap(false),
-	mTrajectory(),
 	mTextures(textures),
 	mDust(sf::Color::White, sf::seconds(0.7))
 {

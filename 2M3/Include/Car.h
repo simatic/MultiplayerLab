@@ -35,7 +35,6 @@ private:
 	sf::RectangleShape mHpBackgroundBar;
 	sf::RectangleShape mHpBar;
 
-	sf::VertexArray mTires;
 	Particles mDust;
 
 	bool mShowMap;
