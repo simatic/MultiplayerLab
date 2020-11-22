@@ -2,7 +2,7 @@
 
 WallLogic::WallLogic(sf::Vector2f position, sf::RectangleShape colliderShape) :
     OldEntity(position, std::move(colliderShape)) {
-    mCollider.shape.setPosition(mTransform.position + mCollider.shape.getSize() / 2.0f);
+    mCollider.shape.setPosition(getPosition() + mCollider.shape.getSize() / 2.0f);
 }
 
 // don't do anything on collision

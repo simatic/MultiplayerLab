@@ -212,7 +212,7 @@ void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 	if (mCarDirection.x != 0) carAngle = -atan2(mCarDirection.y, mCarDirection.x);
 	if (mCarDirection.x == 0 && mCarDirection.y != 0) carAngle = M_PI_2 * mCarDirection.y / abs(mCarDirection.y);
 	if (mDrifting) carAngle += angleSign * engine.driftAngle;
-	mTransform.rotation = -carAngle * 180.0 / M_PI;
+	getRotation() = -carAngle * 180.0 / M_PI;
 
 	sf::Vector2f projDir = mCarDirection;
 	if (mDrifting) projDir = rotate(projDir, angleSign * engine.driftAngle);
@@ -222,7 +222,7 @@ void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 		mLaunchedMissile = false;
 		mMissileAmmo--;
 
-		ProjectileLogic* proj = mInstanciateMissile(mTransform.position, projDir);
+		ProjectileLogic* proj = mInstanciateMissile(getPosition(), projDir);
 		newEntities.push_back(proj);
 	}
 
@@ -236,7 +236,7 @@ void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 			{
 				mCurrentShootDelay = mShootDelay;
 
-				instanciateBullet(mTransform.position, projDir, newEntities);
+				instanciateBullet(getPosition(), projDir, newEntities);
 			}
 			break;
 		}
@@ -286,8 +286,8 @@ bool CarLogic::needsEventInput()
 
 void CarLogic::cleanUp(sf::Vector2f worldSize, sf::Time dt)
 {
-	if (mTransform.position.x > worldSize.x || mTransform.position.x < 0) mTransform.position.x -= mVelocity.x * dt.asSeconds();
-	if (mTransform.position.y > worldSize.y || mTransform.position.y < 0) mTransform.position.y -= mVelocity.y * dt.asSeconds();
+	if (getPosition().x > worldSize.x || getPosition().x < 0) getPosition().x -= mVelocity.x * dt.asSeconds();
+	if (getPosition().y > worldSize.y || getPosition().y < 0) getPosition().y -= mVelocity.y * dt.asSeconds();
 
 	mPrevCollidedWith = mCollidedWith;
 	mCollidedWith.clear();
@@ -407,13 +407,13 @@ void CarLogic::computeDeadReckoning(sf::Vector2f newPosition, sf::Vector2f newVe
 
 	for (int i = 0; i < numberOfSteps; i++)
 	{
-		mTrajectory.push({ mTransform.position + ((1.f / (numberOfSteps - i)) * (newPosition - mTransform.position)), mVelocity + ((1.f / (numberOfSteps - i)) * (newVelocity - mVelocity)), mCarDirection + ((1.f / (numberOfSteps - i)) * (newCarDirection - mCarDirection)) });
+		mTrajectory.push({ getPosition() + ((1.f / (numberOfSteps - i)) * (newPosition - getPosition())), mVelocity + ((1.f / (numberOfSteps - i)) * (newVelocity - mVelocity)), mCarDirection + ((1.f / (numberOfSteps - i)) * (newCarDirection - mCarDirection)) });
 	}
 }
 
 void CarLogic::stepUpDeadReckoning()
 {
-	mTransform.position = mTrajectory.front().position;
+	getPosition() = mTrajectory.front().position;
 	mVelocity = mTrajectory.front().velocity;
 	mCarDirection = mTrajectory.front().direction;
 	mTrajectory.pop();

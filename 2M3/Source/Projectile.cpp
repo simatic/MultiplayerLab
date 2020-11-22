@@ -22,7 +22,7 @@ void Projectile::setSprite()
 {
 	sf::Sprite s = sf::Sprite();
 
-	if (mGuided) { s.setTexture(mTextures.get(Textures::Missile)); s.setScale(sf::Vector2f(1.2f, 1.45f)); }
+	if (getComponent<Bullet>()->guided) { s.setTexture(mTextures.get(Textures::Missile)); s.setScale(sf::Vector2f(1.2f, 1.45f)); }
 	else { s.setTexture(mTextures.get(Textures::Bullet)); s.setScale(sf::Vector2f(0.5f, 0.5f)); }
 
 	sf::FloatRect bounds = s.getLocalBounds();
@@ -36,11 +36,11 @@ void Projectile::update(sf::Time dt, std::vector<OldEntity*> entities, std::vect
 {
 	ProjectileLogic::update(dt, entities, newEntities, pairs);
 
-	mSprite.setPosition(mTransform.position);
-	mSprite.setRotation(mTransform.rotation);
+	mSprite.setPosition(getPosition());
+	mSprite.setRotation(getRotation());
 }
 
 void Projectile::draw(sf::RenderTarget& target)
 {
-	RenderSystem::render(this, target, mTransform);
+	RenderSystem::render(this, target, *getComponent<Transform>());
 }

@@ -35,7 +35,7 @@ public:
 	virtual void		cleanUp(sf::Vector2f worldSize, sf::Time dt);
 
 	sf::Vector2f&		getPosition();
-	float				getRotation();
+	float&				getRotation();
 	sf::Vector2f		getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f mapSize);
 	sf::Vector2f		getVelocity();
 	Collider&			getCollider();
@@ -48,6 +48,7 @@ public:
 	void				offset(sf::Vector2f o);
 	void				setVelocity(sf::Vector2f v);
 
+	void				setToRemove(bool toRemove);
 	bool				toRemove();
 	void				remove();
 	void				unremove();
@@ -64,7 +65,6 @@ public:
 	void removeComponent();
 
 protected:
-	Transform			mTransform;
 	sf::Vector2f		mVelocity;
 
 	sf::Sprite			mSprite;

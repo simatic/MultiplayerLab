@@ -18,12 +18,5 @@ public:
 	bool isGuided();
 
 protected:
-	Bullet bullet;
-
-	bool mGuided;
-	OldEntity* mTarget;
-	float mDetectionRange;
-	float mGuideRate;
-
 	CarLogic* mCar;
 };

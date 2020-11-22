@@ -1,35 +1,33 @@
 #include <ProjectileLogic.h>
 #include <Car.h>
+#include "Common/Components/Bullet.h"
+#include "Common/Systems/BulletSystem.h"
 
 ProjectileLogic::ProjectileLogic(int dmg, sf::Time lifetime, float speed, sf::Vector2f pos, sf::Vector2f direction, sf::RectangleShape rect, CarLogic* car) :
 	OldEntity(pos, rect),
-	bullet(dmg, speed, lifetime),
-	mGuided(false),
-	mTarget(nullptr),
-	mDetectionRange(0),
-	mGuideRate(0),
 	mCar(car)
 {
+	Bullet b = Bullet(dmg, speed, lifetime, false, nullptr, 0, 0);
+	addComponent<Bullet>(b);
+
 	mVelocity = speed * direction;
 	mType = Type::ProjectileType;
 }
 
 ProjectileLogic::ProjectileLogic(int dmg, sf::Time lifetime, float speed, float detection, sf::Vector2f pos, sf::Vector2f direction, sf::RectangleShape rect, CarLogic* car) :
 	OldEntity(pos, rect),
-	bullet(dmg, speed, lifetime),
-	mGuided(true),
-	mTarget(nullptr),
-	mDetectionRange(detection),
-	mGuideRate(0.3),
 	mCar(car)
 {
+	Bullet b = Bullet(dmg, speed, lifetime, true, nullptr, detection, 0.3);
+	addComponent<Bullet>(b);
+
 	mVelocity = speed * direction;
 	mType = Type::ProjectileType;
 }
 
 int ProjectileLogic::getDamage()
 {
-	return bullet.damage;
+	return getComponent<Bullet>()->damage;
 }
 
 void ProjectileLogic::onCollision(OldEntity* other)
@@ -51,7 +49,7 @@ void ProjectileLogic::onCollision(OldEntity* other)
 			break;
 		}
 
-		otherCar->damage(bullet.damage);
+		otherCar->damage(getDamage());
 		remove();
 		break;
 	}
@@ -68,49 +66,11 @@ CarLogic* ProjectileLogic::getCar()
 
 bool ProjectileLogic::isGuided()
 {
-	return mGuided;
+	return getComponent<Bullet>()->guided;
 }
 
 void ProjectileLogic::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
-	bullet.lifetime -= dt;
-	if (bullet.lifetime < sf::Time::Zero)
-	{
-		mToRemove = true;
-	}
-	//mTransform.rotation = mCar->getRotation();
-
-	if (mTarget != nullptr && mTarget->toRemove()) mTarget = nullptr;
-
-	if (mGuided)
-	{
-		if (mTarget != nullptr)
-		{
-			sf::Vector2f acceleration = unitVector(mTarget->getPosition() - mTransform.position);
-			sf::Vector2f velocity = unitVector(unitVector(mVelocity) + mGuideRate * acceleration) * bullet.maxSpeed;
-			setVelocity(velocity);
-		}
-		else
-		{
-			float minDist = mDetectionRange;
-			OldEntity* target = nullptr;
-			for (const auto ent : entities)
-			{
-				float dist = length(mTransform.position - ent->getPosition());
-				if (dist < minDist && ent->getType() == Type::CarType && ent != mCar)
-				{
-					minDist = dist;
-					target = ent;
-				}
-			}
-			mTarget = target;
-		}
-	}
-
-	float angle = 0;
-	if (mVelocity.x != 0) angle = -atan2(mVelocity.y, mVelocity.x);
-	if (mVelocity.x == 0 && mVelocity.y != 0) angle = M_PI_2 * mVelocity.y / abs(mVelocity.y);
-	mTransform.rotation = -toDegrees(angle);
-
+	BulletSystem::update(dt, this, entities, pairs);
 	OldEntity::update(dt, entities, newEntities, pairs);
 }

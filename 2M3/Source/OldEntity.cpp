@@ -5,13 +5,15 @@
 #include "ResourceHolder.h"
 
 OldEntity::OldEntity(sf::Vector2f pos, sf::RectangleShape rect) :
-	mTransform(pos, 0.0f),
 	mVelocity(0.0f, 0.0f),
 	mCollider(rect),
 	mType(Type::Count),
 	mToRemove(false),
 	mID(0)
 {
+	Transform t = Transform(pos, 0.0f);
+	addComponent<Transform>(t);
+
 	sf::FloatRect bounds = mCollider.shape.getLocalBounds();
 	mCollider.shape.setOrigin(bounds.width / 2, bounds.height / 2);
 
@@ -22,8 +24,10 @@ void OldEntity::update(sf::Time dt, std::vector<OldEntity*> entities, std::vecto
 	CollisionSystem::update(dt, this, entities, pairs);
 	MovementSystem::update(dt, this);
 
-	mCollider.shape.setPosition(mTransform.position);
-	mCollider.shape.setRotation(mTransform.rotation);
+	Transform* t = getComponent<Transform>();
+
+	mCollider.shape.setPosition(t->position);
+	mCollider.shape.setRotation(t->rotation);
 }
 
 void OldEntity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
@@ -34,23 +38,23 @@ void OldEntity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEn
 void OldEntity::draw(sf::RenderTarget& target)
 {
 	//target.draw(mCollider.shape);
-	RenderSystem::render(this, target, mTransform);
+	RenderSystem::render(this, target, *getComponent<Transform>());
 }
 
 sf::Vector2f& OldEntity::getPosition()
 {
-	return mTransform.position;
+	return getComponent<Transform>()->position;
 }
 
-float OldEntity::getRotation()
+float& OldEntity::getRotation()
 {
-	return mTransform.rotation;
+	return getComponent<Transform>()->rotation;
 }
 
 sf::Vector2f OldEntity::getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f mapSize)
 {
-	float x = mapSize.x * mTransform.position.x / worldSize.x;
-	float y = mapSize.y *  mTransform.position.y / worldSize.y;
+	float x = mapSize.x * getPosition().x / worldSize.x;
+	float y = mapSize.y *  getPosition().y / worldSize.y;
 	return sf::Vector2f(x, y);
 }
 
@@ -71,12 +75,17 @@ OldEntity::Type OldEntity::getType()
 
 void OldEntity::offset(sf::Vector2f o)
 {
-	mTransform.position += o;
+	getPosition() += o;
 }
 
 void OldEntity::setVelocity(sf::Vector2f v)
 {
 	mVelocity = v;
+}
+
+void OldEntity::setToRemove(bool toRemove)
+{
+	mToRemove = toRemove;
 }
 
 bool OldEntity::toRemove()
@@ -140,5 +149,5 @@ void OldEntity::setID(sf::Uint64 id)
 
 void OldEntity::setPosition(sf::Vector2f p)
 {
-	mTransform.position = p;
+	getPosition() = p;
 }

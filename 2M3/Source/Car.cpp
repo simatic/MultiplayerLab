@@ -34,7 +34,7 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, co
 	setSprite();
 
 	mTires = sf::VertexArray(sf::Lines, 1);
-	mTires[0].position = mTransform.position;
+	mTires[0].position = getPosition();
 
 	mHpBackgroundBar = sf::RectangleShape(sf::Vector2f(40, 10));
 	mHpBackgroundBar.setFillColor(sf::Color(127, 127, 127));
@@ -57,28 +57,28 @@ void Car::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldE
 {
 	CarLogic::update(dt, entities, newEntities, pairs);
 
-	mTires.append(sf::Vertex(mTransform.position - (float)20 * mCarDirection));
-	mTires.append(sf::Vertex(mTransform.position - (float)20 * mCarDirection));
+	mTires.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
+	mTires.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
 
-	mDust.setPosition(mTransform.position - (float)20 * mCarDirection);
+	mDust.setPosition(getPosition() - (float)20 * mCarDirection);
 	mDust.update(dt);
 
-	mSprite.setPosition(mTransform.position);
-	mSprite.setRotation(mTransform.rotation);
+	mSprite.setPosition(getPosition());
+	mSprite.setRotation(getRotation());
 }
 
 void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
 	CarLogic::serverUpdate(serverTime, dt, entities, newEntities, pairs);
 
-	mTires.append(sf::Vertex(mTransform.position - (float)20 * mCarDirection));
-	mTires.append(sf::Vertex(mTransform.position - (float)20 * mCarDirection));
+	mTires.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
+	mTires.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
 
-	mDust.setPosition(mTransform.position - (float)20 * mCarDirection);
+	mDust.setPosition(getPosition() - (float)20 * mCarDirection);
 	mDust.update(dt);
 
-	mSprite.setPosition(mTransform.position);
-	mSprite.setRotation(mTransform.rotation);
+	mSprite.setPosition(getPosition());
+	mSprite.setRotation(getRotation());
 }
 
 void Car::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
@@ -100,7 +100,7 @@ void Car::draw(sf::RenderTarget& target)
 	target.draw(mTires);
 	mDust.draw(target);
 
-	mHpBackgroundBar.setPosition(mTransform.position + sf::Vector2f(0, 50));
+	mHpBackgroundBar.setPosition(getPosition() + sf::Vector2f(0, 50));
 	target.draw(mHpBackgroundBar);
 	float hpWidth = mHpBackgroundBar.getSize().x;
 	float hpHeight = mHpBackgroundBar.getSize().y;
@@ -109,7 +109,7 @@ void Car::draw(sf::RenderTarget& target)
 	mHpBar.setSize(sf::Vector2f(hpBarWidth, hpHeight));
 	target.draw(mHpBar);
 
-	RenderSystem::render(this, target, mTransform);
+	RenderSystem::render(this, target, *getComponent<Transform>());
 
 	//draw hitbox
 	/*sf::VertexArray hitbox = sf::VertexArray(sf::Quads, 4);
