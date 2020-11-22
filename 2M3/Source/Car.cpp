@@ -6,6 +6,7 @@
 #include "ResourceHolder.h"
 #include "NetworkCommon.h"
 #include "Common/Components/Sprite.h"
+#include "Common/Components/Trajectory.h"
 #include "Common/Systems/RenderSystem.h"
 #include <math.h>
 
@@ -33,8 +34,9 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, co
 {
 	setSprite();
 
-	mTires = sf::VertexArray(sf::Lines, 1);
-	mTires[0].position = getPosition();
+	Trajectory tr = Trajectory();
+	tr.trajectory[0].position = getPosition();
+	addComponent<Trajectory>(tr);
 
 	mHpBackgroundBar = sf::RectangleShape(sf::Vector2f(40, 10));
 	mHpBackgroundBar.setFillColor(sf::Color(127, 127, 127));
@@ -57,8 +59,8 @@ void Car::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldE
 {
 	CarLogic::update(dt, entities, newEntities, pairs);
 
-	mTires.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
-	mTires.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
+	getComponent<Trajectory>()->trajectory.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
+	getComponent<Trajectory>()->trajectory.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
 
 	mDust.setPosition(getPosition() - (float)20 * mCarDirection);
 	mDust.update(dt);
@@ -68,8 +70,8 @@ void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*>
 {
 	CarLogic::serverUpdate(serverTime, dt, entities, newEntities, pairs);
 
-	mTires.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
-	mTires.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
+	getComponent<Trajectory>()->trajectory.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
+	getComponent<Trajectory>()->trajectory.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
 
 	mDust.setPosition(getPosition() - (float)20 * mCarDirection);
 	mDust.update(dt);
@@ -91,7 +93,7 @@ void Car::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 
 void Car::draw(sf::RenderTarget& target)
 {
-	target.draw(mTires);
+	target.draw(getComponent<Trajectory>()->trajectory);
 	mDust.draw(target);
 
 	mHpBackgroundBar.setPosition(getPosition() + sf::Vector2f(0, 50));
