@@ -67,8 +67,6 @@ public:
 protected:
 	sf::Vector2f		mVelocity;
 
-	sf::Sprite			mSprite;
-
 	Type				mType;
 
 	bool				mToRemove;
