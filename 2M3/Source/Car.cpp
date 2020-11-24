@@ -7,23 +7,28 @@
 #include "NetworkCommon.h"
 #include "Common/Components/Sprite.h"
 #include "Common/Components/Trajectory.h"
+#include "Common/Components/Particles.h"
 #include "Common/Systems/RenderSystem.h"
-#include "Common/Systems/RenderTrajectorySystem.h"
 #include "Common/Systems/TrajectorySystem.h"
+#include "Common/Systems/RenderTrajectorySystem.h"
+#include "Common/Systems/ParticleSystem.h"
+#include "Common/Systems/RenderParticleSystem.h"
 #include <math.h>
 
 
 Car::Car(const TextureHolder& textures) :
 	CarLogic(),
 	mShowMap(false),
-	mTextures(textures),
-	mDust(sf::Color::White, sf::seconds(0.7))
+	mTextures(textures)
 {
 	setSprite();
 
 	Trajectory tr = Trajectory();
 	tr.trajectory[0].position = getPosition();
 	addComponent<Trajectory>(tr);
+
+	Particles particles = Particles(sf::Vector2f(0, 0), sf::Color::White, sf::seconds(0.7), sf::seconds(1.0 / 40.0));
+	addComponent<Particles>(particles);
 }
 
 Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder& textures) :
@@ -33,14 +38,16 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder&
 Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, const TextureHolder& textures) :
 	CarLogic(hp, pos, rect, keys),
 	mShowMap(false),
-	mTextures(textures),
-	mDust(sf::Color::White, sf::seconds(0.7))
+	mTextures(textures)
 {
 	setSprite();
 
 	Trajectory tr = Trajectory();
 	tr.trajectory[0].position = getPosition();
 	addComponent<Trajectory>(tr);
+
+	Particles particles = Particles(sf::Vector2f(0, 0), sf::Color::White, sf::seconds(0.7), sf::seconds(1.0 / 40.0));
+	addComponent<Particles>(particles);
 
 	mHpBackgroundBar = sf::RectangleShape(sf::Vector2f(40, 10));
 	mHpBackgroundBar.setFillColor(sf::Color(127, 127, 127));
@@ -63,18 +70,14 @@ void Car::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldE
 {
 	CarLogic::update(dt, entities, newEntities, pairs);
 	TrajectorySystem::update(this);
-
-	mDust.setPosition(getPosition() - (float)20 * mCarDirection);
-	mDust.update(dt);
+	ParticleSystem::update(this, dt);
 }
 
 void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
 	CarLogic::serverUpdate(serverTime, dt, entities, newEntities, pairs);
 	TrajectorySystem::update(this);
-
-	mDust.setPosition(getPosition() - (float)20 * mCarDirection);
-	mDust.update(dt);
+	ParticleSystem::update(this, dt);
 }
 
 void Car::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
@@ -94,7 +97,7 @@ void Car::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 void Car::draw(sf::RenderTarget& target)
 {
 	RenderTrajectorySystem::render(this, target);
-	mDust.draw(target);
+	RenderParticleSystem::render(target, this);
 
 	mHpBackgroundBar.setPosition(getPosition() + sf::Vector2f(0, 50));
 	target.draw(mHpBackgroundBar);

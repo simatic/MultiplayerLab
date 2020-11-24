@@ -2,17 +2,17 @@
 #include <SFML/Graphics.hpp>
 #include <deque>
 
-struct Particle
+struct OldParticle
 {
 	sf::Vector2f	position;
 	sf::Color		color;
 	sf::Time		lifetime;
 };
 
-class Particles
+class OldParticles
 {
 public:
-	Particles(sf::Color color, sf::Time life);
+	OldParticles(sf::Color color, sf::Time life);
 
 	void update(sf::Time dt);
 	void draw(sf::RenderTarget& target);
@@ -25,7 +25,7 @@ public:
 private:
 	sf::Vector2f			mPosition;
 
-	std::deque<Particle>	mParticles;
+	std::deque<OldParticle>	mParticles;
 	sf::VertexArray			mVertexArray;
 
 	sf::Time				mSpawnDelay;

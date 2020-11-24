@@ -1,6 +1,6 @@
-#include <Particles.h>
+#include <OldParticles.h>
 
-Particles::Particles(sf::Color color, sf::Time life) :
+OldParticles::OldParticles(sf::Color color, sf::Time life) :
 	mColor(color),
 	mLifetime(life),
 	mVertexArray(sf::Quads),
@@ -8,14 +8,14 @@ Particles::Particles(sf::Color color, sf::Time life) :
 {
 }
 
-void Particles::update(sf::Time dt)
+void OldParticles::update(sf::Time dt)
 {
 	while (!mParticles.empty() && mParticles.front().lifetime <= sf::Time::Zero)
 	{
 		mParticles.pop_front();
 	}
 
-	for (Particle& particle : mParticles)
+	for (OldParticle& particle : mParticles)
 	{
 		particle.lifetime -= dt;
 	}
@@ -25,7 +25,7 @@ void Particles::update(sf::Time dt)
 	{
 		mCurrentDelay = mSpawnDelay;
 		
-		Particle particle;
+		OldParticle particle;
 		particle.position = mPosition;
 		particle.color = mColor;
 		particle.lifetime = mLifetime;
@@ -35,18 +35,18 @@ void Particles::update(sf::Time dt)
 
 }
 
-void Particles::draw(sf::RenderTarget& target)
+void OldParticles::draw(sf::RenderTarget& target)
 {
 	computeArray();
 	target.draw(mVertexArray);
 }
 
-void Particles::setPosition(sf::Vector2f pos)
+void OldParticles::setPosition(sf::Vector2f pos)
 {
 	mPosition = pos;
 }
 
-void Particles::addVertex(float x, float y, float width, float height, sf::Color& color)
+void OldParticles::addVertex(float x, float y, float width, float height, sf::Color& color)
 {
 	sf::Vertex vertex;
 	vertex.position = sf::Vector2f(x, y);
@@ -55,13 +55,13 @@ void Particles::addVertex(float x, float y, float width, float height, sf::Color
 	mVertexArray.append(vertex);
 }
 
-void Particles::computeArray()
+void OldParticles::computeArray()
 {
 	sf::Vector2f size(10, 10);
 	sf::Vector2f half = size / 2.f;
 
 	mVertexArray.clear();
-	for(const Particle& particle : mParticles)
+	for(const OldParticle& particle : mParticles)
 	{
 		sf::Vector2f pos = particle.position;
 		sf::Color color = particle.color;

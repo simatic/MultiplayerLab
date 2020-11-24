@@ -4,7 +4,6 @@
 #include "Renderable.h"
 #include <math.h>
 #include <KeyBinding.h>
-#include <Particles.h>
 #include <queue>
 
 class Car : public CarLogic, public Renderable
@@ -34,8 +33,6 @@ private:
 
 	sf::RectangleShape mHpBackgroundBar;
 	sf::RectangleShape mHpBar;
-
-	Particles mDust;
 
 	bool mShowMap;
 
