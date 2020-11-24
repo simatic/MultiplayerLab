@@ -8,6 +8,8 @@
 #include "Common/Components/Sprite.h"
 #include "Common/Components/Trajectory.h"
 #include "Common/Systems/RenderSystem.h"
+#include "Common/Systems/RenderTrajectorySystem.h"
+#include "Common/Systems/TrajectorySystem.h"
 #include <math.h>
 
 
@@ -60,9 +62,7 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, co
 void Car::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
 	CarLogic::update(dt, entities, newEntities, pairs);
-
-	getComponent<Trajectory>()->trajectory.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
-	getComponent<Trajectory>()->trajectory.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
+	TrajectorySystem::update(this);
 
 	mDust.setPosition(getPosition() - (float)20 * mCarDirection);
 	mDust.update(dt);
@@ -71,9 +71,7 @@ void Car::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldE
 void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
 	CarLogic::serverUpdate(serverTime, dt, entities, newEntities, pairs);
-
-	getComponent<Trajectory>()->trajectory.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
-	getComponent<Trajectory>()->trajectory.append(sf::Vertex(getPosition() - (float)20 * mCarDirection));
+	TrajectorySystem::update(this);
 
 	mDust.setPosition(getPosition() - (float)20 * mCarDirection);
 	mDust.update(dt);
@@ -95,7 +93,7 @@ void Car::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 
 void Car::draw(sf::RenderTarget& target)
 {
-	target.draw(getComponent<Trajectory>()->trajectory);
+	RenderTrajectorySystem::render(this, target);
 	mDust.draw(target);
 
 	mHpBackgroundBar.setPosition(getPosition() + sf::Vector2f(0, 50));
