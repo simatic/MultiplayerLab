@@ -31,7 +31,5 @@ protected:
 private:
 	const TextureHolder& mTextures;
 
-	bool mShowMap;
-
 	std::queue<SpatialVars> mTrajectory;
 };

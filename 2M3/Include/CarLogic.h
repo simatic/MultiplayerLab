@@ -29,15 +29,6 @@ struct SpatialVars
 class CarLogic : public OldEntity
 {
 public:
-	enum class CarAction
-	{
-		ShootBullet,
-		LaunchMissile,
-		ToggleMap,
-		ActionCount
-	};
-
-public:
 	CarLogic();
 	CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect);
 	CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys);
@@ -49,7 +40,6 @@ public:
 	virtual void useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities);
 	void crash(sf::Vector2f otherVelocity);
 	bool handleEvent(const sf::Event& event) override;
-	bool needsEventInput();
 	void cleanUp(sf::Vector2f worldSize, sf::Time dt) override;
 
 	void damage(int points);
@@ -76,12 +66,7 @@ protected:
 protected:
 	Inputs mInputs;
 
-	int mHP;
-	int mHpMax;
-
 	sf::Vector2f mCarDirection;
-
-	CarAction mAction;
 
 	int mMissileAmmo;
 

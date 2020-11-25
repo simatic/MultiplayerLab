@@ -20,7 +20,6 @@
 
 Car::Car(const TextureHolder& textures) :
 	CarLogic(),
-	mShowMap(false),
 	mTextures(textures)
 {
 	setSprite();
@@ -39,7 +38,6 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, const TextureHolder&
 
 Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, const TextureHolder& textures) :
 	CarLogic(hp, pos, rect, keys),
-	mShowMap(false),
 	mTextures(textures)
 {
 	setSprite();
@@ -86,15 +84,6 @@ void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*>
 void Car::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 {
 	CarLogic::useInputs(dt, newEntities);
-
-	if (mInputs.changeActionEvent)
-	{
-		mShowMap = false;
-	}
-	else if (mInputs.doActionEvent && needsEventInput() && mAction == CarLogic::CarAction::ToggleMap)
-	{
-		mShowMap = !mShowMap;
-	}
 }
 
 void Car::draw(sf::RenderTarget& target)
@@ -128,34 +117,9 @@ void Car::draw(sf::RenderTarget& target)
 
 std::string Car::getActionText()
 {
-	std::string res = "null";
-	switch (mAction)
-	{
-	case CarLogic::CarAction::ShootBullet:
-	{
-		res = "Shoot Bullets";
-		break;
-	}
-	case CarLogic::CarAction::LaunchMissile:
-	{
-		res = "Launch Missile (x" + std::to_string(mMissileAmmo) + ")";
-		break;
-	}
-	case CarLogic::CarAction::ToggleMap :
-	{
-		res = "Toggle Map";
-		break;
-	}
-	default:
-		break;
-	}
+	std::string res = "Shoot Bullets";
 
 	return res;
-}
-
-bool Car::getShowMap()
-{
-	return mShowMap;
 }
 
 void Car::setSprite()

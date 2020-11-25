@@ -22,7 +22,6 @@ CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding
 	mKeyBindings(keys),
 	mShootDelay(sf::seconds(0.1)),
 	mCrash(false),
-	mAction(CarAction::ShootBullet),
 	mLaunchedMissile(false),
 	mMissileAmmo(5),
 	mInputs({ false, false, false, false, false, false, false }),
@@ -99,37 +98,11 @@ void CarLogic::getInput(sf::Time serverTime)
 	}
 }
 
-inline CarLogic::CarAction operator++(CarLogic::CarAction& x)
-{
-	return x = (CarLogic::CarAction)(((int)(x)+1));
-}
-
 void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 {
 	CarInput* inputs = getComponent<CarInput>();
 	float l = length(mVelocity);
 
-	//events handling
-	if (inputs->changeActionEvent)
-	{
-		++mAction;
-		if (mAction == CarAction::ActionCount) mAction = (CarAction)0;
-	}
-	else if (inputs->doActionEvent && needsEventInput())
-	{
-		switch (mAction)
-		{
-		case CarLogic::CarAction::LaunchMissile:
-		{
-			if (!mLaunchedMissile && mMissileAmmo > 0) mLaunchedMissile = true;
-			break;
-		}
-		default:
-			break;
-		}
-	}
-
-	//realtime handling
 	float angle = 0;
 	float angleSign = 0;
 	if (inputs->left && l > 50)
@@ -217,31 +190,13 @@ void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 	sf::Vector2f projDir = mCarDirection;
 	if (mDrifting) projDir = rotate(projDir, angleSign * engine.driftAngle);
 
-	if (mAction == CarAction::LaunchMissile && mLaunchedMissile)
+	if (inputs->action) //&& mCurrentShootDelay <= sf::Time::Zero)
 	{
-		mLaunchedMissile = false;
-		mMissileAmmo--;
-
-		ProjectileLogic* proj = mInstanciateMissile(getPosition(), projDir);
-		newEntities.push_back(proj);
-	}
-
-	if (inputs->action && !needsEventInput()) //&& mCurrentShootDelay <= sf::Time::Zero)
-	{
-		switch (mAction)
+		if (mCurrentShootDelay <= sf::Time::Zero)
 		{
-		case CarLogic::CarAction::ShootBullet:
-		{
-			if (mCurrentShootDelay <= sf::Time::Zero)
-			{
-				mCurrentShootDelay = mShootDelay;
+			mCurrentShootDelay = mShootDelay;
 
-				instanciateBullet(getPosition(), projDir, newEntities);
-			}
-			break;
-		}
-		default:
-			break;
+			instanciateBullet(getPosition(), projDir, newEntities);
 		}
 	}
 }
@@ -256,33 +211,6 @@ bool CarLogic::handleEvent(const sf::Event& event)
 	}
 
 	return true;
-}
-
-bool CarLogic::needsEventInput()
-{
-	bool needs = false;
-	switch (mAction)
-	{
-	case CarAction::ShootBullet:
-	{
-		needs = false;
-		break;
-	}
-	case CarAction::LaunchMissile:
-	{
-		needs = true;
-		break;
-	}
-	case CarAction::ToggleMap:
-	{
-		needs = true;
-		break;
-	}
-	default:
-		break;
-	}
-
-	return needs;
 }
 
 void CarLogic::cleanUp(sf::Vector2f worldSize, sf::Time dt)

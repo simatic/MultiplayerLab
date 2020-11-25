@@ -83,10 +83,6 @@ namespace GUI
 			mSpeedometer.setRotation(180.f + 180.f * car->getSpeedRatio());
 
 			mMiniMapShapes.clear();
-			if (mPlayer->getCar()->getShowMap())
-			{
-				updateMap(entities, worldSize);
-			}
 		}
 	}
 
@@ -123,15 +119,6 @@ namespace GUI
 			target.draw(mAction, states);
 			target.draw(mSpeedometerBackground, states);
 			target.draw(mSpeedometer, states);
-
-			if (mPlayer->getCar()->getShowMap())
-			{
-				target.draw(mMiniMap);
-				for (auto& shape : mMiniMapShapes)
-				{
-					target.draw(shape);
-				}
-			}
 		}
 	}
 
