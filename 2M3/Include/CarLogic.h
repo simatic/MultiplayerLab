@@ -66,8 +66,6 @@ protected:
 protected:
 	Inputs mInputs;
 
-	sf::Vector2f mCarDirection;
-
 	int mMissileAmmo;
 
 	std::function<ProjectileLogic* (sf::Vector2f position, sf::Vector2f direction)> mInstanciateMissile;
@@ -77,8 +75,6 @@ private:
 	KeyBinding* mKeyBindings;
 
 	std::map<sf::Time, Inputs> mServerInputs;
-
-	CarEngine engine = CarEngine(1000, 1000 / 3, 200, 24, 800, M_PI / 3, 0.001f);
 
 	bool mForward;
 	bool mDrifting;
