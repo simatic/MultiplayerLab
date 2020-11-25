@@ -31,9 +31,6 @@ protected:
 private:
 	const TextureHolder& mTextures;
 
-	sf::RectangleShape mHpBackgroundBar;
-	sf::RectangleShape mHpBar;
-
 	bool mShowMap;
 
 	std::queue<SpatialVars> mTrajectory;

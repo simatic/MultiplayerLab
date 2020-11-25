@@ -9,6 +9,7 @@
 #include "Common/Components/Trajectory.h"
 #include "Common/Components/Particles.h"
 #include "Common/Components/Health.h"
+#include "Common/Components/HealthBar.h"
 #include "Common/Systems/RenderSystem.h"
 #include "Common/Systems/TrajectorySystem.h"
 #include "Common/Systems/RenderTrajectorySystem.h"
@@ -50,11 +51,12 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, co
 	Particles particles = Particles(sf::Vector2f(0, 0), sf::Color::White, sf::seconds(0.7), sf::seconds(1.0 / 40.0));
 	addComponent<Particles>(particles);
 
-	mHpBackgroundBar = sf::RectangleShape(sf::Vector2f(40, 10));
-	mHpBackgroundBar.setFillColor(sf::Color(127, 127, 127));
-	mHpBackgroundBar.setOrigin(sf::Vector2f(20, 5));
-	mHpBar = sf::RectangleShape(sf::Vector2f(40, 10));
-	mHpBar.setFillColor(sf::Color::Green);
+	HealthBar healthBar = HealthBar(sf::Vector2f(20, 5),
+									sf::Vector2f(40, 10), 
+									sf::Color(127, 127, 127),
+									sf::Color::Green,
+									0.f);
+	addComponent<HealthBar>(healthBar);
 
 	mInstanciateMissile = [this](sf::Vector2f position, sf::Vector2f direction) -> ProjectileLogic*
 	{
@@ -100,17 +102,18 @@ void Car::draw(sf::RenderTarget& target)
 	RenderTrajectorySystem::render(this, target);
 	RenderParticleSystem::render(target, this);
 
-	mHpBackgroundBar.setPosition(getPosition() + sf::Vector2f(0, 50));
-	target.draw(mHpBackgroundBar);
-	float hpWidth = mHpBackgroundBar.getSize().x;
-	float hpHeight = mHpBackgroundBar.getSize().y;
+	HealthBar* bar = getComponent<HealthBar>();
+	bar->background.setPosition(getPosition() + sf::Vector2f(0, 50));
+	target.draw(bar->background);
+	float hpWidth = bar->background.getSize().x;
+	float hpHeight = bar->background.getSize().y;
 
 	Health* h = getComponent<Health>();
 
 	float hpBarWidth = hpWidth * h->health / (float)h->maxHealth;
-	mHpBar.setPosition(mHpBackgroundBar.getPosition() - sf::Vector2f(hpWidth / 2.f, hpHeight / 2.f));
-	mHpBar.setSize(sf::Vector2f(hpBarWidth, hpHeight));
-	target.draw(mHpBar);
+	bar->bar.setPosition(bar->background.getPosition() - sf::Vector2f(hpWidth / 2.f, hpHeight / 2.f));
+	bar->bar.setSize(sf::Vector2f(hpBarWidth, hpHeight));
+	target.draw(bar->bar);
 
 	RenderSystem::render(this, target, *getComponent<Transform>());
 
