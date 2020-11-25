@@ -12,8 +12,8 @@
 std::map<ClientID, Interface::CompiledEventsMap> Interface::clientEvents{};
 std::map<ClientID, std::vector<Interface::PacketLifecycle>> Interface::clientPacketLifecycles{};
 
-void interfaceThread() {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Server Interface");
+void interfaceThread(const std::string& ip, const unsigned short& port) {
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Server Interface "+ip+":"+std::to_string(port));
     ImGui::SFML::Init(window);
     ImPlot::CreateContext();
 
@@ -49,6 +49,13 @@ void Interface::render() {
     for (int i = 0; i < clients.size(); ++i) {
         auto& client = clients.at(i);
         renderClientWindow("Client #" + std::to_string(i+1), *client);
+    }
+
+    if(clients.empty()) {
+        if(ImGui::Begin("En attente de clients", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove)) {
+            ImGui::Text("Les fenêtres des clients arriveront ici quand ils se connecteront.");
+        }
+        ImGui::End();
     }
 }
 
@@ -127,35 +134,33 @@ void Interface::renderGraph(const UdpClient &client) {
 
             // TODO: handle single events (example: a packet sent by the client is rejected due to forced loss ratios
             //  will have no links, and will not be returned by this method. It will probably return a close link instead)
-            const PacketLifecycle* closestToMouse = getClosest(packetLives, mouse.x, mouse.y);
+            const std::pair<const PacketInfo, const PacketLifecycle*> closest = getClosest(events, packetLives, mouse.x, mouse.y);
 
-            if(closestToMouse != nullptr) {
+            const PacketInfo closestPacketInfo = closest.first;
+            const PacketLifecycle* closestLifecycle = closest.second;
+
+            if(closestPacketInfo.sequenceIndex != 0) {
                 ImGui::BeginTooltip();
                 ImGui::TextColored(TITLE_COLOR, "Informations du packet");
 
-                const auto& firstPoint = closestToMouse->edges.first;
-                const auto& secondPoint = closestToMouse->edges.second;
-                long delay = static_cast<long>((secondPoint.x-firstPoint.x)*1000);
-
                 const char* source;
-                auto sequenceIndex = closestToMouse->sequenceIndex;
+                auto sequenceIndex = closestPacketInfo.sequenceIndex;
                 if(sequenceIndex < 0) { // client-generated
                     source = "Client";
                 } else {
                     source = "Serveur";
                 }
                 ImGui::Text("N° de séquence: %lld (initié par le %s)", abs(sequenceIndex), source);
-                ImGui::Text("Délai: %ldms", delay);
-                float dy1 = abs(mouse.y-firstPoint.y);
-                float dy2 = abs(mouse.y-secondPoint.y);
-                float closestPointY;
-                if(dy1 < dy2) {
-                    closestPointY = firstPoint.y;
+                ImGui::Text("Type de packet: %s", NetworkEvent::name(closestPacketInfo.packetType));
+
+                if(closestLifecycle != nullptr) {
+                    const auto& firstPoint = closestLifecycle->edges.first;
+                    const auto& secondPoint = closestLifecycle->edges.second;
+                    long delay = static_cast<long>((secondPoint.x-firstPoint.x)*1000);
+                    ImGui::Text("Délai: %ldms", delay);
                 } else {
-                    closestPointY = secondPoint.y;
+                    ImGui::Text("Packet orphelin");
                 }
-                const auto& packetType = static_cast<NetworkEvent::Type>(static_cast<int>(closestPointY));
-                ImGui::Text("Type de packet: %s", NetworkEvent::name(packetType));
                 ImGui::EndTooltip();
             }
         }
@@ -229,30 +234,65 @@ float sqDist(sf::Vector2f vec, float x, float y) {
     return dx*dx+dy*dy;
 }
 
-const Interface::PacketLifecycle* Interface::getClosest(const std::vector<PacketLifecycle> &lifecycles, float x, float y) {
-    const PacketLifecycle* closest = nullptr;
+std::pair<const Interface::PacketInfo, const Interface::PacketLifecycle*> Interface::getClosest(const CompiledEventsMap& packets, const std::vector<PacketLifecycle> &lifecycles, float x, float y) {
+    const PacketLifecycle* closestLifecycle = nullptr;
+    PacketInfo packetInfo{};
     // TODO: optimize via binary search (via order of 'first.x' and 'second.x') ?
-    float smallestDistance = INFINITY;
+    float smallestDistanceLifecycle = INFINITY;
+    float smallestDistancePacket = INFINITY;
     for(const PacketLifecycle& lifecycle : lifecycles) {
         float distanceSentTime = sqDist(lifecycle.edges.first, x, y);
         float distanceReceivedTime = sqDist(lifecycle.edges.second, x, y);
 
-        if(smallestDistance > distanceSentTime) {
-            smallestDistance = distanceSentTime;
-            closest = &lifecycle;
+        if(smallestDistanceLifecycle > distanceSentTime) {
+            smallestDistanceLifecycle = distanceSentTime;
+            closestLifecycle = &lifecycle;
         }
 
-        if(smallestDistance > distanceReceivedTime) {
-            smallestDistance = distanceReceivedTime;
-            closest = &lifecycle;
+        if(smallestDistanceLifecycle > distanceReceivedTime) {
+            smallestDistanceLifecycle = distanceReceivedTime;
+            closestLifecycle = &lifecycle;
+        }
+    }
+
+    // search closest packet to mouse
+    for(uint32_t packetTypeIndex = NetworkEvent::Type::Connected; packetTypeIndex < NetworkEvent::Type::Last; packetTypeIndex++) {
+        auto packetType = static_cast<NetworkEvent::Type>(packetTypeIndex);
+        auto packetsOfTypeIt = packets.find(packetType);
+        if(packetsOfTypeIt == packets.end())
+            continue;
+
+        auto packetsOfType = packetsOfTypeIt->second;
+        for(size_t i = 0; i < packetsOfType.timestamps.size(); i++) {
+            float timestamp = packetsOfType.timestamps[i];
+            PacketSequenceIndex index = packetsOfType.packetIndices[i];
+            float dx = timestamp-x;
+            float dy = packetTypeIndex-y;
+            float sqDist = dx*dx+dy*dy;
+            if(sqDist < smallestDistancePacket) {
+                smallestDistancePacket = sqDist;
+                packetInfo.packetType = packetType;
+                packetInfo.timestamp = timestamp;
+                packetInfo.sequenceIndex = index;
+            }
         }
     }
 
     constexpr float minDistanceSq = 1*1;
-    if(smallestDistance > minDistanceSq) { // needs to be at least close!
-        return nullptr;
+    if(smallestDistanceLifecycle > minDistanceSq) { // needs to be at least close to the mouse pointer!
+        closestLifecycle = nullptr;
     }
-    return closest;
+    if(smallestDistancePacket > minDistanceSq) { // needs to be at least close to the mouse pointer!
+        packetInfo.sequenceIndex = 0;
+    }
+
+    if(closestLifecycle != nullptr) {
+        // make sure the lifecycle is linked to the selected packet
+        if(closestLifecycle->sequenceIndex != packetInfo.sequenceIndex) {
+            closestLifecycle = nullptr;
+        }
+    }
+    return std::make_pair(packetInfo, closestLifecycle);
 }
 
 void ServerNetworkHandling::triggerEvent(const UdpClient &client, NetworkEvent::Event event) {

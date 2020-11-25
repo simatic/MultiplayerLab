@@ -5,6 +5,12 @@
 
 class Interface {
 
+    struct PacketInfo {
+        PacketSequenceIndex sequenceIndex;
+        NetworkEvent::Type packetType;
+        float timestamp;
+    };
+
     struct CompiledEvents {
         std::vector<float> timestamps;
         std::vector<float> values;
@@ -23,7 +29,15 @@ private:
     static std::map<ClientID, CompiledEventsMap> clientEvents;
     static std::map<ClientID, std::vector<PacketLifecycle>> clientPacketLifecycles;
 
-    static const PacketLifecycle* getClosest(const std::vector<PacketLifecycle>& lifecycles, float x, float y);
+    /// Gets the closest packet and packet lifecyle to the mouse.
+    /// Returns a PacketInfo with sequenceIndex = 0 if no packet is close
+    /// Returns a PacketLifecycle* set to nullptr if no lifecycle is close, or the closest lifecycle is not linked to the closest packet
+    /// \param packets
+    /// \param lifecycles
+    /// \param x
+    /// \param y
+    /// \return
+    static std::pair<const PacketInfo, const PacketLifecycle*> getClosest(const CompiledEventsMap& packets, const std::vector<PacketLifecycle>& lifecycles, float x, float y);
 
 public:
     static void pollEvents(sf::Window& window);

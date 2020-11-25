@@ -15,10 +15,19 @@ std::mutex Delay::mutex4Packet4Delay;
 std::vector<std::unique_ptr<packet4Delay>> Delay::packet4DelayList;
 std::mutex Delay::mutex4ResponsePacketWithDelay;
 std::vector<std::unique_ptr<packetWithDelay>> Delay::responsePacketWithDelayList;
+bool Delay::stopServer = false;
 ClientID ServerNetworkHandling::currentClientID = 0;
 std::vector<std::unique_ptr<UdpClient>> ServerNetworkHandling::clients{};
 std::map<ClientID, float> ServerNetworkHandling::lastPacketTimes{};
 bool ServerNetworkHandling::running = true;
+
+void requestStop() {
+    Delay::mutex4ResponsePacketWithDelay.lock();
+    Delay::mutex4Packet4Delay.lock();
+    Delay::stopServer = true;
+    Delay::mutex4ResponsePacketWithDelay.unlock();
+    Delay::mutex4Packet4Delay.unlock();
+}
 
 [[noreturn]] void networkThread(int port) {
     // Bind to port
@@ -34,7 +43,7 @@ bool ServerNetworkHandling::running = true;
 
     // Wait for messages on this socket
     std::cerr << "Waiting for messages on port " << port << std::endl;
-    while (true) {
+    while (!Delay::stopServer) {
         sf::Packet packet;
         sf::IpAddress remoteAddress;
         unsigned short remotePort;
@@ -44,7 +53,8 @@ bool ServerNetworkHandling::running = true;
 
         if (status != sf::Socket::Done) {
             std::cerr << "Error during receive (status = " << status << ")" << std::endl;
-            exit(EXIT_FAILURE);
+            requestStop();
+            continue;
         }
 
         auto logicalPacket = deserializePacket(packet);

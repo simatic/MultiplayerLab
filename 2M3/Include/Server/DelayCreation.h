@@ -31,5 +31,7 @@ public:
 
     static std::mutex mutex4ResponsePacketWithDelay;
 
+    static bool stopServer;
+
 };
 

@@ -12,7 +12,7 @@
     sf::Time time = ServerClock::getInstance().get();
     sf::Time deltaTime = time - lastTime;
 
-    while(true) {
+    while(!Delay::stopServer) {
         Delay::mutex4Packet4Delay.lock();
         while (!Delay::packet4DelayList.empty()){
             auto& packetToDelay = Delay::packet4DelayList[0];
