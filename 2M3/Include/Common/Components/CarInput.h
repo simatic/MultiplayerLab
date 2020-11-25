@@ -3,6 +3,8 @@
 
 struct CarInput : public IdentifiableComponent<CarInput>
 {
+    CarInput() = default;
+
     bool up = false;
     bool down = false;
     bool left = false;

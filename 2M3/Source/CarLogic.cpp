@@ -5,6 +5,8 @@
 #include "ResourceHolder.h"
 #include "NetworkCommon.h"
 #include "Common/Components/Health.h"
+#include "Common/Components/CarInput.h"
+#include "Common/Systems/KeyboardInputSystem.h"
 #include <math.h>
 
 
@@ -28,6 +30,9 @@ CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding
 	mCarDirection(sf::Vector2f(1, 0)),
 	OldEntity(pos, rect)
 {
+	CarInput inputs = CarInput();
+	addComponent<CarInput>(inputs);
+
 	Health health = Health(hp, hp);
 	addComponent<Health>(health);
 
@@ -75,14 +80,7 @@ void CarLogic::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEnt
 
 void CarLogic::getInput()
 {
-	if (mKeyBindings != nullptr)
-	{
-		mInputs.left = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnLeft));
-		mInputs.right = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::TurnRight));
-		mInputs.up = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Accelerate));
-		mInputs.down = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::Brake));
-		mInputs.action = sf::Keyboard::isKeyPressed(mKeyBindings->getAssignedKey(PlayerAction::DoAction));
-	}
+	KeyboardInputSystem::update(this, mKeyBindings);
 }
 
 void CarLogic::getInput(sf::Time serverTime)
@@ -108,15 +106,16 @@ inline CarLogic::CarAction operator++(CarLogic::CarAction& x)
 
 void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 {
+	CarInput* inputs = getComponent<CarInput>();
 	float l = length(mVelocity);
 
 	//events handling
-	if (mInputs.changeActionEvent)
+	if (inputs->changeActionEvent)
 	{
 		++mAction;
 		if (mAction == CarAction::ActionCount) mAction = (CarAction)0;
 	}
-	else if (mInputs.doActionEvent && needsEventInput())
+	else if (inputs->doActionEvent && needsEventInput())
 	{
 		switch (mAction)
 		{
@@ -133,12 +132,12 @@ void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 	//realtime handling
 	float angle = 0;
 	float angleSign = 0;
-	if (mInputs.left && l > 50)
+	if (inputs->left && l > 50)
 	{
 		angle += M_PI / 3;
 		angleSign += 1;
 	}
-	if (mInputs.right && l > 50)
+	if (inputs->right && l > 50)
 	{
 		angle -= M_PI / 3;
 		angleSign -= 1;
@@ -146,13 +145,13 @@ void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 
 	float accel = 0;
 	bool driftBrake = false;
-	if (mInputs.up)
+	if (inputs->up)
 	{
 		float f = 1;
 		if (!mForward) f = 10;
 		accel += f * engine.acceleration;
 	}
-	if (mInputs.down)
+	if (inputs->down)
 	{
 		if (mForward && l > engine.driftThreshold && angleSign != 0) driftBrake = true;
 		else
@@ -227,7 +226,7 @@ void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 		newEntities.push_back(proj);
 	}
 
-	if (mInputs.action && !needsEventInput()) //&& mCurrentShootDelay <= sf::Time::Zero)
+	if (inputs->action && !needsEventInput()) //&& mCurrentShootDelay <= sf::Time::Zero)
 	{
 		switch (mAction)
 		{
@@ -249,10 +248,11 @@ void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 
 bool CarLogic::handleEvent(const sf::Event& event)
 {
+	CarInput* inputs = getComponent<CarInput>();
 	if (mKeyBindings != nullptr)
 	{
-		mInputs.changeActionEvent = mInputs.changeActionEvent || event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::ChangeAction);
-		mInputs.doActionEvent = mInputs.doActionEvent || event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::DoAction);
+		inputs->changeActionEvent = inputs->changeActionEvent || event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::ChangeAction);
+		inputs->doActionEvent = inputs->doActionEvent || event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::DoAction);
 	}
 
 	return true;
