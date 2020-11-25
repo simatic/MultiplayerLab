@@ -8,6 +8,7 @@
 #include "Common/Components/Sprite.h"
 #include "Common/Components/Trajectory.h"
 #include "Common/Components/Particles.h"
+#include "Common/Components/Health.h"
 #include "Common/Systems/RenderSystem.h"
 #include "Common/Systems/TrajectorySystem.h"
 #include "Common/Systems/RenderTrajectorySystem.h"
@@ -103,7 +104,10 @@ void Car::draw(sf::RenderTarget& target)
 	target.draw(mHpBackgroundBar);
 	float hpWidth = mHpBackgroundBar.getSize().x;
 	float hpHeight = mHpBackgroundBar.getSize().y;
-	float hpBarWidth = hpWidth * mHP / (float)mHpMax;
+
+	Health* h = getComponent<Health>();
+
+	float hpBarWidth = hpWidth * h->health / (float)h->maxHealth;
 	mHpBar.setPosition(mHpBackgroundBar.getPosition() - sf::Vector2f(hpWidth / 2.f, hpHeight / 2.f));
 	mHpBar.setSize(sf::Vector2f(hpBarWidth, hpHeight));
 	target.draw(mHpBar);

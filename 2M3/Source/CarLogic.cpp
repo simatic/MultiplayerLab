@@ -2,9 +2,9 @@
 #include <Utility.h>
 #include <iostream>
 #include <ProjectileLogic.h>
-#include <PickUp.h>
 #include "ResourceHolder.h"
 #include "NetworkCommon.h"
+#include "Common/Components/Health.h"
 #include <math.h>
 
 
@@ -17,8 +17,6 @@ CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect) :
 {}
 
 CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys) :
-	mHP(hp),
-	mHpMax(hp),
 	mKeyBindings(keys),
 	mShootDelay(sf::seconds(0.1)),
 	mCrash(false),
@@ -30,6 +28,9 @@ CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding
 	mCarDirection(sf::Vector2f(1, 0)),
 	OldEntity(pos, rect)
 {
+	Health health = Health(hp, hp);
+	addComponent<Health>(health);
+
 	mType = Type::CarType;
 
 	mInstanciateMissile = [this](sf::Vector2f position, sf::Vector2f direction) -> ProjectileLogic* 
@@ -302,15 +303,17 @@ void CarLogic::crash(sf::Vector2f otherVelocity)
 
 void CarLogic::damage(int points)
 {
-	mHP -= points;
+	Health* h = getComponent<Health>();
+	h->health -= points;
 	std::cout << "took " << points << " dmg" << std::endl;
-	if (mHP <= 0) mToRemove = true;
+	if (h->health <= 0) mToRemove = true;
 }
 
 void CarLogic::repair(int points)
 {
-	mHP += points;
-	if (mHP > mHpMax) mHP = mHpMax;
+	Health* h = getComponent<Health>();
+	h->health += points;
+	if (h->health > h->maxHealth) h->health = h->maxHealth;
 }
 
 void CarLogic::addMissileAmmo(int ammo)
@@ -367,12 +370,6 @@ void CarLogic::onCollision(OldEntity* other)
 		damage(otherProj->getDamage());
 		other->remove();
 		break;
-	}
-
-	case Type::PickUpType:
-	{
-		PickUp* otherPickup = dynamic_cast<PickUp*>(other);
-		otherPickup->onCollision(this);
 	}
 	default:
 		break;
