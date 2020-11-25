@@ -5,6 +5,7 @@
 #include "ResourceHolder.h"
 #include "NetworkCommon.h"
 #include "Common/Components/Health.h"
+#include "Common/Components/Kinematics.h"
 #include "Common/Components/CarInput.h"
 #include "Common/Systems/KeyboardInputSystem.h"
 #include <math.h>
@@ -100,8 +101,10 @@ void CarLogic::getInput(sf::Time serverTime)
 
 void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 {
+	Kinematics* kinematics = getComponent<Kinematics>();
 	CarInput* inputs = getComponent<CarInput>();
-	float l = length(getVelocity());
+	
+	float l = length(kinematics->velocity);
 
 	float angle = 0;
 	float angleSign = 0;
@@ -141,43 +144,43 @@ void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 	}
 	else if (accel == 0)
 	{
-		setVelocity(sf::Vector2f(0, 0));
+		kinematics->velocity = sf::Vector2f(0, 0);
 	}
 
 	float tangAccel = accel * cos(angle);
 	float radAccel = accel * sin(angle);
 	sf::Vector2f tangAccelVector = tangAccel * mCarDirection;
-	setVelocity(getVelocity() + tangAccelVector * dt.asSeconds());
-	l = length(getVelocity());
+	kinematics->velocity += tangAccelVector * dt.asSeconds();
+	l = length(kinematics->velocity);
 	if (mForward && l > engine.maxSpeed)
 	{
-		setVelocity(getVelocity() * engine.maxSpeed / l);
+		kinematics->velocity *= engine.maxSpeed / l;
 	}
 	else if (!mForward && l > engine.backwardsMaxSpeed)
 	{
-		setVelocity(getVelocity() * engine.backwardsMaxSpeed / l);
+		kinematics->velocity *= engine.backwardsMaxSpeed / l;
 	}
 
 	bool prevDrifting = mDrifting;
 	mDrifting = mForward && l > engine.driftThreshold && angleSign != 0 && driftBrake;
 
 	float theta = sqrt(abs(radAccel) / engine.turnRadius) * dt.asSeconds();
-	mForward = dotProduct(getVelocity(), mCarDirection) >= 0;
+	mForward = dotProduct(kinematics->velocity, mCarDirection) >= 0;
 	if (!mForward)
 	{
-		setVelocity(rotate(getVelocity(), -theta * angleSign));
+		kinematics->velocity = rotate(kinematics->velocity, -theta * angleSign);
 		mCarDirection = rotate(mCarDirection, -theta * angleSign);
 	}
 	else
 	{
-		setVelocity(rotate(getVelocity(), theta * angleSign));
+		kinematics->velocity = rotate(kinematics->velocity, theta * angleSign);
 		mCarDirection = rotate(mCarDirection, theta * angleSign);
 	}
 
 	if (prevDrifting && !mDrifting)
 	{
 		mCarDirection = rotate(mCarDirection, mPrevDriftingSign * engine.driftThreshold);
-		setVelocity(rotate(getVelocity(), mPrevDriftingSign * engine.driftAngle));
+		kinematics->velocity = rotate(kinematics->velocity, mPrevDriftingSign * engine.driftAngle);
 	}
 	mPrevDriftingSign = angleSign;
 
