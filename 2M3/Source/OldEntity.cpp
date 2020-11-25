@@ -1,17 +1,20 @@
 #include <OldEntity.h>
+#include "Common/Components/Kinematics.h"
 #include "Common/Systems/RenderSystem.h"
 #include "Common/Systems/CollisionSystem.h"
 #include "Common/Systems/MovementSystem.h"
 #include "ResourceHolder.h"
 
 OldEntity::OldEntity(sf::Vector2f pos, sf::RectangleShape rect) :
-	mVelocity(0.0f, 0.0f),
 	mType(Type::Count),
 	mToRemove(false),
 	mID(0)
 {
 	Transform t = Transform(pos, 0.0f);
 	addComponent<Transform>(t);
+
+	Kinematics k = Kinematics();
+	addComponent<Kinematics>(k);
 
 	Collider c = Collider(rect);
 	sf::FloatRect bounds = c.shape.getLocalBounds();
@@ -61,7 +64,7 @@ sf::Vector2f OldEntity::getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f 
 
 sf::Vector2f OldEntity::getVelocity()
 {
-	return mVelocity;
+	return getComponent<Kinematics>()->velocity;
 }
 
 Collider& OldEntity::getCollider()
@@ -81,7 +84,7 @@ void OldEntity::offset(sf::Vector2f o)
 
 void OldEntity::setVelocity(sf::Vector2f v)
 {
-	mVelocity = v;
+	getComponent<Kinematics>()->velocity = v;
 }
 
 void OldEntity::setToRemove(bool toRemove)

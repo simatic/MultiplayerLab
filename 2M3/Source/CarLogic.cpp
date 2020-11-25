@@ -101,7 +101,7 @@ void CarLogic::getInput(sf::Time serverTime)
 void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 {
 	CarInput* inputs = getComponent<CarInput>();
-	float l = length(mVelocity);
+	float l = length(getVelocity());
 
 	float angle = 0;
 	float angleSign = 0;
@@ -141,43 +141,43 @@ void CarLogic::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
 	}
 	else if (accel == 0)
 	{
-		mVelocity = sf::Vector2f(0, 0);
+		setVelocity(sf::Vector2f(0, 0));
 	}
 
 	float tangAccel = accel * cos(angle);
 	float radAccel = accel * sin(angle);
 	sf::Vector2f tangAccelVector = tangAccel * mCarDirection;
-	mVelocity += tangAccelVector * dt.asSeconds();
-	l = length(mVelocity);
+	setVelocity(getVelocity() + tangAccelVector * dt.asSeconds());
+	l = length(getVelocity());
 	if (mForward && l > engine.maxSpeed)
 	{
-		mVelocity *= engine.maxSpeed / l;
+		setVelocity(getVelocity() * engine.maxSpeed / l);
 	}
 	else if (!mForward && l > engine.backwardsMaxSpeed)
 	{
-		mVelocity *= engine.backwardsMaxSpeed / l;
+		setVelocity(getVelocity() * engine.backwardsMaxSpeed / l);
 	}
 
 	bool prevDrifting = mDrifting;
 	mDrifting = mForward && l > engine.driftThreshold && angleSign != 0 && driftBrake;
 
 	float theta = sqrt(abs(radAccel) / engine.turnRadius) * dt.asSeconds();
-	mForward = dotProduct(mVelocity, mCarDirection) >= 0;
+	mForward = dotProduct(getVelocity(), mCarDirection) >= 0;
 	if (!mForward)
 	{
-		mVelocity = rotate(mVelocity, -theta * angleSign);
+		setVelocity(rotate(getVelocity(), -theta * angleSign));
 		mCarDirection = rotate(mCarDirection, -theta * angleSign);
 	}
 	else
 	{
-		mVelocity = rotate(mVelocity, theta * angleSign);
+		setVelocity(rotate(getVelocity(), theta * angleSign));
 		mCarDirection = rotate(mCarDirection, theta * angleSign);
 	}
 
 	if (prevDrifting && !mDrifting)
 	{
 		mCarDirection = rotate(mCarDirection, mPrevDriftingSign * engine.driftThreshold);
-		mVelocity = rotate(mVelocity, mPrevDriftingSign * engine.driftAngle);
+		setVelocity(rotate(getVelocity(), mPrevDriftingSign * engine.driftAngle));
 	}
 	mPrevDriftingSign = angleSign;
 
@@ -215,8 +215,8 @@ bool CarLogic::handleEvent(const sf::Event& event)
 
 void CarLogic::cleanUp(sf::Vector2f worldSize, sf::Time dt)
 {
-	if (getPosition().x > worldSize.x || getPosition().x < 0) getPosition().x -= mVelocity.x * dt.asSeconds();
-	if (getPosition().y > worldSize.y || getPosition().y < 0) getPosition().y -= mVelocity.y * dt.asSeconds();
+	if (getPosition().x > worldSize.x || getPosition().x < 0) getPosition().x -= getVelocity().x * dt.asSeconds();
+	if (getPosition().y > worldSize.y || getPosition().y < 0) getPosition().y -= getVelocity().y * dt.asSeconds();
 
 	mPrevCollidedWith = mCollidedWith;
 	mCollidedWith.clear();
@@ -226,7 +226,7 @@ void CarLogic::crash(sf::Vector2f otherVelocity)
 {
 	mCrash = true;
 	//mVelocity = sf::Vector2f(0, 0);
-	mVelocity = otherVelocity;
+	setVelocity(otherVelocity);
 }
 
 void CarLogic::damage(int points)
@@ -275,13 +275,13 @@ void CarLogic::onCollision(OldEntity* other)
 			otherCar->damage(2);
 		}
 
-		sf::Vector2f prevVelocity = mVelocity;
+		sf::Vector2f prevVelocity = getVelocity();
 		//crash(other->getVelocity());
 		//otherCar->crash(prevVelocity);
 
 		/*setVelocity(0.8f * otherCar->getVelocity());
 		otherCar->setVelocity(0.8f * prevVelocity);*/
-		mVelocity = sf::Vector2f(0, 0);
+		setVelocity(sf::Vector2f(0, 0));
 		other->setVelocity(sf::Vector2f(0, 0));
 
 		break;
@@ -311,7 +311,7 @@ sf::Vector2f CarLogic::getCarDirection()
 
 float CarLogic::getSpeedRatio()
 {
-	return length(mVelocity) / engine.maxSpeed;
+	return length(getVelocity()) / engine.maxSpeed;
 }
 
 Inputs CarLogic::getSavedInputs()
@@ -332,14 +332,14 @@ void CarLogic::computeDeadReckoning(sf::Vector2f newPosition, sf::Vector2f newVe
 
 	for (int i = 0; i < numberOfSteps; i++)
 	{
-		mTrajectory.push({ getPosition() + ((1.f / (numberOfSteps - i)) * (newPosition - getPosition())), mVelocity + ((1.f / (numberOfSteps - i)) * (newVelocity - mVelocity)), mCarDirection + ((1.f / (numberOfSteps - i)) * (newCarDirection - mCarDirection)) });
+		mTrajectory.push({ getPosition() + ((1.f / (numberOfSteps - i)) * (newPosition - getPosition())), getVelocity() + ((1.f / (numberOfSteps - i)) * (newVelocity - getVelocity())), mCarDirection + ((1.f / (numberOfSteps - i)) * (newCarDirection - mCarDirection)) });
 	}
 }
 
 void CarLogic::stepUpDeadReckoning()
 {
 	getPosition() = mTrajectory.front().position;
-	mVelocity = mTrajectory.front().velocity;
+	setVelocity(mTrajectory.front().velocity);
 	mCarDirection = mTrajectory.front().direction;
 	mTrajectory.pop();
 }

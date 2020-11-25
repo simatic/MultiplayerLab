@@ -65,8 +65,6 @@ public:
 	void removeComponent();
 
 protected:
-	sf::Vector2f		mVelocity;
-
 	Type				mType;
 
 	bool				mToRemove;

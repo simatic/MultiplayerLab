@@ -10,7 +10,7 @@ ProjectileLogic::ProjectileLogic(int dmg, sf::Time lifetime, float speed, sf::Ve
 	Bullet b = Bullet(dmg, speed, lifetime, false, nullptr, 0, 0);
 	addComponent<Bullet>(b);
 
-	mVelocity = speed * direction;
+	setVelocity(speed * direction);
 	mType = Type::ProjectileType;
 }
 
@@ -21,7 +21,7 @@ ProjectileLogic::ProjectileLogic(int dmg, sf::Time lifetime, float speed, float 
 	Bullet b = Bullet(dmg, speed, lifetime, true, nullptr, detection, 0.3);
 	addComponent<Bullet>(b);
 
-	mVelocity = speed * direction;
+	setVelocity(speed * direction);
 	mType = Type::ProjectileType;
 }
 
