@@ -16,12 +16,9 @@ public:
 	void update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
 	void serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
 
-	void useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities) override;
-
 	void draw(sf::RenderTarget& target) override;
 
 	std::string getActionText();
-	bool getShowMap();
 
 	void setSprite();
 

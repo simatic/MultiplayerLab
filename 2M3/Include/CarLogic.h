@@ -35,9 +35,7 @@ public:
 
 	virtual void update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
 	virtual void serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
-	void getInput();
 	void getInput(sf::Time serverTime);
-	virtual void useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities);
 	void crash(sf::Vector2f otherVelocity);
 	bool handleEvent(const sf::Event& event) override;
 	void cleanUp(sf::Vector2f worldSize, sf::Time dt) override;

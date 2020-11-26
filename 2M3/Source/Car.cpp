@@ -81,11 +81,6 @@ void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*>
 	ParticleSystem::update(this, dt);
 }
 
-void Car::useInputs(sf::Time dt, std::vector<OldEntity*>& newEntities)
-{
-	CarLogic::useInputs(dt, newEntities);
-}
-
 void Car::draw(sf::RenderTarget& target)
 {
 	RenderTrajectorySystem::render(this, target);
