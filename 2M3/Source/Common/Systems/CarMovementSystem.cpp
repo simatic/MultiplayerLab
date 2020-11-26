@@ -91,19 +91,4 @@ void CarMovementSystem::update(const sf::Time dt, CarLogic* entity, std::vector<
 	if (engine->direction.x == 0 && engine->direction.y != 0) carAngle = M_PI_2 * engine->direction.y / abs(engine->direction.y);
 	if (engine->isDrifting) carAngle += angleSign * engine->driftAngle;
 	entity->getRotation() = -carAngle * 180.0 / M_PI;
-
-    /*
-	sf::Vector2f projDir = engine->direction;
-	if (engine->isDrifting) projDir = rotate(projDir, angleSign * engine->driftAngle);
-
-	if (inputs->action) //&& mCurrentShootDelay <= sf::Time::Zero)
-	{
-		if (mCurrentShootDelay <= sf::Time::Zero)
-		{
-			mCurrentShootDelay = mShootDelay;
-
-			instanciateBullet(getPosition(), projDir, newEntities);
-		}
-	}
-    */
 }

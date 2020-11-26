@@ -58,7 +58,6 @@ public:
 	void computeDeadReckoning(sf::Vector2f newPosition, sf::Vector2f newVelocity, sf::Vector2f newCarDirection);
 	void stepUpDeadReckoning();
 
-protected:
 	virtual void instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<OldEntity*>& newEntities);
 
 protected:

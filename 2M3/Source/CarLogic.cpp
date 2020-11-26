@@ -9,6 +9,7 @@
 #include "Common/Components/CarInput.h"
 #include "Common/Systems/KeyboardInputSystem.h"
 #include "Common/Systems/CarMovementSystem.h"
+#include "Common/Systems/GunSystem.h"
 #include <math.h>
 
 
@@ -39,6 +40,9 @@ CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding
 	CarEngine engine = CarEngine(1000, 1000 / 3, 200, 24, 800, M_PI / 3, 0.001f, sf::Vector2f(1, 0));
 	addComponent<CarEngine>(engine);
 
+	Gun gun = Gun(sf::Vector2f(1, 0), sf::seconds(0.1));
+	addComponent<Gun>(gun);
+
 	mType = Type::CarType;
 
 	mInstanciateMissile = [this](sf::Vector2f position, sf::Vector2f direction) -> ProjectileLogic* 
@@ -64,6 +68,7 @@ void CarLogic::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector
 	{
 		KeyboardInputSystem::update(this, mKeyBindings);
 		CarMovementSystem::update(dt, this, newEntities);
+		GunSystem::update(dt, this, newEntities);
 	}
 
 	OldEntity::update(dt, entities, newEntities, pairs);
