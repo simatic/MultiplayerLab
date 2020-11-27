@@ -35,8 +35,6 @@ public:
 	void repair(int points);
 	void addMissileAmmo(int ammo);
 
-	void onCollision(OldEntity* other) override;
-
 	sf::Vector2f getCarDirection();
 	std::string getActionText();
 	float getSpeedRatio();

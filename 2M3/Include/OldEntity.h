@@ -54,8 +54,6 @@ public:
 	void				remove();
 	void				unremove();
 
-	virtual void		onCollision(OldEntity* other) = 0;
-
 	template <typename T>
 	void addComponent(T& component);
 

@@ -30,36 +30,6 @@ int ProjectileLogic::getDamage()
 	return getComponent<Bullet>()->damage;
 }
 
-void ProjectileLogic::onCollision(OldEntity* other)
-{
-	/*
-	switch (other->getType())
-	{
-	case Type::ProjectileType:
-	{
-		remove();
-		other->remove();
-		break;
-	}
-
-	case Type::CarType:
-	{
-		CarLogic* otherCar = dynamic_cast<CarLogic*>(other);
-		if (otherCar == mCar)
-		{
-			break;
-		}
-
-		otherCar->damage(getDamage());
-		remove();
-		break;
-	}
-
-	default:
-		break;
-	}*/
-}
-
 CarLogic* ProjectileLogic::getCar()
 {
 	return mCar;

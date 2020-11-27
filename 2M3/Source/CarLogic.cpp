@@ -116,62 +116,6 @@ void CarLogic::addMissileAmmo(int ammo)
 	mMissileAmmo += ammo;
 }
 
-void CarLogic::onCollision(OldEntity* other)
-{
-	/*
-	switch (other->getType())
-	{
-	case Type::CarType:
-	{
-		Car* otherCar = dynamic_cast<Car*>(other);
-		mCollidedWith.push_back(other);
-
-		bool collision = true;
-		for (auto& ent : mPrevCollidedWith)
-		{
-			if (ent == other)
-			{
-				collision = false;
-				break;
-			}
-		}
-
-		if (collision)
-		{
-			std::cout << "collision" << std::endl;
-			damage(2);
-			otherCar->damage(2);
-		}
-
-		sf::Vector2f prevVelocity = getVelocity();
-		//crash(other->getVelocity());
-		//otherCar->crash(prevVelocity);
-
-		/*setVelocity(0.8f * otherCar->getVelocity());
-		otherCar->setVelocity(0.8f * prevVelocity);*//*
-		setVelocity(sf::Vector2f(0, 0));
-		other->setVelocity(sf::Vector2f(0, 0));
-
-		break;
-	}*/
-	/*
-	case Type::ProjectileType:
-	{
-		ProjectileLogic* otherProj = dynamic_cast<ProjectileLogic*>(other);
-		if (otherProj->getCar() == this)
-		{
-			break;
-		}
-
-		damage(otherProj->getDamage());
-		other->remove();
-		break;
-	}
-	default:
-		break;
-	}*/
-}
-
 sf::Vector2f CarLogic::getCarDirection()
 {
 	return getComponent<CarEngine>()->direction;

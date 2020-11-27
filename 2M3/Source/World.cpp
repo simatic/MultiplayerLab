@@ -81,10 +81,6 @@ void World::update(sf::Time dt)
 		player->update(dt); // , mNewEntities);
 	}
 
-	for (auto& pair : mPairs)
-	{
-		pair.first->onCollision(pair.second);
-	}
 	auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&OldEntity::toRemove));
 	mEntities.erase(removeBegin, mEntities.end());
 
@@ -113,10 +109,6 @@ void World::clientUpdate(sf::Time dt)
 		player->update(dt); // , mNewEntities);
 	}
 
-	for (auto& pair : mPairs)
-	{
-		pair.first->onCollision(pair.second);
-	}
 	/*auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&Entity::toRemove));
 	mEntities.erase(removeBegin, mEntities.end());*/
 
