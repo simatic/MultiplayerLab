@@ -40,21 +40,9 @@ void OldEntity::draw(sf::RenderTarget& target)
 	RenderSystem::render(this, target, *getComponent<Transform>());
 }
 
-sf::Vector2f OldEntity::getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f mapSize)
-{
-	float x = mapSize.x * getComponent<Transform>()->position.x / worldSize.x;
-	float y = mapSize.y *  getComponent<Transform>()->position.y / worldSize.y;
-	return sf::Vector2f(x, y);
-}
-
 OldEntity::Type OldEntity::getType()
 {
 	return mType;
-}
-
-void OldEntity::offset(sf::Vector2f o)
-{
-	getComponent<Transform>()->position += o;
 }
 
 void OldEntity::setVelocity(sf::Vector2f v)
@@ -70,16 +58,6 @@ void OldEntity::setToRemove(bool toRemove)
 bool OldEntity::toRemove()
 {
 	return mToRemove;
-}
-
-void OldEntity::remove()
-{
-	mToRemove = true;
-}
-
-void OldEntity::unremove()
-{
-	mToRemove = false;
 }
 
 Rectangle OldEntity::getRectangle()

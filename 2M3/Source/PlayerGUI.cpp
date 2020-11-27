@@ -100,7 +100,6 @@ namespace GUI
 				triangle.setPoint(2, sf::Vector2f(0, 5));
 				triangle.setOrigin(2.5f, 2.5f);
 				triangle.setFillColor(sf::Color::Red);
-				triangle.setPosition(ent->getMiniMapPosition(worldSize, mMiniMap.getSize()) + mMiniMap.getPosition());
 				triangle.setRotation(ent->getComponent<Transform>()->rotation);
 				mMiniMapShapes.push_back(triangle);
 			}

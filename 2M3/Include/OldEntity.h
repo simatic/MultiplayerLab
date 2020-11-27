@@ -35,20 +35,16 @@ public:
 	virtual bool		handleEvent(const sf::Event& event);
 	virtual void		cleanUp(sf::Vector2f worldSize, sf::Time dt);
 
-	sf::Vector2f		getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f mapSize);
 	Rectangle			getRectangle();
 	Type				getType();
 	sf::Uint64			getID();
 
 	void				setID(sf::Uint64 id);
 	void				setPosition(sf::Vector2f p);
-	void				offset(sf::Vector2f o);
 	void				setVelocity(sf::Vector2f v);
 
 	void				setToRemove(bool toRemove);
 	bool				toRemove();
-	void				remove();
-	void				unremove();
 
 	template <typename T>
 	void addComponent(T& component);
