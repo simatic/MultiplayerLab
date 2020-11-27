@@ -9,6 +9,7 @@
 #include "Common/Components/CarInput.h"
 #include "Common/Systems/KeyboardInputSystem.h"
 #include "Common/Systems/CarMovementSystem.h"
+#include "Common/Systems/CarCollisionHandling.h"
 #include "Common/Systems/GunSystem.h"
 #include <math.h>
 
@@ -72,6 +73,7 @@ void CarLogic::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector
 	}
 
 	OldEntity::update(dt, entities, newEntities, pairs);
+	CarCollisionHandling::update(this);
 }
 
 void CarLogic::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
@@ -152,43 +154,6 @@ void CarLogic::addMissileAmmo(int ammo)
 
 void CarLogic::onCollision(OldEntity* other)
 {
-	Collider* collider = this->getComponent<Collider>();
-
-	if (collider->collides)
-	{
-		for (OldEntity* other: collider->others)
-		{
-			switch (other->getType())
-			{
-			case Type::ProjectileType:
-			{
-				Health* health = this->getComponent<Health>();
-            	Bullet* bullet = other->getComponent<Bullet>();
-
-				if (bullet->owner != this)
-                {
-                    health->health -= bullet->damage;
-                    other->setToRemove(true);
-                }
-				break;
-			}
-
-			case Type::CarType:
-			{
-				Health* health = this->getComponent<Health>();
-				Kinematics* kinematics = this->getComponent<Kinematics>();
-
-				health->health -= 2;
-				kinematics->velocity = sf::Vector2f(0, 0);
-				break;
-			}
-			default:
-				break;
-			}
-		}
-
-		collider->others.clear();
-	}
 	/*
 	switch (other->getType())
 	{
