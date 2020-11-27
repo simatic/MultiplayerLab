@@ -74,13 +74,6 @@ void Car::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldE
 	ParticleSystem::update(this, dt);
 }
 
-void Car::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
-{
-	CarLogic::serverUpdate(serverTime, dt, entities, newEntities, pairs);
-	TrajectorySystem::update(this);
-	ParticleSystem::update(this, dt);
-}
-
 void Car::draw(sf::RenderTarget& target)
 {
 	RenderTrajectorySystem::render(this, target);

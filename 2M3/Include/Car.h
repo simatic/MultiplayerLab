@@ -14,8 +14,6 @@ public:
 	Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, const TextureHolder& textures);
 
 	void update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
-	void serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
-
 	void draw(sf::RenderTarget& target) override;
 
 	std::string getActionText();
@@ -27,6 +25,4 @@ protected:
 
 private:
 	const TextureHolder& mTextures;
-
-	std::queue<SpatialVars> mTrajectory;
 };

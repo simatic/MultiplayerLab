@@ -19,13 +19,6 @@ struct Inputs
 	bool doActionEvent;
 };
 
-struct SpatialVars
-{
-	sf::Vector2f position;
-	sf::Vector2f velocity;
-	sf::Vector2f direction;
-};
-
 class CarLogic : public OldEntity
 {
 public:
@@ -34,8 +27,6 @@ public:
 	CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys);
 
 	virtual void update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
-	virtual void serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
-	void getInput(sf::Time serverTime);
 	void crash(sf::Vector2f otherVelocity);
 	bool handleEvent(const sf::Event& event) override;
 	void cleanUp(sf::Vector2f worldSize, sf::Time dt) override;
@@ -54,9 +45,6 @@ public:
 	void insertInputs(sf::Time serverTime, Inputs inputs);
 
 	void setCarDirection(sf::Vector2f d);
-
-	void computeDeadReckoning(sf::Vector2f newPosition, sf::Vector2f newVelocity, sf::Vector2f newCarDirection);
-	void stepUpDeadReckoning();
 
 	virtual void instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<OldEntity*>& newEntities);
 
@@ -84,6 +72,4 @@ private:
 	sf::Time mShootDelay;
 	sf::Time mCurrentShootDelay;
 	bool mLaunchedMissile;
-
-	std::queue<SpatialVars> mTrajectory;
 };

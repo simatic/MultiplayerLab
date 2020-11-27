@@ -30,7 +30,6 @@ CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding
 	mLaunchedMissile(false),
 	mMissileAmmo(5),
 	mInputs({ false, false, false, false, false, false, false }),
-	mTrajectory(),
 	OldEntity(pos, rect)
 {
 	CarInput inputs = CarInput();
@@ -60,50 +59,13 @@ CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding
 
 void CarLogic::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
-	if (mCurrentShootDelay > sf::Time::Zero) mCurrentShootDelay -= dt;
 
-	if (!mTrajectory.empty()) //maybe skip usual computation when we use dead reckoning?
-	{
-		stepUpDeadReckoning();
-	}
-	else
-	{
-		KeyboardInputSystem::update(this, mKeyBindings);
-		CarMovementSystem::update(dt, this, newEntities);
-		GunSystem::update(dt, this, newEntities);
-	}
-
+	KeyboardInputSystem::update(this, mKeyBindings);
+	CarMovementSystem::update(dt, this, newEntities);
+	GunSystem::update(dt, this, newEntities);
 	OldEntity::update(dt, entities, newEntities, pairs);
 	CarCollisionHandling::update(this);
 	CarDeath::update(this);
-}
-
-void CarLogic::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
-{
-	if (mCurrentShootDelay > sf::Time::Zero) mCurrentShootDelay -= dt;
-
-	getInput(serverTime);
-	CarMovementSystem::update(dt, this, newEntities);
-
-	OldEntity::update(dt, entities, newEntities, pairs);
-
-	mInputs = { false, false, false, false, false, false, false };
-}
-
-void CarLogic::getInput(sf::Time serverTime)
-{
-	std::map<sf::Time, Inputs>::iterator low;
-	low = mServerInputs.lower_bound(serverTime);
-	if (low == mServerInputs.begin())
-	{
-		//serverTime is lower than every input timestamp
-		mInputs = { false, false, false, false, false, false, false };
-	}
-	else
-	{
-		--low;
-		mInputs = low->second;
-	}
 }
 
 bool CarLogic::handleEvent(const sf::Event& event)
@@ -228,31 +190,6 @@ Inputs CarLogic::getSavedInputs()
 void CarLogic::setInputs(Inputs inputs)
 {
 	mInputs = inputs;
-}
-
-void CarLogic::computeDeadReckoning(sf::Vector2f newPosition, sf::Vector2f newVelocity, sf::Vector2f newCarDirection)
-{
-	int numberOfSteps;
-	numberOfSteps = floor(TimePerFrame / TimePerTick);
-	mTrajectory.empty();
-
-	for (int i = 0; i < numberOfSteps; i++)
-	{
-		mTrajectory.push({ getPosition() + ((1.f / (numberOfSteps - i)) * (newPosition - getPosition())), getVelocity() + ((1.f / (numberOfSteps - i)) * (newVelocity - getVelocity())), getComponent<CarEngine>()->direction + ((1.f / (numberOfSteps - i)) * (newCarDirection - getComponent<CarEngine>()->direction)) });
-	}
-}
-
-void CarLogic::stepUpDeadReckoning()
-{
-	getPosition() = mTrajectory.front().position;
-	setVelocity(mTrajectory.front().velocity);
-	getComponent<CarEngine>()->direction = mTrajectory.front().direction;
-	mTrajectory.pop();
-}
-
-void CarLogic::insertInputs(sf::Time serverTime, Inputs inputs)
-{
-	mServerInputs.emplace(serverTime, inputs);
 }
 
 void CarLogic::setCarDirection(sf::Vector2f d)

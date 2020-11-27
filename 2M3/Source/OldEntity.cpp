@@ -34,11 +34,6 @@ void OldEntity::update(sf::Time dt, std::vector<OldEntity*> entities, std::vecto
 	c->shape.setRotation(t->rotation);
 }
 
-void OldEntity::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
-{
-	update(dt, entities, newEntities, pairs);
-}
-
 void OldEntity::draw(sf::RenderTarget& target)
 {
 	//target.draw(getCollider().shape);

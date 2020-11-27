@@ -6,7 +6,6 @@
 #include "MenuState.h"
 #include "SettingsState.h"
 #include "GameState.h"
-#include "MultiplayerGameState.h"
 #include "NetworkCommon.h"
 
 
@@ -128,6 +127,4 @@ void Application::registerStates()
 	mStateStack.registerState<MenuState>(States::Menu);
 	mStateStack.registerState<GameState>(States::Game);
 	mStateStack.registerState<SettingsState>(States::Settings);
-	mStateStack.registerState<MultiplayerGameState>(States::HostGame, true);
-	mStateStack.registerState<MultiplayerGameState>(States::JoinGame, false);
 }
