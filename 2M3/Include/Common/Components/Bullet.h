@@ -5,12 +5,13 @@
 
 struct Bullet : public IdentifiableComponent<Bullet>
 {
-	Bullet(const unsigned int damage, const float maxSpeed, const sf::Time& lifetime, const bool guided, OldEntity* target, const float detectionRange, const float guideRate);
+	Bullet(const unsigned int damage, const float maxSpeed, const sf::Time& lifetime, const bool guided, OldEntity* owner, OldEntity* target, const float detectionRange, const float guideRate);
 	
 	unsigned int damage;
 	float maxSpeed;
 	sf::Time lifetime;
 	bool guided;
+	OldEntity* owner;
 	OldEntity* target;
 	float detectionRange;
 	float guideRate;

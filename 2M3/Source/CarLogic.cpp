@@ -152,6 +152,44 @@ void CarLogic::addMissileAmmo(int ammo)
 
 void CarLogic::onCollision(OldEntity* other)
 {
+	Collider* collider = this->getComponent<Collider>();
+
+	if (collider->collides)
+	{
+		for (OldEntity* other: collider->others)
+		{
+			switch (other->getType())
+			{
+			case Type::ProjectileType:
+			{
+				Health* health = this->getComponent<Health>();
+            	Bullet* bullet = other->getComponent<Bullet>();
+
+				if (bullet->owner != this)
+                {
+                    health->health -= bullet->damage;
+                    other->setToRemove(true);
+                }
+				break;
+			}
+
+			case Type::CarType:
+			{
+				Health* health = this->getComponent<Health>();
+				Kinematics* kinematics = this->getComponent<Kinematics>();
+
+				health->health -= 2;
+				kinematics->velocity = sf::Vector2f(0, 0);
+				break;
+			}
+			default:
+				break;
+			}
+		}
+
+		collider->others.clear();
+	}
+	/*
 	switch (other->getType())
 	{
 	case Type::CarType:
@@ -181,13 +219,13 @@ void CarLogic::onCollision(OldEntity* other)
 		//otherCar->crash(prevVelocity);
 
 		/*setVelocity(0.8f * otherCar->getVelocity());
-		otherCar->setVelocity(0.8f * prevVelocity);*/
+		otherCar->setVelocity(0.8f * prevVelocity);*//*
 		setVelocity(sf::Vector2f(0, 0));
 		other->setVelocity(sf::Vector2f(0, 0));
 
 		break;
-	}
-
+	}*/
+	/*
 	case Type::ProjectileType:
 	{
 		ProjectileLogic* otherProj = dynamic_cast<ProjectileLogic*>(other);
@@ -202,7 +240,7 @@ void CarLogic::onCollision(OldEntity* other)
 	}
 	default:
 		break;
-	}
+	}*/
 }
 
 sf::Vector2f CarLogic::getCarDirection()

@@ -6,23 +6,26 @@ void CollisionSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<
 	{
 		if (other != entity)
 		{
+			bool collides = false;
 			if (length(entity->getPosition() - other->getPosition()) > 100)
 			{
-				entity->getCollider().collides = false;
+				collides = false;
 			}
 			else if (entity->getCollider().shape.getGlobalBounds().intersects(other->getCollider().shape.getGlobalBounds()))
 			{
 				CollisionResult res = collision(entity->getRectangle(), other->getRectangle(), entity->getVelocity(), other->getVelocity(), dt);
 
-				entity->getCollider().collides = res.intersect || res.willIntersect;
+				collides = res.intersect || res.willIntersect;
 			}
 			else
 			{
-				entity->getCollider().collides = false;
+				collides = false;
 			}
 			
-			if (entity->getCollider().collides)
+			if (collides)
 			{
+				entity->getCollider().collides = true;
+				entity->getCollider().others.emplace(other);
 				pairs.insert(std::minmax(entity, other));
 			}
 		}

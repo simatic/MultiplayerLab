@@ -11,6 +11,8 @@
 #include "Common/Components/Collider.h"
 #include "Common/Components/Component.h"
 
+class Collider;
+
 class OldEntity
 {
 public:

@@ -7,7 +7,7 @@ ProjectileLogic::ProjectileLogic(int dmg, sf::Time lifetime, float speed, sf::Ve
 	OldEntity(pos, rect),
 	mCar(car)
 {
-	Bullet b = Bullet(dmg, speed, lifetime, false, nullptr, 0, 0);
+	Bullet b = Bullet(dmg, speed, lifetime, false, car, nullptr, 0, 0);
 	addComponent<Bullet>(b);
 
 	setVelocity(speed * direction);
@@ -18,7 +18,7 @@ ProjectileLogic::ProjectileLogic(int dmg, sf::Time lifetime, float speed, float 
 	OldEntity(pos, rect),
 	mCar(car)
 {
-	Bullet b = Bullet(dmg, speed, lifetime, true, nullptr, detection, 0.3);
+	Bullet b = Bullet(dmg, speed, lifetime, true, car, nullptr, detection, 0.3);
 	addComponent<Bullet>(b);
 
 	setVelocity(speed * direction);
@@ -32,6 +32,7 @@ int ProjectileLogic::getDamage()
 
 void ProjectileLogic::onCollision(OldEntity* other)
 {
+	/*
 	switch (other->getType())
 	{
 	case Type::ProjectileType:
@@ -56,7 +57,7 @@ void ProjectileLogic::onCollision(OldEntity* other)
 
 	default:
 		break;
-	}
+	}*/
 }
 
 CarLogic* ProjectileLogic::getCar()
