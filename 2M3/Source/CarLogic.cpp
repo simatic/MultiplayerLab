@@ -11,6 +11,7 @@
 #include "Common/Systems/CarMovementSystem.h"
 #include "Common/Systems/CarCollisionHandling.h"
 #include "Common/Systems/GunSystem.h"
+#include "Common/Systems/CarDeath.h"
 #include <math.h>
 
 
@@ -74,6 +75,7 @@ void CarLogic::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector
 
 	OldEntity::update(dt, entities, newEntities, pairs);
 	CarCollisionHandling::update(this);
+	CarDeath::update(this);
 }
 
 void CarLogic::serverUpdate(sf::Time serverTime, sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
