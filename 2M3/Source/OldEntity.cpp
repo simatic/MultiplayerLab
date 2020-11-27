@@ -55,33 +55,6 @@ bool OldEntity::toRemove()
 	return mToRemove;
 }
 
-Rectangle OldEntity::getRectangle()
-{
-	Collider* collider = getComponent<Collider>();
-
-	sf::FloatRect baseRect = collider->shape.getLocalBounds();
-	std::vector<sf::Vector2f> points;
-	float halfW = baseRect.width / 2.f;
-	float halfH = baseRect.height / 2.f;
-	points.push_back(sf::Vector2f(baseRect.left - halfW, baseRect.top - halfH));
-	points.push_back(sf::Vector2f(baseRect.left + halfW, baseRect.top - halfH));
-	points.push_back(sf::Vector2f(baseRect.left - halfW, baseRect.top + halfH));
-	points.push_back(sf::Vector2f(baseRect.left + halfW, baseRect.top + halfH));
-
-	for (int i = 0; i < 4; i++)
-	{
-		points[i].x *= collider->shape.getScale().x;
-		points[i].y *= collider->shape.getScale().y;
-		points[i] = rotate(points[i], -toRadians(collider->shape.getRotation()));
-		points[i] += collider->shape.getPosition();
-	}
-
-	Rectangle rect;
-	rect.points = points;
-	return rect;
-
-}
-
 bool OldEntity::handleEvent(const sf::Event& event)
 {
 	return true;

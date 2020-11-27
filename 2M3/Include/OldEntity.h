@@ -35,7 +35,6 @@ public:
 	virtual bool		handleEvent(const sf::Event& event);
 	virtual void		cleanUp(sf::Vector2f worldSize, sf::Time dt);
 
-	Rectangle			getRectangle();
 	Type				getType();
 	sf::Uint64			getID();
 
