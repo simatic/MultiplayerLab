@@ -93,7 +93,7 @@ void CarLogic::crash(sf::Vector2f otherVelocity)
 {
 	mCrash = true;
 	//mVelocity = sf::Vector2f(0, 0);
-	setVelocity(otherVelocity);
+	getComponent<Kinematics>()->velocity = otherVelocity;
 }
 
 void CarLogic::damage(int points)

@@ -7,6 +7,7 @@
 #include "Wall.h"
 #include "OldEntity.h"
 #include "Common/Components/Transform.h"
+#include "Common/Components/Kinematics.h"
 
 World::World(sf::RenderTarget& outputTarget, KeyBinding* keys, const FontHolder& fonts, bool local)
 	: mTarget(outputTarget)
@@ -215,7 +216,7 @@ void World::createCar(sf::Uint64 id, sf::Vector2f pos, sf::Vector2f velocity, sf
 {
 	Car* car = new Car(100, pos, sf::RectangleShape(sf::Vector2f(80, 40)), mTextures);
 	car->setID(id);
-	car->setVelocity(velocity);
+	car->getComponent<Kinematics>()->velocity = velocity;
 	car->setCarDirection(direction);
 	car->setSprite();
 	mNewEntities.push_back(car);

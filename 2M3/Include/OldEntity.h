@@ -40,8 +40,6 @@ public:
 	sf::Uint64			getID();
 
 	void				setID(sf::Uint64 id);
-	void				setPosition(sf::Vector2f p);
-	void				setVelocity(sf::Vector2f v);
 
 	void				setToRemove(bool toRemove);
 	bool				toRemove();

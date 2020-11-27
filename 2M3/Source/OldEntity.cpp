@@ -45,11 +45,6 @@ OldEntity::Type OldEntity::getType()
 	return mType;
 }
 
-void OldEntity::setVelocity(sf::Vector2f v)
-{
-	getComponent<Kinematics>()->velocity = v;
-}
-
 void OldEntity::setToRemove(bool toRemove)
 {
 	mToRemove = toRemove;
@@ -104,9 +99,4 @@ sf::Uint64 OldEntity::getID()
 void OldEntity::setID(sf::Uint64 id)
 {
 	mID = id;
-}
-
-void OldEntity::setPosition(sf::Vector2f p)
-{
-	getComponent<Transform>()->position = p;
 }

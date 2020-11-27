@@ -23,7 +23,7 @@ void BulletSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<Old
 		{
 			sf::Vector2f acceleration = unitVector(bullet->target->getComponent<Transform>()->position - transform->position);
 			sf::Vector2f velocity = unitVector(unitVector(kinematics->velocity) + bullet->guideRate * acceleration) * bullet->maxSpeed;
-			entity->setVelocity(velocity);
+			kinematics->velocity = velocity;
 		}
 		else
 		{
