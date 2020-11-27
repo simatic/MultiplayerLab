@@ -40,11 +40,6 @@ void OldEntity::draw(sf::RenderTarget& target)
 	RenderSystem::render(this, target, *getComponent<Transform>());
 }
 
-float& OldEntity::getRotation()
-{
-	return getComponent<Transform>()->rotation;
-}
-
 sf::Vector2f OldEntity::getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f mapSize)
 {
 	float x = mapSize.x * getComponent<Transform>()->position.x / worldSize.x;

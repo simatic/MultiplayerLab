@@ -2,6 +2,7 @@
 
 void CarMovementSystem::update(const sf::Time dt, CarLogic* entity, std::vector<OldEntity*>& newEntities)
 {
+	Transform* transform = entity->getComponent<Transform>();
     Kinematics* kinematics = entity->getComponent<Kinematics>();
 	CarInput* inputs = entity->getComponent<CarInput>();
 	CarEngine* engine = entity->getComponent<CarEngine>();
@@ -90,5 +91,5 @@ void CarMovementSystem::update(const sf::Time dt, CarLogic* entity, std::vector<
 	if (engine->direction.x != 0) carAngle = -atan2(engine->direction.y, engine->direction.x);
 	if (engine->direction.x == 0 && engine->direction.y != 0) carAngle = M_PI_2 * engine->direction.y / abs(engine->direction.y);
 	if (engine->isDrifting) carAngle += angleSign * engine->driftAngle;
-	entity->getRotation() = -carAngle * 180.0 / M_PI;
+	transform->rotation = -carAngle * 180.0 / M_PI;
 }
