@@ -58,7 +58,7 @@ void ServerWorld::update(sf::Time serverTime, sf::Time dt, sf::UdpSocket& socket
 		{
 			sf::Packet packet;
 			OldEntity::Type type = newEnt->getType();
-			EntityStruct entStruct = { newEnt->getID(), type, newEnt->getPosition(), newEnt->getVelocity() };
+			EntityStruct entStruct = { newEnt->getID(), type, newEnt->getComponent<Transform>()->position, newEnt->getVelocity() };
 			packet << ServerMsgType::ObjectCreation << entStruct;
 
 			switch (type)
@@ -211,7 +211,7 @@ void ServerWorld::sendWorld(ClientData client, sf::UdpSocket& socket, sf::Uint64
 		if (id != idCar1 && id != idCar2)
 		{
 			OldEntity::Type type = ent->getType();
-			EntityStruct entStruct = { id, type, ent->getPosition(), ent->getVelocity() };
+			EntityStruct entStruct = { id, type, ent->getComponent<Transform>()->position, ent->getVelocity() };
 
 			sf::Packet packet;
 			packet << ServerMsgType::ObjectCreation << entStruct;

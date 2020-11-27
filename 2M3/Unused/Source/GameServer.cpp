@@ -201,7 +201,7 @@ void GameServer::sendCarsUpdate(ClientData& client, const std::vector<OldEntity*
 	{
 		packet << ServerMsgType::CarUpdate;
 
-		EntityStruct carStruct = { carEnt->getID(), OldEntity::Type::CarType, carEnt->getPosition(), carEnt->getVelocity() };
+		EntityStruct carStruct = { carEnt->getID(), OldEntity::Type::CarType, carEnt->getComponent<Transform>()->position, carEnt->getVelocity() };
 		packet << carStruct;
 
 		Car* car = dynamic_cast<Car*>(carEnt);

@@ -40,11 +40,6 @@ void OldEntity::draw(sf::RenderTarget& target)
 	RenderSystem::render(this, target, *getComponent<Transform>());
 }
 
-sf::Vector2f& OldEntity::getPosition()
-{
-	return getComponent<Transform>()->position;
-}
-
 float& OldEntity::getRotation()
 {
 	return getComponent<Transform>()->rotation;
@@ -52,8 +47,8 @@ float& OldEntity::getRotation()
 
 sf::Vector2f OldEntity::getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f mapSize)
 {
-	float x = mapSize.x * getPosition().x / worldSize.x;
-	float y = mapSize.y *  getPosition().y / worldSize.y;
+	float x = mapSize.x * getComponent<Transform>()->position.x / worldSize.x;
+	float y = mapSize.y *  getComponent<Transform>()->position.y / worldSize.y;
 	return sf::Vector2f(x, y);
 }
 
@@ -74,7 +69,7 @@ OldEntity::Type OldEntity::getType()
 
 void OldEntity::offset(sf::Vector2f o)
 {
-	getPosition() += o;
+	getComponent<Transform>()->position += o;
 }
 
 void OldEntity::setVelocity(sf::Vector2f v)
@@ -148,5 +143,5 @@ void OldEntity::setID(sf::Uint64 id)
 
 void OldEntity::setPosition(sf::Vector2f p)
 {
-	getPosition() = p;
+	getComponent<Transform>()->position = p;
 }

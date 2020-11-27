@@ -2,5 +2,5 @@
 
 void MovementSystem::update(const sf::Time dt, OldEntity* entity)
 {
-	entity->getPosition() += entity->getVelocity() * dt.asSeconds();
+	entity->getComponent<Transform>()->position += entity->getVelocity() * dt.asSeconds();
 }

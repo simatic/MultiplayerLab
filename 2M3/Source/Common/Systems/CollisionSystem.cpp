@@ -7,7 +7,7 @@ void CollisionSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<
 		if (other != entity)
 		{
 			bool collides = false;
-			if (length(entity->getPosition() - other->getPosition()) > 100)
+			if (length(entity->getComponent<Transform>()->position - other->getComponent<Transform>()->position) > 100)
 			{
 				collides = false;
 			}

@@ -13,7 +13,7 @@ void GunSystem::update(const sf::Time dt, CarLogic* entity, std::vector<OldEntit
     {
         if (inputs->action)
         {
-            entity->instanciateBullet(entity->getPosition(), gun->pointingDirection, newEntities);
+            entity->instanciateBullet(entity->getComponent<Transform>()->position, gun->pointingDirection, newEntities);
             gun->elapsedTimeSinceLastShot = sf::Time::Zero;
         }
     }

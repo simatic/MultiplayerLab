@@ -82,8 +82,8 @@ bool CarLogic::handleEvent(const sf::Event& event)
 
 void CarLogic::cleanUp(sf::Vector2f worldSize, sf::Time dt)
 {
-	if (getPosition().x > worldSize.x || getPosition().x < 0) getPosition().x -= getVelocity().x * dt.asSeconds();
-	if (getPosition().y > worldSize.y || getPosition().y < 0) getPosition().y -= getVelocity().y * dt.asSeconds();
+	if (getComponent<Transform>()->position.x > worldSize.x || getComponent<Transform>()->position.x < 0) getComponent<Transform>()->position.x -= getVelocity().x * dt.asSeconds();
+	if (getComponent<Transform>()->position.y > worldSize.y || getComponent<Transform>()->position.y < 0) getComponent<Transform>()->position.y -= getVelocity().y * dt.asSeconds();
 
 	mPrevCollidedWith = mCollidedWith;
 	mCollidedWith.clear();

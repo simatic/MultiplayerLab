@@ -20,7 +20,7 @@ void BulletSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<Old
 	{
 		if (bullet->target != nullptr)
 		{
-			sf::Vector2f acceleration = unitVector(bullet->target->getPosition() - transform->position);
+			sf::Vector2f acceleration = unitVector(bullet->target->getComponent<Transform>()->position - transform->position);
 			sf::Vector2f velocity = unitVector(unitVector(entity->getVelocity()) + bullet->guideRate * acceleration) * bullet->maxSpeed;
 			entity->setVelocity(velocity);
 		}
@@ -30,7 +30,7 @@ void BulletSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<Old
 			OldEntity* target = nullptr;
 			for (const auto ent : others)
 			{
-				float dist = length(transform->position - ent->getPosition());
+				float dist = length(transform->position - ent->getComponent<Transform>()->position);
 				if (dist < minDist && ent->getType() == OldEntity::Type::CarType && ent != static_cast<ProjectileLogic*>(entity)->getCar())
 				{
 					minDist = dist;

@@ -25,7 +25,7 @@ Car::Car(const TextureHolder& textures) :
 	setSprite();
 
 	Trajectory tr = Trajectory();
-	tr.trajectory[0].position = getPosition();
+	tr.trajectory[0].position = getComponent<Transform>()->position;
 	addComponent<Trajectory>(tr);
 
 	Particles particles = Particles(sf::Vector2f(0, 0), sf::Color::White, sf::seconds(0.7), sf::seconds(1.0 / 40.0));
@@ -43,7 +43,7 @@ Car::Car(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys, co
 	setSprite();
 
 	Trajectory tr = Trajectory();
-	tr.trajectory[0].position = getPosition();
+	tr.trajectory[0].position = getComponent<Transform>()->position;
 	addComponent<Trajectory>(tr);
 
 	Particles particles = Particles(sf::Vector2f(0, 0), sf::Color::White, sf::seconds(0.7), sf::seconds(1.0 / 40.0));
@@ -80,7 +80,7 @@ void Car::draw(sf::RenderTarget& target)
 	RenderParticleSystem::render(target, this);
 
 	HealthBar* bar = getComponent<HealthBar>();
-	bar->background.setPosition(getPosition() + sf::Vector2f(0, 50));
+	bar->background.setPosition(getComponent<Transform>()->position + sf::Vector2f(0, 50));
 	target.draw(bar->background);
 	float hpWidth = bar->background.getSize().x;
 	float hpHeight = bar->background.getSize().y;
