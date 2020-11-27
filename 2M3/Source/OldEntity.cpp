@@ -47,11 +47,6 @@ sf::Vector2f OldEntity::getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f 
 	return sf::Vector2f(x, y);
 }
 
-Collider& OldEntity::getCollider()
-{
-	return *getComponent<Collider>();
-}
-
 OldEntity::Type OldEntity::getType()
 {
 	return mType;
@@ -89,7 +84,9 @@ void OldEntity::unremove()
 
 Rectangle OldEntity::getRectangle()
 {
-	sf::FloatRect baseRect = getCollider().shape.getLocalBounds();
+	Collider* collider = getComponent<Collider>();
+
+	sf::FloatRect baseRect = collider->shape.getLocalBounds();
 	std::vector<sf::Vector2f> points;
 	float halfW = baseRect.width / 2.f;
 	float halfH = baseRect.height / 2.f;
@@ -100,10 +97,10 @@ Rectangle OldEntity::getRectangle()
 
 	for (int i = 0; i < 4; i++)
 	{
-		points[i].x *= getCollider().shape.getScale().x;
-		points[i].y *= getCollider().shape.getScale().y;
-		points[i] = rotate(points[i], -toRadians(getCollider().shape.getRotation()));
-		points[i] += getCollider().shape.getPosition();
+		points[i].x *= collider->shape.getScale().x;
+		points[i].y *= collider->shape.getScale().y;
+		points[i] = rotate(points[i], -toRadians(collider->shape.getRotation()));
+		points[i] += collider->shape.getPosition();
 	}
 
 	Rectangle rect;

@@ -3,6 +3,8 @@
 
 void CollisionSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<OldEntity*>& others, std::set<OldEntity::Pair>& pairs)
 {
+	Collider* collider = entity->getComponent<Collider>();
+
 	for (auto other : others)
 	{
 		if (other != entity)
@@ -12,7 +14,7 @@ void CollisionSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<
 			{
 				collides = false;
 			}
-			else if (entity->getCollider().shape.getGlobalBounds().intersects(other->getCollider().shape.getGlobalBounds()))
+			else if (collider->shape.getGlobalBounds().intersects(other->getComponent<Collider>()->shape.getGlobalBounds()))
 			{
 				CollisionResult res = collision(entity->getRectangle(), other->getRectangle(), entity->getComponent<Kinematics>()->velocity, other->getComponent<Kinematics>()->velocity, dt);
 
@@ -25,8 +27,8 @@ void CollisionSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<
 			
 			if (collides)
 			{
-				entity->getCollider().collides = true;
-				entity->getCollider().others.emplace(other);
+				collider->collides = true;
+				collider->others.emplace(other);
 				pairs.insert(std::minmax(entity, other));
 			}
 		}

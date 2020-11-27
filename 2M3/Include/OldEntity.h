@@ -36,7 +36,6 @@ public:
 	virtual void		cleanUp(sf::Vector2f worldSize, sf::Time dt);
 
 	sf::Vector2f		getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f mapSize);
-	Collider&			getCollider();
 	Rectangle			getRectangle();
 	Type				getType();
 	sf::Uint64			getID();
