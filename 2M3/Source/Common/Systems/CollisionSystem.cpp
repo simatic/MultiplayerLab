@@ -1,4 +1,5 @@
 #include "Common/Systems/CollisionSystem.h"
+#include "Common/Components/Kinematics.h"
 
 void CollisionSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<OldEntity*>& others, std::set<OldEntity::Pair>& pairs)
 {
@@ -13,7 +14,7 @@ void CollisionSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<
 			}
 			else if (entity->getCollider().shape.getGlobalBounds().intersects(other->getCollider().shape.getGlobalBounds()))
 			{
-				CollisionResult res = collision(entity->getRectangle(), other->getRectangle(), entity->getVelocity(), other->getVelocity(), dt);
+				CollisionResult res = collision(entity->getRectangle(), other->getRectangle(), entity->getComponent<Kinematics>()->velocity, other->getComponent<Kinematics>()->velocity, dt);
 
 				collides = res.intersect || res.willIntersect;
 			}

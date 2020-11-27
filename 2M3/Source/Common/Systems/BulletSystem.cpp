@@ -4,6 +4,7 @@
 
 void BulletSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<OldEntity*>& others, std::set<OldEntity::Pair>& pairs)
 {
+	Kinematics* kinematics = entity->getComponent<Kinematics>();
     Transform* transform = entity->getComponent<Transform>();
     Bullet* bullet = entity->getComponent<Bullet>();
 
@@ -21,7 +22,7 @@ void BulletSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<Old
 		if (bullet->target != nullptr)
 		{
 			sf::Vector2f acceleration = unitVector(bullet->target->getComponent<Transform>()->position - transform->position);
-			sf::Vector2f velocity = unitVector(unitVector(entity->getVelocity()) + bullet->guideRate * acceleration) * bullet->maxSpeed;
+			sf::Vector2f velocity = unitVector(unitVector(kinematics->velocity) + bullet->guideRate * acceleration) * bullet->maxSpeed;
 			entity->setVelocity(velocity);
 		}
 		else
@@ -42,7 +43,7 @@ void BulletSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<Old
 	}
 
 	float angle = 0;
-	if (entity->getVelocity().x != 0) angle = -atan2(entity->getVelocity().y, entity->getVelocity().x);
-	if (entity->getVelocity().x == 0 && entity->getVelocity().y != 0) angle = M_PI_2 * entity->getVelocity().y / abs(entity->getVelocity().y);
+	if (kinematics->velocity.x != 0) angle = -atan2(kinematics->velocity.y, kinematics->velocity.x);
+	if (kinematics->velocity.x == 0 && kinematics->velocity.y != 0) angle = M_PI_2 * kinematics->velocity.y / abs(kinematics->velocity.y);
 	transform->rotation = -toDegrees(angle);
 }

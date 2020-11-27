@@ -47,11 +47,6 @@ sf::Vector2f OldEntity::getMiniMapPosition(sf::Vector2f worldSize, sf::Vector2f 
 	return sf::Vector2f(x, y);
 }
 
-sf::Vector2f OldEntity::getVelocity()
-{
-	return getComponent<Kinematics>()->velocity;
-}
-
 Collider& OldEntity::getCollider()
 {
 	return *getComponent<Collider>();
