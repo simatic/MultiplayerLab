@@ -13,8 +13,6 @@ public:
 	virtual void update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
 
 	int getDamage();
-	CarLogic* getCar();
-	bool isGuided();
 
 protected:
 	CarLogic* mCar;

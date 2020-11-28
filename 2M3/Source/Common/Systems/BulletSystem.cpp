@@ -32,7 +32,7 @@ void BulletSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<Old
 			for (const auto ent : others)
 			{
 				float dist = length(transform->position - ent->getComponent<Transform>()->position);
-				if (dist < minDist && ent->getType() == OldEntity::Type::CarType && ent != static_cast<ProjectileLogic*>(entity)->getCar())
+				if (dist < minDist && ent->getType() == OldEntity::Type::CarType && ent != static_cast<ProjectileLogic*>(entity)->getComponent<Bullet>()->owner)
 				{
 					minDist = dist;
 					target = ent;

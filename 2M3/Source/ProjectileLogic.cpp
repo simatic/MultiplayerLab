@@ -30,16 +30,6 @@ int ProjectileLogic::getDamage()
 	return getComponent<Bullet>()->damage;
 }
 
-CarLogic* ProjectileLogic::getCar()
-{
-	return mCar;
-}
-
-bool ProjectileLogic::isGuided()
-{
-	return getComponent<Bullet>()->guided;
-}
-
 void ProjectileLogic::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs)
 {
 	BulletSystem::update(dt, this, entities, pairs);
