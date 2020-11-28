@@ -132,13 +132,7 @@ void World::draw()
 
 bool World::handleEvent(const sf::Event& event)
 {
-	bool res = true;
-	for (auto ent : mEntities)
-	{
-		res = ent->handleEvent(event) && res;
-	}
-
-	return res;
+	return true;
 }
 
 sf::Vector2f World::getWorldSize()

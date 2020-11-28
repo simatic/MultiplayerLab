@@ -32,7 +32,6 @@ public:
 
 	virtual void		update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs);
 	virtual void		draw(sf::RenderTarget& target);
-	virtual bool		handleEvent(const sf::Event& event);
 
 	Type				getType();
 	sf::Uint64			getID();

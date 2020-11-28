@@ -28,7 +28,6 @@ public:
 
 	virtual void update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
 	void crash(sf::Vector2f otherVelocity);
-	bool handleEvent(const sf::Event& event) override;
 
 	void damage(int points);
 	void repair(int points);

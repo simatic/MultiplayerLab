@@ -55,11 +55,6 @@ bool OldEntity::toRemove()
 	return mToRemove;
 }
 
-bool OldEntity::handleEvent(const sf::Event& event)
-{
-	return true;
-}
-
 sf::Uint64 OldEntity::getID()
 {
 	return mID;

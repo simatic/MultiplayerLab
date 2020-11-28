@@ -68,18 +68,6 @@ void CarLogic::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector
 	CarDeath::update(this);
 }
 
-bool CarLogic::handleEvent(const sf::Event& event)
-{
-	CarInput* inputs = getComponent<CarInput>();
-	if (mKeyBindings != nullptr)
-	{
-		inputs->changeActionEvent = inputs->changeActionEvent || event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::ChangeAction);
-		inputs->doActionEvent = inputs->doActionEvent || event.type == sf::Event::KeyPressed && event.key.code == mKeyBindings->getAssignedKey(PlayerAction::DoAction);
-	}
-
-	return true;
-}
-
 void CarLogic::crash(sf::Vector2f otherVelocity)
 {
 	mCrash = true;
