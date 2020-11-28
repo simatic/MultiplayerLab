@@ -13,7 +13,6 @@ public:
 							World(sf::RenderTarget& outputTarget, KeyBinding* keys1, const FontHolder& fonts, bool local);
 
 	void					update(sf::Time dt);
-	void					clientUpdate(sf::Time dt);
 	void					draw();
 	void					loadTextures();
 	bool					handleEvent(const sf::Event& event);

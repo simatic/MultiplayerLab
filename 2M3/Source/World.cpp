@@ -70,30 +70,6 @@ void World::update(sf::Time dt)
 	mPairs.clear();
 }
 
-void World::clientUpdate(sf::Time dt)
-{
-	std::set<OldEntity::Pair> tmpPairs = std::set<OldEntity::Pair>(); //fake set of collision pairs, it is used to ignore local collisions
-	for (auto& ent : mEntities)
-	{
-		ent->update(dt, mEntities, mNewEntities, tmpPairs);
-	}
-	for (auto& player : mPlayers)
-	{
-		player->update(dt); // , mNewEntities);
-	}
-
-	/*auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&Entity::toRemove));
-	mEntities.erase(removeBegin, mEntities.end());*/
-
-	for (auto& newEnt : mNewEntities)
-	{
-		if (newEnt->getID() == 0) mToBeAssignedID.push(newEnt);
-		mEntities.push_back(newEnt);
-	}
-	mNewEntities.clear();
-	mPairs.clear();
-}
-
 void World::draw()
 {
 	for (auto& player : mPlayers)
