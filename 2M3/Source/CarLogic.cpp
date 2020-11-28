@@ -25,11 +25,6 @@ CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect) :
 
 CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding* keys) :
 	mKeyBindings(keys),
-	mShootDelay(sf::seconds(0.1)),
-	mCrash(false),
-	mLaunchedMissile(false),
-	mMissileAmmo(5),
-	mInputs({ false, false, false, false, false, false, false }),
 	OldEntity(pos, rect)
 {
 	CarInput inputs = CarInput();
@@ -68,26 +63,6 @@ void CarLogic::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector
 	CarDeath::update(this);
 }
 
-void CarLogic::damage(int points)
-{
-	Health* h = getComponent<Health>();
-	h->health -= points;
-	std::cout << "took " << points << " dmg" << std::endl;
-	if (h->health <= 0) mToRemove = true;
-}
-
-void CarLogic::repair(int points)
-{
-	Health* h = getComponent<Health>();
-	h->health += points;
-	if (h->health > h->maxHealth) h->health = h->maxHealth;
-}
-
-void CarLogic::addMissileAmmo(int ammo)
-{
-	mMissileAmmo += ammo;
-}
-
 sf::Vector2f CarLogic::getCarDirection()
 {
 	return getComponent<CarEngine>()->direction;
@@ -96,16 +71,6 @@ sf::Vector2f CarLogic::getCarDirection()
 float CarLogic::getSpeedRatio()
 {
 	return length(getComponent<Kinematics>()->velocity) / getComponent<CarEngine>()->maxSpeed;
-}
-
-Inputs CarLogic::getSavedInputs()
-{
-	return mInputs;
-}
-
-void CarLogic::setInputs(Inputs inputs)
-{
-	mInputs = inputs;
 }
 
 void CarLogic::setCarDirection(sf::Vector2f d)
