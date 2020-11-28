@@ -1,6 +1,8 @@
 #include <PlayerGUI.h>
 #include <iostream>
 
+#include "Common/Components/Kinematics.h"
+
 namespace GUI
 {
 	PlayerGUI::PlayerGUI(const FontHolder& fonts) :
@@ -80,7 +82,7 @@ namespace GUI
 			mSpeedometer.setPosition(mSpeedometerBackground.getPosition());
 
 			mAction.setText("Shoot Bullets");
-			mSpeedometer.setRotation(180.f + 180.f * car->getSpeedRatio());
+			mSpeedometer.setRotation(180.f + 180.f * (length(car->getComponent<Kinematics>()->velocity) / car->getComponent<CarEngine>()->maxSpeed));
 
 			mMiniMapShapes.clear();
 		}

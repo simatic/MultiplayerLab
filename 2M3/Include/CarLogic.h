@@ -17,12 +17,6 @@ public:
 
 	virtual void update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
 
-	sf::Vector2f getCarDirection();
-	std::string getActionText();
-	float getSpeedRatio();
-
-	void setCarDirection(sf::Vector2f d);
-
 	virtual void instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<OldEntity*>& newEntities);
 
 protected:

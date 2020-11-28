@@ -5,7 +5,7 @@ void ParticleSystem::update(Car* entity, const sf::Time& dt)
 	Transform* transform = entity->getComponent<Transform>();
     Particles* particles = entity->getComponent<Particles>();
 
-	particles->position = transform->position - (float)20 * entity->getCarDirection();
+	particles->position = transform->position - (float)20 * entity->getComponent<CarEngine>()->direction;
 
     while (!particles->particlesDeque.empty() && particles->particlesDeque.front().lifetime <= sf::Time::Zero)
 	{

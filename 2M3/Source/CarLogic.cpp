@@ -62,21 +62,6 @@ void CarLogic::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector
 	CarDeath::update(this);
 }
 
-sf::Vector2f CarLogic::getCarDirection()
-{
-	return getComponent<CarEngine>()->direction;
-}
-
-float CarLogic::getSpeedRatio()
-{
-	return length(getComponent<Kinematics>()->velocity) / getComponent<CarEngine>()->maxSpeed;
-}
-
-void CarLogic::setCarDirection(sf::Vector2f d)
-{
-	getComponent<CarEngine>()->direction = d;
-}
-
 void CarLogic::instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<OldEntity*>& newEntities)
 {
 	std::cout << "CarLogic" << std::endl;
