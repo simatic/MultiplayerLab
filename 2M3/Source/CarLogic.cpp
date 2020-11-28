@@ -68,13 +68,6 @@ void CarLogic::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector
 	CarDeath::update(this);
 }
 
-void CarLogic::crash(sf::Vector2f otherVelocity)
-{
-	mCrash = true;
-	//mVelocity = sf::Vector2f(0, 0);
-	getComponent<Kinematics>()->velocity = otherVelocity;
-}
-
 void CarLogic::damage(int points)
 {
 	Health* h = getComponent<Health>();
