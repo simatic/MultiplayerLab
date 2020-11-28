@@ -8,17 +8,6 @@
 #include <functional>
 #include "Common/Components/CarEngine.h"
 
-struct Inputs
-{
-	bool up;
-	bool down;
-	bool left;
-	bool right;
-	bool action;
-	bool changeActionEvent;
-	bool doActionEvent;
-};
-
 class CarLogic : public OldEntity
 {
 public:

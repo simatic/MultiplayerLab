@@ -36,28 +36,6 @@ World::World(sf::RenderTarget& outputTarget, KeyBinding* keys, const FontHolder&
 	}
 }
 
-void World::initialize(EntityStruct p1, EntityStruct p2)
-{
-	//mPlayerCar = new Car(100, sf::Vector2f(850, 450), sf::RectangleShape(sf::Vector2f(80, 40)), keys, textures); from Player constructor
-	std::cout << "initializing world with car1 " << p1.id << " and car2 " << p2.id << std::endl;
-	Car* car1 = new Car(100, p1.position, sf::RectangleShape(sf::Vector2f(80, 40)), mPlayerOneKeys, mTextures);
-	car1->setID(p1.id);
-	Car* car2 = new Car(100, p2.position, sf::RectangleShape(sf::Vector2f(80, 40)), mTextures);
-	car2->setID(p2.id);
-
-	Player* player1 = new Player(0, car1);
-	Player* player2 = new Player(1, car2);
-	mPlayers.push_back(player1);
-	mPlayers.push_back(player2);
-
-	mEntities.push_back(car1);
-	mEntities.push_back(car2);
-
-	mPlayerOneGUI.initialize(player1);
-
-	addWalls();
-}
-
 void World::addWalls() {
     auto horizontalWall = sf::RectangleShape(sf::Vector2f(mWorldWidth, 10.0f));
     auto verticalWall = sf::RectangleShape(sf::Vector2f(10.0f, mWorldHeight));

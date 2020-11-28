@@ -4,7 +4,6 @@
 #include <Projectile.h>
 #include <PickUp.h>
 #include "ResourceHolder.h"
-#include "NetworkCommon.h"
 #include "Common/Components/Sprite.h"
 #include "Common/Components/Trajectory.h"
 #include "Common/Components/Particles.h"

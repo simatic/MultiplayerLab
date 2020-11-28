@@ -3,7 +3,6 @@
 #include <iostream>
 #include <ProjectileLogic.h>
 #include "ResourceHolder.h"
-#include "NetworkCommon.h"
 #include "Common/Components/Health.h"
 #include "Common/Components/Kinematics.h"
 #include "Common/Components/CarInput.h"

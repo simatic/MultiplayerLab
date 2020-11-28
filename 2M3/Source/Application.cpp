@@ -6,8 +6,10 @@
 #include "MenuState.h"
 #include "SettingsState.h"
 #include "GameState.h"
-#include "NetworkCommon.h"
 
+
+const sf::Time TimePerTick = sf::seconds(1.f / 20.f);
+const sf::Time TimePerFrame = sf::seconds(1.f / 60.f);
 
 Application::Application()
 : mWindow(sf::VideoMode(1600, 900), "2M3", sf::Style::Close)

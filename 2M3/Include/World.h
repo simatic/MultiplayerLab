@@ -6,13 +6,11 @@
 #include "ResourceIdentifiers.h"
 #include <PlayerGUI.h>
 #include <queue>
-#include <NetworkCommon.h>
 
 class World
 {
 public:
 							World(sf::RenderTarget& outputTarget, KeyBinding* keys1, const FontHolder& fonts, bool local);
-	void					initialize(EntityStruct p1, EntityStruct p2);
 
 	void					update(sf::Time dt);
 	void					clientUpdate(sf::Time dt);
