@@ -79,7 +79,7 @@ namespace GUI
 			mSpeedometerBackground.setPosition(getPosition() + sf::Vector2f(400, 100));
 			mSpeedometer.setPosition(mSpeedometerBackground.getPosition());
 
-			mAction.setText(car->getActionText());
+			mAction.setText("Shoot Bullets");
 			mSpeedometer.setRotation(180.f + 180.f * car->getSpeedRatio());
 
 			mMiniMapShapes.clear();

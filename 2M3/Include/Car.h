@@ -16,8 +16,6 @@ public:
 	void update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
 	void draw(sf::RenderTarget& target) override;
 
-	std::string getActionText();
-
 	void setSprite();
 
 protected:

@@ -102,13 +102,6 @@ void Car::draw(sf::RenderTarget& target)
 	target.draw(hitbox);*/
 }
 
-std::string Car::getActionText()
-{
-	std::string res = "Shoot Bullets";
-
-	return res;
-}
-
 void Car::setSprite()
 {
 	sf::Sprite s = sf::Sprite(mTextures.get(Textures::Car));

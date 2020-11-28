@@ -11,9 +11,4 @@ public:
 	ProjectileLogic(int dmg, sf::Time lifetime, float speed, float detection, sf::Vector2f pos, sf::Vector2f direction, sf::RectangleShape rect, CarLogic* car);
 
 	virtual void update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldEntity*>& newEntities, std::set<Pair>& pairs) override;
-
-	int getDamage();
-
-protected:
-	CarLogic* mCar;
 };
