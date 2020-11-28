@@ -80,15 +80,6 @@ bool CarLogic::handleEvent(const sf::Event& event)
 	return true;
 }
 
-void CarLogic::cleanUp(sf::Vector2f worldSize, sf::Time dt)
-{
-	if (getComponent<Transform>()->position.x > worldSize.x || getComponent<Transform>()->position.x < 0) getComponent<Transform>()->position.x -= getComponent<Kinematics>()->velocity.x * dt.asSeconds();
-	if (getComponent<Transform>()->position.y > worldSize.y || getComponent<Transform>()->position.y < 0) getComponent<Transform>()->position.y -= getComponent<Kinematics>()->velocity.y * dt.asSeconds();
-
-	mPrevCollidedWith = mCollidedWith;
-	mCollidedWith.clear();
-}
-
 void CarLogic::crash(sf::Vector2f otherVelocity)
 {
 	mCrash = true;

@@ -85,11 +85,6 @@ void World::update(sf::Time dt)
 	auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&OldEntity::toRemove));
 	mEntities.erase(removeBegin, mEntities.end());
 
-	for (auto& ent : mEntities)
-	{
-		ent->cleanUp(getWorldSize(), dt);
-	}
-
 	for (auto& newEnt : mNewEntities)
 	{
 		mEntities.push_back(newEnt);
@@ -112,11 +107,6 @@ void World::clientUpdate(sf::Time dt)
 
 	/*auto removeBegin = std::remove_if(mEntities.begin(), mEntities.end(), std::mem_fn(&Entity::toRemove));
 	mEntities.erase(removeBegin, mEntities.end());*/
-
-	for (auto& ent : mEntities)
-	{
-		ent->cleanUp(getWorldSize(), dt);
-	}
 
 	for (auto& newEnt : mNewEntities)
 	{

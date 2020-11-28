@@ -60,10 +60,6 @@ bool OldEntity::handleEvent(const sf::Event& event)
 	return true;
 }
 
-void OldEntity::cleanUp(sf::Vector2f worldSize, sf::Time dt)
-{
-}
-
 sf::Uint64 OldEntity::getID()
 {
 	return mID;
