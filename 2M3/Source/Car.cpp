@@ -14,6 +14,7 @@
 #include "Common/Systems/RenderTrajectorySystem.h"
 #include "Common/Systems/ParticleSystem.h"
 #include "Common/Systems/RenderParticleSystem.h"
+#include "Common/Systems/RenderHealthBar.h"
 #include <math.h>
 
 
@@ -77,29 +78,8 @@ void Car::draw(sf::RenderTarget& target)
 {
 	RenderTrajectorySystem::render(this, target);
 	RenderParticleSystem::render(target, this);
-
-	HealthBar* bar = getComponent<HealthBar>();
-	bar->background.setPosition(getComponent<Transform>()->position + sf::Vector2f(0, 50));
-	target.draw(bar->background);
-	float hpWidth = bar->background.getSize().x;
-	float hpHeight = bar->background.getSize().y;
-
-	Health* h = getComponent<Health>();
-
-	float hpBarWidth = hpWidth * h->health / (float)h->maxHealth;
-	bar->bar.setPosition(bar->background.getPosition() - sf::Vector2f(hpWidth / 2.f, hpHeight / 2.f));
-	bar->bar.setSize(sf::Vector2f(hpBarWidth, hpHeight));
-	target.draw(bar->bar);
-
+	RenderHealthBar::render(this, target);
 	RenderSystem::render(this, target, *getComponent<Transform>());
-
-	//draw hitbox
-	/*sf::VertexArray hitbox = sf::VertexArray(sf::Quads, 4);
-	for (auto& corner : getRectangle().points)
-	{
-		hitbox.append(sf::Vertex(corner, sf::Color::Red));
-	}
-	target.draw(hitbox);*/
 }
 
 void Car::setSprite()
