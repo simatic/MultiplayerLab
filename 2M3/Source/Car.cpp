@@ -2,7 +2,6 @@
 #include <Utility.h>
 #include <iostream>
 #include <Projectile.h>
-#include <PickUp.h>
 #include "ResourceHolder.h"
 #include "Common/Components/Sprite.h"
 #include "Common/Components/Trajectory.h"

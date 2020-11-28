@@ -1,6 +1,5 @@
 #include "World.h"
 #include "Car.h"
-#include "PickUp.h"
 #include <functional>
 #include <iostream>
 #include "Projectile.h"
