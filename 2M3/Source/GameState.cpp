@@ -38,6 +38,7 @@ GameState::GameState(StateStack& stack, Context context) :
 	target = context.window;
 	ResourceManager::getInstance()->setTextures(context.textures);
     gameManager->setRenderTarget(target);
+    gameManager->setKeyBinding(context.keys);
 	
 	Transform   t = Transform(sf::Vector2f(0, 0), 0.f);
     Kinematics  k = Kinematics();
@@ -85,6 +86,8 @@ GameState::GameState(StateStack& stack, Context context) :
     std::unique_ptr<System> ps = std::make_unique<ParticleSystem>();
     std::unique_ptr<System> ts = std::make_unique<TrajectorySystem>();
     std::unique_ptr<System> rs = std::make_unique<RenderSystem>();
+    std::unique_ptr<System> rts = std::make_unique<RenderTrajectorySystem>();
+    std::unique_ptr<System> rps = std::make_unique<RenderParticleSystem>();
 
     gameManager->addSystem(std::move(kis));
     gameManager->addSystem(std::move(cms));
@@ -97,6 +100,8 @@ GameState::GameState(StateStack& stack, Context context) :
     gameManager->addSystem(std::move(cd));
     gameManager->addSystem(std::move(ms));
     gameManager->addRenderer(std::move(rs));
+    gameManager->addRenderer(std::move(rts));
+    gameManager->addRenderer(std::move(rps));
 
     gameManager->updateSystemLists();
 }

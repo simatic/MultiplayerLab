@@ -1,4 +1,5 @@
 #include "Common/Systems/RenderParticleSystem.h"
+#include "Common/Managers/GameManager.h"
 
 void RenderParticleSystem::update(const sf::Time&)
 {
@@ -24,7 +25,7 @@ void RenderParticleSystem::update(const sf::Time&)
 			addVertex(particles->shapes, pos.x - half.x, pos.y + half.y, 0.f, size.y, color);
 		}
 
-		//target.draw(particles->shapes);
+		GameManager::getInstance()->getRenderTarget()->draw(particles->shapes);
 	}
 }
 

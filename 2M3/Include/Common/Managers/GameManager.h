@@ -1,6 +1,7 @@
 #pragma once
 #include "Common/Systems/System.h"
 #include "Common/Entity.h"
+#include "KeyBinding.h"
 
 #include <memory>
 #include <vector>
@@ -46,6 +47,9 @@ public:
     sf::RenderTarget* getRenderTarget() const { return target; };
     void setRenderTarget(sf::RenderTarget* target) { this->target = target; };
 
+    KeyBinding* getKeyBinding() const { return keyBinding; };
+    void setKeyBinding(KeyBinding* keys) { this->keyBinding = keys; };
+
     void clearAll();
 
 private:
@@ -80,4 +84,5 @@ private:
     std::queue<std::uint32_t> unusedIDs;
 
     sf::RenderTarget*	target;
+    KeyBinding*         keyBinding;
 };
