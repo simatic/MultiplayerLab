@@ -37,7 +37,7 @@ void OldEntity::update(sf::Time dt, std::vector<OldEntity*> entities, std::vecto
 void OldEntity::draw(sf::RenderTarget& target)
 {
 	//target.draw(getCollider().shape);
-	RenderSystem::render(this, target, *getComponent<Transform>());
+	//RenderSystem::render(this, target, *getComponent<Transform>());
 }
 
 OldEntity::Type OldEntity::getType()

@@ -20,6 +20,8 @@ public:
 	void removeComponent();
 
 	friend std::ostream& operator<<(std::ostream& os, const Signature& signature);
+	Signature operator&(const Signature& signature) const;
+	bool operator==(const Signature& signature) const;
 
 private:
 	template <typename Component>
@@ -37,7 +39,7 @@ private:
 	static std::size_t registeredComponentsCount;
 	static std::unordered_map<std::size_t, std::size_t> idToBitIndexMap;
 
-	std::bitset<MAX_COMPONENTS> signature;
+	std::bitset<MAX_COMPONENTS> bitset;
 };
 
 template <typename... Components>
@@ -84,7 +86,7 @@ void Signature::_addComponent()
 		Signature::registerComponent<Component>();
 	} 
 
-	signature[idToBitIndexMap[Component::id]] = true;
+	bitset[idToBitIndexMap[Component::id]] = true;
 }
 
 template <typename First, typename... Components>
@@ -106,5 +108,5 @@ void Signature::_removeComponent()
 		Signature::registerComponent<Component>();
 	}
 
-	signature[idToBitIndexMap[Component::id]] = false;
+	bitset[idToBitIndexMap[Component::id]] = false;
 }

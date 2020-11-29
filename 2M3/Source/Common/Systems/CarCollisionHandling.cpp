@@ -1,44 +1,49 @@
 #include "Common/Systems/CarCollisionHandling.h"
 #include "Common/Components/Bullet.h"
+#include "GameManager.h"
 
-void CarCollisionHandling::update(OldEntity* entity)
+void CarCollisionHandling::update(const sf::Time&)
 {
-    Collider* collider = entity->getComponent<Collider>();
-
-	if (collider->collides)
+	for (Entity* entity: entities)
 	{
-		for (OldEntity* other: collider->others)
+		Collider* collider = entity->getComponent<Collider>();
+
+		if (collider->collides)
 		{
-			switch (other->getType())
+			for (Entity* other: collider->others)
 			{
-			case OldEntity::Type::ProjectileType:
-			{
-				Health* health = entity->getComponent<Health>();
-            	Bullet* bullet = other->getComponent<Bullet>();
+				switch (other->getLayer())
+				{
+				case Layer::ProjectileLayer:
+				{
+					Health* health = entity->getComponent<Health>();
+					Bullet* bullet = other->getComponent<Bullet>();
 
-				if (bullet->owner != entity)
-                {
-                    health->health -= bullet->damage;
-                    other->setToRemove(true);
-                }
-				break;
+					if (bullet->owner != entity)
+					{
+						health->health -= bullet->damage;
+						GameManager::getInstance()->removeEntityNextFrame(other->getID());
+					}
+					break;
+				}
+
+				case Layer::CarLayer:
+				{
+					Health* health = entity->getComponent<Health>();
+					Kinematics* kinematics = entity->getComponent<Kinematics>();
+
+					health->health -= 2;
+					kinematics->velocity = sf::Vector2f(0, 0);
+					break;
+				}
+				
+				default:
+					break;
+				}
 			}
 
-			case OldEntity::Type::CarType:
-			{
-				Health* health = entity->getComponent<Health>();
-				Kinematics* kinematics = entity->getComponent<Kinematics>();
-
-				health->health -= 2;
-				kinematics->velocity = sf::Vector2f(0, 0);
-				break;
-			}
-            
-			default:
-				break;
-			}
+			collider->others.clear();
 		}
-
-		collider->others.clear();
 	}
+    
 }

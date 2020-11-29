@@ -1,10 +1,10 @@
 #pragma once
-#include <SFML/System/Time.hpp>
 #include "Common/Systems/System.h"
-#include "OldEntity.h"
+#include "Common/Components/Transform.h"
+#include "Common/Components/Kinematics.h"
 
-class MovementSystem : public SignedSystem<Transform>
+class MovementSystem : public SignedSystem<Transform, Kinematics>
 {
 public:
-	static void update(const sf::Time dt, OldEntity* entity);
+	void update(const sf::Time& dt) override;;
 };

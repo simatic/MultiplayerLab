@@ -1,7 +1,9 @@
 #include "Common/Systems/MovementSystem.h"
-#include "Common/Components/Kinematics.h"
 
-void MovementSystem::update(const sf::Time dt, OldEntity* entity)
+void MovementSystem::update(const sf::Time& dt)
 {
-	entity->getComponent<Transform>()->position += entity->getComponent<Kinematics>()->velocity * dt.asSeconds();
+	for (Entity* entity: entities)
+	{
+		entity->getComponent<Transform>()->position += entity->getComponent<Kinematics>()->velocity * dt.asSeconds();
+	}
 }

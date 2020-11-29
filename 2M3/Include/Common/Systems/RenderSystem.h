@@ -3,10 +3,10 @@
 #include "Common/Systems/System.h"
 #include "../Components/Sprite.h"
 #include "../Components/Transform.h"
-#include "OldEntity.h"
+#include "Common/Entity.h"
 
 class RenderSystem : public SignedSystem<Transform, Sprite>
 {
 public:
-	static void render(OldEntity* entity, sf::RenderTarget& target, Transform transform);
+	void update(const sf::Time& dt) override;
 };

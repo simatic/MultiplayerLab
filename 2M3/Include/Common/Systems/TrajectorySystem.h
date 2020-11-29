@@ -1,10 +1,11 @@
 #pragma once
 #include "Common/Systems/System.h"
+#include "Common/Components/Transform.h"
+#include "Common/Components/CarEngine.h"
 #include "Common/Components/Trajectory.h"
-#include "Car.h"
 
-class TrajectorySystem : public SignedSystem<Trajectory>
+class TrajectorySystem : public SignedSystem<Transform, CarEngine, Trajectory>
 {
 public:
-	static void update(Car* entity);
+	void update(const sf::Time& dt) override;
 };

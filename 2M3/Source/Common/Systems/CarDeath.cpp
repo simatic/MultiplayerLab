@@ -1,11 +1,15 @@
 #include "Common/Systems/CarDeath.h"
+#include "Common/Managers/GameManager.h"
 
-void CarDeath::update(OldEntity* entity)
+void CarDeath::update(const sf::Time& dt)
 {
-    Health* health = entity->getComponent<Health>();
-
-    if (health->health <= 0.f)
+    for (Entity* entity: entities)
     {
-        entity->setToRemove(true);
+        Health* health = entity->getComponent<Health>();
+
+        if (health->health <= 0.f)
+        {
+            GameManager::getInstance()->removeEntityNextFrame(entity->getID());
+        }
     }
 }

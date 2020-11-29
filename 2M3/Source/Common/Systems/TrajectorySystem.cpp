@@ -1,10 +1,13 @@
 #include "Common/Systems/TrajectorySystem.h"
 
-void TrajectorySystem::update(Car* entity)
+void TrajectorySystem::update(const sf::Time&)
 {
-    Transform* transform = entity->getComponent<Transform>();
-    Trajectory* trajectory = entity->getComponent<Trajectory>();
+    for (Entity* entity: entities)
+    {   
+        Transform* transform = entity->getComponent<Transform>();
+        Trajectory* trajectory = entity->getComponent<Trajectory>();
 
-    trajectory->trajectory.append(sf::Vertex(transform->position - (float)20 * entity->getComponent<CarEngine>()->direction));
-    trajectory->trajectory.append(sf::Vertex(transform->position - (float)20 * entity->getComponent<CarEngine>()->direction));
+        trajectory->trajectory.append(sf::Vertex(transform->position - (float)20 * entity->getComponent<CarEngine>()->direction));
+        trajectory->trajectory.append(sf::Vertex(transform->position - (float)20 * entity->getComponent<CarEngine>()->direction));
+    }
 }

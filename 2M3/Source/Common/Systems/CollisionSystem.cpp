@@ -1,37 +1,41 @@
 #include "Common/Systems/CollisionSystem.h"
 #include "Common/Components/Kinematics.h"
+#include "Utility.h"
+#include "Collider.h"
 
 Rectangle getRectangle(const Collider& collider);
 
-void CollisionSystem::update(const sf::Time& dt, OldEntity* entity, std::vector<OldEntity*>& others, std::set<OldEntity::Pair>& pairs)
+void CollisionSystem::update(const sf::Time& dt)
 {
-	Collider* collider = entity->getComponent<Collider>();
-
-	for (auto other : others)
+	for (Entity* entity: entities)
 	{
-		if (other != entity)
-		{
-			bool collides = false;
-			if (length(entity->getComponent<Transform>()->position - other->getComponent<Transform>()->position) > 100)
-			{
-				collides = false;
-			}
-			else if (collider->shape.getGlobalBounds().intersects(other->getComponent<Collider>()->shape.getGlobalBounds()))
-			{
-				CollisionResult res = collision(getRectangle(*collider), getRectangle(*other->getComponent<Collider>()), entity->getComponent<Kinematics>()->velocity, other->getComponent<Kinematics>()->velocity, dt);
+		Collider* collider = entity->getComponent<Collider>();
 
-				collides = res.intersect || res.willIntersect;
-			}
-			else
+		for (Entity* other: entities)
+		{
+			if (other != entity)
 			{
-				collides = false;
-			}
-			
-			if (collides)
-			{
-				collider->collides = true;
-				collider->others.emplace(other);
-				pairs.insert(std::minmax(entity, other));
+				bool collides = false;
+				if (length(entity->getComponent<Transform>()->position - other->getComponent<Transform>()->position) > 100)
+				{
+					collides = false;
+				}
+				else if (collider->shape.getGlobalBounds().intersects(other->getComponent<Collider>()->shape.getGlobalBounds()))
+				{
+					CollisionResult res = collision(getRectangle(*collider), getRectangle(*other->getComponent<Collider>()), entity->getComponent<Kinematics>()->velocity, other->getComponent<Kinematics>()->velocity, dt);
+
+					collides = res.intersect || res.willIntersect;
+				}
+				else
+				{
+					collides = false;
+				}
+				
+				if (collides)
+				{
+					collider->collides = true;
+					collider->others.emplace(other);
+				}
 			}
 		}
 	}

@@ -78,7 +78,7 @@ void Car::draw(sf::RenderTarget& target)
 	RenderTrajectorySystem::render(this, target);
 	RenderParticleSystem::render(target, this);
 	RenderHealthBar::render(this, target);
-	RenderSystem::render(this, target, *getComponent<Transform>());
+	//RenderSystem::render(this, target, *getComponent<Transform>());
 }
 
 void Car::setSprite()

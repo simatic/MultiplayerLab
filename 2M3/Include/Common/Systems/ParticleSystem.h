@@ -1,11 +1,11 @@
 #pragma once
-#include <SFML/System/Time.hpp>
 #include "Common/Systems/System.h"
-#include "Car.h"
+#include "Common/Components/Transform.h"
+#include "Common/Components/CarEngine.h"
 #include "Common/Components/Particles.h"
 
-class ParticleSystem : public SignedSystem<Transform, Particles>
+class ParticleSystem : public SignedSystem<Transform, CarEngine, Particles>
 {
 public:
-	static void update(Car* entity, const sf::Time& dt);
+	void update(const sf::Time& dt) override;;
 };

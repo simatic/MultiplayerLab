@@ -1,6 +1,9 @@
 #include "Common/Systems/RenderTrajectorySystem.h"
 
-void RenderTrajectorySystem::render(Car* entity, sf::RenderTarget& target)
+void RenderTrajectorySystem::update(const sf::Time&)
 {
-    target.draw(entity->getComponent<Trajectory>()->trajectory);
+    for (Entity* entity: entities)
+    {
+        //target.draw(entity->getComponent<Trajectory>()->trajectory);
+    }
 }

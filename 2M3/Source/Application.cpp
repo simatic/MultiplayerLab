@@ -31,6 +31,9 @@ Application::Application()
 	mTextures.load(Textures::TitleScreen,	"Media/Textures/TitleScreen.png");
 	mTextures.load(Textures::MenuScreen,	"Media/Textures/MenuScreen.png");
 	mTextures.load(Textures::Buttons,		"Media/Textures/Button.png");
+	mTextures.load(Textures::Car,		"Media/Textures/Car.png");
+	mTextures.load(Textures::Bullet,	"Media/Textures/Bullet.png");
+	mTextures.load(Textures::Missile,	"Media/Textures/Missile.png");
 
 	mStatisticsText.setFont(mFonts.get(Fonts::Main));
 	mStatisticsText.setPosition(5.f, 5.f);

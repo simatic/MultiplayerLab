@@ -2,9 +2,7 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <set>
 #include "Common/Components/Component.h"
-#include "OldEntity.h"
-
-class OldEntity;
+#include "Common/Entity.h"
 
 struct Collider : public IdentifiableComponent<Collider>
 {
@@ -13,5 +11,5 @@ struct Collider : public IdentifiableComponent<Collider>
 
 	sf::RectangleShape	shape;
 	bool				collides = false;
-	std::set<OldEntity*>others;
+	std::set<Entity*>others;
 };
