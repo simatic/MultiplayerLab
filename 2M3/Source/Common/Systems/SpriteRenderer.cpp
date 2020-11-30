@@ -1,8 +1,8 @@
-#include "Common/Systems/RenderSystem.h"
+#include "Common/Systems/SpriteRenderer.h"
 #include "Common/Managers/GameManager.h"
 #include <iostream>
 
-void RenderSystem::update(const sf::Time&)
+void SpriteRenderer::update(const sf::Time&)
 {
 	for (Entity* entity: entities)
 	{

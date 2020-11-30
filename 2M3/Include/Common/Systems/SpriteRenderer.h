@@ -5,7 +5,7 @@
 #include "../Components/Transform.h"
 #include "Common/Entity.h"
 
-class RenderSystem : public SignedSystem<Transform, Sprite>
+class SpriteRenderer : public SignedSystem<Transform, Sprite>
 {
 public:
 	void update(const sf::Time& dt) override;

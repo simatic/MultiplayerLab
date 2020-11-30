@@ -1,6 +1,6 @@
-#include "RenderHealthBar.h"
+#include "Common/Systems/HealthBarRenderer.h"
 
-void RenderHealthBar::update(const sf::Time&)
+void HealthBarRenderer::update(const sf::Time&)
 {
 	for (Entity* entity: entities)
 	{

@@ -3,7 +3,7 @@
 #include "Common/Components/Transform.h"
 #include "Common/Components/Particles.h"
 
-class RenderParticleSystem : public SignedSystem<Transform, Particles>
+class ParticleRenderer : public SignedSystem<Transform, Particles>
 {
 public:
 	void update(const sf::Time& dt) override;;

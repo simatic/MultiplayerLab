@@ -39,5 +39,5 @@ void Projectile::update(sf::Time dt, std::vector<OldEntity*> entities, std::vect
 
 void Projectile::draw(sf::RenderTarget& target)
 {
-	//RenderSystem::render(this, target, *getComponent<Transform>());
+	//SpriteRenderer::render(this, target, *getComponent<Transform>());
 }

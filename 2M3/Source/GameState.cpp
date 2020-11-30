@@ -1,6 +1,5 @@
 #include "GameState.h"
 #include "Common/Managers/ResourceManager.h"
-#include "Common/Systems/RenderSystem.h"
 #include "Common/Components/Transform.h"
 #include "Common/Components/Kinematics.h"
 #include "Common/Components/Collider.h"
@@ -21,10 +20,10 @@
 #include "Common/Systems/KeyboardInputSystem.h"
 #include "Common/Systems/MovementSystem.h"
 #include "Common/Systems/ParticleSystem.h"
-#include "Common/Systems/RenderHealthBar.h"
-#include "Common/Systems/RenderParticleSystem.h"
-#include "Common/Systems/RenderSystem.h"
-#include "Common/Systems/RenderTrajectorySystem.h"
+#include "Common/Systems/HealthBarRenderer.h"
+#include "Common/Systems/ParticleRenderer.h"
+#include "Common/Systems/SpriteRenderer.h"
+#include "Common/Systems/TrajectoryRenderer.h"
 #include "Common/Systems/TrajectorySystem.h"
 
 #include <iostream>
@@ -85,9 +84,9 @@ GameState::GameState(StateStack& stack, Context context) :
     std::unique_ptr<System> ms = std::make_unique<MovementSystem>();
     std::unique_ptr<System> ps = std::make_unique<ParticleSystem>();
     std::unique_ptr<System> ts = std::make_unique<TrajectorySystem>();
-    std::unique_ptr<System> rs = std::make_unique<RenderSystem>();
-    std::unique_ptr<System> rts = std::make_unique<RenderTrajectorySystem>();
-    std::unique_ptr<System> rps = std::make_unique<RenderParticleSystem>();
+    std::unique_ptr<System> rs = std::make_unique<SpriteRenderer>();
+    std::unique_ptr<System> rts = std::make_unique<TrajectoryRenderer>();
+    std::unique_ptr<System> rps = std::make_unique<ParticleRenderer>();
 
     gameManager->addSystem(std::move(kis));
     gameManager->addSystem(std::move(cms));

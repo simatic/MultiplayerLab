@@ -75,10 +75,10 @@ void Car::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector<OldE
 
 void Car::draw(sf::RenderTarget& target)
 {
-	RenderTrajectorySystem::render(this, target);
-	RenderParticleSystem::render(target, this);
-	RenderHealthBar::render(this, target);
-	//RenderSystem::render(this, target, *getComponent<Transform>());
+	TrajectoryRenderer::render(this, target);
+	ParticleRenderer::render(target, this);
+	HealthBarRenderer::render(this, target);
+	//SpriteRenderer::render(this, target, *getComponent<Transform>());
 }
 
 void Car::setSprite()

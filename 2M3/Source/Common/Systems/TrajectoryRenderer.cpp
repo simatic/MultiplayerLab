@@ -1,7 +1,7 @@
-#include "Common/Systems/RenderTrajectorySystem.h"
+#include "Common/Systems/TrajectoryRenderer.h"
 #include "Common/Managers/GameManager.h"
 
-void RenderTrajectorySystem::update(const sf::Time&)
+void TrajectoryRenderer::update(const sf::Time&)
 {
     for (Entity* entity: entities)
     {

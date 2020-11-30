@@ -1,7 +1,7 @@
-#include "Common/Systems/RenderParticleSystem.h"
+#include "Common/Systems/ParticleRenderer.h"
 #include "Common/Managers/GameManager.h"
 
-void RenderParticleSystem::update(const sf::Time&)
+void ParticleRenderer::update(const sf::Time&)
 {
 	for (Entity* entity: entities)
 	{
@@ -29,7 +29,7 @@ void RenderParticleSystem::update(const sf::Time&)
 	}
 }
 
-void RenderParticleSystem::addVertex(sf::VertexArray& shapes, float x, float y, float width, float height, sf::Color& color)
+void ParticleRenderer::addVertex(sf::VertexArray& shapes, float x, float y, float width, float height, sf::Color& color)
 {
     sf::Vertex vertex;
 	vertex.position = sf::Vector2f(x, y);

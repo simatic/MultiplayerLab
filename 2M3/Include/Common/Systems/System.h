@@ -8,10 +8,13 @@
 class System
 {
 public:
-	virtual void update(const sf::Time& dt) = 0;
+	System() = default;
+	virtual ~System() = default;
 
-	void addEntity(Entity* entity) { entities.emplace(entity); }
-	void removeEntity(Entity* entity) { entities.erase(entity); }
+	virtual void update(const sf::Time& dt) {};
+
+	void addEntity(Entity* entity) { entities.emplace(entity); };
+	void removeEntity(Entity* entity) { entities.erase(entity); };
 
 	Signature signature;
 
