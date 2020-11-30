@@ -6,8 +6,8 @@ HealthBar::HealthBar(
     const sf::Vector2f& size, 
     const sf::Color& backgroundColor, 
     const sf::Color& fillColor, 
-    float fillRate = 0.f)
-    :
+    float fillRate = 0.f
+    ) :
     background(size),
     bar(size)
 {

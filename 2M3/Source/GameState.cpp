@@ -76,7 +76,7 @@ GameState::GameState(StateStack& stack, Context context) :
 	gameManager->addEntity(std::move(e));
 
     std::unique_ptr<System> bs = std::make_unique<BulletSystem>();
-    std::unique_ptr<System> cch = std::make_unique<CarCollisionHandling>();
+    std::unique_ptr<System> cch = std::make_unique<CarCollisionSystem>();
     std::unique_ptr<System> cd = std::make_unique<CarDeath>();
     std::unique_ptr<System> cms = std::make_unique<CarMovementSystem>();
     std::unique_ptr<System> cs = std::make_unique<CollisionSystem>();

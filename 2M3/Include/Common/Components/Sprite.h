@@ -1,10 +1,11 @@
 #pragma once
-#include <SFML/Graphics/Sprite.hpp>
 #include "Component.h"
+
+#include <SFML/Graphics/Sprite.hpp>
 
 struct Sprite : public IdentifiableComponent<Sprite>
 {
-	sf::Sprite sprite;
-
 	Sprite(const sf::Sprite& sprite);
+
+	sf::Sprite sprite;
 };

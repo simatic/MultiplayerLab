@@ -74,14 +74,14 @@ private:
     /**
      * Attributes
      */
-    std::unordered_map<std::uint32_t, std::unique_ptr<Entity>> entities;
-    std::set<std::uint32_t> entitiesToRemove;
+    std::unordered_map<std::uint32_t, std::unique_ptr<Entity>>  entities;
+    std::set<std::uint32_t>                 entitiesToRemove;
 
-    std::vector<std::unique_ptr<System>> systems;
-    std::vector<std::unique_ptr<System>> renderers;
+    std::vector<std::unique_ptr<System>>    systems;
+    std::vector<std::unique_ptr<System>>    renderers;
 
-    std::uint32_t highestID = 1;
-    std::queue<std::uint32_t> unusedIDs;
+    std::uint32_t               highestID = 1;
+    std::queue<std::uint32_t>   unusedIDs;
 
     sf::RenderTarget*	target;
     KeyBinding*         keyBinding;

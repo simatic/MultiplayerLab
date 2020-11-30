@@ -8,7 +8,7 @@ struct Gun : public IdentifiableComponent<Gun>
 {
     Gun(const sf::Vector2f& pointingDirection, sf::Time cooldown);
 
-    sf::Vector2f pointingDirection;
-    sf::Time cooldown;
-    sf::Time elapsedTimeSinceLastShot;
+    sf::Vector2f    pointingDirection;
+    sf::Time        cooldown;
+    sf::Time        elapsedTimeSinceLastShot;
 };

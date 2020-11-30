@@ -2,7 +2,7 @@
 #include "Common/Components/Bullet.h"
 #include "GameManager.h"
 
-void CarCollisionHandling::update(const sf::Time&)
+void CarCollisionSystem::update(const sf::Time&)
 {
 	for (Entity* entity: entities)
 	{

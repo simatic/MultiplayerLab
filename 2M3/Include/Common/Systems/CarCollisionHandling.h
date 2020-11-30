@@ -3,7 +3,7 @@
 #include "Common/Components/Collider.h"
 #include "Common/Components/Health.h"
 
-class CarCollisionHandling : public SignedSystem<Kinematics, Collider, Health>
+class CarCollisionSystem : public SignedSystem<Kinematics, Collider, Health>
 {
 public:
     void update(const sf::Time& dt) override;

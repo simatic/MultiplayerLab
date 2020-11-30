@@ -11,30 +11,30 @@ public:
 	Signature();
 
 	template <typename... Components>
-	static Signature generate();
+	static Signature 	 generate();
 
 	template <typename First, typename... Components>
-	void addComponent();
+	void 				 addComponent();
 	
 	template <typename First, typename... Components>
-	void removeComponent();
+	void 				 removeComponent();
 
 	friend std::ostream& operator<<(std::ostream& os, const Signature& signature);
-	Signature operator&(const Signature& signature) const;
-	bool operator==(const Signature& signature) const;
+	Signature 			 operator&(const Signature& signature) const;
+	bool 				 operator==(const Signature& signature) const;
 
 private:
 	template <typename Component>
-	static bool isComponentRegistered();
+	static bool 		 isComponentRegistered();
 
 	template <typename Component>
-	static void registerComponent();
+	static void  		 registerComponent();
 
 	template <typename Component>
-	void _addComponent();
+	void 				 _addComponent();
 	
 	template <typename Component>
-	void _removeComponent();
+	void 				 _removeComponent();
 
 	static std::size_t registeredComponentsCount;
 	static std::unordered_map<std::size_t, std::size_t> idToBitIndexMap;
