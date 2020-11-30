@@ -10,6 +10,7 @@
 #include "Common/Components/Trajectory.h"
 #include "Common/Components/Particles.h"
 #include "Common/Components/Sprite.h"
+#include "Common/Components/RectShape.h"
 
 #include "Common/Systems/BulletSystem.h"
 #include "Common/Systems/CarCollisionHandling.h"
@@ -25,6 +26,7 @@
 #include "Common/Systems/SpriteRenderer.h"
 #include "Common/Systems/TrajectoryRenderer.h"
 #include "Common/Systems/TrajectorySystem.h"
+#include "Common/Systems/RectShapeRenderer.h"
 
 #include <iostream>
 
@@ -56,11 +58,14 @@ GameState::GameState(StateStack& stack, Context context) :
 
     sf::Sprite s = sf::Sprite(context.textures->get(Textures::Car));
     s.setScale(sf::Vector2f(0.132f, 0.132f));
-    s.setOrigin(bounds.width / 2, bounds.height / 2);
+
+    sf::FloatRect spriteBounds = s.getLocalBounds();
+	c.shape.setOrigin(spriteBounds.width / 2, spriteBounds.height / 2);
+    s.setOrigin(spriteBounds.width / 2, spriteBounds.height / 2);
 
     Sprite sprite = Sprite(s);
 
-	std::unique_ptr<Entity> e = std::make_unique<Entity>();
+	std::shared_ptr<Entity> e = std::make_shared<Entity>();
     e->addComponent<Transform>(t);
     e->addComponent<Kinematics>(k);
     e->addComponent<Collider>(c);
@@ -72,7 +77,17 @@ GameState::GameState(StateStack& stack, Context context) :
     e->addComponent<Particles>(particles);
     e->addComponent<Sprite>(sprite);
 
-	gameManager->addEntity(std::move(e));
+	gameManager->addEntity(e);
+
+    std::shared_ptr<Entity> wall = std::make_shared<Entity>();
+    RectShape rect;
+    rect.shape = sf::RectangleShape(sf::Vector2f(10.0f, 1000.0f));
+    rect.shape.setFillColor(sf::Color::Blue);
+    Transform trans = Transform(sf::Vector2f(-1000, 0), 0.f);
+    wall->addComponent<Transform>(trans);
+    wall->addComponent<RectShape>(rect);
+
+    gameManager->addEntity(wall);
 
     std::unique_ptr<System> bs = std::make_unique<BulletSystem>();
     std::unique_ptr<System> cch = std::make_unique<CarCollisionSystem>();
@@ -87,6 +102,7 @@ GameState::GameState(StateStack& stack, Context context) :
     std::unique_ptr<System> rs = std::make_unique<SpriteRenderer>();
     std::unique_ptr<System> rts = std::make_unique<TrajectoryRenderer>();
     std::unique_ptr<System> rps = std::make_unique<ParticleRenderer>();
+    std::unique_ptr<System> rsr = std::make_unique<RectShapeRenderer>();
 
     gameManager->addSystem(std::move(kis));
     gameManager->addSystem(std::move(cms));
@@ -98,9 +114,10 @@ GameState::GameState(StateStack& stack, Context context) :
     gameManager->addSystem(std::move(ps));
     gameManager->addSystem(std::move(cd));
     gameManager->addSystem(std::move(ms));
-    gameManager->addRenderer(std::move(rs));
     gameManager->addRenderer(std::move(rts));
     gameManager->addRenderer(std::move(rps));
+    gameManager->addRenderer(std::move(rs));
+    gameManager->addRenderer(std::move(rsr));
 
     gameManager->updateSystemLists();
 }

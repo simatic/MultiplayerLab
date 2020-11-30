@@ -7,13 +7,13 @@
 struct Bullet : public IdentifiableComponent<Bullet>
 {
 	Bullet(
-		const unsigned int 	damage, 
-		const float 		maxSpeed, 
-		const sf::Time& 	lifetime,  
-		Entity* 			owner);
+		const unsigned int 		damage, 
+		const float 			maxSpeed, 
+		const sf::Time& 		lifetime,  
+		std::shared_ptr<Entity>	owner);
 	
-	unsigned int 	damage;
-	float 			maxSpeed;
-	sf::Time 		lifetime;
-	Entity* 		owner;
+	unsigned int 				damage;
+	float 						maxSpeed;
+	sf::Time 					lifetime;
+	std::weak_ptr<Entity> 		owner;
 };

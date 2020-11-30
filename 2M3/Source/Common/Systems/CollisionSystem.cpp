@@ -34,7 +34,7 @@ void CollisionSystem::update(const sf::Time& dt)
 				if (collides)
 				{
 					collider->collides = true;
-					collider->others.emplace(other);
+					collider->others.push_back(std::shared_ptr<Entity>(other));
 				}
 			}
 		}

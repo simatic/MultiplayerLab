@@ -1,8 +1,8 @@
 #include "Common/Components/Bullet.h"
 
-Bullet::Bullet(const unsigned int damage, const float maxSpeed, const sf::Time& lifetime, Entity* owner) :
+Bullet::Bullet(const unsigned int damage, const float maxSpeed, const sf::Time& lifetime, std::shared_ptr<Entity> owner) :
 	damage(damage),
 	maxSpeed(maxSpeed),
 	lifetime(lifetime),
-	owner(owner)
+	owner(std::weak_ptr<Entity>(owner))
 {}

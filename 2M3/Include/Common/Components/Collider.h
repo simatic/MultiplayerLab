@@ -2,7 +2,7 @@
 #include "Common/Components/Component.h"
 #include "Common/Entity.h"
 
-#include <set>
+#include <queue>
 #include <SFML/Graphics/RectangleShape.hpp>
 
 struct Collider : public IdentifiableComponent<Collider>
@@ -12,5 +12,5 @@ struct Collider : public IdentifiableComponent<Collider>
 
 	bool				collides = false;
 	sf::RectangleShape	shape;
-	std::set<Entity*>	others;
+	std::deque<std::weak_ptr<Entity>>	others;
 };

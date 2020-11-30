@@ -31,9 +31,12 @@ public:
     /**
      * Methods
      */
-    void addEntity(std::unique_ptr<Entity> entity);
+    void addEntity(std::shared_ptr<Entity> entity);
     void removeEntityNextFrame(std::uint32_t id);
     void removeEntity(std::uint32_t id);
+
+    void setPlayer(Entity* entity);
+    Entity* getPlayer() const;
 
     void addSystem(std::unique_ptr<System> system);
     void addRenderer(std::unique_ptr<System> renderer);
@@ -74,7 +77,8 @@ private:
     /**
      * Attributes
      */
-    std::unordered_map<std::uint32_t, std::unique_ptr<Entity>>  entities;
+    Entity* player;
+    std::unordered_map<std::uint32_t, std::shared_ptr<Entity>>  entities;
     std::set<std::uint32_t>                 entitiesToRemove;
 
     std::vector<std::unique_ptr<System>>    systems;

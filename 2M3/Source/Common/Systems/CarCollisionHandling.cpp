@@ -10,36 +10,40 @@ void CarCollisionSystem::update(const sf::Time&)
 
 		if (collider->collides)
 		{
-			for (Entity* other: collider->others)
+			for (std::weak_ptr<Entity> wkOther: collider->others)
 			{
-				switch (other->getLayer())
+				if (std::shared_ptr<Entity> other = wkOther.lock())
 				{
-				case Layer::ProjectileLayer:
-				{
-					Health* health = entity->getComponent<Health>();
-					Bullet* bullet = other->getComponent<Bullet>();
-
-					if (bullet->owner != entity)
+					switch (other->getLayer())
 					{
-						health->health -= bullet->damage;
-						GameManager::getInstance()->removeEntityNextFrame(other->getID());
+					case Layer::ProjectileLayer:
+					{
+						Health* health = entity->getComponent<Health>();
+						Bullet* bullet = other->getComponent<Bullet>();
+
+						if (bullet->owner.lock().get() != entity)
+						{
+							health->health -= bullet->damage;
+							GameManager::getInstance()->removeEntityNextFrame(other->getID());
+						}
+						break;
 					}
-					break;
-				}
 
-				case Layer::CarLayer:
-				{
-					Health* health = entity->getComponent<Health>();
-					Kinematics* kinematics = entity->getComponent<Kinematics>();
+					case Layer::CarLayer:
+					{
+						Health* health = entity->getComponent<Health>();
+						Kinematics* kinematics = entity->getComponent<Kinematics>();
 
-					health->health -= 2;
-					kinematics->velocity = sf::Vector2f(0, 0);
-					break;
+						health->health -= 2;
+						kinematics->velocity = sf::Vector2f(0, 0);
+						break;
+					}
+					
+					default:
+						break;
+					}
 				}
 				
-				default:
-					break;
-				}
 			}
 
 			collider->others.clear();

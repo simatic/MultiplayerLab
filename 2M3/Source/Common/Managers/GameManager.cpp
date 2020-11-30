@@ -30,7 +30,7 @@ void GameManager::clearAll()
  * Add entity. Ownership is transfered to GameManager.
  * @param entity Entity to add.
  */
-void GameManager::addEntity(std::unique_ptr<Entity> entity)
+void GameManager::addEntity(std::shared_ptr<Entity> entity)
 {
     if (unusedIDs.size() != 0)
     {
@@ -42,7 +42,7 @@ void GameManager::addEntity(std::unique_ptr<Entity> entity)
         entity->setID(highestID++);
     }
 
-    entities.emplace(entity->getID(), std::move(entity));
+    entities.emplace(entity->getID(), std::shared_ptr<Entity>(entity));
 }
 
 /**
@@ -98,6 +98,22 @@ void GameManager::addSystem(std::unique_ptr<System> system)
 void GameManager::addRenderer(std::unique_ptr<System> system)
 {
     renderers.push_back(std::move(system));
+}
+
+/**
+ * @param entity Player's entity.
+ */
+void GameManager::setPlayer(Entity* entity)
+{
+    player = entity;
+}
+
+/**
+ * @return Player's entity.
+ */
+Entity* GameManager::getPlayer() const
+{
+    return player;
 }
 
 /**
