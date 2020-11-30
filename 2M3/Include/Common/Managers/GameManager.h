@@ -38,17 +38,17 @@ public:
     void addSystem(std::unique_ptr<System> system);
     void addRenderer(std::unique_ptr<System> renderer);
 
-    void update(const sf::Time& dt) { for (std::unique_ptr<System>& system: systems) { system->update(dt); }}
-    void render(const sf::Time& dt) { for (std::unique_ptr<System>& system: renderers) { system->update(dt); }}
+    void update(const sf::Time& dt);
+    void render(const sf::Time& dt);
 
     void updateSystemLists();
     void updateSystemLists(Entity* entity);
 
-    sf::RenderTarget* getRenderTarget() const { return target; };
-    void setRenderTarget(sf::RenderTarget* target) { this->target = target; };
+    sf::RenderTarget* getRenderTarget() const;
+    void              setRenderTarget(sf::RenderTarget* target);
 
-    KeyBinding* getKeyBinding() const { return keyBinding; };
-    void setKeyBinding(KeyBinding* keys) { this->keyBinding = keys; };
+    KeyBinding*       getKeyBinding() const;
+    void              setKeyBinding(KeyBinding* keys);
 
     void clearAll();
 

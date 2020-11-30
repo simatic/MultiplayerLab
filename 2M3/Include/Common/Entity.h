@@ -19,24 +19,22 @@ public:
     Entity() = default;
 	Entity(const Entity& entity);
 
-	std::size_t size() const { return components.size(); } 
+	void 				setID(const std::uint32_t id);
+	std::uint32_t 		getID() const;
 
-	void setID(const std::uint32_t id) { this->id = id; }
-	std::uint32_t getID() const { return id; }
+	void 				setLayer(const Layer layer);
+	Layer 				getLayer() const;
 
-	void setLayer(const Layer layer) { this->layer = layer; }
-	Layer getLayer() const { return layer; }
-
-	const Signature& getSignature() const { return signature; }
+	const Signature& 	getSignature() const;
 
 	template <typename T>
-	void addComponent(T& component);
+	void 				addComponent(T& component);
 
 	template <typename T>
-	T* getComponent();
+	T* 					getComponent();
 
 	template <typename T>
-	void removeComponent();
+	void 				removeComponent();
 
 private:
 	std::uint32_t id;
