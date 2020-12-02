@@ -6,11 +6,10 @@
 struct HealthBar : public IdentifiableComponent<HealthBar>
 {
     HealthBar(
-		const sf::Vector2f& origin, 
-		const sf::Vector2f& size, 
+		const sf::Vector2f& size,
 		const sf::Color& 	backgroundColor, 
 		const sf::Color& 	fillColor, 
-		const float 		fillRate);
+		const float 		fillRate = 0.f);
 
 	sf::RectangleShape background;
 	sf::RectangleShape bar;

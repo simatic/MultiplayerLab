@@ -16,8 +16,11 @@ enum class Layer
 class Entity
 {
 public:
-    Entity() = default;
 	Entity(const Entity& entity);
+
+	/// Constructor to initialize an entity with all its components at once
+    template<typename... Components>
+    explicit Entity(Components... components);
 
 	void 				setID(const std::uint32_t id);
 	std::uint32_t 		getID() const;
@@ -37,11 +40,21 @@ public:
 	void 				removeComponent();
 
 private:
-	std::uint32_t id;
-	Layer layer;
-	Signature signature;
-	std::unordered_map<std::size_t, std::unique_ptr<Component>> components;
+	std::uint32_t id = 0;
+	Layer layer = Layer::DefaultLayer;
+	Signature signature{};
+	std::unordered_map<std::size_t, std::unique_ptr<Component>> components{};
 };
+
+template<typename... Component>
+Entity::Entity(Component... component) {
+    (
+            (
+                    signature.addComponent<Component>(),
+                    components[Component::id] = std::make_unique<Component>(component)
+            )
+    , ...);
+}
 
 template <typename T>
 void Entity::addComponent(T& component)

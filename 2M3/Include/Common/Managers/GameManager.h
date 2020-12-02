@@ -55,6 +55,10 @@ public:
 
     void clearAll();
 
+    // templates
+    template<typename... System>
+    void addSystems();
+
 private:
     /**
      * Singleton management
@@ -90,3 +94,10 @@ private:
     sf::RenderTarget*	target;
     KeyBinding*         keyBinding;
 };
+
+template<typename... System>
+void GameManager::addSystems() {
+    (
+            addSystem(std::make_unique<System>())
+    , ...);
+}

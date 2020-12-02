@@ -2,20 +2,19 @@
 #include <algorithm>
 
 HealthBar::HealthBar(
-    const sf::Vector2f& origin, 
-    const sf::Vector2f& size, 
+    const sf::Vector2f& size,
     const sf::Color& backgroundColor, 
     const sf::Color& fillColor, 
-    float fillRate = 0.f
+    float fillRate
     ) :
     background(size),
     bar(size)
 {
-    fillRate = std::clamp(fillRate, 0.f, 100.f);
+    fillRate = std::clamp(fillRate, 0.f, 1.f);
 
     background.setFillColor(backgroundColor);
-    background.setOrigin(origin);
+    background.setOrigin(sf::Vector2f(size.x/2.0f, size.y/2.0f));
 
     bar.setFillColor(fillColor);
-    bar.setSize(sf::Vector2f(size.x * fillRate / 100.f, size.y));
+    bar.setSize(sf::Vector2f(size.x * fillRate, size.y));
 }
