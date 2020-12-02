@@ -70,19 +70,16 @@ GameState::GameState(StateStack& stack, Context context) :
             CameraTarget()
 	        );
 
+	playerCar->setLayer(Layer::CarLayer);
+
 	gameManager->addEntity(playerCar);
 
-    RectShape rect;
-    rect.shape = sf::RectangleShape(sf::Vector2f(10.0f, 1000.0f));
-    rect.shape.setFillColor(sf::Color::Blue);
+    createWall(sf::Vector2f(-1, 0));
+    createWall(sf::Vector2f(+1, 0));
+    createWall(sf::Vector2f(0, -1));
+    createWall(sf::Vector2f(0, +1));
 
-    std::shared_ptr<Entity> wall = std::make_shared<Entity>(
-            Transform(sf::Vector2f(-1000, 0), 0.f),
-            rect
-            );
-
-    gameManager->addEntity(wall);
-
+    gameManager->addRenderer(std::make_unique<CameraSystem>());
     gameManager->addRenderer(std::make_unique<TrajectoryRenderer>());
     gameManager->addRenderer(std::make_unique<ParticleRenderer>());
     gameManager->addRenderer(std::make_unique<SpriteRenderer>());
@@ -99,11 +96,28 @@ GameState::GameState(StateStack& stack, Context context) :
             TrajectorySystem,
             ParticleSystem,
             CarDeath,
-            MovementSystem,
-            CameraSystem
+            MovementSystem
     >();
 
     gameManager->updateSystemLists();
+}
+
+void GameState::createWall(sf::Vector2f axis) const {
+    const float wallLength = 5000.0f;
+    RectShape rect;
+    rect.shape = sf::RectangleShape(sf::Vector2f(std::abs(axis.x) * wallLength + std::abs(axis.y) * 10.0f, std::abs(axis.x) * 10.0f + std::abs(axis.y) * wallLength));
+    rect.shape.setFillColor(sf::Color::Blue);
+    rect.shape.setOrigin(rect.shape.getSize().x / 2, rect.shape.getSize().y / 2);
+
+    std::shared_ptr<Entity> wall = std::make_shared<Entity>(
+            Transform(sf::Vector2f(axis.y*wallLength/2.0f, axis.x*wallLength/2.0f), 0.f),
+            rect,
+            Collider(rect.shape)
+    );
+
+    wall->setLayer(Layer::WallLayer);
+
+    gameManager->addEntity(wall);
 }
 
 void GameState::draw()

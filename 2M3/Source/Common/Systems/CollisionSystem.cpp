@@ -7,34 +7,54 @@ Rectangle getRectangle(const Collider& collider);
 
 void CollisionSystem::update(const sf::Time& dt)
 {
+    for (Entity* entity: entities) {
+        auto collider = entity->getComponent<Collider>();
+        auto transform = entity->getComponent<Transform>();
+        collider->shape.setOrigin(collider->shape.getSize().x/2, collider->shape.getSize().y/2);
+        collider->shape.setPosition(transform->position);
+        collider->shape.setRotation(transform->rotation);
+    }
+
 	for (Entity* entity: entities)
 	{
 		Collider* collider = entity->getComponent<Collider>();
+        collider->others.clear();
 
-		for (Entity* other: entities)
+        for (Entity* other: entities)
 		{
 			if (other != entity)
 			{
+			    auto otherCollider = other->getComponent<Collider>();
+			    float minDistancePossible = std::max(
+			            std::max(collider->shape.getSize().x, collider->shape.getSize().y),
+			            std::max(otherCollider->shape.getSize().x, otherCollider->shape.getSize().y)
+                );
+
 				bool collides = false;
-				if (length(entity->getComponent<Transform>()->position - other->getComponent<Transform>()->position) > 100)
+				if (length(entity->getComponent<Transform>()->position - other->getComponent<Transform>()->position) > minDistancePossible)
 				{
-					collides = false;
+                    continue;
 				}
-				else if (collider->shape.getGlobalBounds().intersects(other->getComponent<Collider>()->shape.getGlobalBounds()))
+				else if (collider->shape.getGlobalBounds().intersects(otherCollider->shape.getGlobalBounds()))
 				{
-					CollisionResult res = collision(getRectangle(*collider), getRectangle(*other->getComponent<Collider>()), entity->getComponent<Kinematics>()->velocity, other->getComponent<Kinematics>()->velocity, dt);
+				    sf::Vector2f velocityA{};
+				    sf::Vector2f velocityB{};
+
+				    if(auto kinematics = entity->getComponent<Kinematics>()) {
+				        velocityA = kinematics->velocity;
+				    }
+				    if(auto kinematics = other->getComponent<Kinematics>()) {
+				        velocityB = kinematics->velocity;
+				    }
+					CollisionResult res = collision(getRectangle(*collider), getRectangle(*otherCollider), velocityA, velocityB, dt);
 
 					collides = res.intersect || res.willIntersect;
 				}
-				else
-				{
-					collides = false;
-				}
-				
+
 				if (collides)
 				{
 					collider->collides = true;
-					collider->others.push_back(std::shared_ptr<Entity>(other));
+					collider->others.emplace_back(other->weak_from_this());
 				}
 			}
 		}

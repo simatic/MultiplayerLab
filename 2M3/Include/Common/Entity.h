@@ -10,10 +10,11 @@ enum class Layer
 {
 	CarLayer,
 	ProjectileLayer,
+	WallLayer,
 	DefaultLayer
 };
 
-class Entity
+class Entity: public std::enable_shared_from_this<Entity>
 {
 public:
 	Entity(const Entity& entity);

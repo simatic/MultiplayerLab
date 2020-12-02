@@ -38,6 +38,14 @@ void CarCollisionSystem::update(const sf::Time&)
 						kinematics->velocity = sf::Vector2f(0, 0);
 						break;
 					}
+
+                    case Layer::WallLayer:
+                    {
+                        Kinematics* kinematics = entity->getComponent<Kinematics>();
+                        // TODO: use speed reduction of collision function
+                        kinematics->velocity = sf::Vector2f(0, 0);
+                        break;
+                    }
 					
 					default:
 						break;
@@ -45,8 +53,6 @@ void CarCollisionSystem::update(const sf::Time&)
 				}
 				
 			}
-
-			collider->others.clear();
 		}
 	}
     
