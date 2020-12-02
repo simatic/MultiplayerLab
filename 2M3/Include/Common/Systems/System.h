@@ -5,8 +5,13 @@
 #include <SFML/System/Time.hpp>
 #include <set>
 
-class System
-{
+enum class SystemType {
+	Logic,
+	Render
+};
+
+template <SystemType type>
+class System {
 public:
 	System() = default;
 	virtual ~System() = default;
@@ -22,16 +27,24 @@ protected:
 	std::set<Entity*> entities;
 };
 
-template <typename... Components>
-class SignedSystem : public System
+template <SystemType type, typename... Components>
+class SignedSystem : public System<type>
 {
 public:
 	SignedSystem();
 };
 
-template <typename... Components>
-SignedSystem<Components...>::SignedSystem() :
-	System()
+template <SystemType type, typename... Components>
+SignedSystem<type, Components...>::SignedSystem() :
+	System<type>()
 {
 	signature = Signature::generate<Components...>();
 }
+
+template <typename... Components>
+class LogicSystem : public SignedSystem<SystemType::Logic, Components...> 
+{};
+
+template <typename... Components>
+class RenderSystem : public SignedSystem<SystemType::Render, Components...>
+{};

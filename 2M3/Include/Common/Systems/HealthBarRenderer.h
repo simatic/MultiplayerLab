@@ -4,7 +4,7 @@
 #include "Common/Components/Health.h"
 #include "Common/Components/HealthBar.h"
 
-class HealthBarRenderer : public SignedSystem<Transform, Health, HealthBar>
+class HealthBarRenderer : public RenderSystem<Transform, Health, HealthBar>
 {
 public:
 	void update(const sf::Time& dt) override;;

@@ -5,7 +5,7 @@
 #include "Common/Components/CarInput.h"
 #include "Common/Components/CarEngine.h"
 
-class CarMovementSystem : public SignedSystem<Transform, Kinematics, CarInput, CarEngine>
+class CarMovementSystem : public LogicSystem<Transform, Kinematics, CarInput, CarEngine>
 {
 public:
 	void update(const sf::Time& dt) override;;

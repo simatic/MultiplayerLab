@@ -4,7 +4,7 @@
 #include "Common/Components/CarEngine.h"
 #include "Common/Components/Particles.h"
 
-class ParticleSystem : public SignedSystem<Transform, CarEngine, Particles>
+class ParticleSystem : public LogicSystem<Transform, CarEngine, Particles>
 {
 public:
 	void update(const sf::Time& dt) override;;

@@ -3,7 +3,7 @@
 #include "Common/Components/CarEngine.h"
 #include "Common/Components/Gun.h"
 
-class GunSystem : public SignedSystem<CarInput, CarEngine, Gun>
+class GunSystem : public LogicSystem<CarInput, CarEngine, Gun>
 {
 public:
 	void update(const sf::Time& dt) override;;

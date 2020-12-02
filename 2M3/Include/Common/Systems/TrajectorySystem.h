@@ -4,7 +4,7 @@
 #include "Common/Components/CarEngine.h"
 #include "Common/Components/Trajectory.h"
 
-class TrajectorySystem : public SignedSystem<Transform, CarEngine, Trajectory>
+class TrajectorySystem : public LogicSystem<Transform, CarEngine, Trajectory>
 {
 public:
 	void update(const sf::Time& dt) override;

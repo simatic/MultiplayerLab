@@ -3,7 +3,7 @@
 #include "Common/Components/Transform.h"
 #include "Common/Components/Collider.h"
 
-class CollisionSystem : public SignedSystem<Transform, Collider>
+class CollisionSystem : public LogicSystem<Transform, Collider>
 {
 public:
 	void update(const sf::Time& dt) override;;

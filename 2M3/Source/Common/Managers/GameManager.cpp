@@ -21,9 +21,9 @@ void GameManager::cleanUp()
 void GameManager::clearAll()
 {
     entities.clear();
-    systems.clear();
+    logicSystems.clear();
+    renderSystems.clear();
     entitiesToRemove.clear();
-    renderers.clear();
 }
 
 /**
@@ -86,34 +86,18 @@ void GameManager::applyEntitiesToRemove()
  * Add system. Ownership is transferred to GameManager.
  * @param system System to add.
  */
-void GameManager::addSystem(std::unique_ptr<System> system)
+void GameManager::addLogicSystem(std::unique_ptr<System<SystemType::Logic>> system)
 {
-    systems.push_back(std::move(system));
+    logicSystems.push_back(std::move(system));
 }
 
 /**
  * Add renderer. Ownership is transferred to GameManager.
  * @param system System to add.
  */
-void GameManager::addRenderer(std::unique_ptr<System> system)
+void GameManager::addRenderSystem(std::unique_ptr<System<SystemType::Render>> system)
 {
-    renderers.push_back(std::move(system));
-}
-
-/**
- * @param entity Player's entity.
- */
-void GameManager::setPlayer(Entity* entity)
-{
-    player = entity;
-}
-
-/**
- * @return Player's entity.
- */
-Entity* GameManager::getPlayer() const
-{
-    return player;
+    renderSystems.push_back(std::move(system));
 }
 
 /**
@@ -133,7 +117,7 @@ void GameManager::updateSystemLists()
  */
 void GameManager::updateSystemLists(Entity* entity)
 {
-    for (std::unique_ptr<System>& system: systems)
+    for (std::unique_ptr<System<SystemType::Logic>>& system: logicSystems)
     {
         if ((entity->getSignature() & system->signature) == system->signature)
         {
@@ -145,7 +129,7 @@ void GameManager::updateSystemLists(Entity* entity)
         }
     }
 
-    for (std::unique_ptr<System>& system: renderers)
+    for (std::unique_ptr<System<SystemType::Render>>& system: renderSystems)
     {
         if ((entity->getSignature() & system->signature) == system->signature)
         {
@@ -159,12 +143,12 @@ void GameManager::updateSystemLists(Entity* entity)
 }
 
 /**
- * Update registered systems.
+ * Update logic systems.
  * @param dt Time since last frame.
  */
 void GameManager::update(const sf::Time& dt)
 {
-    for (std::unique_ptr<System>& system: systems) 
+    for (std::unique_ptr<System<SystemType::Logic>>& system: logicSystems)
     { 
         system->update(dt); 
     }
@@ -176,7 +160,7 @@ void GameManager::update(const sf::Time& dt)
  */
 void GameManager::render(const sf::Time& dt)
 {
-    for (std::unique_ptr<System>& renderer: renderers) 
+    for (std::unique_ptr<System<SystemType::Render>>& renderer: renderSystems)
     { 
         renderer->update(dt); 
     }

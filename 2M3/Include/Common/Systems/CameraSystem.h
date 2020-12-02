@@ -4,7 +4,7 @@
 #include "Common/Components/CameraTarget.h"
 #include "Common/Components/Transform.h"
 
-class CameraSystem: public SignedSystem<Transform, CameraTarget> {
+class CameraSystem: public RenderSystem<Transform, CameraTarget> {
 public:
     explicit CameraSystem();
 

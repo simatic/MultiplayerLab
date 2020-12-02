@@ -9,9 +9,6 @@
 
 #include <SFML/Graphics/RenderTarget.hpp>
 
-class Entity;
-class System;
-
 class GameManager
 {
 public:
@@ -35,11 +32,8 @@ public:
     void removeEntityNextFrame(std::uint32_t id);
     void removeEntity(std::uint32_t id);
 
-    void setPlayer(Entity* entity);
-    Entity* getPlayer() const;
-
-    void addSystem(std::unique_ptr<System> system);
-    void addRenderer(std::unique_ptr<System> renderer);
+    void addLogicSystem(std::unique_ptr<System<SystemType::Logic>> system);
+    void addRenderSystem(std::unique_ptr<System<SystemType::Render>> renderer);
 
     void update(const sf::Time& dt);
     void render(const sf::Time& dt);
@@ -57,7 +51,10 @@ public:
 
     // templates
     template<typename... System>
-    void addSystems();
+    void addLogicSystems();
+
+    template<typename... System>
+    void addRenderSystems();
 
 private:
     /**
@@ -81,23 +78,29 @@ private:
     /**
      * Attributes
      */
-    Entity* player;
     std::unordered_map<std::uint32_t, std::shared_ptr<Entity>>  entities;
     std::set<std::uint32_t>                 entitiesToRemove;
 
-    std::vector<std::unique_ptr<System>>    systems;
-    std::vector<std::unique_ptr<System>>    renderers;
+    std::vector<std::unique_ptr<System<SystemType::Logic>>>    logicSystems;
+    std::vector<std::unique_ptr<System<SystemType::Render>>>   renderSystems;
 
     std::uint32_t               highestID = 1;
     std::queue<std::uint32_t>   unusedIDs;
 
-    sf::RenderTarget*	target;
-    KeyBinding*         keyBinding;
+    sf::RenderTarget*	target = nullptr;
+    KeyBinding*         keyBinding = nullptr;
 };
 
 template<typename... System>
-void GameManager::addSystems() {
+void GameManager::addLogicSystems() {
     (
-            addSystem(std::make_unique<System>())
+        addLogicSystem(std::make_unique<System>())
+    , ...);
+}
+
+template<typename... System>
+void GameManager::addRenderSystems() {
+    (
+        addRenderSystem(std::make_unique<System>())
     , ...);
 }

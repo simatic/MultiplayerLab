@@ -4,7 +4,7 @@
 #include "../Components/RectShape.h"
 #include "../Components/Transform.h"
 
-class RectShapeRenderer : public SignedSystem<Transform, RectShape>
+class RectShapeRenderer : public RenderSystem<Transform, RectShape>
 {
 public:
 	void update(const sf::Time& dt) override;

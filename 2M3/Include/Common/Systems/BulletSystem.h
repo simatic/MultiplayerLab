@@ -4,7 +4,7 @@
 #include "Common/Components/Kinematics.h"
 #include "Common/Components/Bullet.h"
 
-class BulletSystem : public SignedSystem<Transform, Kinematics, Bullet>
+class BulletSystem : public LogicSystem<Transform, Kinematics, Bullet>
 {
 public:
 	void update(const sf::Time& dt) override;

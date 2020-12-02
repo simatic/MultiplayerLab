@@ -3,7 +3,7 @@
 #include "Common/Components/Transform.h"
 #include "Common/Components/Trajectory.h"
 
-class TrajectoryRenderer : public SignedSystem<Transform, Trajectory>
+class TrajectoryRenderer : public RenderSystem<Transform, Trajectory>
 {
 public:
 	void update(const sf::Time& dt) override;;

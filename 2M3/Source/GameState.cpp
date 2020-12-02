@@ -79,14 +79,16 @@ GameState::GameState(StateStack& stack, Context context) :
     createWall(sf::Vector2f(0, -1));
     createWall(sf::Vector2f(0, +1));
 
-    gameManager->addRenderer(std::make_unique<CameraSystem>());
-    gameManager->addRenderer(std::make_unique<TrajectoryRenderer>());
-    gameManager->addRenderer(std::make_unique<ParticleRenderer>());
-    gameManager->addRenderer(std::make_unique<SpriteRenderer>());
-    gameManager->addRenderer(std::make_unique<RectShapeRenderer>());
-    gameManager->addRenderer(std::make_unique<HealthBarRenderer>());
+    gameManager->addRenderSystems<
+        CameraSystem,
+        TrajectoryRenderer,
+        ParticleRenderer,
+        SpriteRenderer,
+        RectShapeRenderer,
+        HealthBarRenderer
+    >();
 
-    gameManager->addSystems<
+    gameManager->addLogicSystems<
             KeyboardInputSystem,
             CarMovementSystem,
             CollisionSystem,
