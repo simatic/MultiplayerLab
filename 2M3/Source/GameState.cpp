@@ -31,6 +31,8 @@
 #include <iostream>
 
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <Common/Components/CameraTarget.h>
+#include <Common/Systems/CameraSystem.h>
 
 GameState::GameState(StateStack& stack, Context context) :
 	State(stack, context),
@@ -50,6 +52,7 @@ GameState::GameState(StateStack& stack, Context context) :
     Gun         gun = Gun(sf::Vector2f(1, 0), sf::seconds(0.1));
     Trajectory  trajectory = Trajectory();
     Particles   particles = Particles(sf::Vector2f(0, 0), sf::Color::White, sf::seconds(0.7), sf::seconds(1.0 / 40.0));
+    CameraTarget cameraTarget = CameraTarget();
 
     trajectory.trajectory[0].position = t.position;
     
@@ -76,6 +79,7 @@ GameState::GameState(StateStack& stack, Context context) :
     e->addComponent<Trajectory>(trajectory);
     e->addComponent<Particles>(particles);
     e->addComponent<Sprite>(sprite);
+    e->addComponent<CameraTarget>(cameraTarget);
 
 	gameManager->addEntity(e);
 
@@ -103,6 +107,7 @@ GameState::GameState(StateStack& stack, Context context) :
     std::unique_ptr<System> rts = std::make_unique<TrajectoryRenderer>();
     std::unique_ptr<System> rps = std::make_unique<ParticleRenderer>();
     std::unique_ptr<System> rsr = std::make_unique<RectShapeRenderer>();
+    std::unique_ptr<System> cameraSystem = std::make_unique<CameraSystem>();
 
     gameManager->addSystem(std::move(kis));
     gameManager->addSystem(std::move(cms));
@@ -114,6 +119,7 @@ GameState::GameState(StateStack& stack, Context context) :
     gameManager->addSystem(std::move(ps));
     gameManager->addSystem(std::move(cd));
     gameManager->addSystem(std::move(ms));
+    gameManager->addSystem(std::move(cameraSystem));
     gameManager->addRenderer(std::move(rts));
     gameManager->addRenderer(std::move(rps));
     gameManager->addRenderer(std::move(rs));
