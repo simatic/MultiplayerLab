@@ -119,7 +119,7 @@ void GameManager::updateSystemLists(Entity* entity)
 {
     for (std::unique_ptr<System<SystemType::Logic>>& system: logicSystems)
     {
-        if ((entity->getSignature() & system->signature) == system->signature)
+        if ((entity->getSignature() & system->getSignature()) == system->getSignature())
         {
             system->addEntity(entity);
         }
@@ -131,7 +131,7 @@ void GameManager::updateSystemLists(Entity* entity)
 
     for (std::unique_ptr<System<SystemType::Render>>& system: renderSystems)
     {
-        if ((entity->getSignature() & system->signature) == system->signature)
+        if ((entity->getSignature() & system->getSignature()) == system->getSignature())
         {
             system->addEntity(entity);
         }

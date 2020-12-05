@@ -16,16 +16,33 @@ public:
 	System() = default;
 	virtual ~System() = default;
 
+	virtual void start() {};
 	virtual void update(const sf::Time& dt) {};
 
-	void addEntity(Entity* entity) { entities.emplace(entity); };
-	void removeEntity(Entity* entity) { entities.erase(entity); };
+	void addEntity(Entity* entity);
+	void removeEntity(Entity* entity);
 
-	Signature signature;
+	const Signature& getSignature() const;
 
 protected:
+	Signature signature;
 	std::set<Entity*> entities;
 };
+
+template <SystemType type>
+void System<type>::addEntity(Entity* entity) {
+	entities.emplace(entity);
+}
+
+template <SystemType type>
+void System<type>::removeEntity(Entity* entity) {
+	entities.erase(entity);
+}
+
+template <SystemType type>
+const Signature& System<type>::getSignature() const {
+	return signature;
+}
 
 template <SystemType type, typename... Components>
 class SignedSystem : public System<type>
