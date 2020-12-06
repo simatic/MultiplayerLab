@@ -1,5 +1,7 @@
 #include "GameState.h"
 #include "Common/Managers/ResourceManager.h"
+#include "Common/Prefabs/RenderablePrefabs.h"
+
 #include "Common/Components/Transform.h"
 #include "Common/Components/Kinematics.h"
 #include "Common/Components/Collider.h"
@@ -43,32 +45,7 @@ GameState::GameState(StateStack& stack, Context context) :
     gameManager->setRenderTarget(target);
     gameManager->setKeyBinding(context.keys);
 
-    Collider    collider = Collider(sf::Vector2f(80, 40));
-
-    sf::FloatRect bounds = collider.shape.getLocalBounds();
-	collider.shape.setOrigin(bounds.width / 2, bounds.height / 2);
-
-    sf::Sprite s = sf::Sprite(context.textures->get(Textures::Car));
-    s.setScale(sf::Vector2f(0.132f, 0.132f));
-
-    sf::FloatRect spriteBounds = s.getLocalBounds();
-	collider.shape.setOrigin(spriteBounds.width / 2, spriteBounds.height / 2);
-    s.setOrigin(spriteBounds.width / 2, spriteBounds.height / 2);
-
-	std::shared_ptr<Entity> playerCar = std::make_shared<Entity>(
-            Transform(sf::Vector2f(0, 0), 0.f),
-            Kinematics(),
-            collider,
-            CarInput(),
-            Health(75, 100),
-            HealthBar(sf::Vector2f(100, 10), sf::Color::Red, sf::Color::Green, 0.5f),
-            CarEngine(1000, 1000 / 3, 200, 24, 800, 3.1415f / 3, 0.001f, sf::Vector2f(1, 0)),
-            Gun(sf::Vector2f(1, 0), sf::seconds(0.1)),
-            Trajectory(),
-            Particles(sf::Vector2f(0, 0), sf::Color::White, sf::seconds(0.7), sf::seconds(1.0 / 40.0)),
-            Sprite(s),
-            CameraTarget()
-	        );
+    std::shared_ptr<Entity> playerCar = Prefab::createPlayableCar();
 
 	playerCar->setLayer(Layer::CarLayer);
 
@@ -78,15 +55,6 @@ GameState::GameState(StateStack& stack, Context context) :
     createWall(sf::Vector2f(+1, 0));
     createWall(sf::Vector2f(0, -1));
     createWall(sf::Vector2f(0, +1));
-
-    gameManager->addRenderSystems<
-        CameraSystem,
-        TrajectoryRenderer,
-        ParticleRenderer,
-        SpriteRenderer,
-        RectShapeRenderer,
-        HealthBarRenderer
-    >();
 
     gameManager->addLogicSystems<
             KeyboardInputSystem,
@@ -99,6 +67,15 @@ GameState::GameState(StateStack& stack, Context context) :
             ParticleSystem,
             CarDeath,
             MovementSystem
+    >();
+
+    gameManager->addRenderSystems<
+        CameraSystem,
+        TrajectoryRenderer,
+        ParticleRenderer,
+        SpriteRenderer,
+        RectShapeRenderer,
+        HealthBarRenderer
     >();
 
     gameManager->updateSystemLists();
