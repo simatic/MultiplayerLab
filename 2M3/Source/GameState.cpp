@@ -47,8 +47,6 @@ GameState::GameState(StateStack& stack, Context context) :
 
     std::shared_ptr<Entity> playerCar = Prefab::createPlayableCar();
 
-	playerCar->setLayer(Layer::CarLayer);
-
 	gameManager->addEntity(playerCar);
 
     createWall(sf::Vector2f(-1, 0));

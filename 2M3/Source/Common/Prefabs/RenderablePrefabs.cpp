@@ -30,6 +30,7 @@ std::shared_ptr<Entity> Prefab::createRenderableCar() {
     s.setOrigin(spriteBounds.width / 2, spriteBounds.height / 2);
 
     return std::make_shared<Entity>(
+        Layer::CarLayer,
         Transform(sf::Vector2f(0, 0), 0.f),
         Kinematics(),
         collider,

@@ -19,9 +19,13 @@ class Entity: public std::enable_shared_from_this<Entity>
 public:
 	Entity(const Entity& entity);
 
-	/// Constructor to initialize an entity with all its components at once
+	/// Constructor to initialize an entity with all its components at once and default layer.
     template<typename... Components>
     explicit Entity(Components... components);
+
+	/// Constructor to initialize an entity with all its components and a custom layer.
+	template<typename... Components>
+	explicit Entity(const Layer layer, Components... components);
 
 	void 				setID(const std::uint32_t id);
 	std::uint32_t 		getID() const;
@@ -55,6 +59,12 @@ Entity::Entity(Component... component) {
                     components[Component::id] = std::make_unique<Component>(component)
             )
     , ...);
+}
+
+template<typename... Component>
+Entity::Entity(const Layer layer, Component... component) : 
+	Entity(component...) {
+	this->layer = layer;
 }
 
 template <typename T>
