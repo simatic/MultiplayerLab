@@ -23,8 +23,9 @@ void CarCollisionSystem::update(const sf::Time&)
 
 						if (bullet->owner.lock().get() != entity)
 						{
+							std::cout << "Collision " << entity << " - Owner " << bullet->owner.lock().get() << std::endl;
 							health->health -= bullet->damage;
-							GameManager::getInstance()->removeEntityNextFrame(other->getID());
+							GameManager::getInstance()->removeEntityNextFrame(other.get());
 						}
 						break;
 					}

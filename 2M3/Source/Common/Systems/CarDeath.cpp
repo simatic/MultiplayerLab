@@ -9,7 +9,7 @@ void CarDeath::update(const sf::Time& dt)
 
         if (health->health <= 0.f)
         {
-            GameManager::getInstance()->removeEntityNextFrame(entity->getID());
+            GameManager::getInstance()->removeEntityNextFrame(entity);
         }
     }
 }

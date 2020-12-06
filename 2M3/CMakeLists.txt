@@ -32,7 +32,7 @@ endif()
 
 add_executable(2M3
   ${SOURCES}
- "Include/Common/Prefabs/RenderablePrefabs.h" "Source/Common/Prefabs/RenderablePrefabs.cpp")
+ "Include/Common/Prefabs/Prefabs.h" "Source/Common/Prefabs/Prefabs.cpp")
 
 target_link_libraries(2M3 PUBLIC sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
 

@@ -13,7 +13,7 @@ void BulletSystem::update(const sf::Time& dt)
 		bullet->lifetime -= dt;
 		if (bullet->lifetime < sf::Time::Zero)
 		{
-			GameManager::getInstance()->removeEntityNextFrame(entity->getID());
+			GameManager::getInstance()->removeEntityNextFrame(entity);
 		}
 		//mTransform.rotation = mCar->getRotation();
 

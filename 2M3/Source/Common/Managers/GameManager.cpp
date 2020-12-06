@@ -27,7 +27,7 @@ void GameManager::clearAll()
 }
 
 /**
- * Add entity. Ownership is transfered to GameManager.
+ * Add entity.
  * @param entity Entity to add.
  */
 void GameManager::addEntity(std::shared_ptr<Entity> entity)
@@ -42,19 +42,21 @@ void GameManager::addEntity(std::shared_ptr<Entity> entity)
         entity->setID(highestID++);
     }
 
-    entities.emplace(entity->getID(), std::shared_ptr<Entity>(entity));
+    entities.emplace(entity->getID(), entity);
+    updateSystemLists(entity.get());
 }
 
 /**
  * Removes and deletes the entity.
- * Caution: do not use while game loop is running. Use removeEntityNextFrame() instead.
+ * @warning Do not use while game loop is running. Use removeEntityNextFrame() instead.
  */
-void GameManager::removeEntity(std::uint32_t id)
+void GameManager::removeEntity(Entity* entity)
 {
-    if (entities.find(id) != entities.end())
+    if (entities.find(entity->getID()) != entities.end())
     {
-        entities.erase(id);
-        unusedIDs.emplace(id);
+        removeFromSystemsLists(entity);
+        unusedIDs.emplace(entity->getID());
+        entities.erase(entity->getID());
     }
 }
 
@@ -62,11 +64,11 @@ void GameManager::removeEntity(std::uint32_t id)
  * Set the given entity to be deleted on next frame.
  * This is safe to use while the game loop is running.
  */
-void GameManager::removeEntityNextFrame(std::uint32_t id)
+void GameManager::removeEntityNextFrame(Entity* entity)
 {
-    if (entities.find(id) != entities.end())
+    if (entities.find(entity->getID()) != entities.end())
     {
-        entitiesToRemove.emplace(id);
+        entitiesToRemove.emplace(entity);
     }
 }
 
@@ -75,9 +77,9 @@ void GameManager::removeEntityNextFrame(std::uint32_t id)
  */
 void GameManager::applyEntitiesToRemove()
 {
-    for (const std::uint32_t id: entitiesToRemove)
+    for (Entity* entity: entitiesToRemove)
     {
-        removeEntity(id);
+        removeEntity(entity);
     }
     entitiesToRemove.clear();
 }
@@ -117,7 +119,7 @@ void GameManager::updateSystemLists()
  */
 void GameManager::updateSystemLists(Entity* entity)
 {
-    for (std::unique_ptr<System<SystemType::Logic>>& system: logicSystems)
+    for (auto& system: logicSystems)
     {
         if ((entity->getSignature() & system->getSignature()) == system->getSignature())
         {
@@ -129,7 +131,7 @@ void GameManager::updateSystemLists(Entity* entity)
         }
     }
 
-    for (std::unique_ptr<System<SystemType::Render>>& system: renderSystems)
+    for (auto& system: renderSystems)
     {
         if ((entity->getSignature() & system->getSignature()) == system->getSignature())
         {
@@ -139,6 +141,19 @@ void GameManager::updateSystemLists(Entity* entity)
         {
             system->removeEntity(entity);
         }
+    }
+}
+
+void GameManager::removeFromSystemsLists(Entity* entity) 
+{
+    for (auto& system : logicSystems)
+    {
+        system->removeEntity(entity);
+    }
+
+    for (auto& system : renderSystems)
+    {
+        system->removeEntity(entity);
     }
 }
 
@@ -152,6 +167,7 @@ void GameManager::update(const sf::Time& dt)
     { 
         system->update(dt); 
     }
+    applyEntitiesToRemove();
 }
 
 /**

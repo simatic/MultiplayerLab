@@ -1,6 +1,6 @@
 #include "GameState.h"
 #include "Common/Managers/ResourceManager.h"
-#include "Common/Prefabs/RenderablePrefabs.h"
+#include "Common/Prefabs/Prefabs.h"
 
 #include "Common/Components/Transform.h"
 #include "Common/Components/Kinematics.h"
@@ -45,9 +45,12 @@ GameState::GameState(StateStack& stack, Context context) :
     gameManager->setRenderTarget(target);
     gameManager->setKeyBinding(context.keys);
 
-    std::shared_ptr<Entity> playerCar = Prefab::createPlayableCar();
+    std::shared_ptr<Entity> playerCar = Prefab::createPlayableCar(true);
+    std::shared_ptr<Entity> car = Prefab::createCar(true);
+    car->getComponent<Transform>()->position = sf::Vector2f(100, 100);
 
 	gameManager->addEntity(playerCar);
+    gameManager->addEntity(car);
 
     createWall(sf::Vector2f(-1, 0));
     createWall(sf::Vector2f(+1, 0));

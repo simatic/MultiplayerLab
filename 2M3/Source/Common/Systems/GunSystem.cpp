@@ -1,4 +1,11 @@
 #include "Common/Systems/GunSystem.h"
+#include "Common/Managers/GameManager.h"
+
+#include "Prefabs/Prefabs.h"
+#include "Common/Components/Transform.h"
+#include "Common/Components/Kinematics.h"
+#include "Common/Components/Bullet.h"
+
 #include "Utility.h"
 
 void GunSystem::update(const sf::Time& dt)
@@ -16,8 +23,12 @@ void GunSystem::update(const sf::Time& dt)
         {
             if (inputs->action)
             {
-                std::cout << "TODO Instanciate bullet" << std::endl;
-                //entity->instanciateBullet(entity->getComponent<Transform>()->position, gun->pointingDirection, newEntities);
+                std::cout << "Shoot from " << entity << std::endl;
+                std::shared_ptr<Entity> bullet = Prefab::createBullet(true);
+                bullet->getComponent<Transform>()->position = entity->getComponent<Transform>()->position;
+                bullet->getComponent<Bullet>()->owner = entity->weak_from_this();
+                bullet->getComponent<Kinematics>()->velocity = bullet->getComponent<Bullet>()->maxSpeed * gun->pointingDirection;
+                GameManager::getInstance()->addEntity(bullet);
                 gun->elapsedTimeSinceLastShot = sf::Time::Zero;
             }
         }

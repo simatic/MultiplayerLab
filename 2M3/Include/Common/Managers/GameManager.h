@@ -29,8 +29,8 @@ public:
      * Methods
      */
     void addEntity(std::shared_ptr<Entity> entity);
-    void removeEntityNextFrame(std::uint32_t id);
-    void removeEntity(std::uint32_t id);
+    void removeEntityNextFrame(Entity* entity);
+    void removeEntity(Entity* entity);
 
     void addLogicSystem(std::unique_ptr<System<SystemType::Logic>> system);
     void addRenderSystem(std::unique_ptr<System<SystemType::Render>> renderer);
@@ -74,12 +74,14 @@ private:
      * Methods
      */
     void applyEntitiesToRemove();
+    void removeFromSystemsLists(Entity* entity);
 
     /**
      * Attributes
      */
     std::unordered_map<std::uint32_t, std::shared_ptr<Entity>>  entities;
-    std::set<std::uint32_t>                 entitiesToRemove;
+
+    std::set<Entity*> entitiesToRemove;
 
     std::vector<std::unique_ptr<System<SystemType::Logic>>>    logicSystems;
     std::vector<std::unique_ptr<System<SystemType::Render>>>   renderSystems;
