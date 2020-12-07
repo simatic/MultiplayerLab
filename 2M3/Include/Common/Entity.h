@@ -36,7 +36,7 @@ public:
 	const Signature& 	getSignature() const;
 
 	template <typename T>
-	void 				addComponent(T& component);
+	void 				addComponent(const T& component);
 
 	template <typename T>
 	T* 					getComponent();
@@ -68,7 +68,7 @@ Entity::Entity(const Layer layer, Component... component) :
 }
 
 template <typename T>
-void Entity::addComponent(T& component)
+void Entity::addComponent(const T& component)
 {
 	signature.addComponent<T>();
 	components[T::id] = std::make_unique<T>(component);

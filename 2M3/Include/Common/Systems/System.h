@@ -55,7 +55,7 @@ template <SystemType type, typename... Components>
 SignedSystem<type, Components...>::SignedSystem() :
 	System<type>()
 {
-	signature = Signature::generate<Components...>();
+	this->signature = Signature::generate<Components...>();
 }
 
 template <typename... Components>
