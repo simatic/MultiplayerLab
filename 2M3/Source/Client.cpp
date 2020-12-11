@@ -5,12 +5,14 @@
 #include "GameState.h"
 #include "MultiplayerGameState.h"
 
-Client::Client(int uid, sf::RenderWindow* mainWindow, std::string clientTitle, std::shared_ptr <sf::Mutex> mutex) :
+
+Client::Client(int uid, sf::RenderWindow& mainWindow, sf::Mutex& mutex, sf::RenderTexture* renderTexture) :
 	_uid(uid),
-	_mainWindow(/*mainWindow*/ /* TODO uncomment for having 1 window */ nullptr),
-	_applicationMutex(mutex),
+	_mainWindow(&mainWindow),
+	_renderTexture(renderTexture),
+	_applicationMutex(&mutex),
 	_isThreadTerminated(false),
-	_view(),
+	//_view(),
 	_textures(nullptr),
 	_fonts(nullptr),
 	_keybinding(nullptr),
@@ -19,8 +21,10 @@ Client::Client(int uid, sf::RenderWindow* mainWindow, std::string clientTitle, s
 	_statisticsUpdateTime(),
 	_statisticsNumFrames(0)
 {
-	/* TODO uncomment when removing separate windows.
+	/* TODO uncomment when removing separate windows.*/
+	/*_applicationMutex->lock();
 	sf::Vector2f mainWindowSize(_mainWindow->getSize());
+	_applicationMutex->unlock();
 	_view.setSize(mainWindowSize.x / 2, mainWindowSize.y);
 	if (uid == 0) {
 		_view.setViewport(sf::FloatRect(0, 0, 0.5f, 1.0f));
@@ -30,12 +34,8 @@ Client::Client(int uid, sf::RenderWindow* mainWindow, std::string clientTitle, s
 	}*/
 }
 
-void Client::initialize(int keyBindingConfiguration) {
-	/* TODO Comment the 3 lines about _mainWindow when adding View*/
-	_mainWindow.reset(new sf::RenderWindow(sf::VideoMode::getDesktopMode(), toString(_uid), sf::Style::Close | sf::Style::Resize));
-	_mainWindow->setKeyRepeatEnabled(false);
-	_mainWindow->setVerticalSyncEnabled(true);
-
+void Client::initialize(int keyBindingConfiguration)
+{
 	_textures.reset(new TextureHolder());
 	_fonts.reset( new FontHolder());
 	
@@ -50,7 +50,7 @@ void Client::initialize(int keyBindingConfiguration) {
 	_statisticsText.setCharacterSize(10u);
 
 	_keybinding.reset(new KeyBinding(keyBindingConfiguration));
-	_stateStack.reset(new StateStack(State::Context(*_mainWindow, *_textures, *_fonts, *_keybinding)));
+	_stateStack.reset(new StateStack(State::Context(_uid, *_renderTexture, *_textures, *_fonts, *_keybinding, *_applicationMutex)));
 	registerStates();
 	_stateStack->pushState(States::Title);
 }
@@ -60,31 +60,26 @@ void Client::run() {
 	sf::Time timeSinceLastUpdate = sf::Time::Zero;
 	sf::Time timeSinceLastTick = sf::Time::Zero;
 
-	bool isThreadTerminated;
+	bool isThreadTerminated = false;
 
-	while (_mainWindow->isOpen())
+	while (!isThreadTerminated)
 	{
-		_applicationMutex->lock();
+		_clientMutex.lock();
 		isThreadTerminated = _isThreadTerminated;
-		_applicationMutex->unlock();
-		if (isThreadTerminated) {
-			if (_mainWindow->isOpen()) {
-				_mainWindow->close();
-				break;
-			}
-		}
+		_clientMutex.unlock();
+
 		sf::Time dt = clock.restart();
 		timeSinceLastUpdate += dt;
+		
 		while (timeSinceLastUpdate > TimePerFrame)
 		{
 			timeSinceLastUpdate -= TimePerFrame;
-
 			processInput();
 			update(TimePerFrame);
 
 			// Check inside this loop, because stack might be empty before update() call
-			if (_stateStack->isEmpty())
-				_mainWindow->close();
+			/*if (_stateStack->isEmpty())
+				_mainWindow->close();*/
 		}
 
 		timeSinceLastTick += dt;
@@ -101,21 +96,25 @@ void Client::run() {
 }
 
 void Client::terminate() {
-	_applicationMutex->lock();
+	_clientMutex.lock();
 	_isThreadTerminated = true;
-	_applicationMutex->unlock();
+	_clientMutex.unlock();
 }
 
 void Client::processInput()
 {
-	sf::Event event;
-	while (_mainWindow->pollEvent(event))
-	{
-		_stateStack->handleEvent(event);
-
-		if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape))
-			_mainWindow->close();
+	_clientMutex.lock();
+	for (size_t i = 0; i < _inputs.size(); i++) {
+		_stateStack->handleEvent(_inputs[i]);
 	}
+	_inputs.clear();
+	_clientMutex.unlock();
+}
+
+void Client::setInputs(const std::vector <sf::Event>& newInputs) {
+	_clientMutex.lock();
+	_inputs = newInputs;
+	_clientMutex.unlock();
 }
 
 void Client::update(sf::Time dt)
@@ -130,14 +129,20 @@ void Client::tick()
 
 void Client::render()
 {
-	_mainWindow->clear();
-
+	// TODO delete everything except _stateStack->draw(); after replacing _mainWindow by _renderTexture
+	_applicationMutex->lock();
+	// Seems necessary when there are multiple contexts.
+	_mainWindow->setActive(true);
+	//_mainWindow->clear();
+	_renderTexture->clear();
 	_stateStack->draw();
+	_renderTexture->display();
+	//_mainWindow->setView(_mainWindow->getDefaultView());
+	//_mainWindow->draw(_statisticsText);
 
-	_mainWindow->setView(_mainWindow->getDefaultView());
-	_mainWindow->draw(_statisticsText);
-
-	_mainWindow->display();
+	//_mainWindow->display();
+	_mainWindow->setActive(false);
+	_applicationMutex->unlock();
 }
 
 void Client::updateStatistics(sf::Time dt)

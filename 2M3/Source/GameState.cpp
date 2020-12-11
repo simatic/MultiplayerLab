@@ -4,7 +4,7 @@
 
 GameState::GameState(StateStack& stack, Context context)
 	: State(stack, context)
-	, mWorld(*context.window, context.keys, *context.fonts, true)
+	, mWorld(*context.uid ,*context.target, context.keys, *context.fonts, true)
 	, mClock()
 {	
 }

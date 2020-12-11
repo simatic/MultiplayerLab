@@ -12,7 +12,7 @@ namespace GUI
 	public:
 		PlayerGUI(Player* player, const FontHolder& fonts);
 		PlayerGUI(const FontHolder& fonts);
-		void initialize(Player* player);
+		void initialize(Player* player, sf::RenderTarget& target);
 
 		bool isSelectable() const;
 		void handleEvent(const sf::Event& event);

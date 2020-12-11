@@ -6,7 +6,7 @@
 #include <Projectile.h>
 #include <Wall.h>
 
-World::World(sf::RenderTarget& outputTarget, KeyBinding* keys, const FontHolder& fonts, bool local)
+World::World(int uid, sf::RenderTexture& outputTarget, KeyBinding* keys, const FontHolder& fonts, bool local)
 	: mTarget(outputTarget)
 	, mTextures()
 	, mPlayerOneGUI(fonts)
@@ -19,17 +19,18 @@ World::World(sf::RenderTarget& outputTarget, KeyBinding* keys, const FontHolder&
 
 	if (local)
 	{
-		Player* player = new Player(0, keys, mTextures);
+		Player* player = new Player(uid, keys, mTextures);
 		mPlayers.push_back(player);
 
 		mEntities.push_back(player->getCar());
 
-		mPlayerOneGUI.initialize(player);
+		mPlayerOneGUI.initialize(player, mTarget);
 
 		addWalls();
 	}
 }
 
+// TODO check if this method is really needed or not.
 void World::initialize(EntityStruct p1, EntityStruct p2)
 {
 	//mPlayerCar = new Car(100, sf::Vector2f(850, 450), sf::RectangleShape(sf::Vector2f(80, 40)), keys, textures); from Player constructor
@@ -47,7 +48,7 @@ void World::initialize(EntityStruct p1, EntityStruct p2)
 	mEntities.push_back(car1);
 	mEntities.push_back(car2);
 
-	mPlayerOneGUI.initialize(player1);
+	mPlayerOneGUI.initialize(player1, mTarget);
 
 	addWalls();
 }

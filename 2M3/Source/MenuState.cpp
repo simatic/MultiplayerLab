@@ -71,12 +71,12 @@ MenuState::MenuState(StateStack& stack, Context context)
 
 void MenuState::draw()
 {
-	sf::RenderWindow& window = *getContext().window;
+	sf::RenderTarget& target = *getContext().target;
 
-	window.setView(window.getDefaultView());
+	target.setView(target.getDefaultView());
 
-	window.draw(mBackgroundSprite);
-	window.draw(mGUIContainer);
+	target.draw(mBackgroundSprite);
+	target.draw(mGUIContainer);
 }
 
 bool MenuState::update(sf::Time)

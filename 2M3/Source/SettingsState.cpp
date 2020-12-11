@@ -35,10 +35,10 @@ SettingsState::SettingsState(StateStack& stack, Context context)
 
 void SettingsState::draw()
 {
-	sf::RenderWindow& window = *getContext().window;
+	sf::RenderTarget& target = *getContext().target;
 
-	window.draw(mBackgroundSprite);
-	window.draw(mGUIContainer);
+	target.draw(mBackgroundSprite);
+	target.draw(mGUIContainer);
 }
 
 bool SettingsState::update(sf::Time)

@@ -7,7 +7,7 @@
 
 MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, bool isHost)
 	: State(stack, context)
-	, mWorld(*context.window, context.keys, *context.fonts, false)
+	, mWorld(*context.uid, *context.target, context.keys, *context.fonts, false)
 	, mClock()
 	, mGameClient()
 	, mIsHost(isHost)
@@ -21,7 +21,7 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 		mConnected = true;
 		mGameClient.setServerAddress(mGameServer->getAdress());
 
-		mGameServer->start(context.window);
+		//mGameServer->start(context.target);
 	}
 	if (mGameClient.bindSocket() != sf::Socket::Done)
 	{

@@ -33,11 +33,12 @@ namespace GUI
 		mSpeedometer.setFillColor(sf::Color::Black);
 	}
 
-	void GUI::PlayerGUI::initialize(Player* player)
+	void GUI::PlayerGUI::initialize(Player* player, sf::RenderTarget& target)
 	{
 		mPlayer = player;
 		setPosition(0, 800);
-
+		/*if (mPlayer->getID() == 0)*/ setPosition(target.mapPixelToCoords(sf::Vector2i(0, target.getSize().y * 0.75)));
+		//else setPosition(target.mapPixelToCoords(sf::Vector2i(target.getSize().x * 0.5, target.getSize().y * 0.75)));
 		mAction.setPosition(getPosition());
 
 		mSpeedometerBackground.setRadius(100);
@@ -65,14 +66,12 @@ namespace GUI
 	void PlayerGUI::handleEvent(const sf::Event&)
 	{
 	}
-
+	
 	void PlayerGUI::updateElements(sf::RenderTarget& target, std::vector<Entity*> entities, sf::Vector2f worldSize)
 	{
 		if (mPlayer != nullptr)
 		{
 			Car* car = mPlayer->getCar();
-			if (mPlayer->getID() == 0) setPosition(target.mapPixelToCoords(sf::Vector2i(0, target.getSize().y*0.75)));
-			else setPosition(target.mapPixelToCoords(sf::Vector2i(target.getSize().x * 0.5, target.getSize().y * 0.75))); // useless 'cuz there is only one player now
 
 			mAction.setPosition(getPosition());
 			mSpeedometerBackground.setPosition(getPosition() + sf::Vector2f(400, 100));

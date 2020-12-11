@@ -5,22 +5,34 @@ Player::Player(int i, KeyBinding* keys, const TextureHolder& textures) :
 	mPlayerID(i)
 {
 
-	mPlayerView = sf::View(sf::FloatRect(0, 0, 1600, 900));
-	mPlayerView.setViewport(sf::FloatRect(0, 0, 1, 1));
-	mPlayerCar = new Car(100, sf::Vector2f(800, 450), sf::RectangleShape(sf::Vector2f(80, 40)), keys, textures);
-	mPlayerView.setCenter(mPlayerCar->getPosition());
-}
-
-Player::Player(int i, Car* car) :
-	mPlayerID(i),
-	mPlayerCar(car)
-{
-	if (i == 0)
+	/*mPlayerView = sf::View(sf::FloatRect(0, 0, 1600, 900));
+	mPlayerView.setViewport(sf::FloatRect(0, 0, 1, 1));*/
+	if (mPlayerID == 0)
 	{
 		mPlayerView = sf::View(sf::FloatRect(0, 0, 800, 900));
 		mPlayerView.setViewport(sf::FloatRect(0, 0, 0.5, 1));
 	}
-	else if (i == 1)
+	else if (mPlayerID == 1)
+	{
+		mPlayerView = sf::View(sf::FloatRect(800, 0, 800, 900));
+		mPlayerView.setViewport(sf::FloatRect(0.5, 0, 0.5, 1));
+
+	}
+	mPlayerCar = new Car(100, sf::Vector2f(800, 450), sf::RectangleShape(sf::Vector2f(80, 40)), keys, textures);
+	mPlayerView.setCenter(mPlayerCar->getPosition());
+}
+
+// TODO check if this ctor is really needed or not.
+Player::Player(int i, Car* car) :
+	mPlayerID(i),
+	mPlayerCar(car)
+{
+	if (mPlayerID == 0)
+	{
+		mPlayerView = sf::View(sf::FloatRect(0, 0, 800, 900));
+		mPlayerView.setViewport(sf::FloatRect(0, 0, 0.5, 1));
+	}
+	else if (mPlayerID == 1)
 	{
 		mPlayerView = sf::View(sf::FloatRect(800, 0, 800, 900));
 		mPlayerView.setViewport(sf::FloatRect(0.5, 0, 0.5, 1));
@@ -37,7 +49,12 @@ void Player::update(sf::Time dt) //, std::vector<Entity*>& newEntities)
 
 void Player::draw(sf::RenderTarget& target, std::vector<Entity*>& entities)
 {
-	target.setView(mPlayerView);
+	//target.setView(mPlayerView);
+	// Test area
+	sf::View view(target.getDefaultView());
+	view.setCenter(mPlayerCar->getPosition());
+	target.setView(view);
+	// End of test area
 	for (auto& ent : entities)
 	{
 		ent->draw(target);

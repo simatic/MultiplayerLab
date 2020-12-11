@@ -16,16 +16,16 @@ TitleState::TitleState(StateStack& stack, Context context)
 	mText.setFont(context.fonts->get(Fonts::Main));
 	mText.setString("Press any key to start");
 	centerOrigin(mText);
-	mText.setPosition(sf::Vector2f(context.window->getSize() / 2u));
+	mText.setPosition(sf::Vector2f(context.target->getSize() / 2u));
 }
 
 void TitleState::draw()
 {
-	sf::RenderWindow& window = *getContext().window;
-	window.draw(mBackgroundSprite);
+	sf::RenderTarget& target = *getContext().target;
+	target.draw(mBackgroundSprite);
 
 	if (mShowText)
-		window.draw(mText);
+		target.draw(mText);
 }
 
 bool TitleState::update(sf::Time dt)

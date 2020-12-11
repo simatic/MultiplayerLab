@@ -6,7 +6,7 @@
 
 #include <SFML/System/Time.hpp>
 #include <SFML/Window/Event.hpp>
-
+#include <SFML/Graphics.hpp>
 #include <memory>
 
 
@@ -27,15 +27,16 @@ class State
 
 		struct Context
 		{
-								Context(sf::RenderWindow& window, TextureHolder& textures, FontHolder& fonts,
-									/*MusicPlayer& music, SoundPlayer& sounds,*/ KeyBinding& keys);
-
-			sf::RenderWindow*	window;
+			Context(int& uid, sf::RenderTexture& target, TextureHolder& textures, FontHolder& fonts,
+									/*MusicPlayer& music, SoundPlayer& sounds,*/ KeyBinding& keys, sf::Mutex& appMutex);
+			int* uid;
+			sf::RenderTexture*	target;
 			TextureHolder*		textures;
 			FontHolder*			fonts;
 			//MusicPlayer*		music;
 			//SoundPlayer*		sounds;
 			KeyBinding*			keys;
+			sf::Mutex* mutex;
 		};
 
 

@@ -2,14 +2,16 @@
 #include "StateStack.h"
 
 
-State::Context::Context(sf::RenderWindow& window, TextureHolder& textures, FontHolder& fonts,
-	/*MusicPlayer& music, SoundPlayer& sounds,*/ KeyBinding& keys)
-: window(&window)
+State::Context::Context(int& uid, sf::RenderTexture& target, TextureHolder& textures, FontHolder& fonts,
+	/*MusicPlayer& music, SoundPlayer& sounds,*/ KeyBinding& keys, sf::Mutex& appMutex)
+: uid(&uid)
+, target(&target)
 , textures(&textures)
 , fonts(&fonts)
 //, music(&music)
 //, sounds(&sounds)
 , keys(&keys)
+, mutex(&appMutex)
 {
 }
 

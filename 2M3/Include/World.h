@@ -10,7 +10,7 @@
 class World
 {
 public:
-							World(sf::RenderTarget& outputTarget, KeyBinding* keys1, const FontHolder& fonts, bool local);
+							World(int uid, sf::RenderTexture& outputTarget, KeyBinding* keys1, const FontHolder& fonts, bool local);
 	void					initialize(EntityStruct p1, EntityStruct p2);
 
 	void					update(sf::Time dt);
@@ -37,7 +37,7 @@ private:
 
 	std::queue<Entity*>			mToBeAssignedID;
 
-	sf::RenderTarget&			mTarget;
+	sf::RenderTexture&			mTarget;
 	TextureHolder				mTextures;
 
 	KeyBinding*					mPlayerOneKeys;
