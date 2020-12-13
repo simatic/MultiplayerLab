@@ -1,5 +1,5 @@
 #include "State.h"
-#include "World.h"
+#include "Common/Managers/GameManager.h"
 
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -7,16 +7,16 @@
 
 class GameState : public State
 {
-	public:
-							GameState(StateStack& stack, Context context);
+public:
+						GameState(StateStack& stack, Context context);
 
-		virtual void		draw();
-		virtual bool		update(sf::Time dt);
-		virtual bool		handleEvent(const sf::Event& event);
+	virtual void		draw();
+	virtual bool		update(sf::Time dt);
+	virtual bool		handleEvent(const sf::Event& event);
 
+private:
+	std::unique_ptr<GameManager> gameManager;
+	sf::RenderTarget*	target;
 
-	private:
-		World				mWorld;
-		sf::Clock			mClock;
-
+    void createWall(sf::Vector2f axis) const;
 };

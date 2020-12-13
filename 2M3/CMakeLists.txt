@@ -14,8 +14,11 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(sfml)
 
-include_directories("Include")
-file(GLOB SOURCES CONFIGURE_DEPENDS Include/*.h Include/*.inl Source/*.cpp)
+set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include_directories("Include" "Include/Common" "Include/Common/Components" "Include/Common/Managers" "Include/Common/Systems")
+file(GLOB SOURCES CONFIGURE_DEPENDS Include/*.h Include/*.inl Include/Common/*.h Include/Common/Components/*.h Include/Common/Managers/*.h Include/Common/Systems/*.h Source/*.cpp Source/Common/*.cpp Source/Common/Components/*.cpp Source/Common/Managers/*.cpp Source/Common/Systems/*.cpp)
 
 if (MSVC)
     # warning level 4 (see https://docs.microsoft.com/fr-fr/cpp/build/reference/compiler-option-warning-level?view=vs-2019)
@@ -24,12 +27,12 @@ if (MSVC)
 else()
     # lots of warnings 
     # We do not put -Werror to consider all warnings as errors
-    add_compile_options(-Wall -Wextra)
+    add_compile_options(-g -Wall -Wextra)
 endif()
 
 add_executable(2M3
   ${SOURCES}
-  )
+ "Include/Common/Prefabs/Prefabs.h" "Source/Common/Prefabs/Prefabs.cpp")
 
 target_link_libraries(2M3 PUBLIC sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
 

@@ -6,8 +6,6 @@
 #include "MenuState.h"
 #include "SettingsState.h"
 #include "GameState.h"
-#include "MultiplayerGameState.h"
-#include "NetworkCommon.h"
 
 #include <iostream>
 
@@ -27,8 +25,7 @@ Application::ClientInfo::ClientInfo(Client* client, sf::Thread* thread, /*const 
 	thread(thread),
 	//texture(&texture),
 	sprite(sprite)
-{
-}
+{}
 
 void Application::run()
 {
@@ -166,3 +163,4 @@ void Application::render()
 	mWindow.setActive(false);
 	_mutex->unlock();
 }
+

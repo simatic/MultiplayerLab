@@ -4,10 +4,11 @@
 #include <string>
 
 #include "StateStack.h"
-#include "World.h"
 #include "KeyBinding.h"
 
-//
+const sf::Time TimePerTick = sf::seconds(1.f / 20.f);
+const sf::Time TimePerFrame = sf::seconds(1.f / 60.f);
+
 class Client
 {
 public :

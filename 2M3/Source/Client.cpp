@@ -3,7 +3,7 @@
 #include "MenuState.h"
 #include "SettingsState.h"
 #include "GameState.h"
-#include "MultiplayerGameState.h"
+#include "Utility.h"
 
 
 Client::Client(int uid, sf::RenderWindow& mainWindow, sf::Mutex& mutex, sf::RenderTexture* renderTexture) :
@@ -44,6 +44,8 @@ void Client::initialize(int keyBindingConfiguration)
 	_textures->load(Textures::TitleScreen, "Media/Textures/TitleScreen.png");
 	_textures->load(Textures::MenuScreen, "Media/Textures/MenuScreen.png");
 	_textures->load(Textures::Buttons, "Media/Textures/Button.png");
+	_textures->load(Textures::Car, "Media/Textures/Car.png");
+	_textures->load(Textures::Bullet, "Media/Textures/Bullet.png");
 
 	_statisticsText.setFont(_fonts->get(Fonts::Main));
 	_statisticsText.setPosition(5.f, 5.f);
@@ -164,6 +166,4 @@ void Client::registerStates()
 	_stateStack->registerState<MenuState>(States::Menu);
 	_stateStack->registerState<GameState>(States::Game);
 	_stateStack->registerState<SettingsState>(States::Settings);
-	_stateStack->registerState<MultiplayerGameState>(States::HostGame, true);
-	_stateStack->registerState<MultiplayerGameState>(States::JoinGame, false);
 }

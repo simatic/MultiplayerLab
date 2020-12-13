@@ -3,11 +3,10 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <math.h>
-#include "World.h"
 #include "Application.h"
 
 int main()
-{	
+{
 	Application application;
 	application.run();
 	//sf::Clock clock;
