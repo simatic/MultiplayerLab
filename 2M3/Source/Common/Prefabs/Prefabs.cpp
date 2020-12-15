@@ -28,8 +28,8 @@ std::shared_ptr<Entity> Prefab::createCar(const bool renderable) {
         Transform(sf::Vector2f(0, 0), 0.f),
         Kinematics(),
         collider,
-        Health(75, 100),
-        HealthBar(sf::Vector2f(100, 10), sf::Color::Red, sf::Color::Green, 0.5f),
+        Health(100, 100),
+        HealthBar(sf::Vector2f(50, 10), sf::Color::Red, sf::Color::Green, 0.5f),
         CarEngine(1000, 1000 / 3, 200, 24, 800, 3.1415f / 3, 0.001f, sf::Vector2f(1, 0)),
         Gun(sf::Vector2f(1, 0), sf::seconds(0.1))
         );
