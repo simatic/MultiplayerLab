@@ -45,3 +45,6 @@ build
 
 #Build directory
 [Bb]uild
+
+.idea
+cmake-build-*

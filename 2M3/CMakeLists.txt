@@ -18,7 +18,38 @@ set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories("Include" "Include/Common" "Include/Common/Components" "Include/Common/Managers" "Include/Common/Systems")
-file(GLOB SOURCES CONFIGURE_DEPENDS Include/*.h Include/*.inl Include/Common/*.h Include/Common/Components/*.h Include/Common/Managers/*.h Include/Common/Systems/*.h Source/*.cpp Source/Common/*.cpp Source/Common/Components/*.cpp Source/Common/Managers/*.cpp Source/Common/Systems/*.cpp)
+
+file(GLOB SOURCES CONFIGURE_DEPENDS
+        Include/*.h
+        Include/*.inl
+        Include/Common/*.h
+        Include/Common/Components/*.h
+        Include/Common/Managers/*.h
+        Include/Common/Network/*.h
+        Include/Common/Prefabs/*.h
+        Include/Common/Systems/*.h
+        Include/Client/*.h
+        Include/Server/*.h
+
+        Source/*.cpp
+        Source/Common/*.cpp
+        Source/Common/Components/*.cpp
+        Source/Common/Managers/*.cpp
+        Source/Common/Network/*.cpp
+        Source/Common/Prefabs/*.cpp
+        Source/Common/Systems/*.cpp
+        Source/Client/*.cpp
+        Source/Server/*.cpp
+        )
+
+set(SOURCE_STANDALONE ${SOURCES})
+set(SOURCE_FULL ${SOURCES})
+set(SOURCE_TEST_CLIENT ${SOURCES})
+list(REMOVE_ITEM SOURCE_STANDALONE ${CMAKE_CURRENT_SOURCE_DIR}/Source/Source.cpp ${CMAKE_CURRENT_SOURCE_DIR}/Source/Client/ClientTestMain.cpp)
+list(REMOVE_ITEM SOURCE_FULL ${CMAKE_CURRENT_SOURCE_DIR}/Source/Server/ServerMain.cpp ${CMAKE_CURRENT_SOURCE_DIR}/Source/Client/ClientTestMain.cpp)
+list(REMOVE_ITEM SOURCE_TEST_CLIENT  ${CMAKE_CURRENT_SOURCE_DIR}/Source/Source.cpp ${CMAKE_CURRENT_SOURCE_DIR}/Source/Server/ServerMain.cpp)
+
+file(GLOB IMPLOT_SOURCES thirdparty/implot/*.h thirdparty/implot/*.cpp)
 
 if (MSVC)
     # warning level 4 (see https://docs.microsoft.com/fr-fr/cpp/build/reference/compiler-option-warning-level?view=vs-2019)
@@ -30,11 +61,34 @@ else()
     add_compile_options(-g -Wall -Wextra)
 endif()
 
+add_subdirectory(thirdparty/imgui-sfml)
+include_directories(thirdparty/implot)
 add_executable(2M3
-  ${SOURCES}
- "Include/Common/Prefabs/Prefabs.h" "Source/Common/Prefabs/Prefabs.cpp")
+        ${SOURCE_FULL}
+        ${IMPLOT_SOURCES}
+        )
 
-target_link_libraries(2M3 PUBLIC sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
+add_executable(2M3-Server-Standalone
+        ${SOURCE_STANDALONE}
+        ${IMPLOT_SOURCES}
+        )
+
+add_executable(2M3-Test-Client
+        ${SOURCE_TEST_CLIENT}
+        ${IMPLOT_SOURCES}
+        )
+
+set(COMMON_LIBS
+        sfml-system sfml-window sfml-graphics sfml-audio sfml-network imgui-sfml
+        )
+
+set(CLIENT_LIBS
+        sfml-audio
+        )
+
+target_link_libraries(2M3 PUBLIC ${COMMON_LIBS} ${CLIENT_LIBS})
+target_link_libraries(2M3-Server-Standalone PUBLIC ${COMMON_LIBS})
+target_link_libraries(2M3-Test-Client PUBLIC ${COMMON_LIBS})
 
 add_custom_target(copy-Media ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Media)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Media
