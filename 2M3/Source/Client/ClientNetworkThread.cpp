@@ -64,7 +64,7 @@ void ClientNetworkThread::threadCode() {
         }
         sf::sleep(sf::milliseconds(100));
         // TODO: replace with game code?
-        send(socket, network.create<PingPacket>(), ip, remotePort);
+        network.create<PingPacket>()->realSend(socket, ip, remotePort);
         number++;
         //EchoPacket(number).send(socket, ip, remotePort);
         sf::sleep(sf::milliseconds(1));
