@@ -2,7 +2,7 @@
 // Created by jglrxavpok on 15/10/2020.
 //
 
-#include "Server/ServerMain.h"
+#include "Server/Server.h"
 #include <thread>
 #include <iostream>
 #include <Common/Network/Constants.h>
@@ -32,16 +32,4 @@ int main(int argc, char** argv) {
     }
 
     return 0;
-}
-
-Server::Server(const std::string& ip, unsigned short port): networkHandler(ip, port), networkThread(networkHandler) {}
-
-void Server::run() {
-    {
-        auto interface = Interface(networkHandler);
-    } // wait for interface to "die" (ie. closing the window)
-}
-
-Server::~Server() {
-    networkHandler.killNetworkThread();
 }

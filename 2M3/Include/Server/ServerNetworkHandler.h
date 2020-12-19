@@ -59,5 +59,7 @@ public:
     void sendToClient(const UdpClient& client, std::unique_ptr<Packet>&& packet);
 
     DelayCreator& getDelayCreator();
+
+    bool isRunning();
 };
 

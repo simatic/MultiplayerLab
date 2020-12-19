@@ -8,6 +8,8 @@
 #include "GameState.h"
 
 #include <iostream>
+#include <Server/Server.h>
+#include <Common/Network/Constants.h>
 
 Application::Application() :
 	mWindow(sf::VideoMode::getDesktopMode()/*sf::VideoMode(1600, 900)*/, "2M3", sf::Style::Close | sf::Style::Resize),
@@ -29,6 +31,7 @@ Application::ClientInfo::ClientInfo(Client* client, sf::Thread* thread, /*const 
 
 void Application::run()
 {
+    launchServer();
 	addClientThread();
 	addClientThread();
 	/*for (size_t i = 0; i < _clientThreads.size(); i++)
@@ -47,6 +50,17 @@ void Application::run()
 	}
 
 	while (_isMainWindowOpen) {
+	    bool serverStillRunning = false;
+        if(auto server = serverReference.lock()) {
+            serverStillRunning = server->isRunning();
+        }
+
+        if(!serverStillRunning) {
+            _mutex->lock();
+            quitApplication();
+            _mutex->unlock();
+        }
+
 		manageInputs();
 		sf::sleep(sf::seconds(TimePerFrame.asSeconds()));
 		render();
@@ -122,9 +136,7 @@ void Application::manageInputs() {
 	while (mWindow.pollEvent(event)) {
 		if (event.type == sf::Event::Closed)
 		{
-			terminateClientThreads();
-			mWindow.close();
-			_isMainWindowOpen = false;
+		    quitApplication();
 		}
 		else
 		{
@@ -162,5 +174,32 @@ void Application::render()
 	mWindow.display();
 	mWindow.setActive(false);
 	_mutex->unlock();
+}
+
+void Application::launchServer() {
+    std::cout << "Launching server thread" << std::endl;
+    auto server = std::make_shared<Server>("0.0.0.0", DEFAULT_PORT);
+    serverReference = server;
+    serverThread = std::thread([server /* copy server shared_ptr into thread*/]() {
+        // TODO: configurable host
+        server->run();
+    });
+}
+
+void Application::terminateServer() {
+    if(auto server = serverReference.lock()) {
+        std::cout << "Stopping server thread" << std::endl;
+        server->stop();
+    }
+
+    std::cout << "Waiting on server thread death" << std::endl;
+    serverThread.join();
+}
+
+void Application::quitApplication() {
+    terminateServer();
+    terminateClientThreads();
+    mWindow.close();
+    _isMainWindowOpen = false;
 }
 

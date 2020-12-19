@@ -8,6 +8,7 @@
 #include <imgui.h>
 #include <implot.h>
 #include <Server/ServerClock.h>
+#include <Server/DelayCreation.h>
 
 Interface::Interface(ServerNetworkHandler& handler): serverNetwork(handler) {
     handler.registerListener(this);
@@ -24,7 +25,7 @@ void Interface::threadCode() {
     ImPlot::CreateContext();
 
     sf::Clock deltaClock;
-    while(window.isOpen()) {
+    while(window.isOpen() && serverNetwork.isRunning()) {
         pollEvents(window);
 
         ImGui::SFML::Update(window, deltaClock.restart());

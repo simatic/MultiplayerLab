@@ -1,7 +1,7 @@
 #include <iostream>
 #include <Server/ServerNetworkHandler.h>
 #include <Server/ServerClock.h>
-#include "Server/ServerMain.h"
+#include "Server/Server.h"
 #include "Server/DelayCreation.h"
 
 DelayCreator::DelayCreator(ServerNetworkHandler& serverNetworkHandler): serverNetwork(serverNetworkHandler) {

@@ -9,6 +9,8 @@
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
+#include <thread>
+#include <Server/Server.h>
 
 
 class Application
@@ -33,6 +35,11 @@ class Application
 
 		void manageInputs();
 		void render();
+
+        void launchServer();
+        void terminateServer();
+
+        void quitApplication();
 
 	private:
 		// Main window in which the Clients' views will be rendered.
@@ -62,6 +69,12 @@ class Application
 
 		// Vector of inputs' type to give to the Clients. The event itself is not needed.
 		std::vector <sf::Event> _clientInputs;
+
+		/// Thread executing the game server
+		std::thread serverThread;
+
+		/// Weak server reference to stop the server when the application is closed
+		std::weak_ptr<Server> serverReference{};
 };
 
 #endif // BOOK_APPLICATION_HPP
