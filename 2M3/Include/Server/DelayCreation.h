@@ -37,11 +37,13 @@ public:
 
     void sendToClient(const UdpClient& client, std::unique_ptr<Packet>&& packet);
 
-    ~DelayCreator();
+    ~DelayCreator() = default;
 
     bool isRunning();
 
     void delayReceivedPacket(UdpClient& client, std::unique_ptr<Packet>&& packet);
+
+    void join();
 
 private:
     void threadCode();

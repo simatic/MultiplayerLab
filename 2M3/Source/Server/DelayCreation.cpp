@@ -8,11 +8,6 @@ DelayCreator::DelayCreator(ServerNetworkHandler& serverNetworkHandler): serverNe
     backingThread = std::thread([&](){this->threadCode();});
 }
 
-DelayCreator::~DelayCreator() {
-    stopServer = true;
-    backingThread.join();
-}
-
 void DelayCreator::threadCode() {
     std::vector<std::unique_ptr<PacketWithDelay>> packetWithDelayList;
     sf::UdpSocket& socket = serverNetwork.getSocket();
@@ -95,5 +90,10 @@ void DelayCreator::delayReceivedPacket(UdpClient& client, std::unique_ptr<Packet
     mutex4Packet4Delay.lock();
     packet4DelayList.push_back(std::make_unique<PacketToAddDelayTo>(std::move(packet), client));
     mutex4Packet4Delay.unlock();
+}
+
+void DelayCreator::join() {
+    stopServer = true;
+    backingThread.join();
 }
 

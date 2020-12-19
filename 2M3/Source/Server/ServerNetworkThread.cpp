@@ -29,13 +29,13 @@ void ServerNetworkThread::threadCode() {
         sf::IpAddress remoteAddress;
         unsigned short remotePort;
         status = socket.receive(packet, remoteAddress, remotePort);
-        UdpClient& client = serverNetwork.getOrCreateClient(remoteAddress, remotePort);
-        serverNetwork.updateLastPacketTime(client);
-
         if (status != sf::Socket::Done) {
             std::cerr << "Error during receive (status = " << status << ")" << std::endl;
-            return;
+            break;
         }
+
+        UdpClient& client = serverNetwork.getOrCreateClient(remoteAddress, remotePort);
+        serverNetwork.updateLastPacketTime(client);
 
         auto logicalPacket = deserializePacket(packet);
         if(logicalPacket) {
@@ -44,4 +44,6 @@ void ServerNetworkThread::threadCode() {
             delayCreator.delayReceivedPacket(client, std::move(logicalPacket));
         }
     }
+
+    disconnectNonConnected.join();
 }

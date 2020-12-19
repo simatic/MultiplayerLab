@@ -10,6 +10,7 @@
 #include <Server/ServerNetworkHandler.h>
 #include <Server/ServerNetworkThread.h>
 #include <Server/Interface.h>
+#include <Server/DelayCreation.h>
 
 void usage(char* executableName) {
     std::cerr << executableName << " <port>" << std::endl;
@@ -26,13 +27,21 @@ int main(int argc, char** argv) {
         }
     }
 
-    ServerNetworkHandler networkHandler{"0.0.0.0", localPort};
-
     {
-        ServerNetworkThread networkThread{networkHandler};
-        auto interface = Interface(networkHandler);
+        Server{"0.0.0.0", localPort}.run();
     }
-    networkHandler.killNetworkThread();
 
     return 0;
+}
+
+Server::Server(const std::string& ip, unsigned short port): networkHandler(ip, port), networkThread(networkHandler) {}
+
+void Server::run() {
+    {
+        auto interface = Interface(networkHandler);
+    } // wait for interface to "die" (ie. closing the window)
+}
+
+Server::~Server() {
+    networkHandler.killNetworkThread();
 }

@@ -15,8 +15,9 @@ ServerNetworkHandler::ServerNetworkHandler(const std::string& ip, unsigned short
 }
 
 void ServerNetworkHandler::killNetworkThread() {
-    running = false;
+    delayCreator->join();
     socket.unbind();
+    running = false;
 }
 
 UdpClient& ServerNetworkHandler::getOrCreateClient(sf::IpAddress address, unsigned short port) {

@@ -1,11 +1,21 @@
 #pragma once
 
 #include <iostream>
+#include <string>
 #include <SFML/Network.hpp>
 #include "Common/Network/Network.h"
 #include "ServerNetworkHandler.h"
+#include "ServerNetworkThread.h"
 
-[[noreturn]] void networkThread(ServerNetworkHandler& serverNetwork, int port);
-void interfaceThread(ServerNetworkHandler& serverNetwork, const std::string& ip, const unsigned short& localPort);
+class Server {
+private:
+    ServerNetworkHandler networkHandler;
+    ServerNetworkThread networkThread;
 
-[[noreturn]] void delayThread(sf::UdpSocket* socketPtr);
+public:
+    explicit Server(const std::string& ip, unsigned short port);
+
+    void run();
+
+    ~Server();
+};
