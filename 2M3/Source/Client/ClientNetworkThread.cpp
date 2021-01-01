@@ -45,7 +45,7 @@ bool ClientNetworkThread::processWaitingPackets(sf::UdpSocket &socket)
 
 void ClientNetworkThread::threadCode() {
     sf::IpAddress ip(host);
-    sf::UdpSocket socket;
+    sf::UdpSocket& socket = network.getSocket();
     sf::Socket::Status status = socket.bind(sf::Socket::AnyPort);
     unsigned short localPort = socket.getLocalPort();
     if (status != sf::Socket::Done)
@@ -64,7 +64,7 @@ void ClientNetworkThread::threadCode() {
         }
         sf::sleep(sf::milliseconds(100));
         // TODO: replace with game code?
-        network.create<PingPacket>()->realSend(socket, ip, remotePort);
+        //network.create<PingPacket>()->realSend(socket, ip, remotePort);
         number++;
         //EchoPacket(number).send(socket, ip, remotePort);
         sf::sleep(sf::milliseconds(1));
