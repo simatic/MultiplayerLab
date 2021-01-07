@@ -69,8 +69,10 @@ void Application::run()
 
 void Application::addClientThread() {
 	sf::RenderTexture* clientRenderTexture(new sf::RenderTexture());
+
+	const float heightRatio = 1.0f;
 	// Necessary to be called after initialization of RenderTexture.
-	clientRenderTexture->create(mWindow.getSize().x / 2, mWindow.getSize().y);
+	clientRenderTexture->create(mWindow.getSize().x / 2, mWindow.getSize().y*heightRatio);
 	sf::Sprite* sprite = new sf::Sprite(clientRenderTexture->getTexture());
 	if (_clientCount == 1) {
 		sprite->move(mWindow.getSize().x / 2, 0);

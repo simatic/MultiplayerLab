@@ -44,15 +44,33 @@ void Client::initialize(int keyBindingConfiguration)
 	_textures->load(Textures::TitleScreen, "Media/Textures/TitleScreen.png");
 	_textures->load(Textures::MenuScreen, "Media/Textures/MenuScreen.png");
 	_textures->load(Textures::Buttons, "Media/Textures/Button.png");
-	_textures->load(Textures::Car, "Media/Textures/Car.png");
+	_textures->load(Textures::Car, "Media/Textures/Player.png");
 	_textures->load(Textures::Bullet, "Media/Textures/Bullet.png");
+    _textures->load(Textures::GridElement, "Media/Textures/GridElement.png");
 
 	_statisticsText.setFont(_fonts->get(Fonts::Main));
 	_statisticsText.setPosition(5.f, 5.f);
 	_statisticsText.setCharacterSize(10u);
 
-	_keybinding.reset(new KeyBinding(keyBindingConfiguration));
-	_stateStack.reset(new StateStack(State::Context(_uid, *_renderTexture, *_textures, *_fonts, *_keybinding, *_applicationMutex)));
+    // prepare border
+    sf::Color borderColor = sf::Color::Red;
+    if(_uid != 0) {
+        borderColor = sf::Color::Green;
+    }
+    _associatedColor = borderColor;
+
+    constexpr float borderWidth = 3.0f;
+    const float screenWidth = _renderTexture->getSize().x;
+    const float screenHeight = _renderTexture->getSize().y;
+
+    _borderRectangle.setSize(sf::Vector2f(screenWidth-borderWidth*2,screenHeight-borderWidth*2));
+    _borderRectangle.setPosition(borderWidth, borderWidth);
+    _borderRectangle.setOutlineColor(borderColor);
+    _borderRectangle.setOutlineThickness(borderWidth);
+    _borderRectangle.setFillColor(sf::Color::Transparent);
+
+    _keybinding.reset(new KeyBinding(keyBindingConfiguration));
+	_stateStack.reset(new StateStack(State::Context(_uid, *_renderTexture, *_textures, *_fonts, *_keybinding, *_applicationMutex, _associatedColor)));
 	registerStates();
 	_stateStack->pushState(States::Title);
 }
@@ -129,6 +147,17 @@ void Client::tick()
 	_stateStack->tick();
 }
 
+void Client::renderBorder()
+{
+    auto savedView = _renderTexture->getView();
+    // sets the view to default to remove offsets and scrolling introduced by camera
+    // ie. makes the position of the border absolute and no longer relative
+    _renderTexture->setView(_renderTexture->getDefaultView());
+    _renderTexture->draw(_borderRectangle);
+    // sets the view as it was before
+    _renderTexture->setView(savedView);
+}
+
 void Client::render()
 {
 	// TODO delete everything except _stateStack->draw(); after replacing _mainWindow by _renderTexture
@@ -137,8 +166,9 @@ void Client::render()
 	_mainWindow->setActive(true);
 	//_mainWindow->clear();
 	_renderTexture->clear();
-	_stateStack->draw();
-	_renderTexture->display();
+    _stateStack->draw();
+    renderBorder();
+    _renderTexture->display();
 	//_mainWindow->setView(_mainWindow->getDefaultView());
 	//_mainWindow->draw(_statisticsText);
 
@@ -166,4 +196,8 @@ void Client::registerStates()
 	_stateStack->registerState<MenuState>(States::Menu);
 	_stateStack->registerState<GameState>(States::Game);
 	_stateStack->registerState<SettingsState>(States::Settings);
+}
+
+sf::Color Client::getAssociatedColor() {
+    return _associatedColor;
 }

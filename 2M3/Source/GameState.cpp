@@ -35,6 +35,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <Common/Components/CameraTarget.h>
 #include <Common/Systems/CameraSystem.h>
+#include <GridRenderer.h>
 
 GameState::GameState(StateStack& stack, Context context) :
 	State(stack, context),
@@ -48,6 +49,15 @@ GameState::GameState(StateStack& stack, Context context) :
     std::shared_ptr<Entity> playerCar = Prefab::createPlayableCar(true);
     std::shared_ptr<Entity> car = Prefab::createCar(true);
     car->getComponent<Transform>()->position = sf::Vector2f(100, 100);
+    playerCar->getComponent<Sprite>()->colorFilter = context.associatedColor;
+
+    // TODO: don't hardcode the color of the opponent
+    //  will probably be easier to fix when the authoritative server is starting to work
+    sf::Color opponentColor = sf::Color::Red;
+    if(*context.uid == 0) {
+        opponentColor = sf::Color::Green;
+    }
+    car->getComponent<Sprite>()->colorFilter = opponentColor;
 
 	gameManager->addEntity(playerCar);
     gameManager->addEntity(car);
@@ -72,6 +82,7 @@ GameState::GameState(StateStack& stack, Context context) :
 
     gameManager->addRenderSystems<
         CameraSystem,
+        GridRenderer,
         TrajectoryRenderer,
         ParticleRenderer,
         SpriteRenderer,

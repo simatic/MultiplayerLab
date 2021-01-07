@@ -28,7 +28,7 @@ class State
 		struct Context
 		{
 			Context(int& uid, sf::RenderTexture& target, TextureHolder& textures, FontHolder& fonts,
-									/*MusicPlayer& music, SoundPlayer& sounds,*/ KeyBinding& keys, sf::Mutex& appMutex);
+									/*MusicPlayer& music, SoundPlayer& sounds,*/ KeyBinding& keys, sf::Mutex& appMutex, sf::Color associatedColor);
 			int* uid;
 			sf::RenderTexture*	target;
 			TextureHolder*		textures;
@@ -37,6 +37,7 @@ class State
 			//SoundPlayer*		sounds;
 			KeyBinding*			keys;
 			sf::Mutex* mutex;
+			sf::Color associatedColor;
 		};
 
 

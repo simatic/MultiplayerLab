@@ -19,6 +19,7 @@ namespace Textures
 		Car,
 		Bullet,
 		Missile,
+		GridElement,
 	};
 }
 

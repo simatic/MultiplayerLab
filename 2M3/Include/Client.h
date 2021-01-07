@@ -26,10 +26,14 @@ public :
 	// Method called to pass inputs to this Client.
 	void setInputs(const std::vector <sf::Event>& newInputs);
 
+	/// Color associated for this client (eg red for player A, green for player B)
+	sf::Color getAssociatedColor();
+
 private :
 	void processInput();
 	void update(sf::Time dt);
 	void tick();
+	void renderBorder();
 	void render();
 
 	void updateStatistics(sf::Time dt);
@@ -67,5 +71,7 @@ private :
 
 	sf::Text _statisticsText;
 	sf::Time _statisticsUpdateTime;
+	sf::Color _associatedColor{};
+	sf::RectangleShape _borderRectangle{};
 	std::size_t _statisticsNumFrames;
 };
