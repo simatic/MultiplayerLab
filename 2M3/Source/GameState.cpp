@@ -17,6 +17,7 @@
 #include "Common/Systems/TrajectoryRenderer.h"
 #include "Common/Systems/TrajectorySystem.h"
 #include "Common/Systems/RectShapeRenderer.h"
+#include "Common/Systems/NetworkPingPong.h"
 
 #include <iostream>
 
@@ -32,6 +33,7 @@ GameState::GameState(StateStack& stack, Context context) :
 	ResourceManager::getInstance()->setTextures(context.textures);
     gameManager->setRenderTarget(target);
     gameManager->setKeyBinding(context.keys);
+    gameManager->setNetworkModule<ClientNetworkModule>("localhost", DEFAULT_PORT);
 
     std::shared_ptr<Entity> playerCar = Prefab::createPlayableCar(true);
     std::shared_ptr<Entity> car = Prefab::createCar(true);
@@ -65,6 +67,10 @@ GameState::GameState(StateStack& stack, Context context) :
         SpriteRenderer,
         RectShapeRenderer,
         HealthBarRenderer
+    >();
+
+    gameManager->addNetworkSystems<
+        NetworkPingPong
     >();
 
     gameManager->updateSystemLists();
