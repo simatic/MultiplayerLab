@@ -9,6 +9,7 @@ void GameManager::clearAll()
     entities.clear();
     logicSystems.clear();
     renderSystems.clear();
+    networkSystems.clear();
     entitiesToRemove.clear();
 }
 
@@ -89,6 +90,15 @@ void GameManager::addRenderSystem(std::unique_ptr<System<SystemType::Render>> sy
 }
 
 /**
+ * Add renderer. Ownership is transferred to GameManager.
+ * @param system System to add.
+ */
+void GameManager::addNetworkSystem(std::unique_ptr<System<SystemType::Network>> system)
+{
+    networkSystems.push_back(std::move(system));
+}
+
+/**
  * Assign entities to their systems.
  */
 void GameManager::updateSystemLists()
@@ -128,6 +138,18 @@ void GameManager::updateSystemLists(Entity* entity)
             system->removeEntity(entity);
         }
     }
+
+    for (auto& system : networkSystems)
+    {
+        if ((entity->getSignature() & system->getSignature()) == system->getSignature())
+        {
+            system->addEntity(entity);
+        }
+        else
+        {
+            system->removeEntity(entity);
+        }
+    }
 }
 
 void GameManager::removeFromSystemsLists(Entity* entity) 
@@ -138,6 +160,11 @@ void GameManager::removeFromSystemsLists(Entity* entity)
     }
 
     for (auto& system : renderSystems)
+    {
+        system->removeEntity(entity);
+    }
+
+    for (auto& system : networkSystems)
     {
         system->removeEntity(entity);
     }
@@ -152,6 +179,11 @@ void GameManager::update(const sf::Time& dt)
     for (std::unique_ptr<System<SystemType::Logic>>& system: logicSystems)
     { 
         system->update(dt); 
+    }
+
+    for (std::unique_ptr<System<SystemType::Network>>& system : networkSystems)
+    {
+        system->update(dt);
     }
     applyEntitiesToRemove();
 }

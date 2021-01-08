@@ -2,18 +2,6 @@
 #include "Common/Managers/ResourceManager.h"
 #include "Common/Prefabs/Prefabs.h"
 
-#include "Common/Components/Transform.h"
-#include "Common/Components/Kinematics.h"
-#include "Common/Components/Collider.h"
-#include "Common/Components/CarInput.h"
-#include "Common/Components/CarEngine.h"
-#include "Common/Components/Health.h"
-#include "Common/Components/Gun.h"
-#include "Common/Components/Trajectory.h"
-#include "Common/Components/Particles.h"
-#include "Common/Components/Sprite.h"
-#include "Common/Components/RectShape.h"
-
 #include "Common/Systems/BulletSystem.h"
 #include "Common/Systems/CarCollisionHandling.h"
 #include "Common/Systems/CarDeath.h"
@@ -56,20 +44,20 @@ GameState::GameState(StateStack& stack, Context context) :
     createWall(sf::Vector2f(+1, 0));
     createWall(sf::Vector2f(0, -1));
     createWall(sf::Vector2f(0, +1));
-
+    
     gameManager->addLogicSystems<
-            KeyboardInputSystem,
-            CarMovementSystem,
-            CollisionSystem,
-            CarCollisionSystem,
-            GunSystem,
-            BulletSystem,
-            TrajectorySystem,
-            ParticleSystem,
-            CarDeath,
-            MovementSystem
+        KeyboardInputSystem,
+        CarMovementSystem,
+        CollisionSystem,
+        CarCollisionSystem,
+        GunSystem,
+        BulletSystem,
+        TrajectorySystem,
+        ParticleSystem,
+        CarDeath,
+        MovementSystem
     >();
-
+    
     gameManager->addRenderSystems<
         CameraSystem,
         TrajectoryRenderer,
