@@ -17,7 +17,7 @@ FetchContent_MakeAvailable(sfml)
 set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories("Include" "Include/Common" "Include/Common/Components" "Include/Common/Managers" "Include/Common/Systems")
+include_directories("Include" "Include/Common" "Include/Common/Components" "Include/Common/Managers" "Include/Common/Modules" "Include/Common/Systems")
 
 file(GLOB SOURCES CONFIGURE_DEPENDS
         Include/*.h
@@ -25,20 +25,24 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
         Include/Common/*.h
         Include/Common/Components/*.h
         Include/Common/Managers/*.h
+        Include/Common/Modules/*.h
         Include/Common/Network/*.h
         Include/Common/Prefabs/*.h
         Include/Common/Systems/*.h
         Include/Client/*.h
+        Include/Client/Modules/*.h
         Include/Server/*.h
 
         Source/*.cpp
         Source/Common/*.cpp
         Source/Common/Components/*.cpp
         Source/Common/Managers/*.cpp
+        Source/Common/Modules/*.cpp
         Source/Common/Network/*.cpp
         Source/Common/Prefabs/*.cpp
         Source/Common/Systems/*.cpp
         Source/Client/*.cpp
+        Source/Client/Modules/*.cpp
         Source/Server/*.cpp
         )
 
@@ -66,17 +70,17 @@ include_directories(thirdparty/implot)
 add_executable(2M3
         ${SOURCE_FULL}
         ${IMPLOT_SOURCES}
-        )
+)
 
 add_executable(2M3-Server-Standalone
         ${SOURCE_STANDALONE}
         ${IMPLOT_SOURCES}
-        )
+)
 
 add_executable(2M3-Test-Client
         ${SOURCE_TEST_CLIENT}
         ${IMPLOT_SOURCES}
-        )
+)
 
 set(COMMON_LIBS
         sfml-system sfml-window sfml-graphics sfml-audio sfml-network imgui-sfml
