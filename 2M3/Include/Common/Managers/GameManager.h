@@ -40,6 +40,10 @@ public:
     KeyBinding*       getKeyBinding() const;
     void              setKeyBinding(KeyBinding* keys);
 
+    template <typename Module, typename... Args>
+    void            setNetworkModule(Args... args);
+    INetworkModule* getNetworkModule() const;
+
     void clearAll();
 
     // templates
@@ -51,12 +55,6 @@ public:
 
     template <typename... System>
     void addNetworkSystems();
-
-    template <ModuleID id, typename Module>
-    void setModule();
-
-    template <ModuleID id>
-    Module<id>* getModule();
 
 private:
     /**
@@ -85,7 +83,7 @@ private:
     /**
     * Modules
     */
-    std::unordered_map<ModuleID, std::unique_ptr<IModule>> modules;
+    std::unique_ptr<INetworkModule> networkModule = nullptr;
 };
 
 template <typename... System>
@@ -106,14 +104,8 @@ void GameManager::addNetworkSystems()
     (addNetworkSystem(std::make_unique<System>(this)), ...);
 }
 
-template <ModuleID id, typename Module>
-void GameManager::setModule()
+template <typename Module, typename... Args>
+void GameManager::setNetworkModule(Args... args)
 {
-    modules[id] = std::make_unique<Module>();
-}
-
-template <ModuleID id>
-Module<id>* GameManager::getModule()
-{
-    return static_cast<Module<id>*>(modules[id].get());
+    networkModule = std::make_unique<Module>(args...);
 }

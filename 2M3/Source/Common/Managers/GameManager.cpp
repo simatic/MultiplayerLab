@@ -1,5 +1,6 @@
 #include "Common/Managers/GameManager.h"
 #include <cstdlib>
+#include <exception>
 
 /**
  * Deletes all entities and systems.
@@ -230,4 +231,13 @@ KeyBinding* GameManager::getKeyBinding() const
 void GameManager::setKeyBinding(KeyBinding* keys)
 {
     keyBinding = keys;
+}
+
+INetworkModule* GameManager::getNetworkModule() const
+{
+    if (networkModule == nullptr)
+    {
+        throw std::runtime_error("Network module hasn't been initialized.");
+    }
+    return networkModule.get();
 }
