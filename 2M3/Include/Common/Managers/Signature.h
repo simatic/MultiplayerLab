@@ -5,6 +5,11 @@
 #include <iostream>
 #define MAX_COMPONENTS 32
 
+/**
+ * @class Signature
+ * A signature is used to track components of the object it is attached to.
+ * An object that uses Components may use a Signature to keep track of the Components in its possession.
+ */
 class Signature
 {
 public:
@@ -42,6 +47,11 @@ private:
 	std::bitset<MAX_COMPONENTS> bitset;
 };
 
+/**
+ * Generate a signature with the given Components.
+ * @tparam Components The list of components to generate the signature.
+ * @return The generated signature.
+ */
 template <typename... Components>
 Signature Signature::generate()
 {
@@ -55,18 +65,30 @@ Signature Signature::generate()
 	return signature;
 }
 
+/**
+ * @tparam Component The given component
+ * @return true if the component is registered in the idToBitIndexMap.
+ */
 template <typename Component>
 bool Signature::isComponentRegistered()
 {
 	return Signature::idToBitIndexMap.find(Component::id) != Signature::idToBitIndexMap.end();
 }
 
+/**
+ * Register the given component in the idToBitIndexMap.
+ * @tparam Component The given component.
+ */
 template <typename Component>
 void Signature::registerComponent()
 {
 	Signature::idToBitIndexMap[Component::id] = Signature::registeredComponentsCount++;
 }
 
+/**
+ * Update signature to reflect newly added components.
+ * @tparam Components The newly added components.
+ */
 template <typename First, typename... Components>
 void Signature::addComponent()
 {
@@ -89,6 +111,10 @@ void Signature::_addComponent()
 	bitset[idToBitIndexMap[Component::id]] = true;
 }
 
+/**
+ * Update signature to reflect removed components.
+ * @tparam Components The removed components.
+ */
 template <typename First, typename... Components>
 void Signature::removeComponent()
 {

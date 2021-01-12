@@ -4,6 +4,9 @@
 
 #include <SFML/Graphics/View.hpp>
 
+/**
+ * @struct Camera component.
+ */
 struct Camera : public IdentifiableComponent<Camera>
 {
     Camera() = default;

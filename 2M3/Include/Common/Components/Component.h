@@ -2,6 +2,9 @@
 #include <typeinfo>
 #include <iostream>
 
+/**
+ * Abstract struct for Component.
+ */
 struct Component
 {
 public:
@@ -13,6 +16,9 @@ protected:
     virtual std::istream& deserialize(std::istream& is) { return is; };
 };
 
+/**
+ * Helper struct to generate a compile-time id for a Component.
+ */
 template <typename T>
 struct IdentifiableComponent : Component
 {
