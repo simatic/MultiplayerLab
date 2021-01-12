@@ -5,3 +5,7 @@ INetworkModule::INetworkModule(const std::string& host, const unsigned short por
 	remotePort(port),
 	network(std::move(network))
 {}
+
+Buffer& INetworkModule::getBuffer() {
+	return buffer;
+}

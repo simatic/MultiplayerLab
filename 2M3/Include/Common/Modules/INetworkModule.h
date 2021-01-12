@@ -2,6 +2,8 @@
 
 #include "Module.h"
 
+#include <Common/Network/Buffer.h>
+
 #include <string>
 #include <memory>
 
@@ -11,14 +13,17 @@ public:
 
 	ModuleID getID() const override { return ModuleID::Network; };
 
-	template<typename Packet, typename... Args>
+	template <typename Packet, typename... Args>
 	std::unique_ptr<Packet> createAndSend(Args... args);
+
+	Buffer& getBuffer();
 
 protected:
 	std::string host;
 	unsigned short remotePort;
 
 	std::unique_ptr<NetworkHandler> network;
+	Buffer buffer;
 };
 
 template<typename Packet, typename... Args>

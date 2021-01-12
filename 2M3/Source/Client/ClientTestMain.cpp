@@ -1,4 +1,5 @@
 #include <Common/Network/Constants.h>
+#include <Common/Network/Buffer.h>
 #include <SFML/Network.hpp>
 #include <Client/ClientNetworkHandler.h>
 #include <Client/ClientNetworkThread.h>
@@ -19,7 +20,7 @@ int main(int argc, char** argv) {
     std::cout << "Remote port = " << remotePort << std::endl;
 
     ClientNetworkHandler network{};
-    ClientNetworkThread thread{network, "localhost", remotePort};
+    ClientNetworkThread thread{network, Buffer(), "localhost", remotePort};
 
     return 0;
 }
