@@ -13,6 +13,18 @@
 #include <Common/Network/Constants.h>
 #include <imgui-SFML.h>
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+#ifdef __linux__
+// TODO
+#endif
+
+#ifdef __APPLE__
+    // TODO
+#endif
+
 Application::Application() :
 	mWindow(sf::VideoMode::getDesktopMode()/*sf::VideoMode(1600, 900)*/, "2M3", sf::Style::Close | sf::Style::Resize),
 	_clientCount(0),
@@ -21,6 +33,20 @@ Application::Application() :
 {
 	mWindow.setKeyRepeatEnabled(false);
 	mWindow.setVerticalSyncEnabled(true);
+
+	// maximize window on launch
+
+#ifdef WIN32
+    ::ShowWindow(mWindow.getSystemHandle(), SW_MAXIMIZE);
+#endif
+#ifdef __linux__
+    // TODO
+#endif
+
+#ifdef __APPLE__
+    // TODO
+#endif
+
 	_isMainWindowOpen = mWindow.isOpen();
 }
 

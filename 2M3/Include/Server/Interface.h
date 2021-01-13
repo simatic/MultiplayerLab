@@ -30,6 +30,7 @@ class Interface {
 
 private:
     std::map<ClientID, CompiledEventsMap> clientEvents{};
+    std::map<ClientID, bool> pauseGraphForClient{};
     std::map<ClientID, std::vector<PacketLifecycle>> clientPacketLifecycles{};
     ServerNetworkHandler& serverNetwork;
     /// Has ImPlot being initialized yet?
@@ -47,7 +48,7 @@ private:
     std::pair<const PacketInfo, const PacketLifecycle*> getClosest(const CompiledEventsMap& packets, const std::vector<PacketLifecycle>& lifecycles, float x, float y);
 
 private:
-    void renderClientWindow(const std::string& name, UdpClient& client, float width);
+    void renderClientWindow(const std::string& name, UdpClient& client);
 
     void linkPackets(const UdpClient &client, const NetworkEvent::Event &event,
                             const std::map<NetworkEvent::Type, Interface::CompiledEvents> &eventMap,

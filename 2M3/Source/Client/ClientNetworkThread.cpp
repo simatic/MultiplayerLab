@@ -18,7 +18,6 @@ bool ClientNetworkThread::processWaitingPackets(sf::UdpSocket &socket)
     sf::Socket::Status status;
     do
     {
-        std::cout << "Waiting" << std::endl;
         // We try to see if there is a message to process
         sf::Packet packet;
         sf::IpAddress remoteAddress;

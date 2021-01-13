@@ -33,7 +33,7 @@ void DelayCreator::threadCode() {
             auto& packet = *it;
             packet->delay -= deltaTime.asSeconds();
             if(packet->delay <= 0){
-                std::cout << "[Debug] Received packet with ID " << packet->logicalPacket->getID() << std::endl;
+                // std::cout << "[Debug] Received packet with ID " << packet->logicalPacket->getID() << std::endl;
                 auto& client = packet->client;
                 if(!client.settings.inComingPacketLost()){
                     serverNetwork.triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::PacketDelayed,

@@ -44,7 +44,7 @@ void Interface::render(sf::RenderWindow& window, float clientWidth, float client
         auto& client = clients.at(i);
         ImGui::SetNextWindowPos(ImVec2{i*clientWidth, startY});
         ImGui::SetNextWindowSize(ImVec2{clientWidth, clientHeight});
-        renderClientWindow("Client #" + std::to_string(i+1), *client, clientWidth);
+        renderClientWindow("Client #" + std::to_string(i+1), *client);
     }
 
     if(clients.empty()) {
@@ -58,33 +58,40 @@ void Interface::render(sf::RenderWindow& window, float clientWidth, float client
     ImGui::SFML::Render(window);
 }
 
-void Interface::renderClientWindow(const std::string& title, UdpClient& client, float width) {
-    if(ImGui::Begin(("Contrôles "+title+" IP;Port: "+client.address.toString()+";"+std::to_string(client.port)).c_str())) {
+void Interface::renderClientWindow(const std::string& title, UdpClient& client) {
+    auto flags = ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
+    if(ImGui::Begin(("Contrôles "+title+" IP;Port: "+client.address.toString()+";"+std::to_string(client.port)).c_str(), nullptr, flags)) {
         renderGraph(client);
 
         ImGui::Separator();
 
-        ImGui::SetNextItemWidth(width/2.0f);
-        ImGui::BeginChild("PacketLoss", ImVec2(600, 0), false);
+        float width = ImGui::GetWindowWidth()*0.95f;
+        float childWidth = width/2.0f;
+        ImGui::BeginChild("PacketLoss", ImVec2(width/2.0f, 0), false);
         {
-            ImGui::TextColored(TITLE_COLOR, "Pertes de packets");
-            ImGui::SetNextItemWidth(width/4.0f);
-            DragFloat("Pourcentage de pertes client", [&]{return client.settings.getPercentageInComingPacketLost();}, [&](float v){client.settings.setPercentageInComingPacketLost(v);});
-            ImGui::SetNextItemWidth(width/4.0f);
-            DragFloat("Pourcentage de pertes serveur", [&]{return client.settings.getPercentageOutGoingPacketLost();}, [&](float v){client.settings.setPercentageOutGoingPacketLost(v);});
+            ImGui::TextColored(TITLE_COLOR, "Pertes de packets (en pourcentage)");
+
+            ImGui::SetNextItemWidth(childWidth/4.0f);
+            DragFloat("Pertes client", [&]{return client.settings.getPercentageInComingPacketLost();}, [&](float v){client.settings.setPercentageInComingPacketLost(v);});
+
+            ImGui::SetNextItemWidth(childWidth/4.0f);
+            ImGui::SameLine();
+            DragFloat("Pertes serveur", [&]{return client.settings.getPercentageOutGoingPacketLost();}, [&](float v){client.settings.setPercentageOutGoingPacketLost(v);});
         }
         ImGui::EndChild();
 
         ImGui::SameLine();
 
-        ImGui::SetNextItemWidth(width/2.0f);
-        ImGui::BeginChild("Delays", ImVec2(700, 0), false);
+        ImGui::BeginChild("Delays", ImVec2(width/2.0f, 0), false);
         {
-            ImGui::TextColored(TITLE_COLOR, "Délais");
-            ImGui::SetNextItemWidth(width/4.0f);
-            DragFloat("Avant traitement (en secondes)", [&]{return client.settings.getIncomingDelay();}, [&](float v){client.settings.setIncomingDelay(v);}, 0, 10.0f);
-            ImGui::SetNextItemWidth(width/4.0f);
-            DragFloat("Avant envoi (en secondes)", [&]{return client.settings.getOutgoingDelay();}, [&](float v){client.settings.setOutgoingDelay(v);}, 0, 10.0f);
+            ImGui::TextColored(TITLE_COLOR, "Délais (en secondes)");
+
+            ImGui::SetNextItemWidth(childWidth/4.0f);
+            DragFloat("Avant traitement", [&]{return client.settings.getIncomingDelay();}, [&](float v){client.settings.setIncomingDelay(v);}, 0, 10.0f);
+
+            ImGui::SetNextItemWidth(childWidth/4.0f);
+            ImGui::SameLine();
+            DragFloat("Avant envoi", [&]{return client.settings.getOutgoingDelay();}, [&](float v){client.settings.setOutgoingDelay(v);}, 0, 10.0f);
         }
         ImGui::EndChild();
     }
@@ -92,13 +99,13 @@ void Interface::renderClientWindow(const std::string& title, UdpClient& client, 
 }
 
 void Interface::renderGraph(const UdpClient &client) {
-    static bool followLastPacket = true;
-    ImGui::Checkbox("Suivre les derniers packets", &followLastPacket);
+    bool& pauseGraphScroll = pauseGraphForClient[client.id];
+    ImGui::Checkbox("Mettre en pause le scrolling", &pauseGraphScroll);
 
     float time = ServerClock::getInstance().asSeconds();
 
     // pause? => ImGuiCond_Once
-    ImPlot::SetNextPlotLimitsX(time-10, time, followLastPacket ? ImGuiCond_Always : ImGuiCond_Once);
+    ImPlot::SetNextPlotLimitsX(time-10, time, !pauseGraphScroll ? ImGuiCond_Always : ImGuiCond_Once);
     ImPlot::SetNextPlotLimitsY(-1, NetworkEvent::Last, ImGuiCond_Once);
 
     if(ImPlot::BeginPlot("Graphes des packets")) {
@@ -116,6 +123,7 @@ void Interface::renderGraph(const UdpClient &client) {
             ImPlot::PlotScatter(NetworkEvent::name(type), timestamps.data(), values.data(), values.size());
         }
 
+        // render connections between packets
         std::vector<PacketLifecycle>& packetLives = clientPacketLifecycles[client.id];
         for(auto& lifecycle : packetLives) {
             float times[2] = { lifecycle.edges.first.x, lifecycle.edges.second.x };
@@ -123,7 +131,7 @@ void Interface::renderGraph(const UdpClient &client) {
             ImPlot::PlotLine("", times, values, 2);
         }
 
-
+        // render tooltip with packet information
         if(ImPlot::IsPlotHovered()) {
             ImPlotPoint mouse = ImPlot::GetPlotMousePos();
 
@@ -132,6 +140,7 @@ void Interface::renderGraph(const UdpClient &client) {
             const PacketInfo closestPacketInfo = closest.first;
             const PacketLifecycle* closestLifecycle = closest.second;
 
+            // if found a packet close to the mouse, render the tooltip
             if(closestPacketInfo.sequenceIndex != 0) {
                 ImGui::BeginTooltip();
                 ImGui::TextColored(TITLE_COLOR, "Informations du packet");
