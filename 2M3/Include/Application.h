@@ -11,7 +11,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include <thread>
 #include <Server/Server.h>
-
+#include <Server/Interface.h>
 
 class Application
 {
@@ -42,6 +42,10 @@ class Application
         void quitApplication();
 
 	private:
+        /// How much of vertical space the game should take?
+        /// The graphs will take 1-this value to know how much they take vertically
+        constexpr static float gameHeightRatio = 0.6f;
+
 		// Main window in which the Clients' views will be rendered.
 		sf::RenderWindow		mWindow;
 
@@ -75,6 +79,8 @@ class Application
 
 		/// Weak server reference to stop the server when the application is closed
 		std::weak_ptr<Server> serverReference{};
+
+        std::unique_ptr<Interface> serverInterface = nullptr;
 };
 
 #endif // BOOK_APPLICATION_HPP

@@ -2,6 +2,7 @@
 #include <SFML/Window.hpp>
 #include <imgui.h>
 #include <thread>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include "Server/NetworkTypes.h"
 #include "Server/ServerNetworkHandler.h"
 
@@ -31,7 +32,9 @@ private:
     std::map<ClientID, CompiledEventsMap> clientEvents{};
     std::map<ClientID, std::vector<PacketLifecycle>> clientPacketLifecycles{};
     ServerNetworkHandler& serverNetwork;
-    std::thread backingThread{};
+    /// Has ImPlot being initialized yet?
+    bool implotInit = false;
+    sf::Clock deltaClock{};
 
     /// Gets the closest packet and packet lifecyle to the mouse.
     /// Returns a PacketInfo with sequenceIndex = 0 if no packet is close
@@ -44,10 +47,7 @@ private:
     std::pair<const PacketInfo, const PacketLifecycle*> getClosest(const CompiledEventsMap& packets, const std::vector<PacketLifecycle>& lifecycles, float x, float y);
 
 private:
-    void threadCode();
-    void pollEvents(sf::Window& window);
-    void render();
-    void renderClientWindow(const std::string& name, UdpClient& client);
+    void renderClientWindow(const std::string& name, UdpClient& client, float width);
 
     void linkPackets(const UdpClient &client, const NetworkEvent::Event &event,
                             const std::map<NetworkEvent::Type, Interface::CompiledEvents> &eventMap,
@@ -59,6 +59,7 @@ public:
     explicit Interface(ServerNetworkHandler& handler);
 
     void onEvent(const UdpClient &client, NetworkEvent::Event event);
+    void render(sf::RenderWindow& renderTarget, float clientWidth, float clientHeight, float startY);
 
     ~Interface();
 };

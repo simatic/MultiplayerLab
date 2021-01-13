@@ -9,7 +9,9 @@
 
 #include <iostream>
 #include <Server/Server.h>
+#include <Server/Interface.h>
 #include <Common/Network/Constants.h>
+#include <imgui-SFML.h>
 
 Application::Application() :
 	mWindow(sf::VideoMode::getDesktopMode()/*sf::VideoMode(1600, 900)*/, "2M3", sf::Style::Close | sf::Style::Resize),
@@ -70,9 +72,8 @@ void Application::run()
 void Application::addClientThread() {
 	sf::RenderTexture* clientRenderTexture(new sf::RenderTexture());
 
-	const float heightRatio = 1.0f;
 	// Necessary to be called after initialization of RenderTexture.
-	clientRenderTexture->create(mWindow.getSize().x / 2, mWindow.getSize().y*heightRatio);
+	clientRenderTexture->create(mWindow.getSize().x / 2, mWindow.getSize().y*gameHeightRatio);
 	sf::Sprite* sprite = new sf::Sprite(clientRenderTexture->getTexture());
 	if (_clientCount == 1) {
 		sprite->move(mWindow.getSize().x / 2, 0);
@@ -136,13 +137,14 @@ void Application::manageInputs() {
 	_mutex->lock();
 	mWindow.setActive(true);
 	while (mWindow.pollEvent(event)) {
-		if (event.type == sf::Event::Closed)
+        if (event.type == sf::Event::Closed)
 		{
 		    quitApplication();
 		}
 		else
 		{
-			_clientInputs.push_back(event);
+            ImGui::SFML::ProcessEvent(event);
+            _clientInputs.push_back(event);
 		}
 	}
 	mWindow.setActive(false);
@@ -168,9 +170,13 @@ void Application::render()
 	mWindow.setActive(true);
 	mWindow.clear();
 
+	const float clientWidth = mWindow.getView().getSize().x / 2.0f;
+	const float startY = mWindow.getSize().y*gameHeightRatio;
+	const float clientHeight = mWindow.getSize().y*(1.0f-gameHeightRatio);
 	for (size_t i = 0; i < _clientsInfo.size(); i++)
 	{ 
 		mWindow.draw(*_clientsInfo[i]->sprite);
+		serverInterface->render(mWindow, clientWidth, clientHeight, startY);
 	}
 
 	mWindow.display();
@@ -182,10 +188,12 @@ void Application::launchServer() {
     std::cout << "Launching server thread" << std::endl;
     auto server = std::make_shared<Server>("0.0.0.0", DEFAULT_PORT);
     serverReference = server;
+    serverInterface = std::make_unique<Interface>(server->getNetworkHandler());
     serverThread = std::thread([server /* copy server shared_ptr into thread*/]() {
         // TODO: configurable host
         server->run();
     });
+    while(!server->isReady()) std::this_thread::yield();
 }
 
 void Application::terminateServer() {

@@ -4,9 +4,10 @@
 Server::Server(const std::string& ip, unsigned short port): networkHandler(ip, port), networkThread(networkHandler) {}
 
 void Server::run() {
+    while(networkHandler.isRunning())
     {
-        auto interface = Interface(networkHandler);
-    } // wait for interface to "die" (ie. closing the window)
+        std::this_thread::yield();
+    } // wait for network to be shutdown
 }
 
 bool Server::isRunning() {
@@ -19,4 +20,12 @@ void Server::stop() {
 
 Server::~Server() {
     networkHandler.killNetworkThread();
+}
+
+ServerNetworkHandler& Server::getNetworkHandler() {
+    return networkHandler;
+}
+
+bool Server::isReady() {
+    return networkThread.isReady();
 }

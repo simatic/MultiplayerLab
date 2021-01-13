@@ -24,6 +24,8 @@ void ServerNetworkThread::threadCode() {
 
     // Wait for messages on this socket
     std::cerr << "Waiting for messages on port " << serverNetwork.getPort() << std::endl;
+
+    ready = true;
     while (delayCreator.isRunning()) {
         sf::Packet packet;
         sf::IpAddress remoteAddress;
@@ -44,6 +46,11 @@ void ServerNetworkThread::threadCode() {
             delayCreator.delayReceivedPacket(client, std::move(logicalPacket));
         }
     }
+    ready = false;
 
     disconnectNonConnected.join();
+}
+
+bool ServerNetworkThread::isReady() const {
+    return ready;
 }

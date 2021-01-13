@@ -12,31 +12,9 @@
 
 Interface::Interface(ServerNetworkHandler& handler): serverNetwork(handler) {
     handler.registerListener(this);
-    backingThread = std::thread([&](){this->threadCode();});
 }
 
 Interface::~Interface() {
-    backingThread.join();
-}
-
-void Interface::threadCode() {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Server Interface "+serverNetwork.getIP()+":"+std::to_string(serverNetwork.getPort()));
-    ImGui::SFML::Init(window);
-    ImPlot::CreateContext();
-
-    sf::Clock deltaClock;
-    while(window.isOpen() && serverNetwork.isRunning()) {
-        pollEvents(window);
-
-        ImGui::SFML::Update(window, deltaClock.restart());
-        render();
-
-        window.clear();
-        ImGui::SFML::Render(window);
-
-        window.display();
-    }
-
     ImGui::DestroyContext();
     ImPlot::DestroyContext();
 }
@@ -49,57 +27,66 @@ void DragFloat(const char* label, Getter get, Setter set, float min = 0.0f, floa
     }
 }
 
-ImVec4 TITLE_COLOR = ImVec4(1,1,0,1);
+static ImVec4 TITLE_COLOR = ImVec4(1,1,0,1);
 
-void Interface::render() {
+void Interface::render(sf::RenderWindow& window, float clientWidth, float clientHeight, float startY) {
+    if(!implotInit) {
+        ImGui::SFML::Init(window);
+        ImPlot::CreateContext();
+
+        implotInit = true;
+    }
+
+    ImGui::SFML::Update(window, deltaClock.restart());
+
     auto& clients = serverNetwork.getClients();
     for (int i = 0; i < clients.size(); ++i) {
         auto& client = clients.at(i);
-        renderClientWindow("Client #" + std::to_string(i+1), *client);
+        ImGui::SetNextWindowPos(ImVec2{i*clientWidth, startY});
+        ImGui::SetNextWindowSize(ImVec2{clientWidth, clientHeight});
+        renderClientWindow("Client #" + std::to_string(i+1), *client, clientWidth);
     }
 
     if(clients.empty()) {
+        ImGui::SetNextWindowPos(ImVec2{clientWidth, startY+clientHeight/2.0f});
         if(ImGui::Begin("En attente de clients", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove)) {
             ImGui::Text("Les fenêtres des clients arriveront ici quand ils se connecteront.");
         }
         ImGui::End();
     }
+
+    ImGui::SFML::Render(window);
 }
 
-void Interface::renderClientWindow(const std::string& title, UdpClient& client) {
-    if(ImGui::Begin(("Contrôles "+title).c_str())) {
-        ImGui::Text("IP du client: %s", client.address.toString().c_str());
-        ImGui::Text("Port du client: %i", client.port);
-        ImGui::Separator();
-
-        if(ImGui::TreeNode("Graphes des packets")) {
-            renderGraph(client);
-            ImGui::TreePop();
-        }
+void Interface::renderClientWindow(const std::string& title, UdpClient& client, float width) {
+    if(ImGui::Begin(("Contrôles "+title+" IP;Port: "+client.address.toString()+";"+std::to_string(client.port)).c_str())) {
+        renderGraph(client);
 
         ImGui::Separator();
 
-        ImGui::BeginGroup();
+        ImGui::SetNextItemWidth(width/2.0f);
+        ImGui::BeginChild("PacketLoss", ImVec2(600, 0), false);
         {
-            ImGui::BeginChild("PacketLoss", ImVec2(600, 0), false);
             ImGui::TextColored(TITLE_COLOR, "Pertes de packets");
+            ImGui::SetNextItemWidth(width/4.0f);
             DragFloat("Pourcentage de pertes client", [&]{return client.settings.getPercentageInComingPacketLost();}, [&](float v){client.settings.setPercentageInComingPacketLost(v);});
+            ImGui::SetNextItemWidth(width/4.0f);
             DragFloat("Pourcentage de pertes serveur", [&]{return client.settings.getPercentageOutGoingPacketLost();}, [&](float v){client.settings.setPercentageOutGoingPacketLost(v);});
-            ImGui::EndChild();
         }
-        ImGui::EndGroup();
+        ImGui::EndChild();
 
         ImGui::SameLine();
 
-        ImGui::BeginGroup();
+        ImGui::SetNextItemWidth(width/2.0f);
+        ImGui::BeginChild("Delays", ImVec2(700, 0), false);
         {
-            ImGui::BeginChild("Delays", ImVec2(700, 0), false);
             ImGui::TextColored(TITLE_COLOR, "Délais");
+            ImGui::SetNextItemWidth(width/4.0f);
             DragFloat("Avant traitement (en secondes)", [&]{return client.settings.getIncomingDelay();}, [&](float v){client.settings.setIncomingDelay(v);}, 0, 10.0f);
+            ImGui::SetNextItemWidth(width/4.0f);
             DragFloat("Avant envoi (en secondes)", [&]{return client.settings.getOutgoingDelay();}, [&](float v){client.settings.setOutgoingDelay(v);}, 0, 10.0f);
-            ImGui::EndChild();
         }
-        ImGui::EndGroup();
+        ImGui::EndChild();
     }
     ImGui::End();
 }
@@ -112,8 +99,9 @@ void Interface::renderGraph(const UdpClient &client) {
 
     // pause? => ImGuiCond_Once
     ImPlot::SetNextPlotLimitsX(time-10, time, followLastPacket ? ImGuiCond_Always : ImGuiCond_Once);
+    ImPlot::SetNextPlotLimitsY(-1, NetworkEvent::Last, ImGuiCond_Once);
 
-    if(ImPlot::BeginPlot("Evénements")) {
+    if(ImPlot::BeginPlot("Graphes des packets")) {
         CompiledEventsMap& events = clientEvents[client.id];
 
         for(unsigned int typeID = 0; typeID < NetworkEvent::Last; typeID++) {
@@ -136,11 +124,9 @@ void Interface::renderGraph(const UdpClient &client) {
         }
 
 
-        {
+        if(ImPlot::IsPlotHovered()) {
             ImPlotPoint mouse = ImPlot::GetPlotMousePos();
 
-            // TODO: handle single events (example: a packet sent by the client is rejected due to forced loss ratios
-            //  will have no links, and will not be returned by this method. It will probably return a close link instead)
             const std::pair<const PacketInfo, const PacketLifecycle*> closest = getClosest(events, packetLives, mouse.x, mouse.y);
 
             const PacketInfo closestPacketInfo = closest.first;
@@ -173,19 +159,6 @@ void Interface::renderGraph(const UdpClient &client) {
         }
 
         ImPlot::EndPlot();
-    }
-}
-
-void Interface::pollEvents(sf::Window& window) {
-    sf::Event event{};
-    while (window.pollEvent(event))
-    {
-        ImGui::SFML::ProcessEvent(event);
-        switch (event.type) {
-            case sf::Event::Closed:
-                window.close();
-                break;
-        }
     }
 }
 
@@ -235,7 +208,7 @@ void Interface::linkPackets(const UdpClient &client, const NetworkEvent::Event &
                                            )});
 }
 
-float sqDist(sf::Vector2f vec, float x, float y) {
+static float sqDist(sf::Vector2f vec, float x, float y) {
     float dx = vec.x - x;
     float dy = vec.y - y;
     return dx*dx+dy*dy;

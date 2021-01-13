@@ -18,6 +18,8 @@ public:
     void run();
     void stop();
     bool isRunning();
+    bool isReady();
+    ServerNetworkHandler& getNetworkHandler();
 
     ~Server();
 };
