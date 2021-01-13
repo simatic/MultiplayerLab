@@ -4,16 +4,18 @@
 
 #include <Common/Network/Network.h>
 #include <Common/Network/NetworkHandler.h>
+#include <Common/Network/Buffer.h>
 
 class ClientNetworkThread {
 private:
     std::thread backingThread{};
     NetworkHandler& network;
+    Buffer& outputBuffer;
     std::string host;
     unsigned short remotePort;
 
 public:
-    ClientNetworkThread(NetworkHandler& handler, const std::string& host, unsigned short port);
+    ClientNetworkThread(NetworkHandler& handler, Buffer& outputBuffer, const std::string& host, unsigned short port);
     ~ClientNetworkThread();
 
 private:

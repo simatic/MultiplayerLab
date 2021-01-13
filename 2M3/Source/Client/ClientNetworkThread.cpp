@@ -18,6 +18,7 @@ bool ClientNetworkThread::processWaitingPackets(sf::UdpSocket &socket)
     sf::Socket::Status status;
     do
     {
+        std::cout << "Waiting" << std::endl;
         // We try to see if there is a message to process
         sf::Packet packet;
         sf::IpAddress remoteAddress;
@@ -33,6 +34,7 @@ bool ClientNetworkThread::processWaitingPackets(sf::UdpSocket &socket)
             if(response) {
                 send(socket, std::move(response), remoteAddress, remotePort);
             }
+            outputBuffer.addPacket(std::move(logicalPacket));
         } else {
             // invalid packet, stop
             failed = true;
@@ -45,7 +47,7 @@ bool ClientNetworkThread::processWaitingPackets(sf::UdpSocket &socket)
 
 void ClientNetworkThread::threadCode() {
     sf::IpAddress ip(host);
-    sf::UdpSocket socket;
+    sf::UdpSocket& socket = network.getSocket();
     sf::Socket::Status status = socket.bind(sf::Socket::AnyPort);
     unsigned short localPort = socket.getLocalPort();
     if (status != sf::Socket::Done)
@@ -64,7 +66,7 @@ void ClientNetworkThread::threadCode() {
         }
         sf::sleep(sf::milliseconds(100));
         // TODO: replace with game code?
-        network.create<PingPacket>()->realSend(socket, ip, remotePort);
+        //network.create<PingPacket>()->realSend(socket, ip, remotePort);
         number++;
         //EchoPacket(number).send(socket, ip, remotePort);
         sf::sleep(sf::milliseconds(1));
@@ -72,7 +74,7 @@ void ClientNetworkThread::threadCode() {
     return;
 }
 
-ClientNetworkThread::ClientNetworkThread(NetworkHandler& handler, const std::string& host, unsigned short port): network(handler), host(host), remotePort(port) {
+ClientNetworkThread::ClientNetworkThread(NetworkHandler& handler, Buffer& outputBuffer, const std::string& host, unsigned short port): network(handler), outputBuffer(outputBuffer), host(host), remotePort(port) {
     backingThread = std::thread([&]() { this->threadCode();});
 }
 

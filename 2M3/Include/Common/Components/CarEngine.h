@@ -3,6 +3,10 @@
 
 #include <SFML/System/Vector2.hpp>
 
+/**
+ * @struct CarEngine component.
+ * Holds information to model the behavior of a CarEngine.
+ */
 struct CarEngine : public IdentifiableComponent<CarEngine>
 {
     CarEngine(

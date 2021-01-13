@@ -6,10 +6,12 @@
 #include <set>
 
 class GameManager;  // Forward redirection of GameManager.
+class ClientNetworkModule;
 
 enum class SystemType {
 	Logic,
-	Render
+	Render,
+	Network
 };
 
 /**
@@ -71,33 +73,11 @@ SignedSystem<type, Components...>::SignedSystem(GameManager* const gameManager) 
 	this->signature = Signature::generate<Components...>();
 }
 
-/**
- * LogicSystem class.
- */
 template <typename... Components>
-class LogicSystem : public SignedSystem<SystemType::Logic, Components...> {
-public:
-	LogicSystem(GameManager* const gameManager);
-};
+using LogicSystem = SignedSystem<SystemType::Logic, Components...>;
 
 template <typename... Components>
-LogicSystem<Components...>::LogicSystem(GameManager* const gameManager) :
-	SignedSystem<SystemType::Logic, Components...>(gameManager)
-{}
-
-/**
- * RenderSystem class.
- */
-template <typename... Components>
-class RenderSystem : public SignedSystem<SystemType::Render, Components...> {
-public:
-	RenderSystem(GameManager* const gameManager);
-};
+using RenderSystem = SignedSystem<SystemType::Render, Components...>;
 
 template <typename... Components>
-RenderSystem<Components...>::RenderSystem(GameManager* const gameManager) :
-	SignedSystem<SystemType::Render, Components...>(gameManager)
-{}
-
-template <typename... C>
-using A = SignedSystem<SystemType::Logic, C...>;
+using NetworkSystem = SignedSystem<SystemType::Network, Components...>;

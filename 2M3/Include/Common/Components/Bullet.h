@@ -4,6 +4,10 @@
 
 #include <SFML/System/Time.hpp>
 
+/**
+ * @struct Bullet component.
+ * Holds information to model the behavior of a bullet.
+ */
 struct Bullet : public IdentifiableComponent<Bullet>
 {
 	Bullet(

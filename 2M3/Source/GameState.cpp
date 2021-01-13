@@ -2,18 +2,6 @@
 #include "Common/Managers/ResourceManager.h"
 #include "Common/Prefabs/Prefabs.h"
 
-#include "Common/Components/Transform.h"
-#include "Common/Components/Kinematics.h"
-#include "Common/Components/Collider.h"
-#include "Common/Components/CarInput.h"
-#include "Common/Components/CarEngine.h"
-#include "Common/Components/Health.h"
-#include "Common/Components/Gun.h"
-#include "Common/Components/Trajectory.h"
-#include "Common/Components/Particles.h"
-#include "Common/Components/Sprite.h"
-#include "Common/Components/RectShape.h"
-
 #include "Common/Systems/BulletSystem.h"
 #include "Common/Systems/CarCollisionHandling.h"
 #include "Common/Systems/CarDeath.h"
@@ -29,6 +17,7 @@
 #include "Common/Systems/TrajectoryRenderer.h"
 #include "Common/Systems/TrajectorySystem.h"
 #include "Common/Systems/RectShapeRenderer.h"
+#include "Common/Systems/NetworkPingPong.h"
 
 #include <iostream>
 
@@ -45,6 +34,7 @@ GameState::GameState(StateStack& stack, Context context) :
 	ResourceManager::getInstance()->setTextures(context.textures);
     gameManager->setRenderTarget(target);
     gameManager->setKeyBinding(context.keys);
+    gameManager->setNetworkModule<ClientNetworkModule>("localhost", DEFAULT_PORT);
 
     std::shared_ptr<Entity> playerCar = Prefab::createPlayableCar(true);
     std::shared_ptr<Entity> car = Prefab::createCar(true);
@@ -66,20 +56,20 @@ GameState::GameState(StateStack& stack, Context context) :
     createWall(sf::Vector2f(+1, 0));
     createWall(sf::Vector2f(0, -1));
     createWall(sf::Vector2f(0, +1));
-
+    
     gameManager->addLogicSystems<
-            KeyboardInputSystem,
-            CarMovementSystem,
-            CollisionSystem,
-            CarCollisionSystem,
-            GunSystem,
-            BulletSystem,
-            TrajectorySystem,
-            ParticleSystem,
-            CarDeath,
-            MovementSystem
+        KeyboardInputSystem,
+        CarMovementSystem,
+        CollisionSystem,
+        CarCollisionSystem,
+        GunSystem,
+        BulletSystem,
+        TrajectorySystem,
+        ParticleSystem,
+        CarDeath,
+        MovementSystem
     >();
-
+    
     gameManager->addRenderSystems<
         CameraSystem,
         GridRenderer,
@@ -88,6 +78,10 @@ GameState::GameState(StateStack& stack, Context context) :
         SpriteRenderer,
         RectShapeRenderer,
         HealthBarRenderer
+    >();
+
+    gameManager->addNetworkSystems<
+        NetworkPingPong
     >();
 
     gameManager->updateSystemLists();
