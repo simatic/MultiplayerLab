@@ -38,7 +38,7 @@ void DelayCreator::threadCode() {
                 if(!client.settings.inComingPacketLost()){
                     serverNetwork.triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::PacketDelayed,
                                                                                    packet->logicalPacket->getSequenceIndex()});
-                    auto response = packet->logicalPacket->handle();
+                    auto response = packet->logicalPacket->handle(serverNetwork.getNetworkModule());
                     if(response) {
                         serverNetwork.triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::SendingPacket,
                                                                                        response->getSequenceIndex()});

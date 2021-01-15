@@ -125,3 +125,11 @@ UdpClient::UdpClient(ServerNetworkHandler& server, ClientID id, sf::IpAddress ad
 void UdpClient::send(std::unique_ptr<Packet>&& packet) const {
     server.sendToClient(*this, std::move(packet));
 }
+
+INetworkModule* ServerNetworkHandler::getNetworkModule() const {
+    return networkModule;
+}
+
+void ServerNetworkHandler::setNetworkModule(INetworkModule* networkModule) {
+    ServerNetworkHandler::networkModule = networkModule;
+}

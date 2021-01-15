@@ -32,6 +32,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
         Include/Client/*.h
         Include/Client/Modules/*.h
         Include/Server/*.h
+        Include/Server/Modules/*.h
 
         Source/*.cpp
         Source/Common/*.cpp
@@ -44,6 +45,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
         Source/Client/*.cpp
         Source/Client/Modules/*.cpp
         Source/Server/*.cpp
+        Source/Server/Modules/*.cpp
         )
 
 set(SOURCE_STANDALONE ${SOURCES})

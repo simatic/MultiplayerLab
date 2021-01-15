@@ -13,6 +13,7 @@ class ServerNetworkHandler: public NetworkHandler {
 private:
     // TODO: custom
     constexpr static float DelayBeforeDeconnection = 5.0f;
+    INetworkModule* networkModule = nullptr;
 
     std::string ip;
     unsigned short port;
@@ -61,5 +62,9 @@ public:
     DelayCreator& getDelayCreator();
 
     bool isRunning();
+
+    INetworkModule* getNetworkModule() const;
+
+    void setNetworkModule(INetworkModule* networkModule);
 };
 

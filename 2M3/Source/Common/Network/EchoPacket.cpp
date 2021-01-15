@@ -9,7 +9,7 @@ EchoPacket::EchoPacket(PacketSequenceIndex index, sf::Packet &source): Packet(in
     source >> number;
 }
 
-std::unique_ptr<Packet> EchoPacket::handle() const {
+std::unique_ptr<Packet> EchoPacket::handle(INetworkModule* iNetworkModule) const {
     std::cout << number << std::endl;
     return nullptr;
 }

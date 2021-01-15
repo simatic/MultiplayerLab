@@ -3,4 +3,6 @@
 ClientNetworkModule::ClientNetworkModule(const std::string& host, const unsigned short port) :
 	INetworkModule(host, port, std::make_unique<ClientNetworkHandler>()),
 	thread(*network, buffer, host, remotePort)
-{}
+{
+    thread.setNetworkModule(this);
+}

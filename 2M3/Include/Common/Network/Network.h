@@ -3,10 +3,15 @@
 #include <SFML/Network.hpp>
 #include <iostream>
 
+class INetworkModule;
+
 enum PacketID: sf::Uint32 {
     Ping,
     Pong,
     Echo,
+    AskAddEntity,
+    ConfirmAddEntity,
+    AddEntity,
     // TODO
 };
 
@@ -31,7 +36,7 @@ public:
     PacketSequenceIndex getSequenceIndex() const;
 
     /// What is this packet supposed to do?
-    virtual std::unique_ptr<Packet> handle() const = 0;
+    [[nodiscard]] virtual std::unique_ptr<Packet> handle(INetworkModule* iNetworkModule) const = 0;
     /// Write this packet to SFML packet
     virtual void write(sf::Packet& destination) const = 0;
 

@@ -9,7 +9,7 @@ private:
     sf::UdpSocket& socket;
 
 public:
-    ServerNetworkThread(ServerNetworkHandler& handler);
+    explicit ServerNetworkThread(ServerNetworkHandler& handler);
     ~ServerNetworkThread();
 
 private:

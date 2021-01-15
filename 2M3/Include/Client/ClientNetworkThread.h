@@ -6,6 +6,8 @@
 #include <Common/Network/NetworkHandler.h>
 #include <Common/Network/Buffer.h>
 
+class ClientNetworkModule;
+
 class ClientNetworkThread {
 private:
     std::thread backingThread{};
@@ -13,10 +15,15 @@ private:
     Buffer& outputBuffer;
     std::string host;
     unsigned short remotePort;
+    ClientNetworkModule* networkModule = nullptr;
 
 public:
     ClientNetworkThread(NetworkHandler& handler, Buffer& outputBuffer, const std::string& host, unsigned short port);
     ~ClientNetworkThread();
+
+    ClientNetworkModule *getNetworkModule() const;
+
+    void setNetworkModule(ClientNetworkModule *networkModule);
 
 private:
     void threadCode();

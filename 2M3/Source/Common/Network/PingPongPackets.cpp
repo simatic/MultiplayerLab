@@ -16,7 +16,7 @@ PingPacket::PingPacket(PacketSequenceIndex index, sf::Packet &source): Packet(in
     source >> timestamp;
 }
 
-std::unique_ptr<Packet> PingPacket::handle() const {
+std::unique_ptr<Packet> PingPacket::handle(INetworkModule* iNetworkModule) const {
     // send pong packet with client timestamp to measure ping on its side
     return std::make_unique<PongPacket>(getSequenceIndex(), timestamp);
 }
@@ -31,7 +31,7 @@ PongPacket::PongPacket(PacketSequenceIndex index, sf::Packet &source): Packet(in
     source >> clientTimestamp;
 }
 
-std::unique_ptr<Packet> PongPacket::handle() const {
+std::unique_ptr<Packet> PongPacket::handle(INetworkModule* iNetworkModule) const {
     unsigned long long pingTime = duration_cast< milliseconds >(
             (system_clock::now() - milliseconds(clientTimestamp)).time_since_epoch()
     ).count();
