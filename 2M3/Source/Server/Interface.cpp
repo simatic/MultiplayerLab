@@ -117,8 +117,8 @@ void Interface::renderGraph(const UdpClient &client) {
             if(events.find(type) == events.end())
                 continue;
 
-            std::vector<float>& timestamps = events[type].timestamps;
-            std::vector<float>& values = events[type].values;
+            auto& timestamps = events[type].timestamps;
+            auto& values = events[type].values;
 
             ImPlot::PlotScatter(NetworkEvent::name(type), timestamps.data(), values.data(), values.size());
         }

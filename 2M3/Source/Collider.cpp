@@ -1,7 +1,7 @@
 #include <Collider.h>
 #include <Utility.h>
 
-void projectRectangle(sf::Vector2f axis, Rectangle rectangle, float& min, float& max)
+void projectRectangle(sf::Vector2f axis, const Rectangle& rectangle, float& min, float& max)
 {
 	min = dotProduct(axis, rectangle.points[0]);
 	max = dotProduct(axis, rectangle.points[0]);
@@ -23,7 +23,7 @@ float intervalDistance(float minA, float maxA, float minB, float maxB)
 	return minA - maxB;
 }
 
-CollisionResult collision(Rectangle rectA, Rectangle rectB, sf::Vector2f velocityA, sf::Vector2f velocityB, sf::Time dt)
+CollisionResult collision(const Rectangle& rectA, const Rectangle& rectB, sf::Vector2f velocityA, sf::Vector2f velocityB, sf::Time dt)
 {
 	CollisionResult result = { true, true, sf::Vector2f(0, 0), sf::Vector2f(0, 0) };
 

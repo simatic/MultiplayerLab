@@ -4,7 +4,7 @@
 #include "SettingsState.h"
 #include "GameState.h"
 #include "Utility.h"
-
+#include "Profiling.h"
 
 Client::Client(int uid, sf::Mutex& mutex, int renderTextureWidth, int renderTextureHeight, ThreadSafeQueue<sf::Sprite>& queueToDraw, ThreadSafeQueue<sf::Sprite>& queueToDisplay) :
 	_uid(uid),
@@ -152,12 +152,19 @@ void Client::renderBorder()
 void Client::render()
 {
 	sf::Sprite sprite;
-	_queueToDraw.wait_and_pop(sprite);
-	_renderTexture->clear();
-    _stateStack->draw();
-    renderBorder();
-	_renderTexture->draw(_statisticsText);
-    _renderTexture->display();
+	ZoneScoped;
+    {
+        ZoneScopedN("Wait before draw");
+        _queueToDraw.wait_and_pop(sprite);
+    }
+    {
+        ZoneScopedN("Draw");
+        _renderTexture->clear();
+        _stateStack->draw();
+        renderBorder();
+        _renderTexture->draw(_statisticsText);
+        _renderTexture->display();
+    }
 	sprite.setTexture(_renderTexture->getTexture());
 	_queueToDisplay.push(sprite);
 }

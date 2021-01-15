@@ -14,7 +14,7 @@ struct Rectangle
 	std::vector<sf::Vector2f> points;
 };
 
-void projectRectangle(sf::Vector2f axis, Rectangle rectangle, float& min, float& max);
+void projectRectangle(sf::Vector2f axis, const Rectangle& rectangle, float& min, float& max);
 float intervalDistance(float minA, float maxA, float minB, float maxB);
 
-CollisionResult collision(Rectangle rectA, Rectangle rectB, sf::Vector2f velocityA, sf::Vector2f velocityB, sf::Time dt);
+CollisionResult collision(const Rectangle& rectA, const Rectangle& rectB, sf::Vector2f velocityA, sf::Vector2f velocityB, sf::Time dt);

@@ -1,4 +1,6 @@
 #define _USE_MATH_DEFINES
+#define PROFILING_IMPLEMENTATION
+#include "Profiling.h"
 
 #include <SFML/Graphics.hpp>
 #include <iostream>

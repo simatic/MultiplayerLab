@@ -21,7 +21,7 @@ class Interface {
     };
 
     struct PacketLifecycle {
-        const PacketSequenceIndex sequenceIndex;
+        PacketSequenceIndex sequenceIndex;
         std::pair<sf::Vector2f, sf::Vector2f> edges;
     };
 

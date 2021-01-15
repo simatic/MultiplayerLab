@@ -12,6 +12,7 @@
 #include <Server/Interface.h>
 #include <Common/Network/Constants.h>
 #include <imgui-SFML.h>
+#include "Profiling.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -78,6 +79,7 @@ void Application::run()
 	}
 
 	while (_isMainWindowOpen) {
+	    FrameMark;
 	    bool serverStillRunning = false;
         if(auto server = serverReference.lock()) {
             serverStillRunning = server->isRunning();
@@ -165,11 +167,14 @@ void Application::render()
 	for (size_t i = 0; i < _clientsInfo.size(); i++)
 	{ 
 		sf::Sprite spriteToDisplay;
-		_clientsInfo[i]->queueToDisplay.wait_and_pop(spriteToDisplay);
-		mWindow.draw(spriteToDisplay);
-		_clientsInfo[i]->queueToDraw.push(spriteToDisplay);
-		serverInterface->render(mWindow, clientWidth, clientHeight, startY);
-	}
+        {
+            ZoneScopedN("Present client to screen");
+            _clientsInfo[i]->queueToDisplay.wait_and_pop(spriteToDisplay);
+            mWindow.draw(spriteToDisplay);
+            _clientsInfo[i]->queueToDraw.push(spriteToDisplay);
+        }
+        serverInterface->render(mWindow, clientWidth, clientHeight, startY);
+    }
 
 	mWindow.display();
 }
