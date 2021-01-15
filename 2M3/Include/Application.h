@@ -6,6 +6,7 @@
 #include "KeyBinding.h"
 #include "StateStack.h"
 #include "Client.h"
+#include "ThreadSafeQueue.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -21,11 +22,11 @@ class Application
 		
 		struct ClientInfo
 		{
-			ClientInfo(Client* client, sf::Thread* thread, /*const sf::Texture& texture,*/ sf::Sprite* sprite);
+			ClientInfo(int uid, sf::Mutex&, int renderTextureWidth, int renderTextureHeight, sf::Thread* thread);
 			std::unique_ptr<Client> client;
 			std::unique_ptr<sf::Thread> thread;
-			//const sf::Texture* texture;
-			std::unique_ptr<sf::Sprite> sprite;
+			ThreadSafeQueue<sf::Sprite> queueToDraw;
+			ThreadSafeQueue<sf::Sprite> queueToDisplay;
 		};
 
 	private:
@@ -54,14 +55,8 @@ class Application
 
 		std::vector<std::unique_ptr<ClientInfo>> _clientsInfo;
 
-		// Vector of Clients.
-		std::vector<std::shared_ptr<Client>> _clients;
-
 		// Number of Clients in _clients.
 		int _clientCount;
-
-		// Thread : _clientThreads[i] corresponds to the Client : _clients[i] 
-		std::vector<std::unique_ptr<sf::Thread>> _clientThreads;
 
 		// Common mutex between all the threads to lock variables.
 		std::unique_ptr<sf::Mutex> _mutex;

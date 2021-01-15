@@ -46,29 +46,29 @@ Application::Application() :
 #ifdef __APPLE__
     // TODO
 #endif
-
+	// TODO remove this because it became useless
 	_isMainWindowOpen = mWindow.isOpen();
 }
 
-Application::ClientInfo::ClientInfo(Client* client, sf::Thread* thread, /*const sf::Texture& texture,*/ sf::Sprite* sprite) :
-	client(client),
+Application::ClientInfo::ClientInfo(int uid, sf::Mutex& mutex, int renderTextureWidth, int renderTextureHeight, sf::Thread* thread) :
+	client(),
 	thread(thread),
-	//texture(&texture),
-	sprite(sprite)
-{}
+	queueToDraw(),
+	queueToDisplay()
+{
+	sf::Sprite sprite = sf::Sprite();
+	if (uid == 1) {
+		sprite.move(renderTextureWidth, 0);
+	}
+	queueToDraw.push(sprite);
+	client = std::make_unique <Client>(uid, mutex, renderTextureWidth, renderTextureHeight, queueToDraw, queueToDisplay);
+}
 
 void Application::run()
 {
     launchServer();
 	addClientThread();
 	addClientThread();
-	/*for (size_t i = 0; i < _clientThreads.size(); i++)
-	{
-		if (_clientThreads[i] != nullptr) {
-			_clientThreads[i]->launch();
-			std::cout << "Launch the thread of Client " << i << "." << std::endl;
-		}
-	}*/
 	for (size_t i = 0; i < _clientsInfo.size(); i++)
 	{
 		if (_clientsInfo[i]->thread != nullptr) {
@@ -90,28 +90,13 @@ void Application::run()
         }
 
 		manageInputs();
-		sf::sleep(sf::seconds(TimePerFrame.asSeconds()));
+		//sf::sleep(sf::seconds(TimePerFrame.asSeconds()));
 		render();
 	}
 }
 
 void Application::addClientThread() {
-	sf::RenderTexture* clientRenderTexture(new sf::RenderTexture());
-
-	// Necessary to be called after initialization of RenderTexture.
-	clientRenderTexture->create(mWindow.getSize().x / 2, mWindow.getSize().y*gameHeightRatio);
-	sf::Sprite* sprite = new sf::Sprite(clientRenderTexture->getTexture());
-	if (_clientCount == 1) {
-		sprite->move(mWindow.getSize().x / 2, 0);
-	}
-	Client* client = new Client(_clientCount, mWindow, *_mutex, clientRenderTexture);
-	_clientsInfo.push_back(std::make_unique<ClientInfo>(client, new sf::Thread(&Application::launchClientThread, this), sprite));
-
-	// TODO delete in a near future.
-	/*_clients.push_back(std::shared_ptr<Client>(new Client(_clientCount, mWindow, *_mutex, clientRenderTexture)));
-	_clientThreads.push_back(std::unique_ptr<sf::Thread>(new sf::Thread(&Application::launchClientThread, this)));*/
-	// End of delete
-
+	_clientsInfo.push_back(std::make_unique<ClientInfo>(_clientCount, *(_mutex.get()), mWindow.getSize().x / 2, mWindow.getSize().y * gameHeightRatio, new sf::Thread(&Application::launchClientThread, this)));
 	++_clientCount;
 }
 
@@ -119,7 +104,6 @@ void Application::launchClientThread() {
 	_mutex->lock();
 	int clientUID = _clientThreadLaunchedIndex;
 	_clientThreadLaunchedIndex++;
-	//std::shared_ptr<Client> client(_clients[clientUID]);
 	Client* client(_clientsInfo[clientUID]->client.get());
 	_mutex->unlock();
 	if (clientUID == 0) {
@@ -134,24 +118,15 @@ void Application::launchClientThread() {
 }
 
 void Application::terminateClientThreads() {
-	mWindow.setActive(false);
-	_mutex->unlock();
 	// Wait for each threads to terminate.
 	{
-		/*for (size_t i = 0; i < _clients.size(); i++)
-		{
-			if (_clients[i] != nullptr) {
-				_clients[i]->terminate();
-				_clientThreads[i]->wait();
-				std::cout << "Thread " << i << " ended.\n";
-			}
-		}*/
 		for (size_t i = 0; i < _clientsInfo.size(); i++)
 		{
 			if (_clientsInfo[i]->client != nullptr) {
 				_clientsInfo[i]->client->terminate();
+				_clientsInfo[i]->queueToDraw.StopWaiting();
 				_clientsInfo[i]->thread->wait();
-				std::cout << "Thread " << i << " ended.\n";
+				std::cout << "Thread " << i << " ended." << std::endl;
 			}
 		}
 	}
@@ -160,8 +135,6 @@ void Application::terminateClientThreads() {
 void Application::manageInputs() {
 	_clientInputs.clear();
 	sf::Event event;
-	_mutex->lock();
-	mWindow.setActive(true);
 	while (mWindow.pollEvent(event)) {
         if (event.type == sf::Event::Closed)
 		{
@@ -173,27 +146,17 @@ void Application::manageInputs() {
             _clientInputs.push_back(event);
 		}
 	}
-	mWindow.setActive(false);
-	_mutex->unlock();
-	/*for (size_t i = 0; i < _clients.size(); i++) {
-		if (_clients[i] != nullptr) {
-			_clients[i]->setInputs(_clientInputs);
-		}
-	}*/
 	for (size_t i = 0; i < _clientsInfo.size(); i++) {
 		if (_clientsInfo[i]->client != nullptr) {
+			_mutex->lock();
 			_clientsInfo[i]->client->setInputs(_clientInputs);
+			_mutex->unlock();
 		}
 	}
 }
 
 void Application::render()
 {
-	// TODO if mWindow is not accessed from other threads anymore, move _mutex in for loop.
-	// TODO do the TODO above when _mainWindow is replaced by _renderTexture in Client.
-	_mutex->lock();
-	// Seems necessary when there are multiple contexts.
-	mWindow.setActive(true);
 	mWindow.clear();
 
 	const float clientWidth = mWindow.getView().getSize().x / 2.0f;
@@ -201,13 +164,14 @@ void Application::render()
 	const float clientHeight = mWindow.getSize().y*(1.0f-gameHeightRatio);
 	for (size_t i = 0; i < _clientsInfo.size(); i++)
 	{ 
-		mWindow.draw(*_clientsInfo[i]->sprite);
+		sf::Sprite spriteToDisplay;
+		_clientsInfo[i]->queueToDisplay.wait_and_pop(spriteToDisplay);
+		mWindow.draw(spriteToDisplay);
+		_clientsInfo[i]->queueToDraw.push(spriteToDisplay);
 		serverInterface->render(mWindow, clientWidth, clientHeight, startY);
 	}
 
 	mWindow.display();
-	mWindow.setActive(false);
-	_mutex->unlock();
 }
 
 void Application::launchServer() {

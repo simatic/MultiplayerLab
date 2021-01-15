@@ -6,13 +6,13 @@
 #include "Utility.h"
 
 
-Client::Client(int uid, sf::RenderWindow& mainWindow, sf::Mutex& mutex, sf::RenderTexture* renderTexture) :
+Client::Client(int uid, sf::Mutex& mutex, int renderTextureWidth, int renderTextureHeight, ThreadSafeQueue<sf::Sprite>& queueToDraw, ThreadSafeQueue<sf::Sprite>& queueToDisplay) :
 	_uid(uid),
-	_mainWindow(&mainWindow),
-	_renderTexture(renderTexture),
+	_renderTexture(new sf::RenderTexture()),
+	_queueToDraw(queueToDraw),
+	_queueToDisplay(queueToDisplay),
 	_applicationMutex(&mutex),
 	_isThreadTerminated(false),
-	//_view(),
 	_textures(nullptr),
 	_fonts(nullptr),
 	_keybinding(nullptr),
@@ -21,17 +21,7 @@ Client::Client(int uid, sf::RenderWindow& mainWindow, sf::Mutex& mutex, sf::Rend
 	_statisticsUpdateTime(),
 	_statisticsNumFrames(0)
 {
-	/* TODO uncomment when removing separate windows.*/
-	/*_applicationMutex->lock();
-	sf::Vector2f mainWindowSize(_mainWindow->getSize());
-	_applicationMutex->unlock();
-	_view.setSize(mainWindowSize.x / 2, mainWindowSize.y);
-	if (uid == 0) {
-		_view.setViewport(sf::FloatRect(0, 0, 0.5f, 1.0f));
-	}
-	else {
-		_view.setViewport(sf::FloatRect(0.5f, 0, 0.5f, 1.0f));
-	}*/
+	_renderTexture->create(renderTextureWidth, renderTextureHeight);
 }
 
 void Client::initialize(int keyBindingConfiguration)
@@ -90,7 +80,6 @@ void Client::run() {
 
 		sf::Time dt = clock.restart();
 		timeSinceLastUpdate += dt;
-		
 		while (timeSinceLastUpdate > TimePerFrame)
 		{
 			timeSinceLastUpdate -= TimePerFrame;
@@ -98,7 +87,8 @@ void Client::run() {
 			update(TimePerFrame);
 
 			// Check inside this loop, because stack might be empty before update() call
-			/*if (_stateStack->isEmpty())
+			/* Maybe change it with isThreadTerminated = true; instead of _mainWindow->close();
+			if (_stateStack->isEmpty())
 				_mainWindow->close();*/
 		}
 
@@ -133,6 +123,7 @@ void Client::processInput()
 
 void Client::setInputs(const std::vector <sf::Event>& newInputs) {
 	_clientMutex.lock();
+	//_inputs.clear();
 	_inputs = newInputs;
 	_clientMutex.unlock();
 }
@@ -160,21 +151,15 @@ void Client::renderBorder()
 
 void Client::render()
 {
-	// TODO delete everything except _stateStack->draw(); after replacing _mainWindow by _renderTexture
-	_applicationMutex->lock();
-	// Seems necessary when there are multiple contexts.
-	_mainWindow->setActive(true);
-	//_mainWindow->clear();
+	sf::Sprite sprite;
+	_queueToDraw.wait_and_pop(sprite);
 	_renderTexture->clear();
     _stateStack->draw();
     renderBorder();
+	_renderTexture->draw(_statisticsText);
     _renderTexture->display();
-	//_mainWindow->setView(_mainWindow->getDefaultView());
-	//_mainWindow->draw(_statisticsText);
-
-	//_mainWindow->display();
-	_mainWindow->setActive(false);
-	_applicationMutex->unlock();
+	sprite.setTexture(_renderTexture->getTexture());
+	_queueToDisplay.push(sprite);
 }
 
 void Client::updateStatistics(sf::Time dt)

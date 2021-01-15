@@ -5,6 +5,7 @@
 
 #include "StateStack.h"
 #include "KeyBinding.h"
+#include "ThreadSafeQueue.h"
 
 const sf::Time TimePerTick = sf::seconds(1.f / 20.f);
 const sf::Time TimePerFrame = sf::seconds(1.f / 60.f);
@@ -12,7 +13,7 @@ const sf::Time TimePerFrame = sf::seconds(1.f / 60.f);
 class Client
 {
 public :
-	Client(int uid, sf::RenderWindow& mainWindow, sf::Mutex&, sf::RenderTexture*);
+	Client(int uid, sf::Mutex&, int renderTextureWidth, int renderTextureHeight, ThreadSafeQueue<sf::Sprite>& queueToDraw, ThreadSafeQueue<sf::Sprite>& queueToDisplay);
 
 	// To call in the thread corresponding to its Client.
 	void initialize(int keyBindingConfiguration);
@@ -43,13 +44,10 @@ private :
 	// User ID that has to be unique.
 	int _uid;
 
-	// Main Window of Application in which _view will be rendered.
-	sf::RenderWindow* _mainWindow;
-	
-	//sf::View _view;
-
 	std::unique_ptr<sf::RenderTexture> _renderTexture;
-	//sf::RenderTexture* _renderTexture;
+
+	ThreadSafeQueue<sf::Sprite>& _queueToDraw;
+	ThreadSafeQueue<sf::Sprite>& _queueToDisplay;
 	
 	// Common mutex - coming from Application - between all the threads to lock Application's variables.
 	sf::Mutex* _applicationMutex;
