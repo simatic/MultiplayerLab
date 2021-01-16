@@ -6,6 +6,8 @@
 #include "Utility.h"
 #include "Profiling.h"
 
+#include <SFML/OpenGL.hpp>
+
 Client::Client(int uid, sf::Mutex& mutex, int renderTextureWidth, int renderTextureHeight, ThreadSafeQueue<sf::Sprite>& queueToDraw, ThreadSafeQueue<sf::Sprite>& queueToDisplay) :
 	_uid(uid),
 	_renderTexture(new sf::RenderTexture()),
@@ -82,6 +84,7 @@ void Client::run() {
 		timeSinceLastUpdate += dt;
 		while (timeSinceLastUpdate > TimePerFrame)
 		{
+		    ZoneScopedN("Single-Update");
 			timeSinceLastUpdate -= TimePerFrame;
 			processInput();
 			update(TimePerFrame);
@@ -159,14 +162,22 @@ void Client::render()
     }
     {
         ZoneScopedN("Draw");
+        TracyMessageL("Clear");
         _renderTexture->clear();
+        TracyMessageL("Draw stack");
         _stateStack->draw();
+        TracyMessageL("Draw border");
         renderBorder();
+        TracyMessageL("Draw stats");
+        _renderTexture->setView(_renderTexture->getDefaultView());
         _renderTexture->draw(_statisticsText);
+        TracyMessageL("Display");
         _renderTexture->display();
     }
 	sprite.setTexture(_renderTexture->getTexture());
-	_queueToDisplay.push(sprite);
+    // force OpenGL flush before giving up sprite
+    glFlush();
+    _queueToDisplay.push(sprite);
 }
 
 void Client::updateStatistics(sf::Time dt)

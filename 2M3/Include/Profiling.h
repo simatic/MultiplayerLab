@@ -21,4 +21,5 @@ void operator delete(void* ptr) noexcept{
 #define FrameMark
 #define ZoneScoped
 #define ZoneScopedN
+#define TracyMessageL
 #endif

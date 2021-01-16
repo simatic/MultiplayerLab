@@ -7,6 +7,7 @@
 #include "StateStack.h"
 #include "Client.h"
 #include "ThreadSafeQueue.h"
+#include "Profiling.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>

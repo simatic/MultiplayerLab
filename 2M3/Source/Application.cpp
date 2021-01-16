@@ -164,19 +164,21 @@ void Application::render()
 	const float clientWidth = mWindow.getView().getSize().x / 2.0f;
 	const float startY = mWindow.getSize().y*gameHeightRatio;
 	const float clientHeight = mWindow.getSize().y*(1.0f-gameHeightRatio);
-	for (size_t i = 0; i < _clientsInfo.size(); i++)
+    sf::Sprite spriteToDisplay[2];
+    for (size_t i = 0; i < _clientsInfo.size(); i++)
 	{ 
-		sf::Sprite spriteToDisplay;
         {
+            _clientsInfo[i]->queueToDisplay.wait_and_pop(spriteToDisplay[i]);
             ZoneScopedN("Present client to screen");
-            _clientsInfo[i]->queueToDisplay.wait_and_pop(spriteToDisplay);
-            mWindow.draw(spriteToDisplay);
-            _clientsInfo[i]->queueToDraw.push(spriteToDisplay);
+            mWindow.draw(spriteToDisplay[i]);
         }
-        serverInterface->render(mWindow, clientWidth, clientHeight, startY);
     }
-
+    serverInterface->render(mWindow, clientWidth, clientHeight, startY);
 	mWindow.display();
+
+    for (size_t i = 0; i < _clientsInfo.size(); i++) {
+        _clientsInfo[i]->queueToDraw.push(spriteToDisplay[i]);
+    }
 }
 
 void Application::launchServer() {
