@@ -15,21 +15,31 @@ class Interface {
     };
 
     struct CompiledEvents {
-        std::vector<float> timestamps;
-        std::vector<float> values;
-        std::vector<PacketSequenceIndex> packetIndices;
+        // values for packets received on the server for this client
+        std::vector<float> receivedTimestamps;
+        std::vector<PacketSequenceIndex> receivedPacketIndices;
+
+        // values for packets sent from the server, after artificial delay
+        std::vector<float> sentTimestamps;
+        std::vector<PacketSequenceIndex> sentPacketIndices;
     };
+
+    // values for packets received on the server for this client, after artificial delay
+    std::vector<float> afterDelayTimestamps;
+    std::vector<PacketSequenceIndex> afterDelayPacketIndices;
+
+    // values for packets sent from the server for this client
+    std::vector<float> sendingStartsTimestamps;
+    std::vector<PacketSequenceIndex> sendingStartsPacketIndices;
 
     struct PacketLifecycle {
         PacketSequenceIndex sequenceIndex;
         std::pair<sf::Vector2f, sf::Vector2f> edges;
     };
 
-    typedef std::map<NetworkEvent::Type, CompiledEvents> CompiledEventsMap;
-
 
 private:
-    std::map<ClientID, CompiledEventsMap> clientEvents{};
+    std::map<ClientID, CompiledEvents> clientEvents{};
     std::map<ClientID, bool> pauseGraphForClient{};
     std::map<ClientID, std::vector<PacketLifecycle>> clientPacketLifecycles{};
     ServerNetworkHandler& serverNetwork;
@@ -37,30 +47,22 @@ private:
     bool implotInit = false;
     sf::Clock deltaClock{};
 
-    /// Gets the closest packet and packet lifecyle to the mouse.
-    /// Returns a PacketInfo with sequenceIndex = 0 if no packet is close
-    /// Returns a PacketLifecycle* set to nullptr if no lifecycle is close, or the closest lifecycle is not linked to the closest packet
-    /// \param packets
-    /// \param lifecycles
-    /// \param x
-    /// \param y
-    /// \return
-    std::pair<const PacketInfo, const PacketLifecycle*> getClosest(const CompiledEventsMap& packets, const std::vector<PacketLifecycle>& lifecycles, float x, float y);
-
 private:
-    void renderClientWindow(const std::string& name, UdpClient& client);
 
     void linkPackets(const UdpClient &client, const NetworkEvent::Event &event,
                             const std::map<NetworkEvent::Type, Interface::CompiledEvents> &eventMap,
                             const NetworkEvent::Type typeToLinkTo);
 
-    void renderGraph(const UdpClient &client);
+    void renderIncomingPackets(float clientWidth, float height);
+    void renderOutcomingPackets(float clientWidth, float height);
+    void renderIncomingGraph();
+    void renderOutgoingGraph();
 
 public:
     explicit Interface(ServerNetworkHandler& handler);
 
     void onEvent(const UdpClient &client, NetworkEvent::Event event);
-    void render(sf::RenderWindow& renderTarget, float clientWidth, float clientHeight, float startY);
+    void render(sf::RenderWindow& renderTarget, float clientWidth, float interfaceHeight, float startY);
 
     ~Interface();
 };
