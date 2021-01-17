@@ -28,6 +28,7 @@ void DragFloat(const char* label, Getter get, Setter set, float min = 0.0f, floa
 }
 
 static ImVec4 TITLE_COLOR = ImVec4(1,1,0,1);
+static float MAX_DELAY = 5.0f;
 
 void Interface::render(sf::RenderWindow& window, float clientWidth, float interfaceHeight, float startY) {
     if(!implotInit) {
@@ -35,11 +36,13 @@ void Interface::render(sf::RenderWindow& window, float clientWidth, float interf
         ImPlot::CreateContext();
 
         const ImVec4 colors[] = {
+                ImVec4(0.0f, 0.0f, 1.0f, 1.0f), // server
                 ImVec4(1.0f, 0.0f, 0.0f, 1.0f), // client 0
                 ImVec4(0.0f, 1.0f, 0.0f, 1.0f), // client 1
-                ImVec4(0.0f, 0.0f, 1.0f, 1.0f), // server
+                ImVec4(1.0f, 0.0f, 0.0f, 1.0f), // links from client 0
+                ImVec4(0.0f, 1.0f, 0.0f, 1.0f), // links from client 1
         };
-        ImPlot::SetColormap(colors, 3);
+        ImPlot::SetColormap(colors, 5);
 
         ImPlot::GetStyle().Colors[ImPlotCol_FrameBg] = ImVec4(0,0,0,0);
 
@@ -93,24 +96,12 @@ void Interface::renderIncomingGraph() {
     // TODO: merge code with incoming?
     if(ImPlot::BeginPlot("Graphe des packets en entrée", "Temps", nullptr, ImVec2(-1,0), ImPlotFlags_None, ImPlotAxisFlags_None, yFlags)) {
         if(ImPlot::IsPlotHovered()) {
-            zoomFactor -= ImGui::GetIO().MouseWheel/10.0f;
+            zoomFactor -= ImGui::GetIO().MouseWheel/10.0f * zoomFactor;
 
             zoomFactor = std::min(100.0f, std::max(0.01f, zoomFactor));
         }
-        auto& client0Packets = clientEvents[serverNetwork.getClients()[0]->id];
-        auto& client1Packets = clientEvents[serverNetwork.getClients()[1]->id];
 
         // TODO: window data to avoid FPS drops
-        ImPlot::PlotScatterG("Packet envoyé par le client 1", [](void* ptr, int index) {
-            auto* timestamps = static_cast<float*>(ptr);
-            float timestamp = timestamps[index];
-            return ImPlotPoint(timestamp, 1);
-        }, client0Packets.receivedTimestamps.data(), client0Packets.receivedTimestamps.size());
-        ImPlot::PlotScatterG("Packet envoyé par le client 2", [](void* ptr, int index) {
-            auto* timestamps = static_cast<float*>(ptr);
-            float timestamp = timestamps[index];
-            return ImPlotPoint(timestamp, -1);
-        }, client1Packets.receivedTimestamps.data(), client1Packets.receivedTimestamps.size());
 
         ImPlot::PlotScatterG("Packet reçu", [](void* ptr, int index) {
             auto* timestamps = static_cast<float*>(ptr);
@@ -118,6 +109,43 @@ void Interface::renderIncomingGraph() {
             return ImPlotPoint(timestamp, 0);
         }, afterDelayTimestamps.data(), afterDelayTimestamps.size());
 
+        if(serverNetwork.getClients().size() > 0) {
+            auto& client0Packets = clientEvents[serverNetwork.getClients()[0]->id];
+
+            ImPlot::PlotScatterG("Packet envoyé par le client 1", [](void* ptr, int index) {
+                auto* timestamps = static_cast<float*>(ptr);
+                float timestamp = timestamps[index];
+                return ImPlotPoint(timestamp, 1);
+            }, client0Packets.receivedTimestamps.data(), client0Packets.receivedTimestamps.size());
+
+            // render packet links
+            {
+                std::lock_guard lk(linkAccess);
+                for(auto& link : client0Packets.receptionLinks) {
+                    float xs[2] = {link.timestampA, link.timestampB};
+                    float ys[2] = {1, 0}; // client->server
+                    ImPlot::PlotLine("Trajet des packets du client 1", xs, ys, 2);
+                }
+            }
+
+            if(serverNetwork.getClients().size() > 1) {
+                auto& client1Packets = clientEvents[serverNetwork.getClients()[1]->id];
+                ImPlot::PlotScatterG("Packet envoyé par le client 2", [](void *ptr, int index) {
+                    auto *timestamps = static_cast<float *>(ptr);
+                    float timestamp = timestamps[index];
+                    return ImPlotPoint(timestamp, -1);
+                }, client1Packets.receivedTimestamps.data(), client1Packets.receivedTimestamps.size());
+
+                {
+                    std::lock_guard lk(linkAccess);
+                    for (auto& link : client1Packets.receptionLinks) {
+                        float xs[2] = {link.timestampA, link.timestampB};
+                        float ys[2] = {-1, 0}; // client->server
+                        ImPlot::PlotLine("Trajet des packets du client 2", xs, ys, 2);
+                    }
+                }
+            }
+        }
         ImPlot::EndPlot();
     }
 }
@@ -136,33 +164,59 @@ void Interface::renderOutgoingGraph() {
 
     auto yFlags = ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels;
 
-    // TODO: merge code with incoming?
+    // TODO: merge code with outgoing?
     if(ImPlot::BeginPlot("Graphe des packets en sortie", "Temps", nullptr, ImVec2(-1,0), ImPlotFlags_None, ImPlotAxisFlags_None, yFlags)) {
         if(ImPlot::IsPlotHovered()) {
             zoomFactor -= ImGui::GetIO().MouseWheel/10.0f;
 
             zoomFactor = std::min(100.0f, std::max(0.01f, zoomFactor));
         }
-        auto& client0Packets = clientEvents[serverNetwork.getClients()[0]->id];
-        auto& client1Packets = clientEvents[serverNetwork.getClients()[1]->id];
 
         // TODO: window data to avoid FPS drops
-        ImPlot::PlotScatterG("Packets envoyés au client 1", [](void* ptr, int index) {
-            auto* timestamps = static_cast<float*>(ptr);
-            float timestamp = timestamps[index];
-            return ImPlotPoint(timestamp, 1);
-        }, client0Packets.sentTimestamps.data(), client0Packets.sentTimestamps.size());
-        ImPlot::PlotScatterG("Packets envoyés au client 2", [](void* ptr, int index) {
-            auto* timestamps = static_cast<float*>(ptr);
-            float timestamp = timestamps[index];
-            return ImPlotPoint(timestamp, -1);
-        }, client1Packets.sentTimestamps.data(), client1Packets.sentTimestamps.size());
 
-        ImPlot::PlotScatterG("Packet envoyé", [](void* ptr, int index) {
-            auto* timestamps = static_cast<float*>(ptr);
+        ImPlot::PlotScatterG("Packet envoyé", [](void *ptr, int index) {
+            auto *timestamps = static_cast<float *>(ptr);
             float timestamp = timestamps[index];
             return ImPlotPoint(timestamp, 0);
         }, sendingStartsTimestamps.data(), sendingStartsTimestamps.size());
+
+        if(serverNetwork.getClients().size() > 0) {
+            auto& client0Packets = clientEvents[serverNetwork.getClients()[0]->id];
+
+            ImPlot::PlotScatterG("Packets envoyés au client 1", [](void *ptr, int index) {
+                auto *timestamps = static_cast<float *>(ptr);
+                float timestamp = timestamps[index];
+                return ImPlotPoint(timestamp, 1);
+            }, client0Packets.sentTimestamps.data(), client0Packets.sentTimestamps.size());
+
+            {
+                std::lock_guard lk(linkAccess);
+                // render packet links
+                for (auto& link : client0Packets.transmissionLinks) {
+                    float xs[2] = {link.timestampA, link.timestampB};
+                    float ys[2] = {0, 1}; // client->server
+                    ImPlot::PlotLine("Trajet des packets vers le client 1", xs, ys, 2);
+                }
+            }
+
+            if(serverNetwork.getClients().size() > 1) {
+                auto& client1Packets = clientEvents[serverNetwork.getClients()[1]->id];
+                ImPlot::PlotScatterG("Packets envoyés au client 2", [](void *ptr, int index) {
+                    auto *timestamps = static_cast<float *>(ptr);
+                    float timestamp = timestamps[index];
+                    return ImPlotPoint(timestamp, -1);
+                }, client1Packets.sentTimestamps.data(), client1Packets.sentTimestamps.size());
+
+                {
+                    std::lock_guard lk(linkAccess);
+                    for (auto& link : client1Packets.transmissionLinks) {
+                        float xs[2] = {link.timestampA, link.timestampB};
+                        float ys[2] = {0, -1}; // client->server
+                        ImPlot::PlotLine("Trajet des packets vers le client 2", xs, ys, 2);
+                    }
+                }
+            }
+        }
 
         ImPlot::EndPlot();
     }
@@ -191,7 +245,7 @@ void Interface::renderIncomingPackets(float clientWidth, float height) {
         DragFloat("Pertes de paquet en entrée", [&]{return client.settings.getPercentageInComingPacketLost();}, [&](float v){client.settings.setPercentageInComingPacketLost(v);});
 
         ImGui::SetNextItemWidth(width/4.0f);
-        DragFloat("Délai avant réception", [&]{return client.settings.getIncomingDelay();}, [&](float v){client.settings.setIncomingDelay(v);}, 0, 10.0f);
+        DragFloat("Délai avant réception", [&]{return client.settings.getIncomingDelay();}, [&](float v){client.settings.setIncomingDelay(v);}, 0, MAX_DELAY);
         ImGui::EndChild();
     }
 
@@ -221,7 +275,7 @@ void Interface::renderOutcomingPackets(float clientWidth, float height) {
         DragFloat("Pertes de paquet en sortie", [&]{return client.settings.getPercentageOutGoingPacketLost();}, [&](float v){client.settings.setPercentageOutGoingPacketLost(v);});
 
         ImGui::SetNextItemWidth(width/4.0f);
-        DragFloat("Délai avant envoi", [&]{return client.settings.getOutgoingDelay();}, [&](float v){client.settings.setOutgoingDelay(v);}, 0, 10.0f);
+        DragFloat("Délai avant envoi", [&]{return client.settings.getOutgoingDelay();}, [&](float v){client.settings.setOutgoingDelay(v);}, 0, MAX_DELAY);
         ImGui::EndChild();
     }
 
@@ -232,56 +286,49 @@ void Interface::onEvent(const UdpClient &client, NetworkEvent::Event event) {
     if(clientEvents.find(client.id) == clientEvents.end()) {
         clientEvents[client.id] = {};
     }
-    if(clientPacketLifecycles.find(client.id) == clientPacketLifecycles.end()) {
-        clientPacketLifecycles[client.id] = std::vector<PacketLifecycle>{};
-    }
     auto& compilation = clientEvents[client.id];
+
+    float time = event.timestamp.asSeconds();
 
     switch(event.type) {
         case NetworkEvent::PacketReceived: {
-            compilation.receivedTimestamps.push_back(event.timestamp.asSeconds());
+            compilation.receivedTimestamps.push_back(time);
             compilation.receivedPacketIndices.push_back(event.id);
         } break;
 
         case NetworkEvent::PacketDelayed: {
-            afterDelayTimestamps.push_back(event.timestamp.asSeconds());
+            afterDelayTimestamps.push_back(time);
             afterDelayPacketIndices.push_back(event.id);
+
+            std::lock_guard lk(linkAccess);
+            auto receivedPacketLocation = std::find(compilation.receivedPacketIndices.rbegin(), compilation.receivedPacketIndices.rend(), event.id);
+            auto receivedPacketIndex = compilation.receivedPacketIndices.size()-std::distance(compilation.receivedPacketIndices.rbegin(), receivedPacketLocation)-1;
+            auto receivedPacketTime = compilation.receivedTimestamps[receivedPacketIndex];
+            compilation.receptionLinks.push_back({
+                event.id,
+                receivedPacketTime,
+                time,
+            });
         } break;
 
         case NetworkEvent::SendingPacket: {
-            sendingStartsTimestamps.push_back(event.timestamp.asSeconds());
+            sendingStartsTimestamps.push_back(time);
             sendingStartsPacketIndices.push_back(event.id);
         } break;
 
         case NetworkEvent::SentPacket: {
-            compilation.sentTimestamps.push_back(event.timestamp.asSeconds());
+            compilation.sentTimestamps.push_back(time);
             compilation.sentPacketIndices.push_back(event.id);
+
+            std::lock_guard lk(linkAccess);
+            auto sendingPacketLocation = std::find(sendingStartsPacketIndices.rbegin(), sendingStartsPacketIndices.rend(), event.id);
+            auto sendingPacketIndex = sendingStartsPacketIndices.size()-std::distance(sendingStartsPacketIndices.rbegin(), sendingPacketLocation)-1;
+            auto sendingPacketTime = sendingStartsTimestamps[sendingPacketIndex];
+            compilation.transmissionLinks.push_back({
+                                                         event.id,
+                                                         sendingPacketTime,
+                                                         time,
+                                                 });
         } break;
     }
-
-    // TODO: packet links
-}
-
-void Interface::linkPackets(const UdpClient &client, const NetworkEvent::Event &event,
-                            const std::map<NetworkEvent::Type, Interface::CompiledEvents> &eventMap,
-                            const NetworkEvent::Type typeToLinkTo) {
-    auto receivedPacketEventsIt = eventMap.find(typeToLinkTo);
-    if(receivedPacketEventsIt == eventMap.end()) { // no event of given type
-        return;
-    }
-    // TODO: re-do
-    /*
-    auto& receivedPacketEvents = receivedPacketEventsIt->second;
-    auto it = std::find(receivedPacketEvents.packetIndices.begin(), receivedPacketEvents.packetIndices.end(), event.id);
-    if(it == receivedPacketEvents.packetIndices.end()) // no packet to link to
-        return;
-    int position = std::distance(receivedPacketEvents.packetIndices.begin(), it);
-    float receivedTime = receivedPacketEvents.timestamps[position];
-    float receivedValue = receivedPacketEvents.values[position];
-    auto& lifecycles = clientPacketLifecycles[client.id];
-    // edge from received to delayed event
-    lifecycles.push_back(PacketLifecycle{event.id,
-                            std::make_pair(sf::Vector2f(receivedTime, receivedValue),
-                                           sf::Vector2f(event.timestamp.asSeconds(), static_cast<float>(event.type))
-                                           )});*/
 }

@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include <thread>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <mutex>
 #include "Server/NetworkTypes.h"
 #include "Server/ServerNetworkHandler.h"
 
@@ -14,6 +15,14 @@ class Interface {
         float timestamp;
     };
 
+    struct PacketLifecycle {
+        PacketSequenceIndex sequenceIndex;
+
+        // Time packet A -> Time packet B
+        float timestampA;
+        float timestampB;
+    };
+
     struct CompiledEvents {
         // values for packets received on the server for this client
         std::vector<float> receivedTimestamps;
@@ -22,7 +31,16 @@ class Interface {
         // values for packets sent from the server, after artificial delay
         std::vector<float> sentTimestamps;
         std::vector<PacketSequenceIndex> sentPacketIndices;
+
+        // Represents the link between a packet sent by a client and its delayed counter-part
+        std::vector<PacketLifecycle> receptionLinks{};
+
+        // Represents the link between a packet sent by the server and its delayed counter-part
+        std::vector<PacketLifecycle> transmissionLinks{};
     };
+
+private:
+    std::map<ClientID, CompiledEvents> clientEvents{};
 
     // values for packets received on the server for this client, after artificial delay
     std::vector<float> afterDelayTimestamps;
@@ -32,26 +50,14 @@ class Interface {
     std::vector<float> sendingStartsTimestamps;
     std::vector<PacketSequenceIndex> sendingStartsPacketIndices;
 
-    struct PacketLifecycle {
-        PacketSequenceIndex sequenceIndex;
-        std::pair<sf::Vector2f, sf::Vector2f> edges;
-    };
+    std::mutex linkAccess{};
 
-
-private:
-    std::map<ClientID, CompiledEvents> clientEvents{};
-    std::map<ClientID, bool> pauseGraphForClient{};
-    std::map<ClientID, std::vector<PacketLifecycle>> clientPacketLifecycles{};
     ServerNetworkHandler& serverNetwork;
     /// Has ImPlot being initialized yet?
     bool implotInit = false;
     sf::Clock deltaClock{};
 
 private:
-
-    void linkPackets(const UdpClient &client, const NetworkEvent::Event &event,
-                            const std::map<NetworkEvent::Type, Interface::CompiledEvents> &eventMap,
-                            const NetworkEvent::Type typeToLinkTo);
 
     void renderIncomingPackets(float clientWidth, float height);
     void renderOutcomingPackets(float clientWidth, float height);
