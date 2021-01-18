@@ -3,6 +3,7 @@
 #include <Common/Network/PingPongPackets.h>
 #include <Server/DelayCreation.h>
 #include "Common/Network/EchoPacket.h"
+#include "Common/Network/SetTransformPacket.h"
 
 std::unique_ptr<Packet> deserializePacket(sf::Packet& packet) {
     sf::Uint32 id;
@@ -18,6 +19,9 @@ std::unique_ptr<Packet> deserializePacket(sf::Packet& packet) {
 
         case PacketID::Echo:
             return std::make_unique<EchoPacket>(sequenceIndex, packet);
+
+        case PacketID::SetTransform:
+            return std::make_unique<SetTransformPacket>(sequenceIndex, packet);
 
         default:
             std::cerr << "Unknown/unsupported packet ID " << id << std::endl;

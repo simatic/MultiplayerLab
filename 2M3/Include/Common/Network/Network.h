@@ -10,8 +10,8 @@ enum PacketID: sf::Uint32 {
     Pong,
     Echo,
     AskAddEntity,
-    ConfirmAddEntity,
     AddEntity,
+    SetTransform,
     // TODO
 };
 
