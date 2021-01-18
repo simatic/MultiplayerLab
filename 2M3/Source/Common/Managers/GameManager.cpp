@@ -40,6 +40,10 @@ void GameManager::addEntityWithID(std::shared_ptr<Entity> entity, std::uint32_t 
     updateSystemLists(entity.get());
 }
 
+void GameManager::addEntityWithIDNextFrame(std::shared_ptr<Entity> entity, std::uint32_t id) {
+    entitiesToAdd.emplace(id, entity);
+}
+
 /**
  * Removes and deletes the entity.
  * @warning Do not use while game loop is running. Use removeEntityNextFrame() instead.
@@ -76,6 +80,13 @@ void GameManager::applyEntitiesToRemove()
         removeEntity(entity);
     }
     entitiesToRemove.clear();
+}
+
+void GameManager::applyEntitiesToAdd() {
+    for(const auto& [id, entity] : entitiesToAdd) {
+        addEntityWithID(entity, id);
+    }
+    entitiesToAdd.clear();
 }
 
 /**
@@ -122,6 +133,7 @@ void GameManager::updateSystemLists()
  */
 void GameManager::updateSystemLists(Entity* entity)
 {
+    std::cout << "updateSystemLists " << entity << std::endl;
     for (auto& system: logicSystems)
     {
         if ((entity->getSignature() & system->getSignature()) == system->getSignature())
@@ -193,6 +205,7 @@ void GameManager::update(const sf::Time& dt)
         system->update(dt);
     }
     applyEntitiesToRemove();
+    applyEntitiesToAdd();
 }
 
 /**
@@ -246,4 +259,8 @@ INetworkModule* GameManager::getNetworkModule() const
         throw std::runtime_error("Network module hasn't been initialized.");
     }
     return networkModule.get();
+}
+
+std::shared_ptr<Entity> GameManager::getEntityWithID(std::uint32_t id) {
+    return entities[id];
 }

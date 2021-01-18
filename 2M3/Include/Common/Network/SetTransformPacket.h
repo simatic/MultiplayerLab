@@ -4,6 +4,7 @@
 
 class SetTransformPacket: public Packet {
 private:
+    std::uint32_t entityID = 0;
     float x = 0;
     float y = 0;
     float angle = 0;
@@ -12,7 +13,7 @@ private:
 public:
     explicit SetTransformPacket(PacketSequenceIndex index, sf::Packet& source);
 
-    explicit SetTransformPacket(PacketSequenceIndex index, float x, float y, float angle);
+    explicit SetTransformPacket(PacketSequenceIndex index, std::uint32_t entityID, float x, float y, float angle);
 
     [[nodiscard]] std::unique_ptr<Packet> handle(INetworkModule* iNetworkModule) const override;
 
@@ -27,4 +28,6 @@ public:
     float getY() const;
 
     float getAngle() const;
+
+    std::uint32_t getEntityID() const;
 };

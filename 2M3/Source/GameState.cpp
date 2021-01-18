@@ -26,6 +26,7 @@
 #include <Common/Systems/CameraSystem.h>
 #include <GridRenderer.h>
 #include <NetworkAddEntities.h>
+#include <NetworkSetTransform.h>
 
 GameState::GameState(StateStack& stack, Context context) :
 	State(stack, context),
@@ -37,21 +38,11 @@ GameState::GameState(StateStack& stack, Context context) :
     gameManager->setKeyBinding(context.keys);
     gameManager->setNetworkModule<ClientNetworkModule>("localhost", DEFAULT_PORT);
 
-    std::shared_ptr<Entity> playerCar = Prefab::createPlayableCar(true);
-    playerCar->getComponent<Sprite>()->colorFilter = context.associatedColor;
-
-    // TODO: don't hardcode the position/color of the opponent
-    //  will probably be easier to fix when the authoritative server is starting to work
-    if(*context.uid == 0) {
-        playerCar->getComponent<Transform>()->position = sf::Vector2f(100, 100);
-    }
-
-	gameManager->addEntity(playerCar);
-
-    createWall(sf::Vector2f(-1, 0));
+    // TODO: move to server
+/*    createWall(sf::Vector2f(-1, 0));
     createWall(sf::Vector2f(+1, 0));
     createWall(sf::Vector2f(0, -1));
-    createWall(sf::Vector2f(0, +1));
+    createWall(sf::Vector2f(0, +1));*/
     
     gameManager->addLogicSystems<
         KeyboardInputSystem,
@@ -78,7 +69,8 @@ GameState::GameState(StateStack& stack, Context context) :
 
     gameManager->addNetworkSystems<
         NetworkPingPong,
-        NetworkAddEntities
+        NetworkAddEntities,
+        NetworkSetTransform
     >();
 
     gameManager->updateSystemLists();

@@ -1,10 +1,13 @@
 #include <Common/Managers/GameManager.h>
 #include <NetworkAddEntities.h>
 #include <Network/AddEntityPacket.h>
+#include <Sprite.h>
 
 NetworkAddEntities::NetworkAddEntities(GameManager* const gameManager) :
 	NetworkSystem<Transform>(gameManager)
 {}
+
+static std::vector<std::shared_ptr<Entity>> forceAlive{};
 
 void NetworkAddEntities::update(const sf::Time& dt) {
 	if (!gameManager->getNetworkModule()->getBuffer().empty()) {
@@ -21,6 +24,7 @@ void NetworkAddEntities::update(const sf::Time& dt) {
             switch (entityType) {
                 case Prefab::playableCar: {
                     entity = Prefab::createPlayableCar(renderable);
+                    /* TODO new packet for: entity->getComponent<Sprite>()->colorFilter = context.associatedColor*/;
                 } break;
 
                 case Prefab::car: {
@@ -32,6 +36,7 @@ void NetworkAddEntities::update(const sf::Time& dt) {
                 } break;
             }
 
+            forceAlive.push_back(entity);
             if(entity) {
                 gameManager->addEntityWithID(entity, entityID);
                 // TODO: position & such

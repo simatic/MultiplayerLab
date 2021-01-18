@@ -76,6 +76,8 @@ void DelayCreator::threadCode() {
 }
 
 void DelayCreator::sendToClient(const UdpClient& client, std::unique_ptr<Packet>&& packet) {
+    serverNetwork.triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::SendingPacket,
+                                                           packet->getSequenceIndex()});
     mutex4ResponsePacketWithDelay.lock();
     responsePacketWithDelayList.push_back(
             std::make_unique<PacketWithDelay>(std::move(packet), client, client.settings.getOutgoingDelay()));
