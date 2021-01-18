@@ -20,16 +20,22 @@ void GameManager::clearAll()
  */
 void GameManager::addEntity(std::shared_ptr<Entity> entity)
 {
+    uint32_t id = 0;
     if (unusedIDs.size() != 0)
     {
-        entity->setID(unusedIDs.front());
+        id = unusedIDs.front();
         unusedIDs.pop();
     }
     else
     {
-        entity->setID(highestID++);
+        id = highestID++;
     }
 
+    addEntityWithID(entity, id);
+}
+
+void GameManager::addEntityWithID(std::shared_ptr<Entity> entity, std::uint32_t id) {
+    entity->setID(id);
     entities.emplace(entity->getID(), entity);
     updateSystemLists(entity.get());
 }

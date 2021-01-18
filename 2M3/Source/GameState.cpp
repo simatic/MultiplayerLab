@@ -25,6 +25,7 @@
 #include <Common/Components/CameraTarget.h>
 #include <Common/Systems/CameraSystem.h>
 #include <GridRenderer.h>
+#include <NetworkAddEntities.h>
 
 GameState::GameState(StateStack& stack, Context context) :
 	State(stack, context),
@@ -76,7 +77,8 @@ GameState::GameState(StateStack& stack, Context context) :
     >();
 
     gameManager->addNetworkSystems<
-        NetworkPingPong
+        NetworkPingPong,
+        NetworkAddEntities
     >();
 
     gameManager->updateSystemLists();

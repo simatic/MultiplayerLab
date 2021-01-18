@@ -39,6 +39,9 @@ public:
 
     void write(sf::Packet &destination) const override;
 
+    Prefab::Type getEntityType() const;
+    std::uint32_t getEntityID() const;
+
     PacketID getID() const override {
         return AddEntity;
     }

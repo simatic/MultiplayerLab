@@ -21,6 +21,7 @@ public:
      * Methods
      */
     void addEntity(std::shared_ptr<Entity> entity);
+    void addEntityWithID(std::shared_ptr<Entity> entity, std::uint32_t id);
     void removeEntityNextFrame(Entity* entity);
     void removeEntity(Entity* entity);
 

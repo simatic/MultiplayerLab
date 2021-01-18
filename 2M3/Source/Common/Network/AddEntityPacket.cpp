@@ -42,5 +42,13 @@ std::unique_ptr<Packet> AddEntityPacket::handle(INetworkModule* iNetworkModule) 
 
 void AddEntityPacket::write(sf::Packet &destination) const {
     destination << networkID;
-    destination << prefabType;
+    destination << static_cast<sf::Uint32>(prefabType);
+}
+
+Prefab::Type AddEntityPacket::getEntityType() const {
+    return prefabType;
+}
+
+std::uint32_t AddEntityPacket::getEntityID() const {
+    return networkID;
 }
