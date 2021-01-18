@@ -15,36 +15,13 @@ std::unique_ptr<Packet> AskAddEntityPacket::handle(INetworkModule* iNetworkModul
     auto networkModule = dynamic_cast<ServerNetworkModule*>(iNetworkModule);
     sf::Uint32 networkID;
     networkID = networkModule->getNewNetworkID();
-    return std::make_unique<ConfirmAddEntityPacket>(getSequenceIndex(), prefabType, networkID);
+    return std::make_unique<AddEntityPacket>(getSequenceIndex(), prefabType, networkID);
 }
 
 void AskAddEntityPacket::write(sf::Packet &destination) const {
     destination << static_cast<sf::Uint32>(prefabType);
 }
 
-
-
-ConfirmAddEntityPacket::ConfirmAddEntityPacket(PacketSequenceIndex index, sf::Packet& source): Packet(index) {
-    source >> networkID;
-    sf::Uint32 type;
-    source >> type;
-    prefabType = static_cast<Prefab::Type>(type);
-}
-
-ConfirmAddEntityPacket::ConfirmAddEntityPacket(PacketSequenceIndex AskAddEntityPacketId, Prefab::Type type, sf::Uint32 ID):
-Packet(AskAddEntityPacketId) {
-    networkID = ID;
-    prefabType = type;
-}
-
-std::unique_ptr<Packet> ConfirmAddEntityPacket::handle(INetworkModule* iNetworkModule) const {
-    return nullptr;
-}
-
-void ConfirmAddEntityPacket::write(sf::Packet &destination) const {
-    destination << networkID;
-    destination << prefabType;
-}
 
 AddEntityPacket::AddEntityPacket(PacketSequenceIndex index, sf::Packet& source): Packet(index) {
     source >> networkID;
