@@ -60,6 +60,9 @@ bool Server::isReady() {
 void Server::onEvent(const UdpClient& client, NetworkEvent::Event event) {
     if(event.type == NetworkEvent::Connected) {
         std::cout << "New client on port " << client.port << "!" << std::endl;
+
+        // TODO: envoi des informations des entités déjà présentes
+
         auto ID = getNetworkModule().getNewNetworkID();
         auto entity = Prefab::createCar(false);
         auto* entTransform = entity->getComponent<Transform>();
