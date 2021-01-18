@@ -9,6 +9,7 @@
 
 int main()
 {
+    std::ios::sync_with_stdio(false);
 	Application application;
 	application.run();
 	//sf::Clock clock;

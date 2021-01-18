@@ -8,6 +8,7 @@
 
 class Interface;
 class DelayCreator;
+class IServerEventsListener;
 
 class ServerNetworkHandler: public NetworkHandler {
 private:
@@ -23,7 +24,7 @@ private:
     std::map<ClientID, float> lastPacketTimes{};
     bool running = true;
     PacketSequenceIndex sequenceIndex = 0;
-    Interface* listener = nullptr;
+    std::vector<IServerEventsListener*> listeners{};
     std::shared_ptr<DelayCreator> delayCreator = nullptr;
 
 protected:
@@ -55,7 +56,7 @@ public:
 
     void killNetworkThread();
 
-    void registerListener(Interface* listener);
+    void registerListener(IServerEventsListener* listener);
 
     void sendToClient(const UdpClient& client, std::unique_ptr<Packet>&& packet);
 

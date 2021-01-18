@@ -5,6 +5,7 @@ Server::Server(const std::string& ip, unsigned short port): game()
 {
     game.setNetworkModule<ServerNetworkModule>(ip, port);
     gameThread = std::thread([&]() { runGame(); });
+    getNetworkHandler().registerListener(this);
 }
 
 void Server::runGame() {
@@ -51,4 +52,11 @@ ServerNetworkModule& Server::getNetworkModule() {
 
 bool Server::isReady() {
     return getNetworkModule().getNetworkThread().isReady();
+}
+
+void Server::onEvent(const UdpClient& client, NetworkEvent::Event event) {
+    // TODO
+    if(event.type == NetworkEvent::Connected) {
+        std::cout << "New client on port " << client.port << "!" << std::endl;
+    }
 }

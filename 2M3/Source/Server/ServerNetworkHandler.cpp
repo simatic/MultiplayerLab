@@ -67,13 +67,13 @@ PacketSequenceIndex ServerNetworkHandler::generateNextIndex() {
 }
 
 void ServerNetworkHandler::triggerEvent(const UdpClient& client, NetworkEvent::Event event) {
-    if(listener) {
-        listener->onEvent(client, event);
+    for(auto& l : listeners) {
+        l->onEvent(client, event);
     }
 }
 
-void ServerNetworkHandler::registerListener(Interface *listener) {
-    this->listener = listener;
+void ServerNetworkHandler::registerListener(IServerEventsListener *listener) {
+    this->listeners.push_back(listener);
 }
 
 sf::UdpSocket& ServerNetworkHandler::getSocket() {

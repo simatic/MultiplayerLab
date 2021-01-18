@@ -6,8 +6,9 @@
 #include <mutex>
 #include "Server/NetworkTypes.h"
 #include "Server/ServerNetworkHandler.h"
+#include "IServerEventsListener.h"
 
-class Interface {
+class Interface: public IServerEventsListener {
 
     struct PacketInfo {
         PacketSequenceIndex sequenceIndex;
@@ -67,7 +68,7 @@ private:
 public:
     explicit Interface(ServerNetworkHandler& handler);
 
-    void onEvent(const UdpClient &client, NetworkEvent::Event event);
+    void onEvent(const UdpClient &client, NetworkEvent::Event event) override;
     void render(sf::RenderWindow& renderTarget, float clientWidth, float interfaceHeight, float startY);
 
     ~Interface();

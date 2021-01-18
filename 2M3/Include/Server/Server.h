@@ -8,8 +8,9 @@
 #include "Common/Network/Network.h"
 #include "ServerNetworkHandler.h"
 #include "ServerNetworkThread.h"
+#include "IServerEventsListener.h"
 
-class Server {
+class Server: public IServerEventsListener {
 private:
     GameManager game;
     std::thread gameThread;
@@ -23,6 +24,8 @@ public:
     bool isReady();
     ServerNetworkHandler& getNetworkHandler();
     ServerNetworkModule& getNetworkModule();
+
+    void onEvent(const UdpClient& client, NetworkEvent::Event event) override;
 
     ~Server();
 
