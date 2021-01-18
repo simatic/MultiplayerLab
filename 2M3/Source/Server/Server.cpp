@@ -1,5 +1,6 @@
 #include "Server/Server.h"
 #include "Server/Interface.h"
+#include "Common/Network/AddEntityPacket.h"
 
 Server::Server(const std::string& ip, unsigned short port): game()
 {
@@ -55,8 +56,21 @@ bool Server::isReady() {
 }
 
 void Server::onEvent(const UdpClient& client, NetworkEvent::Event event) {
-    // TODO
     if(event.type == NetworkEvent::Connected) {
         std::cout << "New client on port " << client.port << "!" << std::endl;
+        auto ID = getNetworkModule().getNewNetworkID();
+        game.addEntityWithID(Prefab::createCar(false), ID);
+
+        //packet pour le client qui arrive
+        auto hereIsYourEntityPacket = getNetworkHandler().create<AddEntityPacket>(Prefab::Type::playableCar, ID);
+        client.send(std::move(hereIsYourEntityPacket));
+
+        //packets pour notifier les autres clients déjà présents
+        for(auto& otherClient : getNetworkHandler().getClients()) {
+            if(client.id != otherClient->id) {
+                auto packet = getNetworkHandler().create<AddEntityPacket>(Prefab::Type::car, ID);
+                otherClient->send(std::move(packet));
+            }
+        }
     }
 }
