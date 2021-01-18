@@ -3,14 +3,14 @@
 #include <iostream>
 #include <string>
 #include <SFML/Network.hpp>
+#include <Server/Modules/ServerNetworkModule.h>
 #include "Common/Network/Network.h"
 #include "ServerNetworkHandler.h"
 #include "ServerNetworkThread.h"
 
 class Server {
 private:
-    ServerNetworkHandler networkHandler;
-    ServerNetworkThread networkThread;
+    ServerNetworkModule networkModule;
 
 public:
     explicit Server(const std::string& ip, unsigned short port);

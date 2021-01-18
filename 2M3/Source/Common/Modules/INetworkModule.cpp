@@ -9,3 +9,8 @@ INetworkModule::INetworkModule(const std::string& host, const unsigned short por
 Buffer& INetworkModule::getBuffer() {
 	return buffer;
 }
+
+const std::unique_ptr<NetworkHandler> &INetworkModule::getNetwork() const {
+    return network;
+}
+

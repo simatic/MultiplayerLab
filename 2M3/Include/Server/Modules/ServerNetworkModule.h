@@ -12,6 +12,7 @@ class ServerNetworkModule : public INetworkModule {
 private:
     //Entity ID -> networkID in AddEntityPacket.h
     sf::Uint32 networkID = 0;
+    ServerNetworkThread networkThread;
 
 public:
     ServerNetworkModule(std::unique_ptr<ServerNetworkHandler> networkHandler);

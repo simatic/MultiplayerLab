@@ -18,12 +18,16 @@ public:
 
 	Buffer& getBuffer();
 
+    const std::unique_ptr<NetworkHandler> &getNetwork() const;
+
 protected:
 	std::string host;
 	unsigned short remotePort;
 
 	std::unique_ptr<NetworkHandler> network;
-	Buffer buffer;
+
+protected:
+    Buffer buffer;
 };
 
 template<typename Packet, typename... Args>
