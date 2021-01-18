@@ -10,7 +10,7 @@ private:
     bool ready = false;
 
 public:
-    ServerNetworkThread(ServerNetworkHandler& handler);
+    explicit ServerNetworkThread(ServerNetworkHandler& handler);
     ~ServerNetworkThread();
 
     /// Is the server ready to receive clients?

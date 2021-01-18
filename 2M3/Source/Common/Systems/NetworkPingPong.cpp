@@ -10,8 +10,11 @@ NetworkPingPong::NetworkPingPong(GameManager* const gameManager) :
 void NetworkPingPong::update(const sf::Time& dt) {
 	gameManager->getNetworkModule()->createAndSend<PingPacket>();
 	if (!gameManager->getNetworkModule()->getBuffer().empty()) {
-		if (std::unique_ptr<Packet> packet = gameManager->getNetworkModule()->getBuffer().fetchPacket()) {
-			if (packet->getID() == PacketID::Pong) {
+	    auto packets = gameManager->getNetworkModule()->getBuffer().extractPacketsOfType<PongPacket>();
+		while(!packets.empty()) {
+		    auto pingPacket = std::move(packets.front());
+		    packets.pop();
+			if (pingPacket->getID() == PacketID::Pong) {
 				std::cout << "PONG" << std::endl;
 			}
 		}

@@ -37,20 +37,15 @@ GameState::GameState(StateStack& stack, Context context) :
     gameManager->setNetworkModule<ClientNetworkModule>("localhost", DEFAULT_PORT);
 
     std::shared_ptr<Entity> playerCar = Prefab::createPlayableCar(true);
-    std::shared_ptr<Entity> car = Prefab::createCar(true);
-    car->getComponent<Transform>()->position = sf::Vector2f(100, 100);
     playerCar->getComponent<Sprite>()->colorFilter = context.associatedColor;
 
-    // TODO: don't hardcode the color of the opponent
+    // TODO: don't hardcode the position/color of the opponent
     //  will probably be easier to fix when the authoritative server is starting to work
-    sf::Color opponentColor = sf::Color::Red;
     if(*context.uid == 0) {
-        opponentColor = sf::Color::Green;
+        playerCar->getComponent<Transform>()->position = sf::Vector2f(100, 100);
     }
-    car->getComponent<Sprite>()->colorFilter = opponentColor;
 
 	gameManager->addEntity(playerCar);
-    gameManager->addEntity(car);
 
     createWall(sf::Vector2f(-1, 0));
     createWall(sf::Vector2f(+1, 0));
