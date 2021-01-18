@@ -1,14 +1,19 @@
 #include "Server/Server.h"
 #include "Server/Interface.h"
 
-Server::Server(const std::string& ip, unsigned short port): networkHandler(ip, port), networkThread(networkHandler), game(),
-    gameThread([&]() { runGame(); })
-{}
+Server::Server(const std::string& ip, unsigned short port): game()
+{
+    game.setNetworkModule<ServerNetworkModule>(ip, port);
+    gameThread = std::thread([&]() { runGame(); });
+}
 
 void Server::runGame() {
+    while(!isReady()) {
+        std::this_thread::yield();
+    }
     // TODO: precise ticks
     sf::Clock clock{};
-    while(networkHandler.isRunning())
+    while(isRunning())
     {
         auto dt = clock.restart();
         game.update(dt);
@@ -17,7 +22,7 @@ void Server::runGame() {
 }
 
 void Server::run() {
-    while(networkHandler.isRunning())
+    while(isRunning())
     {
         std::this_thread::yield();
     } // wait for network to be shutdown
@@ -25,21 +30,25 @@ void Server::run() {
 }
 
 bool Server::isRunning() {
-    return networkHandler.isRunning();
+    return getNetworkHandler().isRunning();
 }
 
 void Server::stop() {
-    networkHandler.killNetworkThread();
+    getNetworkHandler().killNetworkThread();
 }
 
 Server::~Server() {
-    networkHandler.killNetworkThread();
+    getNetworkHandler().killNetworkThread();
 }
 
 ServerNetworkHandler& Server::getNetworkHandler() {
-    return networkHandler;
+    return *dynamic_cast<ServerNetworkHandler*>(getNetworkModule().getNetwork().get());
+}
+
+ServerNetworkModule& Server::getNetworkModule() {
+    return *dynamic_cast<ServerNetworkModule*>(game.getNetworkModule());
 }
 
 bool Server::isReady() {
-    return networkThread.isReady();
+    return getNetworkModule().getNetworkThread().isReady();
 }

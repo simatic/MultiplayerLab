@@ -290,6 +290,7 @@ void Interface::onEvent(const UdpClient &client, NetworkEvent::Event event) {
 
     float time = event.timestamp.asSeconds();
 
+    std::lock_guard lk(linkAccess);
     switch(event.type) {
         case NetworkEvent::PacketReceived: {
             compilation.receivedTimestamps.push_back(time);
@@ -300,7 +301,6 @@ void Interface::onEvent(const UdpClient &client, NetworkEvent::Event event) {
             afterDelayTimestamps.push_back(time);
             afterDelayPacketIndices.push_back(event.id);
 
-            std::lock_guard lk(linkAccess);
             auto receivedPacketLocation = std::find(compilation.receivedPacketIndices.rbegin(), compilation.receivedPacketIndices.rend(), event.id);
             auto receivedPacketIndex = compilation.receivedPacketIndices.size()-std::distance(compilation.receivedPacketIndices.rbegin(), receivedPacketLocation)-1;
             auto receivedPacketTime = compilation.receivedTimestamps[receivedPacketIndex];
@@ -320,7 +320,6 @@ void Interface::onEvent(const UdpClient &client, NetworkEvent::Event event) {
             compilation.sentTimestamps.push_back(time);
             compilation.sentPacketIndices.push_back(event.id);
 
-            std::lock_guard lk(linkAccess);
             auto sendingPacketLocation = std::find(sendingStartsPacketIndices.rbegin(), sendingStartsPacketIndices.rend(), event.id);
             auto sendingPacketIndex = sendingStartsPacketIndices.size()-std::distance(sendingStartsPacketIndices.rbegin(), sendingPacketLocation)-1;
             auto sendingPacketTime = sendingStartsTimestamps[sendingPacketIndex];
