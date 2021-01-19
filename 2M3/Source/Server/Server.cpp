@@ -2,6 +2,7 @@
 #include <Network/SetTransformPacket.h>
 #include <Network/WorldStatePacket.h>
 #include <CopiableFromPrefab.h>
+#include <Common/Network/SetColorPacket.h>
 #include "Common/Components/Collider.h"
 #include "Utility.h"
 #include "Server/Server.h"
@@ -93,6 +94,15 @@ void Server::makePlayerJoin(const UdpClient& client) {
     client.send(std::move(hereIsYourEntityPacket));
     client.send(getNetworkHandler().create<SetTransformPacket>(entity->getID(), entTransform->position.x, entTransform->position.y, entTransform->rotation));
 
+    //Pour 2 clients c'est simple et OK
+    sf::Color newClientColor;
+    if(client.id == 0) {
+        newClientColor = sf::Color::Red;
+    }
+    else {
+        newClientColor = sf::Color::Green;
+    }
+
     //packets pour notifier les autres clients déjà présents
     for(auto& otherClient : getNetworkHandler().getClients()) {
         if(client.id != otherClient->id) {
@@ -100,6 +110,7 @@ void Server::makePlayerJoin(const UdpClient& client) {
             otherClient->send(std::move(packet));
             otherClient->send(getNetworkHandler().create<SetTransformPacket>(entity->getID(), entTransform->position.x, entTransform->position.y, entTransform->rotation));
         }
+        client.send(getNetworkHandler().create<SetColorPacket>(entity->getID(), newClientColor));
     }
 }
 
