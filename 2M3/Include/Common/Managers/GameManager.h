@@ -59,6 +59,8 @@ public:
     template <typename... System>
     void addNetworkSystems();
 
+    std::vector<std::shared_ptr<Entity>> getEntityList() const;
+
 private:
     /**
      * Methods

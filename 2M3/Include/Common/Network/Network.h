@@ -12,7 +12,10 @@ enum PacketID: sf::Uint32 {
     AskAddEntity,
     AddEntity,
     SetTransform,
+    WorldState,
     // TODO
+
+    InvalidPacketID,
 };
 
 /// > 0 for server-generated indices

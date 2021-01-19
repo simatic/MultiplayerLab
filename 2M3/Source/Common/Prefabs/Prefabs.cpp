@@ -1,3 +1,4 @@
+#include <CopiableFromPrefab.h>
 #include "Common/Prefabs/Prefabs.h"
 
 #include "Common/Managers/ResourceManager.h"
@@ -31,7 +32,8 @@ std::shared_ptr<Entity> Prefab::createCar(const bool renderable) {
         Health(100, 100),
         HealthBar(sf::Vector2f(50, 10), sf::Color::Red, sf::Color::Green, 0.5f),
         CarEngine(1000, 1000 / 3, 200, 24, 800, 3.1415f / 3, 0.001f, sf::Vector2f(1, 0)),
-        Gun(sf::Vector2f(1, 0), sf::seconds(0.1))
+        Gun(sf::Vector2f(1, 0), sf::seconds(0.1)),
+        CopiableFromPrefab(Prefab::Type::Car)
         );
 
     if (renderable) {
@@ -53,6 +55,7 @@ std::shared_ptr<Entity> Prefab::createPlayableCar(const bool renderable) {
     std::shared_ptr<Entity> playableCar = Prefab::createCar(renderable);
     playableCar->addComponent<CarInput>(CarInput());
     playableCar->addComponent<CameraTarget>(CameraTarget());
+    playableCar->addComponent<CopiableFromPrefab>(CopiableFromPrefab(Prefab::Type::PlayableCar));
     return playableCar;
 }
 
@@ -62,7 +65,8 @@ std::shared_ptr<Entity> Prefab::createBullet(const bool renderable) {
         Transform(sf::Vector2f(0, 0), 0.f),
         Kinematics(),
         Collider(sf::Vector2f(5, 5)),
-        Bullet(1, 1500, sf::seconds(1), nullptr)
+        Bullet(1, 1500, sf::seconds(1), nullptr),
+        CopiableFromPrefab(Prefab::Type::Bullet)
         );
 
     if (renderable) {
@@ -77,4 +81,46 @@ std::shared_ptr<Entity> Prefab::createBullet(const bool renderable) {
     }
 
     return bullet;
+}
+
+std::shared_ptr<Entity> Prefab::createWall(const bool renderable) {
+    const float wallLength = 5000.0f;
+    sf::RectangleShape shape(sf::Vector2f(wallLength, 10.0f));
+
+    std::shared_ptr<Entity> wall = std::make_shared<Entity>(
+            Transform(sf::Vector2f(0, wallLength/2.0f), 0.f),
+            Collider(shape),
+            CopiableFromPrefab(Prefab::Type::Wall)
+    );
+
+    if(renderable) {
+        RectShape rect;
+        rect.shape = shape;
+        rect.shape.setFillColor(sf::Color::Blue);
+        rect.shape.setOrigin(rect.shape.getSize().x / 2, rect.shape.getSize().y / 2);
+
+        wall->addComponent(rect);
+    }
+
+    wall->setLayer(Layer::WallLayer);
+
+    return wall;
+}
+
+std::shared_ptr<Entity> Prefab::create(Prefab::Type type, const bool renderable) {
+    switch (type) {
+        case Prefab::Type::Wall:
+            return createWall(renderable);
+
+        case Prefab::Type::PlayableCar:
+            return createPlayableCar(renderable);
+
+        case Prefab::Type::Car:
+            return createCar(renderable);
+
+        case Prefab::Type::Bullet:
+            return createBullet(renderable);
+
+        // si d'autres types de Prefab ont été rajoutés, les ajouter ici aussi
+    }
 }

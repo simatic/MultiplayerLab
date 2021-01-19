@@ -133,7 +133,6 @@ void GameManager::updateSystemLists()
  */
 void GameManager::updateSystemLists(Entity* entity)
 {
-    std::cout << "updateSystemLists " << entity << std::endl;
     for (auto& system: logicSystems)
     {
         if ((entity->getSignature() & system->getSignature()) == system->getSignature())
@@ -262,5 +261,24 @@ INetworkModule* GameManager::getNetworkModule() const
 }
 
 std::shared_ptr<Entity> GameManager::getEntityWithID(std::uint32_t id) {
-    return entities[id];
+    // not using operator[] to avoid filling the map with nullptrs
+    auto location = entities.find(id);
+    if(location == entities.end()) { // if not found, check in entities to add next frame
+        auto locationInNewEntities = entitiesToAdd.find(id);
+        if(locationInNewEntities != entitiesToAdd.end()) {
+            return locationInNewEntities->second;
+        }
+
+        // no entity, return nullptr
+        return nullptr;
+    }
+    return location->second;
+}
+
+std::vector<std::shared_ptr<Entity>> GameManager::getEntityList() const {
+    std::vector<std::shared_ptr<Entity>> result{};
+    for(const auto& [_, entity] : entities) {
+        result.push_back(entity);
+    }
+    return result;
 }

@@ -27,6 +27,7 @@
 #include <GridRenderer.h>
 #include <NetworkAddEntities.h>
 #include <NetworkSetTransform.h>
+#include <NetworkWorldState.h>
 
 GameState::GameState(StateStack& stack, Context context) :
 	State(stack, context),
@@ -38,12 +39,6 @@ GameState::GameState(StateStack& stack, Context context) :
     gameManager->setKeyBinding(context.keys);
     gameManager->setNetworkModule<ClientNetworkModule>("localhost", DEFAULT_PORT);
 
-    // TODO: move to server
-/*    createWall(sf::Vector2f(-1, 0));
-    createWall(sf::Vector2f(+1, 0));
-    createWall(sf::Vector2f(0, -1));
-    createWall(sf::Vector2f(0, +1));*/
-    
     gameManager->addLogicSystems<
         KeyboardInputSystem,
         CarMovementSystem,
@@ -69,29 +64,12 @@ GameState::GameState(StateStack& stack, Context context) :
 
     gameManager->addNetworkSystems<
         NetworkPingPong,
+        NetworkWorldState,
         NetworkAddEntities,
         NetworkSetTransform
     >();
 
     gameManager->updateSystemLists();
-}
-
-void GameState::createWall(sf::Vector2f axis) const {
-    const float wallLength = 5000.0f;
-    RectShape rect;
-    rect.shape = sf::RectangleShape(sf::Vector2f(std::abs(axis.x) * wallLength + std::abs(axis.y) * 10.0f, std::abs(axis.x) * 10.0f + std::abs(axis.y) * wallLength));
-    rect.shape.setFillColor(sf::Color::Blue);
-    rect.shape.setOrigin(rect.shape.getSize().x / 2, rect.shape.getSize().y / 2);
-
-    std::shared_ptr<Entity> wall = std::make_shared<Entity>(
-            Transform(sf::Vector2f(axis.y*wallLength/2.0f, axis.x*wallLength/2.0f), 0.f),
-            rect,
-            Collider(rect.shape)
-    );
-
-    wall->setLayer(Layer::WallLayer);
-
-    gameManager->addEntity(wall);
 }
 
 void GameState::draw()

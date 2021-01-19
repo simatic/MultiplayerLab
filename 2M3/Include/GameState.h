@@ -17,6 +17,4 @@ public:
 private:
 	std::unique_ptr<GameManager> gameManager;
 	sf::RenderTarget*	target;
-
-    void createWall(sf::Vector2f axis) const;
 };

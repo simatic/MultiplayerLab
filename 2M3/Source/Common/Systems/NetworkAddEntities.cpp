@@ -20,26 +20,15 @@ void NetworkAddEntities::update(const sf::Time& dt) {
 		    auto entityID = addEntityPacket->getEntityID();
 
 		    const bool renderable = true;
-		    std::shared_ptr<Entity> entity = nullptr;
-            switch (entityType) {
-                case Prefab::playableCar: {
-                    entity = Prefab::createPlayableCar(renderable);
-                    /* TODO new packet for: entity->getComponent<Sprite>()->colorFilter = context.associatedColor*/;
-                } break;
+		    std::shared_ptr<Entity> entity = Prefab::create(entityType, renderable);
+            /* TODO new packet for: entity->getComponent<Sprite>()->colorFilter = context.associatedColor
+             *  for PlayableCar
+             * */
 
-                case Prefab::car: {
-                    entity = Prefab::createCar(renderable);
-                } break;
-
-                case Prefab::bullet: {
-                    entity = Prefab::createBullet(renderable);
-                } break;
-            }
-
+            // TODO: still necessary?
             forceAlive.push_back(entity);
             if(entity) {
                 gameManager->addEntityWithID(entity, entityID);
-                // TODO: position & such
             }
 		}
 	}
