@@ -3,7 +3,7 @@
 
 
 State::Context::Context(int& uid, sf::RenderTexture& target, TextureHolder& textures, FontHolder& fonts,
-	/*MusicPlayer& music, SoundPlayer& sounds,*/ KeyBinding& keys, sf::Mutex& appMutex, sf::Color associatedColor)
+	/*MusicPlayer& music, SoundPlayer& sounds,*/ KeyBinding& keys, sf::Mutex& appMutex, sf::Color& associatedColor)
 : uid(&uid)
 , target(&target)
 , textures(&textures)

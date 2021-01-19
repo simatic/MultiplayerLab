@@ -102,6 +102,7 @@ void Server::makePlayerJoin(const UdpClient& client) {
     else {
         newClientColor = sf::Color::Green;
     }
+    playerColors[client.id] = newClientColor;
 
     //packets pour notifier les autres clients déjà présents
     for(auto& otherClient : getNetworkHandler().getClients()) {
@@ -110,7 +111,7 @@ void Server::makePlayerJoin(const UdpClient& client) {
             otherClient->send(std::move(packet));
             otherClient->send(getNetworkHandler().create<SetTransformPacket>(entity->getID(), entTransform->position.x, entTransform->position.y, entTransform->rotation));
         }
-        client.send(getNetworkHandler().create<SetColorPacket>(entity->getID(), newClientColor));
+        otherClient->send(getNetworkHandler().create<SetColorPacket>(entity->getID(), newClientColor));
     }
 }
 
@@ -139,6 +140,14 @@ void Server::sendWorldStateTo(const UdpClient& client) {
     // write informations to client
     auto worldStatePacket = getNetworkHandler().create<WorldStatePacket>(info);
     client.send(std::move(worldStatePacket));
+
+    // send color information about previous clients
+    for(const auto& other : getNetworkHandler().getClients()) {
+        if(client.id != other->id) {
+            auto otherEntityID = playerEntityIDs[other->id];
+            client.send(getNetworkHandler().create<SetColorPacket>(otherEntityID, playerColors[other->id]));
+        }
+    }
 }
 
 void Server::onEvent(const UdpClient& client, NetworkEvent::Event event) {

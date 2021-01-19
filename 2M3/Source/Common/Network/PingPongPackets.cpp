@@ -35,7 +35,7 @@ std::unique_ptr<Packet> PongPacket::handle(INetworkModule* iNetworkModule) const
     unsigned long long pingTime = duration_cast< milliseconds >(
             (system_clock::now() - milliseconds(clientTimestamp)).time_since_epoch()
     ).count();
-    std::cout << "Ping took " << pingTime << " ms." << std::endl;
+    //std::cout << "Ping took " << pingTime << " ms." << std::endl;
     return nullptr;
 }
 

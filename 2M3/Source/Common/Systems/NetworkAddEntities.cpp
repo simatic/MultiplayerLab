@@ -21,9 +21,13 @@ void NetworkAddEntities::update(const sf::Time& dt) {
 
 		    const bool renderable = true;
 		    std::shared_ptr<Entity> entity = Prefab::create(entityType, renderable);
-            /* TODO new packet for: entity->getComponent<Sprite>()->colorFilter = context.associatedColor
-             *  for PlayableCar
-             * */
+            if(entityType == Prefab::Type::PlayableCar) {
+                if(auto clientModule = dynamic_cast<ClientNetworkModule*>(gameManager->getNetworkModule())) {
+                    clientModule->setSelfEntityID(entityID);
+                } else {
+                    throw std::runtime_error("NetworkAddEntities should not be put on the server.");
+                }
+            }
 
             // TODO: still necessary?
             forceAlive.push_back(entity);

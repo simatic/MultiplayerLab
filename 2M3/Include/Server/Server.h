@@ -16,6 +16,7 @@ private:
     std::thread gameThread;
     /// Mapping between the client ID and its entity
     std::unordered_map<ClientID, std::uint32_t> playerEntityIDs{};
+    std::unordered_map<ClientID, sf::Color> playerColors{};
     std::mutex playerConnection{};
 
 public:

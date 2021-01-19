@@ -14,9 +14,8 @@ void NetworkPingPong::update(const sf::Time& dt) {
 		while(!packets.empty()) {
 		    auto pingPacket = std::move(packets.front());
 		    packets.pop();
-			if (pingPacket->getID() == PacketID::Pong) {
-				std::cout << "PONG" << std::endl;
-			}
+
+            // std::cout << "PONG" << std::endl;
 		}
 	}
 }

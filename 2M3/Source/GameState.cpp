@@ -28,6 +28,7 @@
 #include <NetworkAddEntities.h>
 #include <NetworkSetTransform.h>
 #include <NetworkWorldState.h>
+#include <NetworkSetColor.h>
 
 GameState::GameState(StateStack& stack, Context context) :
 	State(stack, context),
@@ -37,7 +38,7 @@ GameState::GameState(StateStack& stack, Context context) :
 	ResourceManager::getInstance()->setTextures(context.textures);
     gameManager->setRenderTarget(target);
     gameManager->setKeyBinding(context.keys);
-    gameManager->setNetworkModule<ClientNetworkModule>("localhost", DEFAULT_PORT);
+    gameManager->setNetworkModule<ClientNetworkModule>(this->getContext(), "localhost", DEFAULT_PORT);
 
     gameManager->addLogicSystems<
         KeyboardInputSystem,
@@ -66,6 +67,7 @@ GameState::GameState(StateStack& stack, Context context) :
         NetworkPingPong,
         NetworkWorldState,
         NetworkAddEntities,
+        NetworkSetColor,
         NetworkSetTransform
     >();
 

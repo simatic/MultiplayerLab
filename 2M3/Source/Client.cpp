@@ -44,12 +44,13 @@ void Client::initialize(int keyBindingConfiguration)
 	_statisticsText.setPosition(5.f, 5.f);
 	_statisticsText.setCharacterSize(10u);
 
-    // prepare border
-    sf::Color borderColor = sf::Color::Red;
+    // prepare border, assign a default color for this client
+    //  the server is free to change it afterwards
     if(_uid != 0) {
-        borderColor = sf::Color::Green;
+        _associatedColor = sf::Color::Green;
+    } else {
+        _associatedColor = sf::Color::Red;
     }
-    _associatedColor = borderColor;
 
     constexpr float borderWidth = 3.0f;
     const float screenWidth = _renderTexture->getSize().x;
@@ -57,7 +58,6 @@ void Client::initialize(int keyBindingConfiguration)
 
     _borderRectangle.setSize(sf::Vector2f(screenWidth-borderWidth*2,screenHeight-borderWidth*2));
     _borderRectangle.setPosition(borderWidth, borderWidth);
-    _borderRectangle.setOutlineColor(borderColor);
     _borderRectangle.setOutlineThickness(borderWidth);
     _borderRectangle.setFillColor(sf::Color::Transparent);
 
@@ -143,6 +143,10 @@ void Client::tick()
 
 void Client::renderBorder()
 {
+    // border color is updated each frame because the server may change it if required
+    //  actually should happen only when joining the server
+    _borderRectangle.setOutlineColor(_associatedColor);
+
     auto savedView = _renderTexture->getView();
     // sets the view to default to remove offsets and scrolling introduced by camera
     // ie. makes the position of the border absolute and no longer relative
