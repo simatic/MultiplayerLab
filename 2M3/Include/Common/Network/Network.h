@@ -14,6 +14,8 @@ enum PacketID: sf::Uint32 {
     SetTransform,
     WorldState,
     SetColor,
+    SetSpeed,
+    Input,
     // TODO
 
     InvalidPacketID,

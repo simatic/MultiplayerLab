@@ -5,6 +5,8 @@
 #include <Network/AddEntityPacket.h>
 #include <Network/WorldStatePacket.h>
 #include <Common/Network/SetColorPacket.h>
+#include <Common/Network/SetSpeedPacket.h>
+#include <Common/Network/InputPacket.h>
 #include "Common/Network/EchoPacket.h"
 #include "Common/Network/SetTransformPacket.h"
 
@@ -34,6 +36,12 @@ std::unique_ptr<Packet> deserializePacket(sf::Packet& packet) {
 
         case PacketID::SetColor:
             return std::make_unique<SetColorPacket>(sequenceIndex, packet);
+
+        case PacketID::SetSpeed:
+            return std::make_unique<SetSpeedPacket>(sequenceIndex, packet);
+
+        case PacketID::Input:
+            return std::make_unique<InputPacket>(sequenceIndex, packet);
 
         // TODO: ajouter la déserialisation de votre packet
 
