@@ -27,6 +27,7 @@ class State
 
 		struct Context
 		{
+			Context();
 			Context(int& uid, sf::RenderTexture& target, TextureHolder& textures, FontHolder& fonts,
 									/*MusicPlayer& music, SoundPlayer& sounds,*/ KeyBinding& keys, sf::Mutex& appMutex, sf::Color associatedColor);
 			int* uid;
@@ -39,7 +40,6 @@ class State
 			sf::Mutex* mutex;
 			sf::Color associatedColor;
 		};
-
 
 	public:
 							State(StateStack& stack, Context context);

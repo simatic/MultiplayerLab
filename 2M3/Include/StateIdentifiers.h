@@ -16,6 +16,7 @@ namespace States
 		//NetworkPause,
 		HostGame,
 		JoinGame,
+		Main,
 	};
 }
 
