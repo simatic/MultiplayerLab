@@ -1,5 +1,5 @@
 #include <Common/Managers/GameManager.h>
-#include <NetworkSetColor.h>
+#include <Client/Systems/NetworkSetColor.h>
 #include <Network/SetColorPacket.h>
 #include <Sprite.h>
 

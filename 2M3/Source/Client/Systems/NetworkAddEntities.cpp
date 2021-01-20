@@ -1,5 +1,5 @@
 #include <Common/Managers/GameManager.h>
-#include <NetworkAddEntities.h>
+#include <Client/Systems/NetworkAddEntities.h>
 #include <Network/AddEntityPacket.h>
 #include <Sprite.h>
 

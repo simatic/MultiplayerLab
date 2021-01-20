@@ -1,4 +1,4 @@
-#include <Common/Systems/NetworkPingPong.h>
+#include <Client/Systems/NetworkPingPong.h>
 #include <Common/Managers/GameManager.h>
 
 #include <Common/Network/PingPongPackets.h>

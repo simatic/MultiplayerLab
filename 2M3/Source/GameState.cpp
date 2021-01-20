@@ -17,7 +17,7 @@
 #include "Common/Systems/TrajectoryRenderer.h"
 #include "Common/Systems/TrajectorySystem.h"
 #include "Common/Systems/RectShapeRenderer.h"
-#include "Common/Systems/NetworkPingPong.h"
+#include "Client/Systems/NetworkPingPong.h"
 
 #include <iostream>
 
@@ -25,10 +25,10 @@
 #include <Common/Components/CameraTarget.h>
 #include <Common/Systems/CameraSystem.h>
 #include <GridRenderer.h>
-#include <NetworkAddEntities.h>
-#include <NetworkSetTransform.h>
-#include <NetworkWorldState.h>
-#include <NetworkSetColor.h>
+#include <Client/Systems/NetworkAddEntities.h>
+#include <Client/Systems/NetworkSetTransform.h>
+#include <Client/Systems/NetworkWorldState.h>
+#include <Client/Systems/NetworkSetColor.h>
 
 GameState::GameState(StateStack& stack, Context context) :
 	State(stack, context),

@@ -1,4 +1,4 @@
-#include <NetworkWorldState.h>
+#include <Client/Systems/NetworkWorldState.h>
 #include <Common/Managers/GameManager.h>
 
 NetworkWorldState::NetworkWorldState(GameManager* const gameManager) :

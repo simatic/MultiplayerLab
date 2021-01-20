@@ -1,5 +1,5 @@
 #include <Common/Managers/GameManager.h>
-#include <NetworkSetTransform.h>
+#include <Client/Systems/NetworkSetTransform.h>
 #include <Network/SetTransformPacket.h>
 
 // Exemple de traitement d'un packet permettant de bouger une entité
