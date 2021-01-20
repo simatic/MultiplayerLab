@@ -8,11 +8,11 @@ InputPacket::InputPacket(PacketSequenceIndex index, sf::Packet &source): Packet(
     source >> fire;
 }
 
-InputPacket::InputPacket(PacketSequenceIndex index, bool up, bool down, bool right, bool left, bool fire): Packet(index) {
+InputPacket::InputPacket(PacketSequenceIndex index, bool up, bool down, bool left, bool right, bool fire): Packet(index) {
     InputPacket::up = up;
     InputPacket::down = down;
-    InputPacket::right = right;
     InputPacket::left = left;
+    InputPacket::right = right;
     InputPacket::fire = fire;
 }
 

@@ -18,6 +18,8 @@ void NetworkPlayerInputs::update(const sf::Time& dt) {
                 auto inputPacket = std::move(packets.front());
                 packets.pop();
 
+                // TODO: re-broadcast to clients to help their predictions
+
                 ClientID client = inputPacket->getSender();
 
                 auto playerEntity = serverModule->getServer().getClientEntityByID(client);

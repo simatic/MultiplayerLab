@@ -66,6 +66,8 @@ void Interface::render(sf::RenderWindow& window, float clientWidth, float interf
         ImGui::SetNextWindowPos(ImVec2{0, startY});
         ImGui::SetNextWindowSize(ImVec2{clientWidth*2, interfaceHeight});
         if(ImGui::Begin("Graphes", nullptr, flags)) {
+            // TODO: Réajouter la possibilité de passer la souris sur un packet
+
             renderIncomingPackets(clientWidth, interfaceHeight);
             ImGui::SameLine();
 

@@ -14,7 +14,7 @@ private:
 public:
     explicit InputPacket(PacketSequenceIndex index, sf::Packet& source);
 
-    explicit InputPacket(PacketSequenceIndex index, bool up, bool down, bool right, bool left, bool fire);
+    explicit InputPacket(PacketSequenceIndex index, bool up, bool down, bool left, bool right, bool fire);
 
     [[nodiscard]] std::unique_ptr<Packet> handle(INetworkModule* iNetworkModule) const override;
 

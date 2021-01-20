@@ -29,6 +29,8 @@
 #include <Client/Systems/NetworkSetTransform.h>
 #include <Client/Systems/NetworkWorldState.h>
 #include <Client/Systems/NetworkSetColor.h>
+#include <Client/Systems/NetworkSetSpeed.h>
+#include <Client/Systems/NetworkSendInputs.h>
 
 GameState::GameState(StateStack& stack, Context context) :
 	State(stack, context),
@@ -68,7 +70,9 @@ GameState::GameState(StateStack& stack, Context context) :
         NetworkWorldState,
         NetworkAddEntities,
         NetworkSetColor,
-        NetworkSetTransform
+        NetworkSetTransform,
+        NetworkSetSpeed,
+        NetworkSendInputs
     >();
 
     gameManager->updateSystemLists();
