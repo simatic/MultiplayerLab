@@ -12,10 +12,10 @@ NetworkUpdatePositionsAndVelocities::NetworkUpdatePositionsAndVelocities(GameMan
 
 void NetworkUpdatePositionsAndVelocities::update(const sf::Time& dt) {
     timer += dt.asSeconds();
-    if(timer < 0.01) {
+    if(timer < 0.02) {
         return;
     }
-    timer -= 0.01;
+    timer -= 0.02;
     if(auto serverModule = dynamic_cast<ServerNetworkModule*>(gameManager->getNetworkModule())) {
         auto& clients = serverModule->getServer().getClients();
 

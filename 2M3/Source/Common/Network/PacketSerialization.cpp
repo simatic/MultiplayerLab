@@ -43,6 +43,7 @@ std::unique_ptr<Packet> deserializePacket(sf::Packet& packet) {
         case PacketID::Input:
             return std::make_unique<InputPacket>(sequenceIndex, packet);
 
+
         // TODO: ajouter la déserialisation de votre packet
 
         default:

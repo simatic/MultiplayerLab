@@ -2,8 +2,8 @@
 #include "Server/Modules/ServerNetworkModule.h"
 
 ServerNetworkModule::ServerNetworkModule(Server& server, const std::string ip, unsigned short port):
-    INetworkModule("localhost", DEFAULT_PORT, std::move(std::make_unique<ServerNetworkHandler>(ip, port))),
-    networkThread(*dynamic_cast<ServerNetworkHandler*>(this->network.get())),
+    INetworkModule("localhost", DEFAULT_PORT, std::move(std::make_unique<ServerNetworkHandler>(buffer, ip, port))),
+    networkThread(*dynamic_cast<ServerNetworkHandler*>(this->network.get()), buffer),
     server(server) {
     auto handler = dynamic_cast<ServerNetworkHandler*>(network.get());
     handler->setNetworkModule(this);

@@ -9,6 +9,7 @@
 class Interface;
 class DelayCreator;
 class IServerEventsListener;
+class Buffer;
 
 class ServerNetworkHandler: public NetworkHandler {
 private:
@@ -31,7 +32,7 @@ protected:
     PacketSequenceIndex generateNextIndex() override;
 
 public:
-    ServerNetworkHandler(const std::string& ip, unsigned short port);
+    ServerNetworkHandler(Buffer& buffer, const std::string& ip, unsigned short port);
 
     sf::UdpSocket& getSocket();
 

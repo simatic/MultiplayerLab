@@ -4,7 +4,7 @@
 #include "Server/Server.h"
 #include "Server/DelayCreation.h"
 
-DelayCreator::DelayCreator(ServerNetworkHandler& serverNetworkHandler): serverNetwork(serverNetworkHandler) {
+DelayCreator::DelayCreator(ServerNetworkHandler& serverNetworkHandler, Buffer& outputBuffer): outputBuffer(outputBuffer), serverNetwork(serverNetworkHandler) {
     backingThread = std::thread([&](){this->threadCode();});
 }
 
@@ -47,6 +47,7 @@ void DelayCreator::threadCode() {
                         responsePacketWithDelayList.push_back(std::make_unique<PacketWithDelay>(std::move(response), client, outgoingDelayToApply));
                         mutex4ResponsePacketWithDelay.unlock();
                     }
+                    outputBuffer.addPacket(std::move(packet->logicalPacket));
                 }
                 it = packetWithDelayList.erase(it);
             }
