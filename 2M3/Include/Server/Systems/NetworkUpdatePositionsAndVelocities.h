@@ -7,6 +7,9 @@
 
 class NetworkUpdatePositionsAndVelocities : public NetworkSystem<Transform, Kinematics>
 {
+private:
+    float timer = 0;
+
 public:
     explicit NetworkUpdatePositionsAndVelocities(GameManager* const gameManager);
 
