@@ -41,6 +41,7 @@ void ServerNetworkThread::threadCode() {
 
         auto logicalPacket = deserializePacket(packet);
         if(logicalPacket) {
+            logicalPacket->setSender(client.id);
             serverNetwork.triggerEvent(client, NetworkEvent::Event{ServerClock::getInstance().get(), NetworkEvent::Type::PacketReceived,
                                                                    logicalPacket->getSequenceIndex()});
             delayCreator.delayReceivedPacket(client, std::move(logicalPacket));

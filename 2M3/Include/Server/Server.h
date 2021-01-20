@@ -31,6 +31,10 @@ public:
 
     void onEvent(const UdpClient& client, NetworkEvent::Event event) override;
 
+    std::shared_ptr<Entity> getClientEntityByID(ClientID client) const;
+
+    const std::vector<std::shared_ptr<UdpClient>>& getClients();
+
     ~Server();
 
 private:

@@ -64,3 +64,11 @@ Packet::Packet(PacketSequenceIndex index): sequenceIndex(index) {}
 PacketSequenceIndex Packet::getSequenceIndex() const {
     return sequenceIndex;
 }
+
+ClientID Packet::getSender() const {
+    return sender;
+}
+
+void Packet::setSender(ClientID id) {
+    sender = id;
+}

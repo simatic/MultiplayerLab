@@ -23,7 +23,7 @@ public:
     void addEntity(std::shared_ptr<Entity> entity);
     void addEntityWithID(std::shared_ptr<Entity> entity, std::uint32_t id);
     void addEntityWithIDNextFrame(std::shared_ptr<Entity> entity, std::uint32_t id);
-    std::shared_ptr<Entity> getEntityWithID(std::uint32_t id);
+    std::shared_ptr<Entity> getEntityWithID(std::uint32_t id) const;
     void removeEntityNextFrame(Entity* entity);
     void removeEntity(Entity* entity);
 
@@ -44,7 +44,7 @@ public:
     void              setKeyBinding(KeyBinding* keys);
 
     template <typename Module, typename... Args>
-    void            setNetworkModule(Args... args);
+    void            setNetworkModule(Args&&... args);
     INetworkModule* getNetworkModule() const;
 
     void clearAll();
@@ -112,7 +112,7 @@ void GameManager::addNetworkSystems()
 }
 
 template <typename Module, typename... Args>
-void GameManager::setNetworkModule(Args... args)
+void GameManager::setNetworkModule(Args&&... args)
 {
     networkModule = std::make_unique<Module>(args...);
 }

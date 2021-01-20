@@ -3,8 +3,6 @@
 #include "Common/Network/Network.h"
 #include "Server/NetworkSettings.h"
 
-using ClientID = unsigned int;
-
 class ServerNetworkHandler;
 
 /// Client connected to the server

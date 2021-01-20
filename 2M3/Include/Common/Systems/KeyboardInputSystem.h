@@ -1,8 +1,10 @@
 #pragma once
+
+#include <PlayableCarInput.h>
 #include "Common/Systems/System.h"
 #include "Common/Components/CarInput.h"
 
-class KeyboardInputSystem : public LogicSystem<CarInput>
+class KeyboardInputSystem : public LogicSystem<PlayableCarInput>
 {
 public:
 	explicit KeyboardInputSystem(GameManager* const gameManager);

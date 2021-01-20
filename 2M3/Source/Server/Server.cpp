@@ -3,6 +3,15 @@
 #include <Network/WorldStatePacket.h>
 #include <CopiableFromPrefab.h>
 #include <Common/Network/SetColorPacket.h>
+#include <Server/Systems/NetworkPlayerInputs.h>
+#include <CarMovementSystem.h>
+#include <CollisionSystem.h>
+#include <CarCollisionHandling.h>
+#include <GunSystem.h>
+#include <BulletSystem.h>
+#include <CarDeath.h>
+#include <MovementSystem.h>
+#include <Server/Systems/NetworkUpdatePositionsAndVelocities.h>
 #include "Common/Components/Collider.h"
 #include "Utility.h"
 #include "Server/Server.h"
@@ -10,7 +19,7 @@
 
 Server::Server(const std::string& ip, unsigned short port): game()
 {
-    game.setNetworkModule<ServerNetworkModule>(ip, port);
+    game.setNetworkModule<ServerNetworkModule>(*this, ip, port);
     initGame();
     gameThread = std::thread([&]() { runGame(); });
     getNetworkHandler().registerListener(this);
@@ -32,7 +41,22 @@ void Server::initGame() {
     createWall(-1, 0, 90.0f);
     createWall(+1, 0, 90.0f);
 
-    // TODO: add systems
+    // TODO: add more systems
+    game.addNetworkSystems<
+            NetworkPlayerInputs,
+
+            NetworkUpdatePositionsAndVelocities
+    >();
+
+    game.addLogicSystems<
+            CarMovementSystem,
+            CollisionSystem,
+            CarCollisionSystem,
+            GunSystem,
+           // FIXME: why does BulletSystem crash the game?
+            CarDeath,
+            MovementSystem
+    >();
 }
 
 void Server::runGame() {
@@ -162,4 +186,16 @@ void Server::onEvent(const UdpClient& client, NetworkEvent::Event event) {
 
         makePlayerJoin(client);
     }
+}
+
+std::shared_ptr<Entity> Server::getClientEntityByID(ClientID client) const {
+    auto entityIDLocation = playerEntityIDs.find(client);
+    if(entityIDLocation != playerEntityIDs.end()) {
+        return game.getEntityWithID(entityIDLocation->second);
+    }
+    return nullptr;
+}
+
+const std::vector<std::shared_ptr<UdpClient>>& Server::getClients() {
+    return getNetworkHandler().getClients();
 }

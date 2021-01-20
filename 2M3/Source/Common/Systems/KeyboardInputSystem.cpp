@@ -2,14 +2,14 @@
 #include "Common/Managers/GameManager.h"
 
 KeyboardInputSystem::KeyboardInputSystem(GameManager* const gameManager) :
-	LogicSystem<CarInput>(gameManager)
+	LogicSystem<PlayableCarInput>(gameManager)
 {}
 
 void KeyboardInputSystem::update(const sf::Time&)
 {
 	for (Entity* entity: entities)
 	{
-		CarInput* inputs = entity->getComponent<CarInput>();
+        CarInput* inputs = entity->getComponent<PlayableCarInput>()->inputs;
 		
 		if (gameManager->getKeyBinding() != nullptr)
 		{

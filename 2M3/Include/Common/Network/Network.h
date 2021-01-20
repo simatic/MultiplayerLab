@@ -3,6 +3,8 @@
 #include <SFML/Network.hpp>
 #include <iostream>
 
+using ClientID = uint32_t;
+
 class INetworkModule;
 
 enum PacketID: sf::Uint32 {
@@ -34,12 +36,20 @@ private:
     /// Used to keep track of sequences (Client sends A->Upon reception, the Server sends B as an answer with the same PacketSequenceIndex)
     PacketSequenceIndex sequenceIndex;
 
+    /// ID of the client who sent this packet. Will be UINT32_MAX if the sender is the server.
+    ClientID sender = std::numeric_limits<ClientID>::max();
+
 protected:
     explicit Packet(PacketSequenceIndex index);
 
 public:
     /// used to represent a packet inside the server interface
     PacketSequenceIndex getSequenceIndex() const;
+
+    /// ID of the client who sent this packet. Will be UINT32_MAX if the sender is the server.
+    ClientID getSender() const;
+
+    void setSender(ClientID id);
 
     /// What is this packet supposed to do?
     [[nodiscard]] virtual std::unique_ptr<Packet> handle(INetworkModule* iNetworkModule) const = 0;

@@ -260,7 +260,7 @@ INetworkModule* GameManager::getNetworkModule() const
     return networkModule.get();
 }
 
-std::shared_ptr<Entity> GameManager::getEntityWithID(std::uint32_t id) {
+std::shared_ptr<Entity> GameManager::getEntityWithID(std::uint32_t id) const {
     // not using operator[] to avoid filling the map with nullptrs
     auto location = entities.find(id);
     if(location == entities.end()) { // if not found, check in entities to add next frame
