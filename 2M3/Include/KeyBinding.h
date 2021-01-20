@@ -13,8 +13,8 @@ namespace PlayerAction
 	{
 		Accelerate,
 		Brake,
-		TurnRight,
 		TurnLeft,
+		TurnRight,
 		DoAction,
 		ChangeAction,
 		Count

@@ -4,6 +4,7 @@
 #include "KeyBinding.h"
 #include "StateStack.h"
 #include "Client.h"
+#include "Settings.h"
 #include "ThreadSafeQueue.h"
 #include "Profiling.h"
 
@@ -27,7 +28,7 @@ public:
 	};
 
 public:
-	MainState(StateStack& stack, Context context, sf::RenderWindow* window);
+	MainState(StateStack& stack, Context context, sf::RenderWindow* window, Settings* settings);
 	~MainState();
 
 	bool update(sf::Time dt) override;
@@ -79,4 +80,7 @@ private:
 	std::weak_ptr<Server> serverReference{};
 
 	std::unique_ptr<Interface> serverInterface = nullptr;
+
+	/// Settings struct to hold keybindings
+	Settings* settings;
 };

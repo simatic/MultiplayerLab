@@ -26,11 +26,10 @@ Client::Client(int uid, sf::Mutex& mutex, int renderTextureWidth, int renderText
 	_renderTexture->create(renderTextureWidth, renderTextureHeight);
 }
 
-void Client::initialize(int keyBindingConfiguration)
-{
+void Client::initialize(KeyBinding& keyBinding) {
 	_textures.reset(new TextureHolder());
-	_fonts.reset( new FontHolder());
-	
+	_fonts.reset(new FontHolder());
+
 	_fonts->load(Fonts::Main, "Media/Sansation.ttf");
 
 	_textures->load(Textures::TitleScreen, "Media/Textures/TitleScreen.png");
@@ -38,33 +37,37 @@ void Client::initialize(int keyBindingConfiguration)
 	_textures->load(Textures::Buttons, "Media/Textures/Button.png");
 	_textures->load(Textures::Car, "Media/Textures/Player.png");
 	_textures->load(Textures::Bullet, "Media/Textures/Bullet.png");
-    _textures->load(Textures::GridElement, "Media/Textures/GridElement.png");
+	_textures->load(Textures::GridElement, "Media/Textures/GridElement.png");
 
 	_statisticsText.setFont(_fonts->get(Fonts::Main));
 	_statisticsText.setPosition(5.f, 5.f);
 	_statisticsText.setCharacterSize(10u);
 
-    // prepare border
-    sf::Color borderColor = sf::Color::Red;
-    if(_uid != 0) {
-        borderColor = sf::Color::Green;
-    }
-    _associatedColor = borderColor;
+	// prepare border
+	sf::Color borderColor = sf::Color::Red;
+	if (_uid != 0) {
+		borderColor = sf::Color::Green;
+	}
+	_associatedColor = borderColor;
 
-    constexpr float borderWidth = 3.0f;
-    const float screenWidth = _renderTexture->getSize().x;
-    const float screenHeight = _renderTexture->getSize().y;
+	constexpr float borderWidth = 3.0f;
+	const float screenWidth = _renderTexture->getSize().x;
+	const float screenHeight = _renderTexture->getSize().y;
 
-    _borderRectangle.setSize(sf::Vector2f(screenWidth-borderWidth*2,screenHeight-borderWidth*2));
-    _borderRectangle.setPosition(borderWidth, borderWidth);
-    _borderRectangle.setOutlineColor(borderColor);
-    _borderRectangle.setOutlineThickness(borderWidth);
-    _borderRectangle.setFillColor(sf::Color::Transparent);
+	_borderRectangle.setSize(sf::Vector2f(screenWidth - borderWidth * 2, screenHeight - borderWidth * 2));
+	_borderRectangle.setPosition(borderWidth, borderWidth);
+	_borderRectangle.setOutlineColor(borderColor);
+	_borderRectangle.setOutlineThickness(borderWidth);
+	_borderRectangle.setFillColor(sf::Color::Transparent);
 
-    _keybinding.reset(new KeyBinding(keyBindingConfiguration));
+	_keybinding = std::make_shared<KeyBinding>(keyBinding);
 	_stateStack.reset(new StateStack(State::Context(_uid, *_renderTexture, *_textures, *_fonts, *_keybinding, *_applicationMutex, _associatedColor)));
 	registerStates();
 	_stateStack->pushState(States::Title);
+}
+
+void Client::initialize(int keyBindingConfiguration) {
+	initialize(KeyBinding(keyBindingConfiguration));
 }
 
 void Client::run() {
@@ -203,4 +206,8 @@ void Client::registerStates()
 
 sf::Color Client::getAssociatedColor() {
     return _associatedColor;
+}
+
+void Client::setKeyBinding(KeyBinding& keyBinding) {
+	_keybinding = std::make_shared<KeyBinding>(keyBinding);
 }

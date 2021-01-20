@@ -8,6 +8,7 @@
 #include "Client.h"
 #include "ThreadSafeQueue.h"
 #include "Profiling.h"
+#include "Settings.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -32,7 +33,10 @@ private:
 	sf::RenderWindow mWindow;
 	bool _isMainWindowOpen;
 
+	States::ID activeState;
+
 	std::unique_ptr<StateStack> stateStack;
+	std::unique_ptr<Settings> settings;
 };
 
 #endif // BOOK_APPLICATION_HPP

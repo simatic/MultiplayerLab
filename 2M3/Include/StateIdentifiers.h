@@ -17,6 +17,7 @@ namespace States
 		HostGame,
 		JoinGame,
 		Main,
+		GlobalSettings,
 	};
 }
 

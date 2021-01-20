@@ -18,13 +18,15 @@ MainState::ClientInfo::ClientInfo(int uid, sf::Mutex& mutex, int renderTextureWi
 	client = std::make_unique <Client>(uid, mutex, renderTextureWidth, renderTextureHeight, queueToDraw, queueToDisplay);
 }
 
-MainState::MainState(StateStack& stack, Context context, sf::RenderWindow* window) :
+MainState::MainState(StateStack& stack, Context context, sf::RenderWindow* window, Settings* settings) :
 	State(stack, context),
 	_clientCount(0),
 	_mutex(std::make_unique<sf::Mutex>()),
 	_clientThreadLaunchedIndex(0),
-	window(window)
+	window(window),
+	settings(settings)
 {
+	ImGui::SFML::Init(*window);
 	launchServer();
 	addClientThread();
 	addClientThread();
@@ -37,6 +39,11 @@ MainState::MainState(StateStack& stack, Context context, sf::RenderWindow* windo
 }
 
 bool MainState::update(sf::Time dt) {
+	if (settings->changed) {
+		_clientsInfo[0]->client->setKeyBinding(settings->playerAKeyBinding);
+		_clientsInfo[1]->client->setKeyBinding(settings->playerBKeyBinding);
+	}
+
 	bool serverStillRunning = false;
 	if (auto server = serverReference.lock()) {
 		serverStillRunning = server->isRunning();
@@ -101,11 +108,11 @@ void MainState::launchClientThread() {
 	Client* client(_clientsInfo[clientUID]->client.get());
 	_mutex->unlock();
 	if (clientUID == 0) {
-		client->initialize(2);
+		client->initialize(settings->playerAKeyBinding);
 	}
 	else {
 		sf::sleep(sf::seconds(0.01));
-		client->initialize(1);
+		client->initialize(settings->playerBKeyBinding);
 	}
 	client->run();
 }

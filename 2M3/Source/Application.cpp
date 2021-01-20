@@ -4,6 +4,7 @@
 #include "StateIdentifiers.h"
 #include "TitleState.h"
 #include "MenuState.h"
+#include "GlobalSettingsState.h"
 #include "SettingsState.h"
 #include "GameState.h"
 #include "MainState.h"
@@ -30,7 +31,8 @@
 Application::Application() :
 	mWindow(sf::VideoMode::getDesktopMode()/*sf::VideoMode(1600, 900)*/, "2M3", sf::Style::Close | sf::Style::Resize),
 	_isMainWindowOpen(false),
-	stateStack(std::make_unique<StateStack>(State::Context()))
+	stateStack(std::make_unique<StateStack>(State::Context())),
+	settings(std::make_unique<Settings>())
 {
 	mWindow.setKeyRepeatEnabled(false);
 	mWindow.setVerticalSyncEnabled(true);
@@ -50,8 +52,10 @@ Application::Application() :
 	// TODO remove this because it became useless
 	_isMainWindowOpen = mWindow.isOpen();
 
-	stateStack->registerState<MainState, sf::RenderWindow*>(States::Main, &mWindow);
+	stateStack->registerState<MainState, sf::RenderWindow*, Settings*>(States::Main, &mWindow, settings.get());
+	stateStack->registerState<GlobalSettingsState, sf::RenderWindow*, Settings*>(States::GlobalSettings, &mWindow, settings.get());
 	stateStack->pushState(States::Main);
+	activeState = States::Main;
 }
 
 void Application::run() {
@@ -72,6 +76,17 @@ void Application::manageInputs() {
         if (event.type == sf::Event::Closed) {
 		    quitApplication();
 		}
+		else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Key::Escape) {
+			stateStack->popState();
+			if (activeState == States::Main) {
+				stateStack->pushState(States::GlobalSettings);
+				activeState = States::GlobalSettings;
+			}
+			else {
+				stateStack->pushState(States::Main);
+				activeState = States::Main;
+			}
+		}
 		else {
 			stateStack->handleEvent(event);
 		}
@@ -79,7 +94,7 @@ void Application::manageInputs() {
 }
 
 void Application::render() {
-	mWindow.clear();
+	mWindow.clear(sf::Color(15, 15, 15));
 	stateStack->draw();
 }
 
