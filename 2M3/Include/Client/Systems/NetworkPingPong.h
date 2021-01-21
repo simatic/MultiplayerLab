@@ -8,6 +8,9 @@
 
 class NetworkPingPong : public NetworkSystem<Transform>
 {
+private:
+    float timer;
+
 public:
 	explicit NetworkPingPong(GameManager* const gameManager);
 

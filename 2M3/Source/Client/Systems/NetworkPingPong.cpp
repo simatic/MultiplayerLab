@@ -8,6 +8,11 @@ NetworkPingPong::NetworkPingPong(GameManager* const gameManager) :
 {}
 
 void NetworkPingPong::update(const sf::Time& dt) {
+    timer += dt.asSeconds();
+    if(timer < 1) {
+        return;
+    }
+    timer -= 1;
 	gameManager->getNetworkModule()->createAndSend<PingPacket>();
 	if (!gameManager->getNetworkModule()->getBuffer().empty()) {
 	    auto packets = gameManager->getNetworkModule()->getBuffer().extractPacketsOfType<PongPacket>();
