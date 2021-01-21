@@ -63,7 +63,7 @@ class State
 
 
 	private:
-		StateStack*			mStack;
+		StateStack*			mStack = nullptr;
 		Context				mContext;
 };
 

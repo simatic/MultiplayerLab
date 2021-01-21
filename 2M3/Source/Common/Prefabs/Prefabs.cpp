@@ -32,7 +32,7 @@ std::shared_ptr<Entity> Prefab::createCar(const bool renderable) {
         collider,
         Health(100, 100),
         HealthBar(sf::Vector2f(50, 10), sf::Color::Red, sf::Color::Green, 0.5f),
-        CarEngine(1000, 1000 / 3, 200, 24, 800, 3.1415f / 3, 0.001f, sf::Vector2f(1, 0)),
+        CarEngine(1000, 1000.0f / 3.0f, 200, 24, 800, 3.1415f / 3, 0.001f, sf::Vector2f(1, 0)),
         Gun(sf::Vector2f(1, 0), sf::seconds(0.1)),
         CarInput(),
         CopiableFromPrefab(Prefab::Type::Car)

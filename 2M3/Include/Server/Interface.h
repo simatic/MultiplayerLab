@@ -11,17 +11,17 @@
 class Interface: public IServerEventsListener {
 
     struct PacketInfo {
-        PacketSequenceIndex sequenceIndex;
+        PacketSequenceIndex sequenceIndex = 0;
         NetworkEvent::Type packetType;
-        float timestamp;
+        float timestamp = 0.0f;
     };
 
     struct PacketLifecycle {
-        PacketSequenceIndex sequenceIndex;
+        PacketSequenceIndex sequenceIndex = 0;
 
         // Time packet A -> Time packet B
-        float timestampA;
-        float timestampB;
+        float timestampA = 0.0f;
+        float timestampB = 0.0f;
     };
 
     struct CompiledEvents {

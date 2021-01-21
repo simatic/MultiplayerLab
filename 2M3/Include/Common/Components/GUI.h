@@ -9,7 +9,7 @@ struct GUI : public IdentifiableComponent<GUI>
 {
     GUI(Entity* car);
 
-    Entity*             car;
+    Entity*             car = nullptr;
     sf::RectangleShape  mSpeedometer;
 	sf::CircleShape     mSpeedometerBackground;
 };

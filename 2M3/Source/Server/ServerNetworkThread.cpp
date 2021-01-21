@@ -18,7 +18,6 @@ void ServerNetworkThread::threadCode() {
         return;
     }
 
-    sf::UdpSocket* socketPtr = &socket;
     auto& delayCreator = serverNetwork.getDelayCreator();
     std::thread disconnectNonConnected([&]() {serverNetwork.updateNonConnectedClients();});
 

@@ -71,7 +71,6 @@ void ClientNetworkThread::threadCode() {
         //EchoPacket(number).send(socket, ip, remotePort);
         sf::sleep(sf::milliseconds(1));
     }
-    return;
 }
 
 ClientNetworkThread::ClientNetworkThread(NetworkHandler& handler, Buffer& outputBuffer, const std::string& host, unsigned short port): network(handler), outputBuffer(outputBuffer), host(host), remotePort(port) {

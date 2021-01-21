@@ -33,7 +33,7 @@ public:
 
 protected:
 	Signature signature;
-	GameManager* const gameManager;
+	GameManager* const gameManager = nullptr;
 	std::set<Entity*> entities;
 };
 

@@ -1,7 +1,7 @@
 #include "Common/Entity.h"
 
 Entity::Entity(const Entity& entity)
-{
+ : enable_shared_from_this() {
     for (auto&& [id, component]: entity.components)
     {
         components.emplace(id, std::make_unique<Component>(*component));

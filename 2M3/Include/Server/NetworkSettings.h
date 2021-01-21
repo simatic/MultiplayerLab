@@ -4,10 +4,10 @@
 
 class NetworkSettings{
 private:
-    float percentageOutGoingPacketLost;
-    float percentageInComingPacketLost;
-    float incomingDelay;
-    float outgoingDelay;
+    float percentageOutGoingPacketLost = 0.0f;
+    float percentageInComingPacketLost = 0.0f;
+    float incomingDelay = 0.0f;
+    float outgoingDelay = 0.0f;
 
 public:
     NetworkSettings();

@@ -8,5 +8,5 @@ struct PlayableCarInput : public IdentifiableComponent<PlayableCarInput>
     PlayableCarInput(CarInput* inputs);
     PlayableCarInput(const PlayableCarInput& toCopy);
 
-    CarInput* inputs;
+    CarInput* inputs = nullptr;
 };

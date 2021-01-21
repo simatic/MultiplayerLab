@@ -1,7 +1,7 @@
 #include "Common/Managers/ResourceManager.h"
 #include <cstdlib>
 
-ResourceManager* ResourceManager::instance = 0;
+ResourceManager* ResourceManager::instance = nullptr;
 
 ResourceManager::ResourceManager()
 {
@@ -10,7 +10,7 @@ ResourceManager::ResourceManager()
 
 void ResourceManager::cleanUp()
 {
-    if (instance != 0)
-        delete instance;
-    instance = 0;
+    if (instance != nullptr)
+        free(instance);
+    instance = nullptr;
 }
