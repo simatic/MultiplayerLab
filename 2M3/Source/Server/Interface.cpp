@@ -38,8 +38,8 @@ void Interface::render(sf::RenderWindow& window, float clientWidth, float interf
         const ImVec4 colors[] = {
                 ImVec4(0.0f, 0.0f, 1.0f, 1.0f), // server
                 ImVec4(1.0f, 0.0f, 0.0f, 1.0f), // client 0
-                ImVec4(0.0f, 1.0f, 0.0f, 1.0f), // client 1
                 ImVec4(1.0f, 0.0f, 0.0f, 1.0f), // links from client 0
+                ImVec4(0.0f, 1.0f, 0.0f, 1.0f), // client 1
                 ImVec4(0.0f, 1.0f, 0.0f, 1.0f), // links from client 1
         };
         ImPlot::SetColormap(colors, 5);
@@ -96,7 +96,7 @@ void Interface::renderIncomingGraph() {
 
     auto yFlags = ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels;
     // TODO: merge code with incoming?
-    if(ImPlot::BeginPlot("Graphe des packets en entrée", "Temps", nullptr, ImVec2(-1,0), ImPlotFlags_None, ImPlotAxisFlags_None, yFlags)) {
+    if(ImPlot::BeginPlot("Graphe des packets en entrée", "Time (in seconds)", nullptr, ImVec2(-1,0), ImPlotFlags_None, ImPlotAxisFlags_None, yFlags)) {
         if(ImPlot::IsPlotHovered()) {
             zoomFactor -= ImGui::GetIO().MouseWheel/10.0f * zoomFactor;
 
@@ -167,7 +167,7 @@ void Interface::renderOutgoingGraph() {
     auto yFlags = ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels;
 
     // TODO: merge code with outgoing?
-    if(ImPlot::BeginPlot("Graphe des packets en sortie", "Temps", nullptr, ImVec2(-1,0), ImPlotFlags_None, ImPlotAxisFlags_None, yFlags)) {
+    if(ImPlot::BeginPlot("Graphe des packets en sortie", "Time (in seconds)", nullptr, ImVec2(-1,0), ImPlotFlags_None, ImPlotAxisFlags_None, yFlags)) {
         if(ImPlot::IsPlotHovered()) {
             zoomFactor -= ImGui::GetIO().MouseWheel/10.0f;
 
