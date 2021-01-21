@@ -240,7 +240,7 @@ void Interface::renderIncomingPackets(float clientWidth, float height) {
                 "Client in #1",
         };
         ImGui::BeginChild(ids[i], ImVec2(width/2.0f, 0));
-        ImGui::TextColored(TITLE_COLOR, "Client #%llu", i+1);
+        ImGui::TextColored(TITLE_COLOR, "Client #%lu", static_cast<unsigned long>(i+1));
 
         auto& client = *clients[i];
         ImGui::SetNextItemWidth(width/4.0f);
@@ -270,7 +270,7 @@ void Interface::renderOutcomingPackets(float clientWidth, float height) {
                 "Client out #1",
         };
         ImGui::BeginChild(ids[i], ImVec2(width/2.0f, 0));
-        ImGui::TextColored(TITLE_COLOR, "Client #%llu", i+1);
+        ImGui::TextColored(TITLE_COLOR, "Client #%lu", static_cast<unsigned long>(i+1));
 
         auto& client = *clients[i];
         ImGui::SetNextItemWidth(width/4.0f);
