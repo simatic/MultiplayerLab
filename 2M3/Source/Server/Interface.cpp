@@ -57,8 +57,8 @@ void Interface::render(sf::RenderWindow& window, float clientWidth, float interf
 
     if(clients.empty()) {
         ImGui::SetNextWindowPos(ImVec2{clientWidth, startY + interfaceHeight / 2.0f});
-        if(ImGui::Begin("En attente de clients", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove)) {
-            ImGui::Text("Les fenêtres des clients arriveront ici quand ils se connecteront.");
+        if(ImGui::Begin("Waiting clients", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove)) {
+            ImGui::Text("Client windows will appear in this area once connected.");
         }
         ImGui::End();
     } else {
@@ -86,7 +86,7 @@ void Interface::renderIncomingGraph() {
     static bool pauseGraphScroll = false;
     static float zoomFactor = 0.015f;
 
-    ImGui::Checkbox("Mettre en pause le scrolling", &pauseGraphScroll);
+    ImGui::Checkbox("Pause scrolling", &pauseGraphScroll);
 
     float time = ServerClock::getInstance().asSeconds();
 
@@ -96,7 +96,7 @@ void Interface::renderIncomingGraph() {
 
     auto yFlags = ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels;
     // TODO: merge code with incoming?
-    if(ImPlot::BeginPlot("Graphe des packets en entrée", "Time (in seconds)", nullptr, ImVec2(-1,0), ImPlotFlags_None, ImPlotAxisFlags_None, yFlags)) {
+    if(ImPlot::BeginPlot("Incoming packets", "Time (in seconds)", nullptr, ImVec2(-1,0), ImPlotFlags_None, ImPlotAxisFlags_None, yFlags)) {
         if(ImPlot::IsPlotHovered()) {
             zoomFactor -= ImGui::GetIO().MouseWheel/10.0f * zoomFactor;
 
@@ -105,7 +105,7 @@ void Interface::renderIncomingGraph() {
 
         // TODO: window data to avoid FPS drops
 
-        ImPlot::PlotScatterG("Packet reçu", [](void* ptr, int index) {
+        ImPlot::PlotScatterG("Packets sent by the server", [](void* ptr, int index) {
             auto* timestamps = static_cast<float*>(ptr);
             float timestamp = timestamps[index];
             return ImPlotPoint(timestamp, 0);
@@ -114,7 +114,7 @@ void Interface::renderIncomingGraph() {
         if(serverNetwork.getClients().size() > 0) {
             auto& client0Packets = clientEvents[serverNetwork.getClients()[0]->id];
 
-            ImPlot::PlotScatterG("Packet envoyé par le client 1", [](void* ptr, int index) {
+            ImPlot::PlotScatterG("Packets sent by client 1", [](void* ptr, int index) {
                 auto* timestamps = static_cast<float*>(ptr);
                 float timestamp = timestamps[index];
                 return ImPlotPoint(timestamp, 1);
@@ -126,13 +126,13 @@ void Interface::renderIncomingGraph() {
                 for(auto& link : client0Packets.receptionLinks) {
                     float xs[2] = {link.timestampA, link.timestampB};
                     float ys[2] = {1, 0}; // client->server
-                    ImPlot::PlotLine("Trajet des packets du client 1", xs, ys, 2);
+                    ImPlot::PlotLine("Packet trips from client 1", xs, ys, 2);
                 }
             }
 
             if(serverNetwork.getClients().size() > 1) {
                 auto& client1Packets = clientEvents[serverNetwork.getClients()[1]->id];
-                ImPlot::PlotScatterG("Packet envoyé par le client 2", [](void *ptr, int index) {
+                ImPlot::PlotScatterG("Packets sent by client 2", [](void *ptr, int index) {
                     auto *timestamps = static_cast<float *>(ptr);
                     float timestamp = timestamps[index];
                     return ImPlotPoint(timestamp, -1);
@@ -143,7 +143,7 @@ void Interface::renderIncomingGraph() {
                     for (auto& link : client1Packets.receptionLinks) {
                         float xs[2] = {link.timestampA, link.timestampB};
                         float ys[2] = {-1, 0}; // client->server
-                        ImPlot::PlotLine("Trajet des packets du client 2", xs, ys, 2);
+                        ImPlot::PlotLine("Packet trips from client 2", xs, ys, 2);
                     }
                 }
             }
@@ -156,7 +156,7 @@ void Interface::renderOutgoingGraph() {
     static bool pauseGraphScroll = false;
     static float zoomFactor = 0.015f;
 
-    ImGui::Checkbox("Mettre en pause le scrolling", &pauseGraphScroll);
+    ImGui::Checkbox("Pause scrolling", &pauseGraphScroll);
 
     float time = ServerClock::getInstance().asSeconds();
 
@@ -167,7 +167,7 @@ void Interface::renderOutgoingGraph() {
     auto yFlags = ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels;
 
     // TODO: merge code with outgoing?
-    if(ImPlot::BeginPlot("Graphe des packets en sortie", "Time (in seconds)", nullptr, ImVec2(-1,0), ImPlotFlags_None, ImPlotAxisFlags_None, yFlags)) {
+    if(ImPlot::BeginPlot("Outgoing packets", "Time (in seconds)", nullptr, ImVec2(-1,0), ImPlotFlags_None, ImPlotAxisFlags_None, yFlags)) {
         if(ImPlot::IsPlotHovered()) {
             zoomFactor -= ImGui::GetIO().MouseWheel/10.0f;
 
@@ -176,7 +176,7 @@ void Interface::renderOutgoingGraph() {
 
         // TODO: window data to avoid FPS drops
 
-        ImPlot::PlotScatterG("Packet envoyé", [](void *ptr, int index) {
+        ImPlot::PlotScatterG("Packets sent by the server", [](void *ptr, int index) {
             auto *timestamps = static_cast<float *>(ptr);
             float timestamp = timestamps[index];
             return ImPlotPoint(timestamp, 0);
@@ -185,7 +185,7 @@ void Interface::renderOutgoingGraph() {
         if(serverNetwork.getClients().size() > 0) {
             auto& client0Packets = clientEvents[serverNetwork.getClients()[0]->id];
 
-            ImPlot::PlotScatterG("Packets envoyés au client 1", [](void *ptr, int index) {
+            ImPlot::PlotScatterG("Packets sent by client 1", [](void *ptr, int index) {
                 auto *timestamps = static_cast<float *>(ptr);
                 float timestamp = timestamps[index];
                 return ImPlotPoint(timestamp, 1);
@@ -197,13 +197,13 @@ void Interface::renderOutgoingGraph() {
                 for (auto& link : client0Packets.transmissionLinks) {
                     float xs[2] = {link.timestampA, link.timestampB};
                     float ys[2] = {0, 1}; // client->server
-                    ImPlot::PlotLine("Trajet des packets vers le client 1", xs, ys, 2);
+                    ImPlot::PlotLine("Packet trips from client 1", xs, ys, 2);
                 }
             }
 
             if(serverNetwork.getClients().size() > 1) {
                 auto& client1Packets = clientEvents[serverNetwork.getClients()[1]->id];
-                ImPlot::PlotScatterG("Packets envoyés au client 2", [](void *ptr, int index) {
+                ImPlot::PlotScatterG("Packets sent by client 2", [](void *ptr, int index) {
                     auto *timestamps = static_cast<float *>(ptr);
                     float timestamp = timestamps[index];
                     return ImPlotPoint(timestamp, -1);
@@ -214,7 +214,7 @@ void Interface::renderOutgoingGraph() {
                     for (auto& link : client1Packets.transmissionLinks) {
                         float xs[2] = {link.timestampA, link.timestampB};
                         float ys[2] = {0, -1}; // client->server
-                        ImPlot::PlotLine("Trajet des packets vers le client 2", xs, ys, 2);
+                        ImPlot::PlotLine("Packet trips from client 2", xs, ys, 2);
                     }
                 }
             }
@@ -244,10 +244,10 @@ void Interface::renderIncomingPackets(float clientWidth, float height) {
 
         auto& client = *clients[i];
         ImGui::SetNextItemWidth(width/4.0f);
-        DragFloat("Pertes de paquet en entrée", [&]{return client.settings.getPercentageInComingPacketLost();}, [&](float v){client.settings.setPercentageInComingPacketLost(v);});
+        DragFloat("Incoming packet loss", [&]{return client.settings.getPercentageInComingPacketLost();}, [&](float v){client.settings.setPercentageInComingPacketLost(v);});
 
         ImGui::SetNextItemWidth(width/4.0f);
-        DragFloat("Délai avant réception", [&]{return client.settings.getIncomingDelay();}, [&](float v){client.settings.setIncomingDelay(v);}, 0, MAX_DELAY);
+        DragFloat("Delay before receiving", [&]{return client.settings.getIncomingDelay();}, [&](float v){client.settings.setIncomingDelay(v);}, 0, MAX_DELAY);
         ImGui::EndChild();
     }
 
@@ -274,10 +274,10 @@ void Interface::renderOutcomingPackets(float clientWidth, float height) {
 
         auto& client = *clients[i];
         ImGui::SetNextItemWidth(width/4.0f);
-        DragFloat("Pertes de paquet en sortie", [&]{return client.settings.getPercentageOutGoingPacketLost();}, [&](float v){client.settings.setPercentageOutGoingPacketLost(v);});
+        DragFloat("Outgoing packet loss", [&]{return client.settings.getPercentageOutGoingPacketLost();}, [&](float v){client.settings.setPercentageOutGoingPacketLost(v);});
 
         ImGui::SetNextItemWidth(width/4.0f);
-        DragFloat("Délai avant envoi", [&]{return client.settings.getOutgoingDelay();}, [&](float v){client.settings.setOutgoingDelay(v);}, 0, MAX_DELAY);
+        DragFloat("Delay before sending", [&]{return client.settings.getOutgoingDelay();}, [&](float v){client.settings.setOutgoingDelay(v);}, 0, MAX_DELAY);
         ImGui::EndChild();
     }
 
