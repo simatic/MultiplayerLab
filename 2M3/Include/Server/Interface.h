@@ -65,6 +65,11 @@ private:
     void renderIncomingGraph();
     void renderOutgoingGraph();
 
+    std::size_t findLeftSideOfWindow(float time, const std::vector<float>& timestamps);
+    std::size_t findRightSideOfWindow(float time, const std::vector<float>& timestamps);
+    std::size_t findLeftSideOfWindow(float time, const std::vector<PacketLifecycle>& timestamps);
+    std::size_t findRightSideOfWindow(float time, const std::vector<PacketLifecycle>& timestamps);
+
 public:
     explicit Interface(ServerNetworkHandler& handler);
 

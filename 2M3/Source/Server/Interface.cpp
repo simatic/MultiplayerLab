@@ -104,26 +104,43 @@ void Interface::renderIncomingGraph() {
         }
 
         // TODO: window data to avoid FPS drops
+        float leftTime = ImPlot::GetPlotLimits().X.Min;
+        float rightTime = ImPlot::GetPlotLimits().X.Max;
 
-        ImPlot::PlotScatterG("Packets sent by the server", [](void* ptr, int index) {
-            auto* timestamps = static_cast<float*>(ptr);
-            float timestamp = timestamps[index];
-            return ImPlotPoint(timestamp, 0);
-        }, afterDelayTimestamps.data(), afterDelayTimestamps.size());
+        {
+            std::lock_guard lk(linkAccess);
+            std::size_t leftSideOfWindow = findLeftSideOfWindow(leftTime, afterDelayTimestamps);
+            std::size_t rightSideOfWindow = findRightSideOfWindow(rightTime, afterDelayTimestamps);
+
+            ImPlot::PlotScatterG("Packets sent by the server", [](void *ptr, int index) {
+                auto *timestamps = static_cast<float *>(ptr);
+                float timestamp = timestamps[index];
+                return ImPlotPoint(timestamp, 0);
+            }, afterDelayTimestamps.data()+leftSideOfWindow, rightSideOfWindow-leftSideOfWindow);
+        }
 
         if(serverNetwork.getClients().size() > 0) {
             auto& client0Packets = clientEvents[serverNetwork.getClients()[0]->id];
 
-            ImPlot::PlotScatterG("Packets sent by client 1", [](void* ptr, int index) {
-                auto* timestamps = static_cast<float*>(ptr);
-                float timestamp = timestamps[index];
-                return ImPlotPoint(timestamp, 1);
-            }, client0Packets.receivedTimestamps.data(), client0Packets.receivedTimestamps.size());
+            {
+                std::lock_guard lk(linkAccess);
+                std::size_t leftSideOfWindow = findLeftSideOfWindow(leftTime, client0Packets.receivedTimestamps);
+                std::size_t rightSideOfWindow = findRightSideOfWindow(rightTime, client0Packets.receivedTimestamps);
+
+                ImPlot::PlotScatterG("Packets sent by client 1", [](void* ptr, int index) {
+                    auto* timestamps = static_cast<float*>(ptr);
+                    float timestamp = timestamps[index];
+                    return ImPlotPoint(timestamp, 1);
+                }, client0Packets.receivedTimestamps.data()+leftSideOfWindow, rightSideOfWindow-leftSideOfWindow);
+            }
 
             // render packet links
             {
                 std::lock_guard lk(linkAccess);
-                for(auto& link : client0Packets.receptionLinks) {
+                std::size_t leftSideOfWindow = findLeftSideOfWindow(leftTime, client0Packets.receptionLinks);
+                std::size_t rightSideOfWindow = findRightSideOfWindow(rightTime, client0Packets.receptionLinks);
+                for (std::size_t i = leftSideOfWindow; i < rightSideOfWindow; i++) {
+                    auto& link = client0Packets.receptionLinks[i];
                     float xs[2] = {link.timestampA, link.timestampB};
                     float ys[2] = {1, 0}; // client->server
                     ImPlot::PlotLine("Packet trips from client 1", xs, ys, 2);
@@ -132,15 +149,25 @@ void Interface::renderIncomingGraph() {
 
             if(serverNetwork.getClients().size() > 1) {
                 auto& client1Packets = clientEvents[serverNetwork.getClients()[1]->id];
-                ImPlot::PlotScatterG("Packets sent by client 2", [](void *ptr, int index) {
-                    auto *timestamps = static_cast<float *>(ptr);
-                    float timestamp = timestamps[index];
-                    return ImPlotPoint(timestamp, -1);
-                }, client1Packets.receivedTimestamps.data(), client1Packets.receivedTimestamps.size());
 
                 {
                     std::lock_guard lk(linkAccess);
-                    for (auto& link : client1Packets.receptionLinks) {
+                    std::size_t leftSideOfWindow = findLeftSideOfWindow(leftTime, client1Packets.receivedTimestamps);
+                    std::size_t rightSideOfWindow = findRightSideOfWindow(rightTime, client1Packets.receivedTimestamps);
+
+                    ImPlot::PlotScatterG("Packets sent by client 2", [](void *ptr, int index) {
+                        auto *timestamps = static_cast<float *>(ptr);
+                        float timestamp = timestamps[index];
+                        return ImPlotPoint(timestamp, -1);
+                    }, client1Packets.receivedTimestamps.data()+leftSideOfWindow, rightSideOfWindow-leftSideOfWindow);
+                }
+
+                {
+                    std::lock_guard lk(linkAccess);
+                    std::size_t leftSideOfWindow = findLeftSideOfWindow(leftTime, client1Packets.receptionLinks);
+                    std::size_t rightSideOfWindow = findRightSideOfWindow(rightTime, client1Packets.receptionLinks);
+                    for (std::size_t i = leftSideOfWindow; i < rightSideOfWindow; i++) {
+                        auto& link = client1Packets.receptionLinks[i];
                         float xs[2] = {link.timestampA, link.timestampB};
                         float ys[2] = {-1, 0}; // client->server
                         ImPlot::PlotLine("Packet trips from client 2", xs, ys, 2);
@@ -174,27 +201,44 @@ void Interface::renderOutgoingGraph() {
             zoomFactor = std::min(100.0f, std::max(0.01f, zoomFactor));
         }
 
-        // TODO: window data to avoid FPS drops
+        float leftTime = ImPlot::GetPlotLimits().X.Min;
+        float rightTime = ImPlot::GetPlotLimits().X.Max;
 
-        ImPlot::PlotScatterG("Packets sent by the server", [](void *ptr, int index) {
-            auto *timestamps = static_cast<float *>(ptr);
-            float timestamp = timestamps[index];
-            return ImPlotPoint(timestamp, 0);
-        }, sendingStartsTimestamps.data(), sendingStartsTimestamps.size());
+        // TODO: window data to avoid FPS drops
+        {
+            std::lock_guard lk(linkAccess);
+            std::size_t leftSideOfWindow = findLeftSideOfWindow(leftTime, sendingStartsTimestamps);
+            std::size_t rightSideOfWindow = findRightSideOfWindow(rightTime, sendingStartsTimestamps);
+
+            ImPlot::PlotScatterG("Packets sent by the server", [](void *ptr, int index) {
+                auto *timestamps = static_cast<float *>(ptr);
+                float timestamp = timestamps[index];
+                return ImPlotPoint(timestamp, 0);
+            }, sendingStartsTimestamps.data()+leftSideOfWindow, rightSideOfWindow-leftSideOfWindow);
+        }
 
         if(serverNetwork.getClients().size() > 0) {
             auto& client0Packets = clientEvents[serverNetwork.getClients()[0]->id];
 
-            ImPlot::PlotScatterG("Packets sent by client 1", [](void *ptr, int index) {
-                auto *timestamps = static_cast<float *>(ptr);
-                float timestamp = timestamps[index];
-                return ImPlotPoint(timestamp, 1);
-            }, client0Packets.sentTimestamps.data(), client0Packets.sentTimestamps.size());
+            {
+                std::lock_guard lk(linkAccess);
+                std::size_t leftSideOfWindow = findLeftSideOfWindow(leftTime, client0Packets.sentTimestamps);
+                std::size_t rightSideOfWindow = findRightSideOfWindow(rightTime, client0Packets.sentTimestamps);
+
+                ImPlot::PlotScatterG("Packets sent by client 1", [](void *ptr, int index) {
+                    auto *timestamps = static_cast<float *>(ptr);
+                    float timestamp = timestamps[index];
+                    return ImPlotPoint(timestamp, 1);
+                }, client0Packets.sentTimestamps.data()+leftSideOfWindow, rightSideOfWindow-leftSideOfWindow);
+            }
 
             {
                 std::lock_guard lk(linkAccess);
                 // render packet links
-                for (auto& link : client0Packets.transmissionLinks) {
+                std::size_t leftSideOfWindow = findLeftSideOfWindow(leftTime, client0Packets.transmissionLinks);
+                std::size_t rightSideOfWindow = findRightSideOfWindow(rightTime, client0Packets.transmissionLinks);
+                for (std::size_t i = leftSideOfWindow; i < rightSideOfWindow; i++) {
+                    auto& link = client0Packets.transmissionLinks[i];
                     float xs[2] = {link.timestampA, link.timestampB};
                     float ys[2] = {0, 1}; // client->server
                     ImPlot::PlotLine("Packet trips from client 1", xs, ys, 2);
@@ -203,15 +247,25 @@ void Interface::renderOutgoingGraph() {
 
             if(serverNetwork.getClients().size() > 1) {
                 auto& client1Packets = clientEvents[serverNetwork.getClients()[1]->id];
-                ImPlot::PlotScatterG("Packets sent by client 2", [](void *ptr, int index) {
-                    auto *timestamps = static_cast<float *>(ptr);
-                    float timestamp = timestamps[index];
-                    return ImPlotPoint(timestamp, -1);
-                }, client1Packets.sentTimestamps.data(), client1Packets.sentTimestamps.size());
+                {
+                    std::lock_guard lk(linkAccess);
+
+                    std::size_t leftSideOfWindow = findLeftSideOfWindow(leftTime, client1Packets.sentTimestamps);
+                    std::size_t rightSideOfWindow = findRightSideOfWindow(rightTime, client1Packets.sentTimestamps);
+                    ImPlot::PlotScatterG("Packets sent by client 2", [](void *ptr, int index) {
+                        auto *timestamps = static_cast<float *>(ptr);
+                        float timestamp = timestamps[index];
+                        return ImPlotPoint(timestamp, -1);
+                    }, client1Packets.sentTimestamps.data()+leftSideOfWindow, rightSideOfWindow-leftSideOfWindow);
+                }
 
                 {
                     std::lock_guard lk(linkAccess);
-                    for (auto& link : client1Packets.transmissionLinks) {
+
+                    std::size_t leftSideOfWindow = findLeftSideOfWindow(leftTime, client1Packets.transmissionLinks);
+                    std::size_t rightSideOfWindow = findRightSideOfWindow(rightTime, client1Packets.transmissionLinks);
+                    for (std::size_t i = leftSideOfWindow; i < rightSideOfWindow; i++) {
+                        auto& link = client1Packets.transmissionLinks[i];
                         float xs[2] = {link.timestampA, link.timestampB};
                         float ys[2] = {0, -1}; // client->server
                         ImPlot::PlotLine("Packet trips from client 2", xs, ys, 2);
@@ -282,6 +336,38 @@ void Interface::renderOutcomingPackets(float clientWidth, float height) {
     }
 
     ImGui::EndChild();
+}
+
+std::size_t Interface::findLeftSideOfWindow(float time, const std::vector<float>& timestamps) {
+    auto lower = std::upper_bound(timestamps.begin(), timestamps.end(), time);
+    if(lower != timestamps.end()) {
+        return std::distance(timestamps.begin(), lower);
+    }
+    return 0;
+}
+
+std::size_t Interface::findRightSideOfWindow(float time, const std::vector<float>& timestamps) {
+    auto upper = std::lower_bound(timestamps.begin(), timestamps.end(), time);
+    if(upper != timestamps.end()) {
+        return std::distance(timestamps.begin(), upper);
+    }
+    return timestamps.size();
+}
+
+std::size_t Interface::findLeftSideOfWindow(float time, const std::vector<PacketLifecycle>& timestamps) {
+    auto lower = std::upper_bound(timestamps.begin(), timestamps.end(), time, [](const float& t, const auto& l) { return l.timestampA > t; });
+    if(lower != timestamps.end()) {
+        return std::distance(timestamps.begin(), lower);
+    }
+    return 0;
+}
+
+std::size_t Interface::findRightSideOfWindow(float time, const std::vector<PacketLifecycle>& timestamps) {
+    auto upper = std::lower_bound(timestamps.begin(), timestamps.end(), time, [](const auto& l, const float& t) { return l.timestampB < t; });
+    if(upper != timestamps.end()) {
+        return std::distance(timestamps.begin(), upper);
+    }
+    return timestamps.size();
 }
 
 void Interface::onEvent(const UdpClient &client, NetworkEvent::Event event) {
