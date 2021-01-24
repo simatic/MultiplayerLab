@@ -12,7 +12,7 @@ private:
     float timer;
 
 public:
-	explicit NetworkPingPong(GameManager* const gameManager);
+	explicit NetworkPingPong(GameManager* const gameManager, INetworkModule* const networkModule);
 
 	void update(const sf::Time& dt) override;
 };

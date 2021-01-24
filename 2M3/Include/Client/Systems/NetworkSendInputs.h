@@ -10,7 +10,7 @@
 class NetworkSendInputs : public NetworkSystem<Transform, PlayableCarInput>
 {
 public:
-	explicit NetworkSendInputs(GameManager* const gameManager);
+	explicit NetworkSendInputs(GameManager* const gameManager, INetworkModule* const networkModule);
 
 	void update(const sf::Time& dt) override;
 };

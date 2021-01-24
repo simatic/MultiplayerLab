@@ -4,8 +4,8 @@
 
 // Exemple de traitement d'un packet permettant de bouger une entité
 
-NetworkSetTransform::NetworkSetTransform(GameManager* const gameManager) :
-	NetworkSystem<Transform>(gameManager)
+NetworkSetTransform::NetworkSetTransform(GameManager* const gameManager, INetworkModule* const networkModule) :
+	NetworkSystem<Transform>(gameManager, networkModule)
 {}
 
 void NetworkSetTransform::update(const sf::Time& dt) {

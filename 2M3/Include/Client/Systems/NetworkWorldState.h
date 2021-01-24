@@ -9,7 +9,7 @@
 class NetworkWorldState : public NetworkSystem<Transform>
 {
 public:
-	explicit NetworkWorldState(GameManager* const gameManager);
+	explicit NetworkWorldState(GameManager* const gameManager, INetworkModule* const networkModule);
 
 	void update(const sf::Time& dt) override;
 

@@ -4,8 +4,8 @@
 
 // Exemple 2 de traitement d'un packet permettant de bouger une entité
 
-NetworkSetSpeed::NetworkSetSpeed(GameManager* const gameManager) :
-	NetworkSystem<Transform, Kinematics>(gameManager)
+NetworkSetSpeed::NetworkSetSpeed(GameManager* const gameManager, INetworkModule* const networkModule) :
+	NetworkSystem<Transform, Kinematics>(gameManager, networkModule)
 {}
 
 void NetworkSetSpeed::update(const sf::Time& dt) {

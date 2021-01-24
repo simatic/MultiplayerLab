@@ -11,7 +11,7 @@ private:
     float timer = 0;
 
 public:
-    explicit NetworkUpdatePositionsAndVelocities(GameManager* const gameManager);
+    explicit NetworkUpdatePositionsAndVelocities(GameManager* const gameManager, INetworkModule* const networkModule);
 
     void update(const sf::Time& dt) override;
 };

@@ -6,8 +6,8 @@
 #include <Common/Network/SetTransformPacket.h>
 #include <Common/Network/SetSpeedPacket.h>
 
-NetworkUpdatePositionsAndVelocities::NetworkUpdatePositionsAndVelocities(GameManager* const gameManager) :
-        NetworkSystem<Transform, Kinematics>(gameManager)
+NetworkUpdatePositionsAndVelocities::NetworkUpdatePositionsAndVelocities(GameManager* const gameManager, INetworkModule* const networkModule) :
+        NetworkSystem<Transform, Kinematics>(gameManager, networkModule)
 {}
 
 void NetworkUpdatePositionsAndVelocities::update(const sf::Time& dt) {

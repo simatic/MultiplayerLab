@@ -9,7 +9,7 @@
 class NetworkAddEntities : public NetworkSystem<Transform>
 {
 public:
-	explicit NetworkAddEntities(GameManager* const gameManager);
+	explicit NetworkAddEntities(GameManager* const gameManager, INetworkModule* const networkModule);
 
 	void update(const sf::Time& dt) override;
 };

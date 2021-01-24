@@ -3,8 +3,8 @@
 
 #include <Common/Network/PingPongPackets.h>
 
-NetworkPingPong::NetworkPingPong(GameManager* const gameManager) :
-	NetworkSystem<Transform>(gameManager)
+NetworkPingPong::NetworkPingPong(GameManager* const gameManager, INetworkModule* const networkModule) :
+	NetworkSystem<Transform>(gameManager, networkModule)
 {}
 
 void NetworkPingPong::update(const sf::Time& dt) {

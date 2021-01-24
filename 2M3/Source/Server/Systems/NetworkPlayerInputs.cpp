@@ -6,8 +6,8 @@
 #include <cassert>
 #include <Network/InputPacket.h>
 
-NetworkPlayerInputs::NetworkPlayerInputs(GameManager* const gameManager) :
-        NetworkSystem<Transform>(gameManager)
+NetworkPlayerInputs::NetworkPlayerInputs(GameManager* const gameManager, INetworkModule* const networkModule) :
+        NetworkSystem<Transform>(gameManager, networkModule)
 {}
 
 void NetworkPlayerInputs::update(const sf::Time& dt) {

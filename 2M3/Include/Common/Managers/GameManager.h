@@ -108,7 +108,7 @@ void GameManager::addRenderSystems()
 template <typename... System>
 void GameManager::addNetworkSystems()
 {
-    (addNetworkSystem(std::make_unique<System>(this)), ...);
+    (addNetworkSystem(std::make_unique<System>(this, networkModule.get())), ...);
 }
 
 template <typename Module, typename... Args>

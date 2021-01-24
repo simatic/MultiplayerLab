@@ -9,7 +9,7 @@
 class NetworkSetColor : public NetworkSystem<Transform>
 {
 public:
-	explicit NetworkSetColor(GameManager* const gameManager);
+	explicit NetworkSetColor(GameManager* const gameManager, INetworkModule* const networkModule);
 
 	void update(const sf::Time& dt) override;
 };

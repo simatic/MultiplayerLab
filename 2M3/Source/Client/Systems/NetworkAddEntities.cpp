@@ -3,8 +3,8 @@
 #include <Network/AddEntityPacket.h>
 #include <Sprite.h>
 
-NetworkAddEntities::NetworkAddEntities(GameManager* const gameManager) :
-	NetworkSystem<Transform>(gameManager)
+NetworkAddEntities::NetworkAddEntities(GameManager* const gameManager, INetworkModule* const networkModule) :
+	NetworkSystem<Transform>(gameManager, networkModule)
 {}
 
 static std::vector<std::shared_ptr<Entity>> forceAlive{};

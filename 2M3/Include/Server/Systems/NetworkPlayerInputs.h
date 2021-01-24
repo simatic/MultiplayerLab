@@ -7,7 +7,7 @@
 class NetworkPlayerInputs : public NetworkSystem<Transform>
 {
 public:
-    explicit NetworkPlayerInputs(GameManager* const gameManager);
+    explicit NetworkPlayerInputs(GameManager* const gameManager, INetworkModule* const networkModule);
 
     void update(const sf::Time& dt) override;
 };

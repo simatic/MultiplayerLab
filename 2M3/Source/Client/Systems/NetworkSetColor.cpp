@@ -3,8 +3,8 @@
 #include <Network/SetColorPacket.h>
 #include <Sprite.h>
 
-NetworkSetColor::NetworkSetColor(GameManager* const gameManager) :
-	NetworkSystem<Transform>(gameManager)
+NetworkSetColor::NetworkSetColor(GameManager* const gameManager, INetworkModule* const networkModule) :
+	NetworkSystem<Transform>(gameManager, networkModule)
 {}
 
 void NetworkSetColor::update(const sf::Time& dt) {

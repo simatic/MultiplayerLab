@@ -9,7 +9,7 @@
 class NetworkSetTransform : public NetworkSystem<Transform>
 {
 public:
-	explicit NetworkSetTransform(GameManager* const gameManager);
+	explicit NetworkSetTransform(GameManager* const gameManager, INetworkModule* const networkModule);
 
 	void update(const sf::Time& dt) override;
 };
