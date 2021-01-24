@@ -8,7 +8,7 @@ NetworkSetColor::NetworkSetColor(GameManager* const gameManager, INetworkModule*
 {}
 
 void NetworkSetColor::update(const sf::Time& dt) {
-	if (!networkModule->getBuffer().empty()) {
+	if (!networkModule->isBufferEmpty()) {
 	    auto packets = networkModule->getBuffer().extractPacketsOfType<SetColorPacket>();
 		while(!packets.empty()) {
 		    auto setColorPacket = std::move(packets.front());

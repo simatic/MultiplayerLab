@@ -10,6 +10,10 @@ Buffer& INetworkModule::getBuffer() {
 	return buffer;
 }
 
+bool INetworkModule::isBufferEmpty() const {
+	return buffer.empty();
+}
+
 const std::unique_ptr<NetworkHandler> &INetworkModule::getNetwork() const {
     return network;
 }

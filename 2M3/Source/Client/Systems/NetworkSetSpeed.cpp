@@ -9,7 +9,7 @@ NetworkSetSpeed::NetworkSetSpeed(GameManager* const gameManager, INetworkModule*
 {}
 
 void NetworkSetSpeed::update(const sf::Time& dt) {
-	if (!networkModule->getBuffer().empty()) {
+	if (!networkModule->isBufferEmpty()) {
 	    auto packets = networkModule->getBuffer().extractPacketsOfType<SetSpeedPacket>();
 		while(!packets.empty()) {
 		    auto setSpeedPacket = std::move(packets.front());

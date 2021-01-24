@@ -11,7 +11,7 @@ NetworkPlayerInputs::NetworkPlayerInputs(GameManager* const gameManager, INetwor
 {}
 
 void NetworkPlayerInputs::update(const sf::Time& dt) {
-    if (!gameManager->getNetworkModule()->getBuffer().empty()) {
+    if (!networkModule->isBufferEmpty()) {
         if(auto serverModule = dynamic_cast<ServerNetworkModule*>(networkModule)) {
             auto packets = serverModule->getBuffer().extractPacketsOfType<InputPacket>();
             while(!packets.empty()) {

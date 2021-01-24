@@ -17,6 +17,7 @@ public:
 	std::unique_ptr<Packet> createAndSend(Args... args);
 
 	Buffer& getBuffer();
+	bool isBufferEmpty() const;
 
     const std::unique_ptr<NetworkHandler> &getNetwork() const;
 
