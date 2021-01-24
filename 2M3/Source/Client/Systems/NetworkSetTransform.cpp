@@ -10,7 +10,7 @@ NetworkSetTransform::NetworkSetTransform(GameManager* const gameManager, INetwor
 
 void NetworkSetTransform::update(const sf::Time& dt) {
 	if (!networkModule->isBufferEmpty()) {
-	    auto packets = networkModule->getBuffer().extractPacketsOfType<SetTransformPacket>();
+	    auto packets = networkModule->extractPacketsOfType<SetTransformPacket>();
 		while(!packets.empty()) {
 		    auto setTransformPacket = std::move(packets.front());
 		    packets.pop();

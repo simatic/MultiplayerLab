@@ -11,7 +11,7 @@ static std::vector<std::shared_ptr<Entity>> forceAlive{};
 
 void NetworkAddEntities::update(const sf::Time& dt) {
 	if (!networkModule->isBufferEmpty()) {
-	    auto packets = networkModule->getBuffer().extractPacketsOfType<AddEntityPacket>();
+	    auto packets = networkModule->extractPacketsOfType<AddEntityPacket>();
 		while(!packets.empty()) {
 		    auto addEntityPacket = std::move(packets.front());
 		    packets.pop();
