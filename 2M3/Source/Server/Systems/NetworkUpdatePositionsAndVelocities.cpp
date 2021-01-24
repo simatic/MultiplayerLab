@@ -16,7 +16,7 @@ void NetworkUpdatePositionsAndVelocities::update(const sf::Time& dt) {
         return;
     }
     timer -= 0.02;
-    if(auto serverModule = dynamic_cast<ServerNetworkModule*>(gameManager->getNetworkModule())) {
+    if(auto serverModule = dynamic_cast<ServerNetworkModule*>(networkModule)) {
         auto& clients = serverModule->getServer().getClients();
 
         for(const auto& entity : entities) {

@@ -26,8 +26,8 @@ void NetworkWorldState::applyWorldStateEntities(const std::vector<WorldStatePack
 }
 
 void NetworkWorldState::update(const sf::Time& dt) {
-	if (!gameManager->getNetworkModule()->getBuffer().empty()) {
-	    auto packets = gameManager->getNetworkModule()->getBuffer().extractPacketsOfType<WorldStatePacket>();
+	if (!networkModule->getBuffer().empty()) {
+	    auto packets = networkModule->getBuffer().extractPacketsOfType<WorldStatePacket>();
 		while(!packets.empty()) {
 		    auto worldStatePacket = std::move(packets.front());
 		    packets.pop();

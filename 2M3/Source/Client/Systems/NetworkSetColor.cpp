@@ -8,15 +8,15 @@ NetworkSetColor::NetworkSetColor(GameManager* const gameManager, INetworkModule*
 {}
 
 void NetworkSetColor::update(const sf::Time& dt) {
-	if (!gameManager->getNetworkModule()->getBuffer().empty()) {
-	    auto packets = gameManager->getNetworkModule()->getBuffer().extractPacketsOfType<SetColorPacket>();
+	if (!networkModule->getBuffer().empty()) {
+	    auto packets = networkModule->getBuffer().extractPacketsOfType<SetColorPacket>();
 		while(!packets.empty()) {
 		    auto setColorPacket = std::move(packets.front());
 		    packets.pop();
 
 		    auto entityID = setColorPacket->getEntityID();
 
-		    if(auto clientModule = dynamic_cast<ClientNetworkModule*>(gameManager->getNetworkModule())) {
+		    if(auto clientModule = dynamic_cast<ClientNetworkModule*>(networkModule)) {
 		        auto playerEntityID = clientModule->getSelfEntityID();
 
 		        // FIXME: possibly packet-order-dependent: requires player car to have been already added to the world (before this frame or before inside this frame)

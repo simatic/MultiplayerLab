@@ -10,8 +10,8 @@ NetworkAddEntities::NetworkAddEntities(GameManager* const gameManager, INetworkM
 static std::vector<std::shared_ptr<Entity>> forceAlive{};
 
 void NetworkAddEntities::update(const sf::Time& dt) {
-	if (!gameManager->getNetworkModule()->getBuffer().empty()) {
-	    auto packets = gameManager->getNetworkModule()->getBuffer().extractPacketsOfType<AddEntityPacket>();
+	if (!networkModule->getBuffer().empty()) {
+	    auto packets = networkModule->getBuffer().extractPacketsOfType<AddEntityPacket>();
 		while(!packets.empty()) {
 		    auto addEntityPacket = std::move(packets.front());
 		    packets.pop();
@@ -22,7 +22,7 @@ void NetworkAddEntities::update(const sf::Time& dt) {
 		    const bool renderable = true;
 		    std::shared_ptr<Entity> entity = Prefab::create(entityType, renderable);
             if(entityType == Prefab::Type::PlayableCar) {
-                if(auto clientModule = dynamic_cast<ClientNetworkModule*>(gameManager->getNetworkModule())) {
+                if(auto clientModule = dynamic_cast<ClientNetworkModule*>(networkModule)) {
                     clientModule->setSelfEntityID(entityID);
                 } else {
                     throw std::runtime_error("NetworkAddEntities should not be put on the server.");

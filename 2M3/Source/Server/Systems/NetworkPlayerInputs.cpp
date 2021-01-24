@@ -12,8 +12,8 @@ NetworkPlayerInputs::NetworkPlayerInputs(GameManager* const gameManager, INetwor
 
 void NetworkPlayerInputs::update(const sf::Time& dt) {
     if (!gameManager->getNetworkModule()->getBuffer().empty()) {
-        if(auto serverModule = dynamic_cast<ServerNetworkModule*>(gameManager->getNetworkModule())) {
-            auto packets = gameManager->getNetworkModule()->getBuffer().extractPacketsOfType<InputPacket>();
+        if(auto serverModule = dynamic_cast<ServerNetworkModule*>(networkModule)) {
+            auto packets = serverModule->getBuffer().extractPacketsOfType<InputPacket>();
             while(!packets.empty()) {
                 auto inputPacket = std::move(packets.front());
                 packets.pop();
