@@ -78,13 +78,6 @@ add_executable(2M3
         ${IMPLOT_SOURCES}
 )
 
-add_executable(2M3-WithTracy
-        thirdparty/tracy/TracyClient.cpp
-        ${SOURCE_FULL}
-        ${IMPLOT_SOURCES}
-)
-target_include_directories(2M3-WithTracy PUBLIC thirdparty/tracy/)
-
 add_executable(2M3-Server-Standalone
         ${SOURCE_STANDALONE}
         ${IMPLOT_SOURCES}
@@ -107,8 +100,6 @@ target_link_libraries(2M3 PUBLIC ${COMMON_LIBS} ${CLIENT_LIBS})
 target_link_libraries(2M3-Server-Standalone PUBLIC ${COMMON_LIBS})
 target_link_libraries(2M3-Test-Client PUBLIC ${COMMON_LIBS})
 
-target_compile_definitions(2M3-WithTracy PRIVATE TRACY_ENABLE=1 TRACY_ON_DEMAND=1)
-target_link_libraries(2M3-WithTracy PUBLIC ${COMMON_LIBS} ${CLIENT_LIBS})
 
 add_custom_target(copy-Media ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Media)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Media
@@ -118,7 +109,19 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Media
                            ${CMAKE_CURRENT_BINARY_DIR}/Media
                            )
 add_dependencies(2M3 copy-Media)
-add_dependencies(2M3-WithTracy copy-Media)
 
 file(GLOB_RECURSE DYNAMIC_LIBS CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/lib/${ARCH}/*.dll)
 file(COPY ${DYNAMIC_LIBS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        add_executable(2M3-WithTracy
+                thirdparty/tracy/TracyClient.cpp
+                ${SOURCE_FULL}
+                ${IMPLOT_SOURCES}
+        )
+        target_include_directories(2M3-WithTracy PUBLIC thirdparty/tracy/)
+
+        target_compile_definitions(2M3-WithTracy PRIVATE TRACY_ENABLE=1 TRACY_ON_DEMAND=1)
+        target_link_libraries(2M3-WithTracy PUBLIC ${COMMON_LIBS} ${CLIENT_LIBS})
+        add_dependencies(2M3-WithTracy copy-Media)
+endif()
