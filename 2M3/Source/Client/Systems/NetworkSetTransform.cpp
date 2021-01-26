@@ -1,6 +1,8 @@
 #include <Common/Managers/GameManager.h>
 #include <Client/Systems/NetworkSetTransform.h>
 #include <Network/SetTransformPacket.h>
+#include <CarEngine.h>
+#include <Utility.h>
 
 // Exemple de traitement d'un packet permettant de bouger une entité
 
@@ -24,6 +26,11 @@ void NetworkSetTransform::update(const sf::Time& dt) {
 		        transform->position = position;
 		        transform->rotation = angle;
 		    }
+
+		    if(auto engine = entity->getComponent<CarEngine>()) {
+		        sf::Vector2f newDirection = {std::cos(toRadians(angle)), std::sin(toRadians(angle))};
+		        engine->direction = newDirection;
+            }
 		}
 	}
 }
