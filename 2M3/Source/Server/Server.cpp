@@ -53,7 +53,7 @@ void Server::initGame() {
             CollisionSystem,
             CarCollisionSystem,
             GunSystem,
-           // FIXME: why does BulletSystem crash the game?
+         // FIXME: Why does BulletSystem crash the game?
             CarDeath,
             MovementSystem
     >();

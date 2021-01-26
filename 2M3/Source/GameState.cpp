@@ -47,7 +47,6 @@ GameState::GameState(StateStack& stack, Context context) :
         CarMovementSystem,
         CollisionSystem,
         CarCollisionSystem,
-        GunSystem,
         BulletSystem,
         TrajectorySystem,
         ParticleSystem,

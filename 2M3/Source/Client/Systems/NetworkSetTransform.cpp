@@ -20,6 +20,8 @@ void NetworkSetTransform::update(const sf::Time& dt) {
 		    auto angle = setTransformPacket->getAngle();
 
 		    std::shared_ptr<Entity> entity = gameManager->getEntityWithID(entityID);
+		    if(!entity)
+                continue;
 		    if(auto transform = entity->getComponent<Transform>()) {
 		        transform->position = position;
 		        transform->rotation = angle;

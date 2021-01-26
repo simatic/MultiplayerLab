@@ -30,7 +30,7 @@ void NetworkAddEntities::update(const sf::Time& dt) {
             }
 
             // TODO: still necessary?
-            forceAlive.push_back(entity);
+     //       forceAlive.push_back(entity);
             if(entity) {
                 gameManager->addEntityWithID(entity, entityID);
             }

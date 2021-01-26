@@ -19,6 +19,8 @@ void NetworkSetSpeed::update(const sf::Time& dt) {
 		    auto speed = sf::Vector2f(setSpeedPacket->getSpeedX(), setSpeedPacket->getSpeedY());
 
 		    std::shared_ptr<Entity> entity = gameManager->getEntityWithID(entityID);
+		    if(!entity)
+                continue;
 		    if(auto kinematics = entity->getComponent<Kinematics>()) {
                 kinematics->velocity = speed;
 		    }
