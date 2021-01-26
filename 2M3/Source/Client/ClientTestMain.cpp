@@ -20,7 +20,8 @@ int main(int argc, char** argv) {
     std::cout << "Remote port = " << remotePort << std::endl;
 
     ClientNetworkHandler network{};
-    ClientNetworkThread thread{network, Buffer(), "localhost", remotePort};
+    Buffer buffer{};
+    ClientNetworkThread thread{network, buffer, "localhost", remotePort};
 
     return 0;
 }

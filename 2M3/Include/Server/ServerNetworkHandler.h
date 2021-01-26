@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 #include <SFML/Network.hpp>
 #include "Common/Network/NetworkHandler.h"

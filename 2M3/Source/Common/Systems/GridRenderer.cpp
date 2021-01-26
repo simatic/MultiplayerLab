@@ -2,6 +2,8 @@
 #include "Common/Systems/GridRenderer.h"
 #include "Common/Managers/GameManager.h"
 
+#include <cmath>
+
 GridRenderer::GridRenderer(GameManager* const gameManager) :
 	RenderSystem<Transform>(gameManager), gridElement(ResourceManager::getInstance()->textures()->get(Textures::GridElement))
 {
@@ -52,11 +54,11 @@ void GridRenderer::update(const sf::Time&)
     sf::Vector2f topLeft = view.getCenter() - view.getSize()/2.0f;
     float offsetX;
     float offsetY;
-    modff(topLeft.x*CROSSES_PER_UNIT, &offsetX);
-    modff(topLeft.y*CROSSES_PER_UNIT, &offsetY);
+    std::modf(topLeft.x*CROSSES_PER_UNIT, &offsetX);
+    std::modf(topLeft.y*CROSSES_PER_UNIT, &offsetY);
 
-    float gridPosX = floor(offsetX)/CROSSES_PER_UNIT;
-    float gridPosY = floor(offsetY)/CROSSES_PER_UNIT;
+    float gridPosX = std::floor(offsetX)/CROSSES_PER_UNIT;
+    float gridPosY = std::floor(offsetY)/CROSSES_PER_UNIT;
 
     transform.translate(gridPosX, gridPosY);
 
