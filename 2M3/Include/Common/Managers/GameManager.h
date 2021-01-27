@@ -9,6 +9,7 @@
 #include <memory>
 #include <vector>
 #include <queue>
+#include <functional>
 
 #include <SFML/Graphics/RenderTarget.hpp>
 
@@ -51,6 +52,8 @@ public:
     template <typename... System>
     void addRenderSystems();
 
+    void nextFrame(std::function<void()> actionToDo);
+
     std::vector<std::shared_ptr<Entity>> getEntityList() const;
 
 protected:
@@ -74,6 +77,9 @@ protected:
 
     std::uint32_t               highestID = 1;
     std::queue<std::uint32_t>   unusedIDs;
+
+    std::mutex nextFrameActionsAccess;
+    std::queue<std::function<void()>> nextFrameActions;
 
     sf::RenderTarget*	target = nullptr;
     KeyBinding*         keyBinding = nullptr;   

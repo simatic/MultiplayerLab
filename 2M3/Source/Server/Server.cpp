@@ -20,9 +20,13 @@
 Server::Server(const std::string& ip, unsigned short port) :
     networkModule(*this, ip, port),
     game(&networkModule)
-{
-    initGame();
-    gameThread = std::thread([&]() { runGame(); });
+{}
+
+void Server::init() {
+    gameThread = std::thread([&]() {
+        initGame();
+        runGame();
+    });
     getNetworkHandler().registerListener(this);
 }
 
@@ -54,7 +58,7 @@ void Server::initGame() {
             CollisionSystem,
             CarCollisionSystem,
             GunSystem,
-         // FIXME: Why does BulletSystem crash the game?
+            BulletSystem,
             CarDeath,
             MovementSystem
     >();
@@ -107,37 +111,41 @@ bool Server::isReady() {
 }
 
 void Server::makePlayerJoin(const UdpClient& client) {
-    auto entityID = getNetworkModule().getNewNetworkID();
-    auto entity = Prefab::createCar(false);
-    auto* entTransform = entity->getComponent<Transform>();
-    entTransform->position = sf::Vector2f(client.id*150, 0);
-    playerEntityIDs[client.id] = entityID;
-    game.addEntityWithID(entity, entityID);
+    // Use nextFrame because signatures are stable at a thread level (ie two threads may generate different System/Entity signatures)
+    //  Using nextFrame here allows to generate the entity signature in the game thread instead of the network thread
+    game.nextFrame([&]() {
+        auto entityID = getNetworkModule().getNewNetworkID();
+        auto entity = Prefab::createCar(false);
+        auto* entTransform = entity->getComponent<Transform>();
+        entTransform->position = sf::Vector2f(client.id*150, 0);
+        playerEntityIDs[client.id] = entityID;
+        game.addEntityWithID(entity, entityID);
 
-    //packet pour le client qui arrive
-    auto hereIsYourEntityPacket = getNetworkHandler().create<AddEntityPacket>(Prefab::Type::PlayableCar, entityID);
-    client.send(std::move(hereIsYourEntityPacket));
-    client.send(getNetworkHandler().create<SetTransformPacket>(entity->getID(), entTransform->position.x, entTransform->position.y, entTransform->rotation));
+        //packet pour le client qui arrive
+        auto hereIsYourEntityPacket = getNetworkHandler().create<AddEntityPacket>(Prefab::Type::PlayableCar, entityID);
+        client.send(std::move(hereIsYourEntityPacket));
+        client.send(getNetworkHandler().create<SetTransformPacket>(entity->getID(), entTransform->position.x, entTransform->position.y, entTransform->rotation));
 
-    //Pour 2 clients c'est simple et OK
-    sf::Color newClientColor;
-    if(client.id == 0) {
-        newClientColor = sf::Color::Red;
-    }
-    else {
-        newClientColor = sf::Color::Green;
-    }
-    playerColors[client.id] = newClientColor;
-
-    //packets pour notifier les autres clients déjà présents
-    for(auto& otherClient : getNetworkHandler().getClients()) {
-        if(client.id != otherClient->id) {
-            auto packet = getNetworkHandler().create<AddEntityPacket>(Prefab::Type::Car, entityID);
-            otherClient->send(std::move(packet));
-            otherClient->send(getNetworkHandler().create<SetTransformPacket>(entity->getID(), entTransform->position.x, entTransform->position.y, entTransform->rotation));
+        //Pour 2 clients c'est simple et OK
+        sf::Color newClientColor;
+        if(client.id == 0) {
+            newClientColor = sf::Color::Red;
         }
-        otherClient->send(getNetworkHandler().create<SetColorPacket>(entity->getID(), newClientColor));
-    }
+        else {
+            newClientColor = sf::Color::Green;
+        }
+        playerColors[client.id] = newClientColor;
+
+        //packets pour notifier les autres clients déjà présents
+        for(auto& otherClient : getNetworkHandler().getClients()) {
+            if(client.id != otherClient->id) {
+                auto packet = getNetworkHandler().create<AddEntityPacket>(Prefab::Type::Car, entityID);
+                otherClient->send(std::move(packet));
+                otherClient->send(getNetworkHandler().create<SetTransformPacket>(entity->getID(), entTransform->position.x, entTransform->position.y, entTransform->rotation));
+            }
+            otherClient->send(getNetworkHandler().create<SetColorPacket>(entity->getID(), newClientColor));
+        }
+    });
 }
 
 void Server::sendWorldStateTo(const UdpClient& client) {

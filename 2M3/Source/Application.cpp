@@ -187,6 +187,7 @@ void Application::launchServer() {
     serverReference = server;
     serverInterface = std::make_unique<Interface>(server->getNetworkHandler());
     serverThread = std::thread([server /* copy server shared_ptr into thread*/]() {
+        server->init();
         // TODO: configurable host
         server->run();
     });

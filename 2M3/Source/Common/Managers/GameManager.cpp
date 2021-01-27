@@ -167,7 +167,16 @@ void GameManager::removeFromSystemsLists(Entity* entity)
  */
 void GameManager::update(const sf::Time& dt)
 {
-    for (const auto& system: logicSystems)
+    {
+        std::lock_guard lk(nextFrameActionsAccess);
+        while(!nextFrameActions.empty()) {
+            auto action = nextFrameActions.front();
+            action();
+            nextFrameActions.pop();
+        }
+    }
+
+    for (const auto& system : logicSystems)
     { 
         system->update(dt); 
     }
@@ -241,4 +250,9 @@ std::vector<std::shared_ptr<Entity>> GameManager::getEntityList() const {
         result.push_back(entity);
     }
     return result;
+}
+
+void GameManager::nextFrame(std::function<void()> actionToDo) {
+    std::lock_guard lk(nextFrameActionsAccess);
+    nextFrameActions.push(actionToDo);
 }
