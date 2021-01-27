@@ -2,7 +2,7 @@
 #include "TitleState.h"
 #include "MenuState.h"
 #include "SettingsState.h"
-#include "GameState.h"
+#include <Client/States/ClientGameState.h>
 #include "Utility.h"
 #include "Profiling.h"
 
@@ -201,7 +201,7 @@ void Client::registerStates()
 {
 	_stateStack->registerState<TitleState>(States::Title);
 	_stateStack->registerState<MenuState>(States::Menu);
-	_stateStack->registerState<GameState>(States::Game);
+	_stateStack->registerState<ClientGameState>(States::Game);
 	_stateStack->registerState<SettingsState>(States::Settings);
 }
 

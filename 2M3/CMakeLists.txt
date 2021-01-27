@@ -33,6 +33,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
         Include/Client/Managers/*.h
         Include/Client/Modules/*.h
         Include/Client/Systems/*.h
+        Include/Client/States/*.h
         Include/Server/*.h
         Include/Server/Managers/*.h
         Include/Server/Modules/*.h
@@ -50,6 +51,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
         Source/Client/Managers/*.cpp
         Source/Client/Modules/*.cpp
         Source/Client/Systems/*.cpp
+        Source/Client/States/*.cpp
         Source/Server/*.cpp
         Source/Server/Managers/*.cpp
         Source/Server/Modules/*.cpp
