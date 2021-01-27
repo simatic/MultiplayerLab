@@ -22,6 +22,7 @@ private:
 public:
     explicit Server(const std::string& ip, unsigned short port);
 
+    void init();
     void run();
     void stop();
     bool isRunning();
