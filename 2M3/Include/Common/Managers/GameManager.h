@@ -27,15 +27,14 @@ public:
     void removeEntityNextFrame(Entity* entity);
     void removeEntity(Entity* entity);
 
-    void update(const sf::Time& dt);
+    virtual void update(const sf::Time& dt);
     void render(const sf::Time& dt);
 
     void addLogicSystem(std::unique_ptr<System<SystemType::Logic>> system);
     void addRenderSystem(std::unique_ptr<System<SystemType::Render>> system);
-    void addNetworkSystem(std::unique_ptr<System<SystemType::Network>> system);
 
-    void updateSystemLists();
-    void updateSystemLists(Entity* entity);
+    virtual void updateSystemListsForAllEntities();
+    virtual void updateSystemLists(Entity* entity);
 
     sf::RenderTarget* getRenderTarget() const;
     void              setRenderTarget(sf::RenderTarget* target);
@@ -43,11 +42,7 @@ public:
     KeyBinding*       getKeyBinding() const;
     void              setKeyBinding(KeyBinding* keys);
 
-    template <typename Module, typename... Args>
-    void            setNetworkModule(Args&&... args);
-    INetworkModule* getNetworkModule() const;
-
-    void clearAll();
+    virtual void clearAll();
 
     // templates
     template <typename... System>
@@ -56,18 +51,15 @@ public:
     template <typename... System>
     void addRenderSystems();
 
-    template <typename... System>
-    void addNetworkSystems();
-
     std::vector<std::shared_ptr<Entity>> getEntityList() const;
 
-private:
+protected:
     /**
      * Methods
      */
     void applyEntitiesToRemove();
     void applyEntitiesToAdd();
-    void removeFromSystemsLists(Entity* entity);
+    virtual void removeFromSystemsLists(Entity* entity);
 
     /**
      * Attributes
@@ -79,18 +71,12 @@ private:
 
     std::vector<std::unique_ptr<System<SystemType::Logic>>>    logicSystems;
     std::vector<std::unique_ptr<System<SystemType::Render>>>   renderSystems;
-    std::vector<std::unique_ptr<System<SystemType::Network>>>  networkSystems;
 
     std::uint32_t               highestID = 1;
     std::queue<std::uint32_t>   unusedIDs;
 
     sf::RenderTarget*	target = nullptr;
-    KeyBinding*         keyBinding = nullptr;
-
-    /**
-    * Modules
-    */
-    std::unique_ptr<INetworkModule> networkModule = nullptr;
+    KeyBinding*         keyBinding = nullptr;   
 };
 
 template <typename... System>
@@ -103,16 +89,4 @@ template <typename... System>
 void GameManager::addRenderSystems()
 {
     (addRenderSystem(std::make_unique<System>(this)), ...);
-}
-
-template <typename... System>
-void GameManager::addNetworkSystems()
-{
-    (addNetworkSystem(std::make_unique<System>(this, networkModule.get())), ...);
-}
-
-template <typename Module, typename... Args>
-void GameManager::setNetworkModule(Args&&... args)
-{
-    networkModule = std::make_unique<Module>(args...);
 }
