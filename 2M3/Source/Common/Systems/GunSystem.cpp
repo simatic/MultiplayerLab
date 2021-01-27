@@ -19,6 +19,8 @@ GunSystem::GunSystem(GameManager* const gameManager) :
 
 void GunSystem::update(const sf::Time& dt)
 {
+    // TODO: Move to a network system
+    /*
     if(auto serverModule = dynamic_cast<ServerNetworkModule*>(gameManager->getNetworkModule())) {
         for (Entity *entity: entities) {
             CarInput *inputs = entity->getComponent<CarInput>();
@@ -56,5 +58,5 @@ void GunSystem::update(const sf::Time& dt)
                 gun->elapsedTimeSinceLastShot += dt;
             }
         }
-    }
+    }*/
 }
