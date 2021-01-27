@@ -64,7 +64,7 @@ void Client::initialize(int keyBindingConfiguration)
     _keybinding.reset(new KeyBinding(keyBindingConfiguration));
 	_stateStack.reset(new StateStack(State::Context(_uid, *_renderTexture, *_textures, *_fonts, *_keybinding, *_applicationMutex, _associatedColor)));
 	registerStates();
-	_stateStack->pushState(States::Title);
+	_stateStack->pushState(States::Game);
 }
 
 void Client::run() {
@@ -199,10 +199,7 @@ void Client::updateStatistics(sf::Time dt)
 
 void Client::registerStates()
 {
-	_stateStack->registerState<TitleState>(States::Title);
-	_stateStack->registerState<MenuState>(States::Menu);
 	_stateStack->registerState<ClientGameState>(States::Game);
-	_stateStack->registerState<SettingsState>(States::Settings);
 }
 
 sf::Color Client::getAssociatedColor() {
