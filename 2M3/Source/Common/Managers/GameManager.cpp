@@ -167,7 +167,7 @@ void GameManager::removeFromSystemsLists(Entity* entity)
  */
 void GameManager::update(const sf::Time& dt)
 {
-    for (std::unique_ptr<System<SystemType::Logic>>& system: logicSystems)
+    for (const auto& system: logicSystems)
     { 
         system->update(dt); 
     }
@@ -182,7 +182,7 @@ void GameManager::update(const sf::Time& dt)
  */
 void GameManager::render(const sf::Time& dt)
 {
-    for (std::unique_ptr<System<SystemType::Render>>& renderer: renderSystems)
+    for (const auto& renderer: renderSystems)
     { 
         renderer->update(dt); 
     }

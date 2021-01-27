@@ -17,9 +17,10 @@
 #include "Server/Server.h"
 #include "Server/Interface.h"
 
-Server::Server(const std::string& ip, unsigned short port): game()
+Server::Server(const std::string& ip, unsigned short port) :
+    networkModule(*this, ip, port),
+    game(&networkModule)
 {
-    game.setNetworkModule<ServerNetworkModule>(*this, ip, port);
     initGame();
     gameThread = std::thread([&]() { runGame(); });
     getNetworkHandler().registerListener(this);
@@ -98,7 +99,7 @@ ServerNetworkHandler& Server::getNetworkHandler() {
 }
 
 ServerNetworkModule& Server::getNetworkModule() {
-    return *dynamic_cast<ServerNetworkModule*>(game.getNetworkModule());
+    return networkModule;
 }
 
 bool Server::isReady() {

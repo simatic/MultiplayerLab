@@ -1,5 +1,6 @@
 #include "GameState.h"
 #include "Common/Managers/ResourceManager.h"
+#include <Client/Managers/ClientGameManager.h>
 #include "Common/Prefabs/Prefabs.h"
 
 #include "Common/Systems/BulletSystem.h"
@@ -34,13 +35,13 @@
 
 GameState::GameState(StateStack& stack, Context context) :
 	State(stack, context),
-	gameManager(std::make_unique<GameManager>())
+    networkModule(std::make_unique<ClientNetworkModule>(context, "localhost", DEFAULT_PORT)),
+    gameManager(std::make_unique<ClientGameManager>(networkModule.get()))
 {
 	target = context.target;
 	ResourceManager::getInstance()->setTextures(context.textures);
     gameManager->setRenderTarget(target);
     gameManager->setKeyBinding(context.keys);
-    gameManager->setNetworkModule<ClientNetworkModule>(this->getContext(), "localhost", DEFAULT_PORT);
 
     gameManager->addLogicSystems<
         KeyboardInputSystem,
@@ -74,7 +75,7 @@ GameState::GameState(StateStack& stack, Context context) :
         NetworkSendInputs
     >();
 
-    gameManager->updateSystemLists();
+    gameManager->updateSystemListsForAllEntities();
 }
 
 void GameState::draw()

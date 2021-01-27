@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <SFML/Network.hpp>
-#include <GameManager.h>
+#include <Server/Managers/ServerGameManager.h>
 #include <Server/Modules/ServerNetworkModule.h>
 #include "Common/Network/Network.h"
 #include "ServerNetworkHandler.h"
@@ -12,7 +12,8 @@
 
 class Server: public IServerEventsListener {
 private:
-    GameManager game;
+    ServerNetworkModule networkModule;
+    ServerGameManager game;
     std::thread gameThread;
     /// Mapping between the client ID and its entity
     std::unordered_map<ClientID, std::uint32_t> playerEntityIDs{};

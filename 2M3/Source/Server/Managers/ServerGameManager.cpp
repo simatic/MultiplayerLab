@@ -10,7 +10,7 @@ void ServerGameManager::clearAll() {
 }
 
 void ServerGameManager::update(const sf::Time& dt) {
-    for (std::unique_ptr<System<SystemType::ServerNetwork>>& system : networkSystems) {
+    for (const auto& system : networkSystems) {
         system->update(dt);
     }
     GameManager::update(dt);
