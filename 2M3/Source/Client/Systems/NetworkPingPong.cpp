@@ -3,8 +3,8 @@
 
 #include <Common/Network/PingPongPackets.h>
 
-NetworkPingPong::NetworkPingPong(GameManager* const gameManager, INetworkModule* const networkModule) :
-	NetworkSystem<Transform>(gameManager, networkModule)
+NetworkPingPong::NetworkPingPong(GameManager* const gameManager, ClientNetworkModule* const networkModule) :
+	ClientNetworkSystem<Transform>(gameManager, networkModule)
 {}
 
 void NetworkPingPong::update(const sf::Time& dt) {
@@ -13,9 +13,9 @@ void NetworkPingPong::update(const sf::Time& dt) {
         return;
     }
     timer -= 1;
-	gameManager->getNetworkModule()->createAndSend<PingPacket>();
-	if (!gameManager->getNetworkModule()->getBuffer().empty()) {
-	    auto packets = gameManager->getNetworkModule()->getBuffer().extractPacketsOfType<PongPacket>();
+	networkModule->createAndSend<PingPacket>();
+	if (!networkModule->getBuffer().empty()) {
+	    auto packets = networkModule->getBuffer().extractPacketsOfType<PongPacket>();
 		while(!packets.empty()) {
 		    auto pingPacket = std::move(packets.front());
 		    packets.pop();

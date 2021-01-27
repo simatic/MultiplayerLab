@@ -7,10 +7,10 @@
 #include <Common/Network/PingPongPackets.h>
 #include <PlayableCarInput.h>
 
-class NetworkSendInputs : public NetworkSystem<Transform, PlayableCarInput>
+class NetworkSendInputs : public ClientNetworkSystem<Transform, PlayableCarInput>
 {
 public:
-	explicit NetworkSendInputs(GameManager* const gameManager, INetworkModule* const networkModule);
+	explicit NetworkSendInputs(GameManager* const gameManager, ClientNetworkModule* const networkModule);
 
 	void update(const sf::Time& dt) override;
 };

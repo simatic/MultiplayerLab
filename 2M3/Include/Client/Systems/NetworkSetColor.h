@@ -6,10 +6,10 @@
 
 #include <Common/Network/PingPongPackets.h>
 
-class NetworkSetColor : public NetworkSystem<Transform>
+class NetworkSetColor : public ClientNetworkSystem<Transform>
 {
 public:
-	explicit NetworkSetColor(GameManager* const gameManager, INetworkModule* const networkModule);
+	explicit NetworkSetColor(GameManager* const gameManager, ClientNetworkModule* const networkModule);
 
 	void update(const sf::Time& dt) override;
 };

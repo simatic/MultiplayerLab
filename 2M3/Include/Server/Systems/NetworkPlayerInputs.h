@@ -4,10 +4,10 @@
 #include "Common/Components/Transform.h"
 #include <Client/Modules/ClientNetworkModule.h>
 
-class NetworkPlayerInputs : public NetworkSystem<Transform>
+class NetworkPlayerInputs : public ServerNetworkSystem<Transform>
 {
 public:
-    explicit NetworkPlayerInputs(GameManager* const gameManager, INetworkModule* const networkModule);
+    explicit NetworkPlayerInputs(GameManager* const gameManager, ServerNetworkModule* const networkModule);
 
     void update(const sf::Time& dt) override;
 };

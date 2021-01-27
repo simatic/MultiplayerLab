@@ -9,10 +9,10 @@
 
 // declares Kinematics as a dependency, but will actually need to convert from an entity ID to a entity,
 // so this system will require to check component existence by itself
-class NetworkSetSpeed : public NetworkSystem<Transform, Kinematics>
+class NetworkSetSpeed : public ClientNetworkSystem<Transform, Kinematics>
 {
 public:
-	explicit NetworkSetSpeed(GameManager* const gameManager, INetworkModule* const networkModule);
+	explicit NetworkSetSpeed(GameManager* const gameManager, ClientNetworkModule* const networkModule);
 
 	void update(const sf::Time& dt) override;
 };

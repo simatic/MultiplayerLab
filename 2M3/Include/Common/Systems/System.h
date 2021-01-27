@@ -6,12 +6,14 @@
 #include <set>
 
 class GameManager;  // Forward redirection of GameManager.
-class INetworkModule;
+class ClientNetworkModule;
+class ServerNetworkModule;
 
 enum class SystemType {
 	Logic,
 	Render,
-	Network
+	ServerNetwork,
+	ClientNetwork
 };
 
 /**
@@ -86,19 +88,38 @@ template <typename... Components>
 using RenderSystem = SignedSystem<SystemType::Render, Components...>;
 
 /**
- * Network system: System that communicates with the network
+ * Network client system: System that communicates with the network on the client side
  */
 template <typename... Components>
-class NetworkSystem : public SignedSystem<SystemType::Network, Components...> {
+class ClientNetworkSystem : public SignedSystem<SystemType::ClientNetwork, Components...> {
 public:
-	NetworkSystem(GameManager* const gameManager, INetworkModule* const networkModule);
+	ClientNetworkSystem(GameManager* const gameManager, ClientNetworkModule* const networkModule);
 
 protected:
-	INetworkModule* const networkModule;
+	ClientNetworkModule* const networkModule;
 };
 
 template <typename... Components>
-NetworkSystem<Components...>::NetworkSystem(GameManager* const gameManager, INetworkModule* const networkModule) :
-	SignedSystem<SystemType::Network, Components...>(gameManager),
+ClientNetworkSystem<Components...>::ClientNetworkSystem(GameManager* const gameManager, ClientNetworkModule* const networkModule) :
+	SignedSystem<SystemType::ClientNetwork, Components...>(gameManager),
 	networkModule(networkModule)
 {}
+
+/**
+ * Network server system: System that communicates with the network on the server side
+ */
+template <typename... Components>
+class ServerNetworkSystem : public SignedSystem<SystemType::ServerNetwork, Components...> {
+public:
+	ServerNetworkSystem(GameManager* const gameManager, ServerNetworkModule* const networkModule);
+
+protected:
+	ServerNetworkModule* const networkModule;
+};
+
+template <typename... Components>
+ServerNetworkSystem<Components...>::ServerNetworkSystem(GameManager* const gameManager, ServerNetworkModule* const networkModule) :
+	SignedSystem<SystemType::ServerNetwork, Components...>(gameManager),
+	networkModule(networkModule)
+{}
+

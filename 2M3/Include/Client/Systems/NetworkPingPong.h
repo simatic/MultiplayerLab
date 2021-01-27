@@ -6,13 +6,13 @@
 
 #include <Common/Network/PingPongPackets.h>
 
-class NetworkPingPong : public NetworkSystem<Transform>
+class NetworkPingPong : public ClientNetworkSystem<Transform>
 {
 private:
     float timer;
 
 public:
-	explicit NetworkPingPong(GameManager* const gameManager, INetworkModule* const networkModule);
+	explicit NetworkPingPong(GameManager* const gameManager, ClientNetworkModule* const networkModule);
 
 	void update(const sf::Time& dt) override;
 };

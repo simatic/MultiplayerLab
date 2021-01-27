@@ -6,10 +6,10 @@
 
 #include <Common/Network/PingPongPackets.h>
 
-class NetworkSetTransform : public NetworkSystem<Transform>
+class NetworkSetTransform : public ClientNetworkSystem<Transform>
 {
 public:
-	explicit NetworkSetTransform(GameManager* const gameManager, INetworkModule* const networkModule);
+	explicit NetworkSetTransform(GameManager* const gameManager, ClientNetworkModule* const networkModule);
 
 	void update(const sf::Time& dt) override;
 };

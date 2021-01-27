@@ -6,10 +6,10 @@
 
 #include <Common/Network/WorldStatePacket.h>
 
-class NetworkWorldState : public NetworkSystem<Transform>
+class NetworkWorldState : public ClientNetworkSystem<Transform>
 {
 public:
-	explicit NetworkWorldState(GameManager* const gameManager, INetworkModule* const networkModule);
+	explicit NetworkWorldState(GameManager* const gameManager, ClientNetworkModule* const networkModule);
 
 	void update(const sf::Time& dt) override;
 

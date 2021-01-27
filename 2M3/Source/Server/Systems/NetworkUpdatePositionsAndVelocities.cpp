@@ -6,8 +6,8 @@
 #include <Common/Network/SetTransformPacket.h>
 #include <Common/Network/SetSpeedPacket.h>
 
-NetworkUpdatePositionsAndVelocities::NetworkUpdatePositionsAndVelocities(GameManager* const gameManager, INetworkModule* const networkModule) :
-        NetworkSystem<Transform, Kinematics>(gameManager, networkModule)
+NetworkUpdatePositionsAndVelocities::NetworkUpdatePositionsAndVelocities(GameManager* const gameManager, ServerNetworkModule* const networkModule) :
+        ServerNetworkSystem<Transform, Kinematics>(gameManager, networkModule)
 {}
 
 void NetworkUpdatePositionsAndVelocities::update(const sf::Time& dt) {
@@ -16,20 +16,17 @@ void NetworkUpdatePositionsAndVelocities::update(const sf::Time& dt) {
         return;
     }
     timer -= 0.02;
-    if(auto serverModule = dynamic_cast<ServerNetworkModule*>(networkModule)) {
-        auto& clients = serverModule->getServer().getClients();
+   
+    auto& clients = networkModule->getServer().getClients();
 
-        for(const auto& entity : entities) {
-            auto transform = entity->getComponent<Transform>();
-            auto kinematics = entity->getComponent<Kinematics>();
-            for(const auto& client : clients) {
-                auto transformPacket = serverModule->getNetwork()->create<SetTransformPacket>(entity->getID(), transform->position.x, transform->position.y, transform->rotation);
-                auto velocityPacket = serverModule->getNetwork()->create<SetSpeedPacket>(entity->getID(), kinematics->velocity.x, kinematics->velocity.y);
-                client->send(std::move(transformPacket));
-                client->send(std::move(velocityPacket));
-            }
+    for(const auto& entity : entities) {
+        auto transform = entity->getComponent<Transform>();
+        auto kinematics = entity->getComponent<Kinematics>();
+        for(const auto& client : clients) {
+            auto transformPacket = networkModule->getNetwork()->create<SetTransformPacket>(entity->getID(), transform->position.x, transform->position.y, transform->rotation);
+            auto velocityPacket = networkModule->getNetwork()->create<SetSpeedPacket>(entity->getID(), kinematics->velocity.x, kinematics->velocity.y);
+            client->send(std::move(transformPacket));
+            client->send(std::move(velocityPacket));
         }
-    } else {
-        throw std::runtime_error("Cannot use NetworkUpdatePositionsAndVelocities on a client.");
     }
 }
