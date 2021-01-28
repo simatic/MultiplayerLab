@@ -12,6 +12,7 @@
 #include <CarDeath.h>
 #include <MovementSystem.h>
 #include <Server/Systems/NetworkUpdatePositionsAndVelocities.h>
+#include <Server/Systems/NetworkGunShot.h>
 #include "Common/Components/Collider.h"
 #include "Utility.h"
 #include "Server/Server.h"
@@ -49,15 +50,14 @@ void Server::initGame() {
     // TODO: add more systems
     game.addNetworkSystems<
             NetworkPlayerInputs,
-
-            NetworkUpdatePositionsAndVelocities
+            NetworkUpdatePositionsAndVelocities,
+            NetworkGunShot
     >();
 
     game.addLogicSystems<
             CarMovementSystem,
             CollisionSystem,
             CarCollisionSystem,
-            GunSystem,
             BulletSystem,
             CarDeath,
             MovementSystem
