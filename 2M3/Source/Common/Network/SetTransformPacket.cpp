@@ -8,6 +8,13 @@ SetTransformPacket::SetTransformPacket(PacketSequenceIndex index, sf::Packet& so
     source >> angle;
 }
 
+SetTransformPacket::SetTransformPacket(PacketSequenceIndex index, std::uint32_t entityID, Transform* transform): Packet(index) {
+    SetTransformPacket::entityID = entityID;
+    SetTransformPacket::x = transform->position.x;
+    SetTransformPacket::y = transform->position.y;
+    SetTransformPacket::angle = transform->rotation;
+}
+
 SetTransformPacket::SetTransformPacket(PacketSequenceIndex index, std::uint32_t entityID, float x, float y, float angle): Packet(index) {
     SetTransformPacket::entityID = entityID;
     SetTransformPacket::x = x;

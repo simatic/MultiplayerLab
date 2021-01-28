@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Network.h"
+#include <Common/Components/Transform.h>
 
 class SetTransformPacket: public Packet {
 private:
@@ -12,7 +13,7 @@ private:
 
 public:
     explicit SetTransformPacket(PacketSequenceIndex index, sf::Packet& source);
-
+    explicit SetTransformPacket(PacketSequenceIndex index, std::uint32_t entityID, Transform* transform);
     explicit SetTransformPacket(PacketSequenceIndex index, std::uint32_t entityID, float x, float y, float angle);
 
     [[nodiscard]] std::unique_ptr<Packet> handle(INetworkModule* iNetworkModule) const override;

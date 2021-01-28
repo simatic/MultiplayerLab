@@ -23,8 +23,8 @@ void NetworkUpdatePositionsAndVelocities::update(const sf::Time& dt) {
         auto transform = entity->getComponent<Transform>();
         auto kinematics = entity->getComponent<Kinematics>();
         for(const auto& client : clients) {
-            auto transformPacket = networkModule->getNetwork()->create<SetTransformPacket>(entity->getID(), transform->position.x, transform->position.y, transform->rotation);
-            auto velocityPacket = networkModule->getNetwork()->create<SetSpeedPacket>(entity->getID(), kinematics->velocity.x, kinematics->velocity.y);
+            auto transformPacket = networkModule->create<SetTransformPacket>(entity->getID(), transform);
+            auto velocityPacket = networkModule->create<SetSpeedPacket>(entity->getID(), kinematics->velocity.x, kinematics->velocity.y);
             client->send(std::move(transformPacket));
             client->send(std::move(velocityPacket));
         }

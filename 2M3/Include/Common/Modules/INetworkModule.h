@@ -13,6 +13,9 @@ public:
 
 	ModuleID getID() const override { return ModuleID::Network; };
 
+	template<typename Packet, typename... Args>
+	std::unique_ptr<Packet> create(Args... args);
+
 	template <typename Packet, typename... Args>
 	std::unique_ptr<Packet> createAndSend(Args... args);
 
@@ -37,6 +40,11 @@ protected:
 template<class Type>
 std::queue<std::unique_ptr<Type>> INetworkModule::extractPacketsOfType() {
 	return buffer.extractPacketsOfType<Type>();
+}
+
+template<typename Packet, typename... Args>
+std::unique_ptr<Packet> INetworkModule::create(Args... args) {
+	return network->create<Packet>(args...);
 }
 
 template<typename Packet, typename... Args>
