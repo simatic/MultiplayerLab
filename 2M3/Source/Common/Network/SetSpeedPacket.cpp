@@ -1,35 +1,41 @@
 #include "Common/Network/SetSpeedPacket.h"
 
-SetSpeedPacket::SetSpeedPacket(PacketSequenceIndex index, sf::Packet &source): Packet(index) {
+SetVelocityPacket::SetVelocityPacket(PacketSequenceIndex index, sf::Packet &source): Packet(index) {
     source >> entityID;
     source >> xSpeed;
     source >> ySpeed;
 }
 
-SetSpeedPacket::SetSpeedPacket(PacketSequenceIndex index, std::uint32_t entityID, float xSpeed, float ySpeed): Packet(index) {
-    SetSpeedPacket::entityID = entityID;
-    SetSpeedPacket::xSpeed = xSpeed;
-    SetSpeedPacket::ySpeed = ySpeed;
+SetVelocityPacket::SetVelocityPacket(PacketSequenceIndex index, std::uint32_t entityID, const sf::Vector2f& velocity): Packet(index) {
+    SetVelocityPacket::entityID = entityID;
+    SetVelocityPacket::xSpeed = velocity.x;
+    SetVelocityPacket::ySpeed = velocity.y;
 }
 
-std::unique_ptr<Packet> SetSpeedPacket::handle(INetworkModule *iNetworkModule) const {
+SetVelocityPacket::SetVelocityPacket(PacketSequenceIndex index, std::uint32_t entityID, float xSpeed, float ySpeed): Packet(index) {
+    SetVelocityPacket::entityID = entityID;
+    SetVelocityPacket::xSpeed = xSpeed;
+    SetVelocityPacket::ySpeed = ySpeed;
+}
+
+std::unique_ptr<Packet> SetVelocityPacket::handle(INetworkModule *iNetworkModule) const {
     return nullptr;
 }
 
-void SetSpeedPacket::write(sf::Packet &destination) const {
+void SetVelocityPacket::write(sf::Packet &destination) const {
     destination << entityID;
     destination << xSpeed;
     destination << ySpeed;
 }
 
-std::uint32_t SetSpeedPacket::getEntityID() const {
+std::uint32_t SetVelocityPacket::getEntityID() const {
     return entityID;
 }
 
-float SetSpeedPacket::getSpeedX() const {
+float SetVelocityPacket::getSpeedX() const {
     return xSpeed;
 }
 
-float SetSpeedPacket::getSpeedY() const {
+float SetVelocityPacket::getSpeedY() const {
     return ySpeed;
 }

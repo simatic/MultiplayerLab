@@ -48,7 +48,7 @@ void GunSystem::update(const sf::Time& dt)
                             bullet->getComponent<Transform>()->position.x,
                             bullet->getComponent<Transform>()->position.y,
                             bullet->getComponent<Transform>()->rotation));
-                        client->send(serverModule->getNetwork()->create<SetSpeedPacket>(id,
+                        client->send(serverModule->getNetwork()->create<SetVelocityPacket>(id,
                             bullet->getComponent<Kinematics>()->velocity.x,
                             bullet->getComponent<Kinematics>()->velocity.y));
                     }

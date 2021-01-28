@@ -38,7 +38,7 @@ std::unique_ptr<Packet> deserializePacket(sf::Packet& packet) {
             return std::make_unique<SetColorPacket>(sequenceIndex, packet);
 
         case PacketID::SetSpeed:
-            return std::make_unique<SetSpeedPacket>(sequenceIndex, packet);
+            return std::make_unique<SetVelocityPacket>(sequenceIndex, packet);
 
         case PacketID::Input:
             return std::make_unique<InputPacket>(sequenceIndex, packet);

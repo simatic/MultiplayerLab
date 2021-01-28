@@ -2,7 +2,7 @@
 
 #include "Network.h"
 
-class SetSpeedPacket: public Packet {
+class SetVelocityPacket: public Packet {
 private:
     std::uint32_t entityID = 0;
     float xSpeed = 0;
@@ -10,9 +10,9 @@ private:
 
 
 public:
-    explicit SetSpeedPacket(PacketSequenceIndex index, sf::Packet& source);
-
-    explicit SetSpeedPacket(PacketSequenceIndex index, std::uint32_t entityID, float xSpeed, float ySpeed);
+    explicit SetVelocityPacket(PacketSequenceIndex index, sf::Packet& source);
+    explicit SetVelocityPacket(PacketSequenceIndex index, std::uint32_t entityID, const sf::Vector2f& velocity);
+    explicit SetVelocityPacket(PacketSequenceIndex index, std::uint32_t entityID, float xSpeed, float ySpeed);
 
     [[nodiscard]] std::unique_ptr<Packet> handle(INetworkModule* iNetworkModule) const override;
 

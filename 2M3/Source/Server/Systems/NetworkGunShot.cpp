@@ -45,7 +45,7 @@ void NetworkGunShot::update(const sf::Time& dt)
                         bullet->getComponent<Transform>()->position.x,
                         bullet->getComponent<Transform>()->position.y,
                         bullet->getComponent<Transform>()->rotation));
-                    client->send(networkModule->getNetwork()->create<SetSpeedPacket>(id,
+                    client->send(networkModule->getNetwork()->create<SetVelocityPacket>(id,
                         bullet->getComponent<Kinematics>()->velocity.x,
                         bullet->getComponent<Kinematics>()->velocity.y));
                 }
