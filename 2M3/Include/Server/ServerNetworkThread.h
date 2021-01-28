@@ -8,11 +8,11 @@ private:
     std::thread backingThread{};
     ServerNetworkHandler& serverNetwork;
     sf::UdpSocket& socket;
-    Buffer& outputBuffer;
+    Buffer<Packet>& outputBuffer;
     bool ready = false;
 
 public:
-    explicit ServerNetworkThread(ServerNetworkHandler& handler, Buffer& outputBuffer);
+    explicit ServerNetworkThread(ServerNetworkHandler& handler, Buffer<Packet>& outputBuffer);
     ~ServerNetworkThread();
 
     /// Is the server ready to receive clients?

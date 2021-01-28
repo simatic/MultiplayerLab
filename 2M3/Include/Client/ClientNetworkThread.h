@@ -12,13 +12,13 @@ class ClientNetworkThread {
 private:
     std::thread backingThread{};
     NetworkHandler& network;
-    Buffer& outputBuffer;
+    Buffer<Packet>& outputBuffer;
     std::string host;
     unsigned short remotePort;
     ClientNetworkModule* networkModule = nullptr;
 
 public:
-    ClientNetworkThread(NetworkHandler& handler, Buffer& outputBuffer, const std::string& host, unsigned short port);
+    ClientNetworkThread(NetworkHandler& handler, Buffer<Packet>& outputBuffer, const std::string& host, unsigned short port);
     ~ClientNetworkThread();
 
     ClientNetworkModule *getNetworkModule() const;

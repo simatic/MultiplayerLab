@@ -29,8 +29,7 @@ void NetworkWorldState::update(const sf::Time& dt) {
 	if (!networkModule->isBufferEmpty()) {
 	    auto packets = networkModule->extractPacketsOfType<WorldStatePacket>();
 		while(!packets.empty()) {
-		    auto worldStatePacket = std::move(packets.front());
-		    packets.pop();
+            auto worldStatePacket = packets.fetchPacket();
 
             applyWorldStateEntities(worldStatePacket->getEntityInformation());
 		}

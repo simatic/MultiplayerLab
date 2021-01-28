@@ -6,7 +6,7 @@ INetworkModule::INetworkModule(const std::string& host, const unsigned short por
 	network(std::move(network))
 {}
 
-Buffer& INetworkModule::getBuffer() {
+Buffer<Packet>& INetworkModule::getBuffer() {
 	return buffer;
 }
 

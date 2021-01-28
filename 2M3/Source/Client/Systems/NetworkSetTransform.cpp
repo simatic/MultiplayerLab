@@ -14,8 +14,7 @@ void NetworkSetTransform::update(const sf::Time& dt) {
 	if (!networkModule->isBufferEmpty()) {
 	    auto packets = networkModule->extractPacketsOfType<SetTransformPacket>();
 		while(!packets.empty()) {
-		    auto setTransformPacket = std::move(packets.front());
-		    packets.pop();
+			auto setTransformPacket = packets.fetchPacket();
 
 		    auto entityID = setTransformPacket->getEntityID();
 		    auto position = sf::Vector2f(setTransformPacket->getX(), setTransformPacket->getY());

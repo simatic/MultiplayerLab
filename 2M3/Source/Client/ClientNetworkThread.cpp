@@ -73,7 +73,7 @@ void ClientNetworkThread::threadCode() {
     }
 }
 
-ClientNetworkThread::ClientNetworkThread(NetworkHandler& handler, Buffer& outputBuffer, const std::string& host, unsigned short port): network(handler), outputBuffer(outputBuffer), host(host), remotePort(port) {
+ClientNetworkThread::ClientNetworkThread(NetworkHandler& handler, Buffer<Packet>& outputBuffer, const std::string& host, unsigned short port): network(handler), outputBuffer(outputBuffer), host(host), remotePort(port) {
     backingThread = std::thread([&]() { this->threadCode();});
 }
 

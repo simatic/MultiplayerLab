@@ -30,12 +30,12 @@ private:
     std::mutex mutex4ResponsePacketWithDelay{};
     bool stopServer = false;
     std::thread backingThread{};
-    Buffer& outputBuffer;
+    Buffer<Packet>& outputBuffer;
 
     ServerNetworkHandler& serverNetwork;
 
 public:
-    DelayCreator(ServerNetworkHandler& serverNetworkHandler, Buffer& buffer);
+    DelayCreator(ServerNetworkHandler& serverNetworkHandler, Buffer<Packet>& buffer);
 
     void sendToClient(const UdpClient& client, std::unique_ptr<Packet>&& packet);
 

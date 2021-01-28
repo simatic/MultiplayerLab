@@ -4,7 +4,7 @@
 #include "Server/Server.h"
 #include "Server/DelayCreation.h"
 
-DelayCreator::DelayCreator(ServerNetworkHandler& serverNetworkHandler, Buffer& outputBuffer): outputBuffer(outputBuffer), serverNetwork(serverNetworkHandler) {
+DelayCreator::DelayCreator(ServerNetworkHandler& serverNetworkHandler, Buffer<Packet>& outputBuffer): outputBuffer(outputBuffer), serverNetwork(serverNetworkHandler) {
     backingThread = std::thread([&](){this->threadCode();});
 }
 

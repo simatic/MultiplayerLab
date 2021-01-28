@@ -13,8 +13,7 @@ void NetworkAddEntities::update(const sf::Time& dt) {
 	if (!networkModule->isBufferEmpty()) {
 	    auto packets = networkModule->extractPacketsOfType<AddEntityPacket>();
 		while(!packets.empty()) {
-		    auto addEntityPacket = std::move(packets.front());
-		    packets.pop();
+			auto addEntityPacket = packets.fetchPacket();
 
 		    auto entityType = addEntityPacket->getEntityType();
 		    auto entityID = addEntityPacket->getEntityID();

@@ -11,8 +11,7 @@ void NetworkSetColor::update(const sf::Time& dt) {
 	if (!networkModule->isBufferEmpty()) {
 	    auto packets = networkModule->extractPacketsOfType<SetColorPacket>();
 		while(!packets.empty()) {
-		    auto setColorPacket = std::move(packets.front());
-		    packets.pop();
+			auto setColorPacket = packets.fetchPacket();
 
 		    auto entityID = setColorPacket->getEntityID();
 

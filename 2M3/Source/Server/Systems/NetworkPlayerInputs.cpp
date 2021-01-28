@@ -14,8 +14,7 @@ void NetworkPlayerInputs::update(const sf::Time& dt) {
     if (!networkModule->isBufferEmpty()) {
         auto packets = networkModule->extractPacketsOfType<InputPacket>();
         while(!packets.empty()) {
-            auto inputPacket = std::move(packets.front());
-            packets.pop();
+            auto inputPacket = packets.fetchPacket();
 
             // TODO: re-broadcast to clients to help their predictions
 

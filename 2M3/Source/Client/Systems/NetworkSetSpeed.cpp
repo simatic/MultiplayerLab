@@ -12,8 +12,7 @@ void NetworkSetSpeed::update(const sf::Time& dt) {
 	if (!networkModule->isBufferEmpty()) {
 	    auto packets = networkModule->extractPacketsOfType<SetVelocityPacket>();
 		while(!packets.empty()) {
-		    auto setSpeedPacket = std::move(packets.front());
-		    packets.pop();
+			auto setSpeedPacket = packets.fetchPacket();
 
 		    auto entityID = setSpeedPacket->getEntityID();
 		    auto speed = sf::Vector2f(setSpeedPacket->getSpeedX(), setSpeedPacket->getSpeedY());

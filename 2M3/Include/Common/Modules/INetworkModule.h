@@ -20,9 +20,9 @@ public:
 	std::unique_ptr<Packet> createAndSend(Args... args);
 
 	template<class Type>
-	std::queue<std::unique_ptr<Type>> extractPacketsOfType();
+	Buffer<Type> extractPacketsOfType();
 
-	Buffer& getBuffer();
+	Buffer<Packet>& getBuffer();
 	bool isBufferEmpty() const;
 
     const std::unique_ptr<NetworkHandler> &getNetwork() const;
@@ -34,11 +34,11 @@ protected:
 	std::unique_ptr<NetworkHandler> network;
 
 protected:
-    Buffer buffer;
+    Buffer<Packet> buffer;
 };
 
 template<class Type>
-std::queue<std::unique_ptr<Type>> INetworkModule::extractPacketsOfType() {
+Buffer<Type> INetworkModule::extractPacketsOfType() {
 	return buffer.extractPacketsOfType<Type>();
 }
 

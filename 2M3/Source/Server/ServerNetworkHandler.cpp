@@ -10,7 +10,7 @@
 #include "Server/DelayCreation.h"
 #include "Server/Interface.h"
 
-ServerNetworkHandler::ServerNetworkHandler(Buffer& buffer, const std::string& ip, unsigned short port): ip(ip), port(port) {
+ServerNetworkHandler::ServerNetworkHandler(Buffer<Packet>& buffer, const std::string& ip, unsigned short port): ip(ip), port(port) {
     delayCreator = std::make_shared<DelayCreator>(*this, buffer);
 }
 

@@ -17,8 +17,7 @@ void NetworkPingPong::update(const sf::Time& dt) {
 	if (!networkModule->getBuffer().empty()) {
 	    auto packets = networkModule->getBuffer().extractPacketsOfType<PongPacket>();
 		while(!packets.empty()) {
-		    auto pingPacket = std::move(packets.front());
-		    packets.pop();
+			auto pingPacket = packets.fetchPacket();
 
             // std::cout << "PONG" << std::endl;
 		}
