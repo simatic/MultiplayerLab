@@ -31,7 +31,6 @@ void NetworkGunShot::update(const sf::Time& dt)
 
         if (gun->elapsedTimeSinceLastShot >= gun->cooldown) {
             if (inputs->action) {
-                std::cout << "Shoot from " << entity << std::endl;
                 std::shared_ptr<Entity> bullet = Prefab::createBullet(false);
                 bullet->getComponent<Transform>()->position = entity->getComponent<Transform>()->position;
                 bullet->getComponent<Bullet>()->owner = entity->weak_from_this();
@@ -40,14 +39,9 @@ void NetworkGunShot::update(const sf::Time& dt)
                 auto id = networkModule->getNewNetworkID();
                 gameManager->addEntityWithIDNextFrame(bullet, id);
                 for(auto& client : networkModule->getServer().getClients()) {
-                    client->send(networkModule->getNetwork()->create<AddEntityPacket>(Prefab::Type::Bullet, id));
-                    client->send(networkModule->getNetwork()->create<SetTransformPacket>(id,
-                        bullet->getComponent<Transform>()->position.x,
-                        bullet->getComponent<Transform>()->position.y,
-                        bullet->getComponent<Transform>()->rotation));
-                    client->send(networkModule->getNetwork()->create<SetVelocityPacket>(id,
-                        bullet->getComponent<Kinematics>()->velocity.x,
-                        bullet->getComponent<Kinematics>()->velocity.y));
+                    client->send(networkModule->create<AddEntityPacket>(Prefab::Type::Bullet, id));
+                    client->send(networkModule->create<SetTransformPacket>(id, bullet->getComponent<Transform>()));
+                    client->send(networkModule->create<SetVelocityPacket>(id, bullet->getComponent<Kinematics>()->velocity));
                 }
                 gun->elapsedTimeSinceLastShot = sf::Time::Zero;
             }

@@ -124,7 +124,7 @@ void Server::makePlayerJoin(const UdpClient& client) {
         //packet pour le client qui arrive
         auto hereIsYourEntityPacket = getNetworkHandler().create<AddEntityPacket>(Prefab::Type::PlayableCar, entityID);
         client.send(std::move(hereIsYourEntityPacket));
-        client.send(getNetworkHandler().create<SetTransformPacket>(entity->getID(), entTransform->position.x, entTransform->position.y, entTransform->rotation));
+        client.send(getNetworkHandler().create<SetTransformPacket>(entity->getID(), entTransform));
 
         //Pour 2 clients c'est simple et OK
         sf::Color newClientColor;
@@ -141,7 +141,7 @@ void Server::makePlayerJoin(const UdpClient& client) {
             if(client.id != otherClient->id) {
                 auto packet = getNetworkHandler().create<AddEntityPacket>(Prefab::Type::Car, entityID);
                 otherClient->send(std::move(packet));
-                otherClient->send(getNetworkHandler().create<SetTransformPacket>(entity->getID(), entTransform->position.x, entTransform->position.y, entTransform->rotation));
+                otherClient->send(getNetworkHandler().create<SetTransformPacket>(entity->getID(), entTransform));
             }
             otherClient->send(getNetworkHandler().create<SetColorPacket>(entity->getID(), newClientColor));
         }
