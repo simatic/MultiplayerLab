@@ -17,7 +17,7 @@ public:
 	std::unique_ptr<Packet> create(Args... args);
 
 	template <typename Packet, typename... Args>
-	std::unique_ptr<Packet> createAndSend(Args... args);
+	void createAndSend(Args... args);
 
 	template<class Type>
 	Buffer<Type> extractPacketsOfType();
@@ -48,8 +48,6 @@ std::unique_ptr<Packet> INetworkModule::create(Args... args) {
 }
 
 template<typename Packet, typename... Args>
-std::unique_ptr<Packet> INetworkModule::createAndSend(Args... args) {
-	auto packet = network->create<Packet>(args...);
-	packet->realSend(network->getSocket(), sf::IpAddress(host), remotePort);
-	return packet;
+void INetworkModule::createAndSend(Args... args) {
+	network->create<Packet>(args...)->realSend(network->getSocket(), sf::IpAddress(host), remotePort);
 }
