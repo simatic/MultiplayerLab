@@ -3,9 +3,9 @@
 #include "Common/Components/Transform.h"
 #include "Common/Components/Kinematics.h"
 #include "Common/Components/CarInput.h"
-#include "Common/Components/CarEngine.h"
+#include "Common/Components/VehicleEngine.h"
 
-class CarMovementSystem : public LogicSystem<Transform, Kinematics, CarInput, CarEngine>
+class CarMovementSystem : public LogicSystem<Transform, Kinematics, CarInput, VehicleEngine>
 {
 public:
 	explicit CarMovementSystem(GameManager* const gameManager);

@@ -1,9 +1,9 @@
 #include "Common/Systems/System.h"
 #include "Common/Components/CarInput.h"
-#include "Common/Components/CarEngine.h"
+#include "Common/Components/VehicleEngine.h"
 #include "Common/Components/Gun.h"
 
-class GunSystem : public LogicSystem<CarInput, CarEngine, Gun>
+class GunSystem : public LogicSystem<CarInput, VehicleEngine, Gun>
 {
 public:
 	explicit GunSystem(GameManager* const gameManager);

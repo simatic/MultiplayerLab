@@ -4,12 +4,12 @@
 #include <SFML/System/Vector2.hpp>
 
 /**
- * @struct CarEngine component.
- * Holds information to model the behavior of a CarEngine.
+ * @struct VehicleEngine component.
+ * Holds information to model the behavior of a VehicleEngine.
  */
-struct CarEngine : public IdentifiableComponent<CarEngine>
+struct VehicleEngine : public IdentifiableComponent<VehicleEngine>
 {
-    CarEngine(
+    VehicleEngine(
 		const float 		maxSpeed, 
 		const float 		backwardsMaxSpeed, 
 		const float 		acceleration, 

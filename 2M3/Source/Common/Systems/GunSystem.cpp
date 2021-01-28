@@ -14,7 +14,7 @@
 #include "Utility.h"
 
 GunSystem::GunSystem(GameManager* const gameManager) :
-    LogicSystem<CarInput, CarEngine, Gun>(gameManager)
+    LogicSystem<CarInput, VehicleEngine, Gun>(gameManager)
 {}
 
 void GunSystem::update(const sf::Time& dt)
@@ -24,7 +24,7 @@ void GunSystem::update(const sf::Time& dt)
     if(auto serverModule = dynamic_cast<ServerNetworkModule*>(gameManager->getNetworkModule())) {
         for (Entity *entity: entities) {
             CarInput *inputs = entity->getComponent<CarInput>();
-            CarEngine *engine = entity->getComponent<CarEngine>();
+            VehicleEngine *engine = entity->getComponent<VehicleEngine>();
             Gun *gun = entity->getComponent<Gun>();
 
             gun->pointingDirection = engine->direction;

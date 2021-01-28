@@ -85,7 +85,7 @@ namespace GUI
 			mSpeedometer.setPosition(mSpeedometerBackground.getPosition());
 
 			mAction.setText("Shoot Bullets");
-			mSpeedometer.setRotation(180.f + 180.f * (length(car->getComponent<Kinematics>()->velocity) / car->getComponent<CarEngine>()->maxSpeed));
+			mSpeedometer.setRotation(180.f + 180.f * (length(car->getComponent<Kinematics>()->velocity) / car->getComponent<VehicleEngine>()->maxSpeed));
 
 			mMiniMapShapes.clear();
 		}

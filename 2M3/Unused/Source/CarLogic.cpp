@@ -32,8 +32,8 @@ CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding
 	Health health = Health(hp, hp);
 	addComponent<Health>(health);
 
-	CarEngine engine = CarEngine(1000, 1000 / 3, 200, 24, 800, M_PI / 3, 0.001f, sf::Vector2f(1, 0));
-	addComponent<CarEngine>(engine);
+	VehicleEngine engine = VehicleEngine(1000, 1000 / 3, 200, 24, 800, M_PI / 3, 0.001f, sf::Vector2f(1, 0));
+	addComponent<VehicleEngine>(engine);
 
 	Gun gun = Gun(sf::Vector2f(1, 0), sf::seconds(0.1));
 	addComponent<Gun>(gun);

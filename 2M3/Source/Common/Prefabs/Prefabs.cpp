@@ -8,7 +8,7 @@
 #include "Common/Components/Kinematics.h"
 #include "Common/Components/Collider.h"
 #include "Common/Components/CarInput.h"
-#include "Common/Components/CarEngine.h"
+#include "Common/Components/VehicleEngine.h"
 #include "Common/Components/Health.h"
 #include "Common/Components/HealthBar.h"
 #include "Common/Components/Gun.h"
@@ -32,7 +32,7 @@ std::shared_ptr<Entity> Prefab::createCar(const bool renderable) {
         collider,
         Health(100, 100),
         HealthBar(sf::Vector2f(50, 10), sf::Color::Red, sf::Color::Green, 0.5f),
-        CarEngine(1000, 1000.0f / 3.0f, 200, 24, 800, 3.1415f / 3, 0.001f, sf::Vector2f(1, 0)),
+        VehicleEngine(1000, 1000.0f / 3.0f, 200, 24, 800, 3.1415f / 3, 0.001f, sf::Vector2f(1, 0)),
         Gun(sf::Vector2f(1, 0), sf::seconds(0.1)),
         CarInput(),
         CopiableFromPrefab(Prefab::Type::Car)

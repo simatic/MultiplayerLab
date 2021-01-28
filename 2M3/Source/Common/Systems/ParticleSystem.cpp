@@ -1,7 +1,7 @@
 #include "Common/Systems/ParticleSystem.h"
 
 ParticleSystem::ParticleSystem(GameManager* const gameManager) :
-	LogicSystem<Transform, CarEngine, Particles>(gameManager)
+	LogicSystem<Transform, VehicleEngine, Particles>(gameManager)
 {}
 
 void ParticleSystem::update(const sf::Time& dt)
@@ -11,7 +11,7 @@ void ParticleSystem::update(const sf::Time& dt)
 		Transform* transform = entity->getComponent<Transform>();
 		Particles* particles = entity->getComponent<Particles>();
 
-		particles->position = transform->position - (float)20 * entity->getComponent<CarEngine>()->direction;
+		particles->position = transform->position - (float)20 * entity->getComponent<VehicleEngine>()->direction;
 
 		while (!particles->particlesDeque.empty() && particles->particlesDeque.front().lifetime <= sf::Time::Zero)
 		{

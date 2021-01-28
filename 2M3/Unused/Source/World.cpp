@@ -180,7 +180,7 @@ void World::createCar(sf::Uint64 id, sf::Vector2f pos, sf::Vector2f velocity, sf
 	Car* car = new Car(100, pos, sf::RectangleShape(sf::Vector2f(80, 40)), mTextures);
 	car->setID(id);
 	car->getComponent<Kinematics>()->velocity = velocity;
-	car->getComponent<CarEngine>()->direction = direction;
+	car->getComponent<VehicleEngine>()->direction = direction;
 	car->setSprite();
 	mNewEntities.push_back(car);
 }

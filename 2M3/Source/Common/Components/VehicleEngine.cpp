@@ -1,6 +1,6 @@
-#include "Common/Components/CarEngine.h"
+#include "Common/Components/VehicleEngine.h"
 
-CarEngine::CarEngine(
+VehicleEngine::VehicleEngine(
     const float maxSpeed, 
     const float backwardsMaxSpeed, 
     const float acceleration, 

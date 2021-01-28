@@ -8,6 +8,6 @@ void GUISystem::update(const sf::Time dt, OldEntity* entity)
 
     if (gui->car != nullptr)
     {
-        gui->mSpeedometer.setRotation(180.f + 180.f * (length(gui->car->getComponent<Kinematics>()->velocity) / gui->car->getComponent<CarEngine>()->maxSpeed));
+        gui->mSpeedometer.setRotation(180.f + 180.f * (length(gui->car->getComponent<Kinematics>()->velocity) / gui->car->getComponent<VehicleEngine>()->maxSpeed));
     }
 }
