@@ -12,6 +12,6 @@ void NetworkSendInputs::update(const sf::Time& dt) {
     if(entities.empty())
         return;
     auto playerEntity = *entities.begin();
-    CarInput* inputs = playerEntity->getComponent<PlayableCarInput>()->inputs;
-    networkModule->createAndSend<InputPacket>(inputs->up, inputs->down, inputs->left, inputs->right, inputs->action);
+    PlayableCarInput* inputs = playerEntity->getComponent<PlayableCarInput>();
+    networkModule->createAndSend<InputPacket>(inputs);
 }

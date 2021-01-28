@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Network.h"
+#include <Common/Components/PlayableCarInput.h>
+#include <Common/Components/CarInput.h>
 
 class InputPacket: public Packet {
 private:
@@ -13,7 +15,8 @@ private:
 
 public:
     explicit InputPacket(PacketSequenceIndex index, sf::Packet& source);
-
+    explicit InputPacket(PacketSequenceIndex index, PlayableCarInput* inputs);
+    explicit InputPacket(PacketSequenceIndex index, CarInput* inputs);
     explicit InputPacket(PacketSequenceIndex index, bool up, bool down, bool left, bool right, bool fire);
 
     [[nodiscard]] std::unique_ptr<Packet> handle(INetworkModule* iNetworkModule) const override;
