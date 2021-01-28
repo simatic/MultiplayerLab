@@ -5,9 +5,9 @@
 #include <Client/Modules/ClientNetworkModule.h>
 
 #include <Common/Network/PingPongPackets.h>
-#include <PlayableCarInput.h>
+#include <PlayableVehicleInput.h>
 
-class NetworkSendInputs : public ClientNetworkSystem<Transform, PlayableCarInput>
+class NetworkSendInputs : public ClientNetworkSystem<Transform, PlayableVehicleInput>
 {
 public:
 	explicit NetworkSendInputs(GameManager* const gameManager, ClientNetworkModule* const networkModule);

@@ -8,7 +8,7 @@ InputPacket::InputPacket(PacketSequenceIndex index, sf::Packet &source): Packet(
     source >> fire;
 }
 
-InputPacket::InputPacket(PacketSequenceIndex index, PlayableCarInput* inputs) : Packet(index) {
+InputPacket::InputPacket(PacketSequenceIndex index, PlayableVehicleInput* inputs) : Packet(index) {
     InputPacket::up = inputs->inputs->up;
     InputPacket::down = inputs->inputs->down;
     InputPacket::left = inputs->inputs->left;

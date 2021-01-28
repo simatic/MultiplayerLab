@@ -1,5 +1,5 @@
 #include <CopiableFromPrefab.h>
-#include <PlayableCarInput.h>
+#include <PlayableVehicleInput.h>
 #include "Common/Prefabs/Prefabs.h"
 
 #include "Common/Managers/ResourceManager.h"
@@ -55,7 +55,7 @@ std::shared_ptr<Entity> Prefab::createCar(const bool renderable) {
 
 std::shared_ptr<Entity> Prefab::createPlayableCar(const bool renderable) {
     std::shared_ptr<Entity> playableCar = Prefab::createCar(renderable);
-    playableCar->addComponent<PlayableCarInput>(PlayableCarInput(playableCar->getComponent<VehicleInput>()));
+    playableCar->addComponent<PlayableVehicleInput>(PlayableVehicleInput(playableCar->getComponent<VehicleInput>()));
     playableCar->addComponent<CameraTarget>(CameraTarget());
     playableCar->addComponent<CopiableFromPrefab>(CopiableFromPrefab(Prefab::Type::PlayableCar));
     return playableCar;
