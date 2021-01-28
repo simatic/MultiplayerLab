@@ -16,7 +16,7 @@ InputPacket::InputPacket(PacketSequenceIndex index, PlayableCarInput* inputs) : 
     InputPacket::fire = inputs->inputs->action;
 }
 
-InputPacket::InputPacket(PacketSequenceIndex index, CarInput* inputs) : Packet(index) {
+InputPacket::InputPacket(PacketSequenceIndex index, VehicleInput* inputs) : Packet(index) {
     InputPacket::up = inputs->up;
     InputPacket::down = inputs->down;
     InputPacket::left = inputs->left;

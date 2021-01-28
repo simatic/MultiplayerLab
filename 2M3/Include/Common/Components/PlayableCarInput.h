@@ -1,12 +1,12 @@
 #pragma once
 #include "Common/Components/Component.h"
-#include "CarInput.h"
+#include "VehicleInput.h"
 
 struct PlayableCarInput : public IdentifiableComponent<PlayableCarInput>
 {
     PlayableCarInput() = default;
-    PlayableCarInput(CarInput* inputs);
+    PlayableCarInput(VehicleInput* inputs);
     PlayableCarInput(const PlayableCarInput& toCopy);
 
-    CarInput* inputs = nullptr;
+    VehicleInput* inputs = nullptr;
 };

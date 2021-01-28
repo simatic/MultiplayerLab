@@ -2,7 +2,7 @@
 #include <Server/Systems/NetworkPlayerInputs.h>
 #include <Server/Modules/ServerNetworkModule.h>
 #include <Server/Server.h>
-#include <CarInput.h>
+#include <VehicleInput.h>
 #include <cassert>
 #include <Network/InputPacket.h>
 
@@ -22,7 +22,7 @@ void NetworkPlayerInputs::update(const sf::Time& dt) {
 
             auto playerEntity = networkModule->getServer().getClientEntityByID(client);
             if(playerEntity) {
-                auto inputs = playerEntity->getComponent<CarInput>();
+                auto inputs = playerEntity->getComponent<VehicleInput>();
                 assert(inputs != nullptr);
                 inputs->action = inputPacket->getFire();
                 inputs->left = inputPacket->getLeft();

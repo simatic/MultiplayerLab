@@ -1,9 +1,9 @@
 #pragma once
 #include "Common/Components/Component.h"
 
-struct CarInput : public IdentifiableComponent<CarInput>
+struct VehicleInput : public IdentifiableComponent<VehicleInput>
 {
-    CarInput() = default;
+    VehicleInput() = default;
 
     bool up = false;
     bool down = false;

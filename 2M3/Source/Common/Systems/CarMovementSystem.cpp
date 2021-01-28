@@ -2,7 +2,7 @@
 #include "Utility.h"
 
 CarMovementSystem::CarMovementSystem(GameManager* const gameManager) :
-	LogicSystem<Transform, Kinematics, CarInput, VehicleEngine>(gameManager)
+	LogicSystem<Transform, Kinematics, VehicleInput, VehicleEngine>(gameManager)
 {}
 
 void CarMovementSystem::update(const sf::Time& dt)
@@ -11,7 +11,7 @@ void CarMovementSystem::update(const sf::Time& dt)
 	{	
 		Transform* transform = entity->getComponent<Transform>();
 		Kinematics* kinematics = entity->getComponent<Kinematics>();
-		CarInput* inputs = entity->getComponent<CarInput>();
+		VehicleInput* inputs = entity->getComponent<VehicleInput>();
 		VehicleEngine* engine = entity->getComponent<VehicleEngine>();
 		
 		float l = length(kinematics->velocity);

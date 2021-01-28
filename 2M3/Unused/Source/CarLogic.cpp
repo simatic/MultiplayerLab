@@ -26,8 +26,8 @@ CarLogic::CarLogic(int hp, sf::Vector2f pos, sf::RectangleShape rect, KeyBinding
 	mKeyBindings(keys),
 	OldEntity(pos, rect)
 {
-	CarInput inputs = CarInput();
-	addComponent<CarInput>(inputs);
+	VehicleInput inputs = VehicleInput();
+	addComponent<VehicleInput>(inputs);
 
 	Health health = Health(hp, hp);
 	addComponent<Health>(health);

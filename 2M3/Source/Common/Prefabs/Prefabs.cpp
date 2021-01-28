@@ -7,7 +7,7 @@
 #include "Common/Components/Transform.h"
 #include "Common/Components/Kinematics.h"
 #include "Common/Components/Collider.h"
-#include "Common/Components/CarInput.h"
+#include "Common/Components/VehicleInput.h"
 #include "Common/Components/VehicleEngine.h"
 #include "Common/Components/Health.h"
 #include "Common/Components/HealthBar.h"
@@ -34,7 +34,7 @@ std::shared_ptr<Entity> Prefab::createCar(const bool renderable) {
         HealthBar(sf::Vector2f(50, 10), sf::Color::Red, sf::Color::Green, 0.5f),
         VehicleEngine(1000, 1000.0f / 3.0f, 200, 24, 800, 3.1415f / 3, 0.001f, sf::Vector2f(1, 0)),
         Gun(sf::Vector2f(1, 0), sf::seconds(0.1)),
-        CarInput(),
+        VehicleInput(),
         CopiableFromPrefab(Prefab::Type::Car)
         );
 
@@ -55,7 +55,7 @@ std::shared_ptr<Entity> Prefab::createCar(const bool renderable) {
 
 std::shared_ptr<Entity> Prefab::createPlayableCar(const bool renderable) {
     std::shared_ptr<Entity> playableCar = Prefab::createCar(renderable);
-    playableCar->addComponent<PlayableCarInput>(PlayableCarInput(playableCar->getComponent<CarInput>()));
+    playableCar->addComponent<PlayableCarInput>(PlayableCarInput(playableCar->getComponent<VehicleInput>()));
     playableCar->addComponent<CameraTarget>(CameraTarget());
     playableCar->addComponent<CopiableFromPrefab>(CopiableFromPrefab(Prefab::Type::PlayableCar));
     return playableCar;

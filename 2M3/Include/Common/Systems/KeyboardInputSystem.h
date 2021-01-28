@@ -2,7 +2,7 @@
 
 #include <PlayableCarInput.h>
 #include "Common/Systems/System.h"
-#include "Common/Components/CarInput.h"
+#include "Common/Components/VehicleInput.h"
 
 class KeyboardInputSystem : public LogicSystem<PlayableCarInput>
 {

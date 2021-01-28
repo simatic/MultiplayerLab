@@ -9,7 +9,7 @@ void KeyboardInputSystem::update(const sf::Time&)
 {
 	for (Entity* entity: entities)
 	{
-        CarInput* inputs = entity->getComponent<PlayableCarInput>()->inputs;
+        VehicleInput* inputs = entity->getComponent<PlayableCarInput>()->inputs;
 		
 		if (gameManager->getKeyBinding() != nullptr)
 		{

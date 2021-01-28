@@ -14,13 +14,13 @@
 #include "Utility.h"
 
 NetworkGunShot::NetworkGunShot(GameManager* const gameManager, ServerNetworkModule* networkModule) :
-    ServerNetworkSystem<CarInput, VehicleEngine, Gun>(gameManager, networkModule)
+    ServerNetworkSystem<VehicleInput, VehicleEngine, Gun>(gameManager, networkModule)
 {}
 
 void NetworkGunShot::update(const sf::Time& dt)
 {
     for (Entity *entity: entities) {
-        CarInput *inputs = entity->getComponent<CarInput>();
+        VehicleInput *inputs = entity->getComponent<VehicleInput>();
         VehicleEngine *engine = entity->getComponent<VehicleEngine>();
         Gun *gun = entity->getComponent<Gun>();
 
