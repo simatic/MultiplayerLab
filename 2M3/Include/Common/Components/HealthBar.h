@@ -1,5 +1,5 @@
 #pragma once
-#include <Component.h>
+#include <Common/Components/Component.h>
 
 #include <SFML/Graphics/RectangleShape.hpp>
 
