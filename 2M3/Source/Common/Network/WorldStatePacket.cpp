@@ -2,6 +2,8 @@
 
 
 WorldStatePacket::WorldStatePacket(PacketSequenceIndex index, sf::Packet& source): Packet(index) {
+    // reading a vector: read its length first, then for-loop to read each element
+
     std::uint32_t entityCount;
     source >> entityCount;
     entities.resize(entityCount);
@@ -13,6 +15,8 @@ WorldStatePacket::WorldStatePacket(PacketSequenceIndex index, sf::Packet& source
 WorldStatePacket::WorldStatePacket(PacketSequenceIndex index, std::vector<EntityInformation> information): Packet(index), entities(std::move(information)) {}
 
 void WorldStatePacket::write(sf::Packet &destination) const {
+    // writing a vector: write its length first, then for-loop to write each element
+
     destination << static_cast<std::uint32_t>(entities.size());
     for(const auto& info : entities) {
         destination << info;

@@ -28,6 +28,15 @@ enum PacketID: sf::Uint32 {
 /// Used to keep track of sequences (Client sends A->Upon reception, the Server sends B as an answer with the same PacketSequenceIndex)
 typedef sf::Int64 PacketSequenceIndex;
 
+/**
+ * 2M3 Packet layout when stored inside a SFML Packet:
+ *
+ * |---------------|-----------------------|-----------------------------------|
+ * | Packet ID     | Packet Sequence Index | Payload                           |
+ * |---------------|-----------------------|-----------------------------------|
+ * | sf::Uint32    | sf::Int64             | Anything written by Packet#write  |
+ * |---------------|-----------------------|-----------------------------------|
+ */
 class Packet {
 private:
     /// used to represent a packet inside the server interface
@@ -60,7 +69,22 @@ public:
 
     virtual ~Packet() = default;
 
+    /**
+     * MAKE SURE YOU DON'T WANT TO USE UdpClient#send BEFORE USING THIS METHOD.
+     *
+     *
+     * Send a packet to the given address+port through the given socket.
+     * Called 'realSend' because this method directly writes on the network, and bypasses latency and packet loss simulations.
+     * @param socket
+     * @param address
+     * @param port
+     */
     void realSend(sf::UdpSocket& socket, const sf::IpAddress& address, unsigned short port) const;
 };
 
+/**
+ * Reads a 2M3 packet from a SFML packet. Handles encoding and deserializes to the correct type
+ * @param packet the SFML packet to read a 2M3 packet from
+ * @return the deserialized packet, or nullptr if the packet type is unknown
+ */
 std::unique_ptr<Packet> deserializePacket(sf::Packet& packet);

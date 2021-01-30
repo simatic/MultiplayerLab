@@ -7,8 +7,6 @@ NetworkAddEntities::NetworkAddEntities(GameManager* const gameManager, ClientNet
 	ClientNetworkSystem<Transform>(gameManager, networkModule)
 {}
 
-static std::vector<std::shared_ptr<Entity>> forceAlive{};
-
 void NetworkAddEntities::update(const sf::Time& dt) {
 	if (!networkModule->isBufferEmpty()) {
 	    auto packets = networkModule->extractPacketsOfType<AddEntityPacket>();
@@ -24,8 +22,6 @@ void NetworkAddEntities::update(const sf::Time& dt) {
 				networkModule->setSelfEntityID(entityID);
             }
 
-            // TODO: still necessary?
-     //       forceAlive.push_back(entity);
             if(entity) {
                 gameManager->addEntityWithID(entity, entityID);
             }

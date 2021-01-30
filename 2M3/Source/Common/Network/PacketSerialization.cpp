@@ -44,7 +44,7 @@ std::unique_ptr<Packet> deserializePacket(sf::Packet& packet) {
             return std::make_unique<InputPacket>(sequenceIndex, packet);
 
 
-        // TODO: ajouter la déserialisation de votre packet
+        // TODO: Add your own packet for proper deserialization
 
         default:
             std::cerr << "Unknown/unsupported packet ID " << id << std::endl;
