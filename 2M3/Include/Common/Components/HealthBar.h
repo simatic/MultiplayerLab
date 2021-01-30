@@ -1,8 +1,12 @@
 #pragma once
-#include "Component.h"
+#include <Component.h>
 
 #include <SFML/Graphics/RectangleShape.hpp>
 
+/**
+ * @struct HealthBar component.
+ * Contains elements to display a healthbar.
+ */
 struct HealthBar : public IdentifiableComponent<HealthBar>
 {
     HealthBar(
@@ -11,6 +15,6 @@ struct HealthBar : public IdentifiableComponent<HealthBar>
 		const sf::Color& 	fillColor, 
 		const float 		fillRate = 0.f);
 
-	sf::RectangleShape background;
-	sf::RectangleShape bar;
+	sf::RectangleShape background;	//!< Background shape of the bar. 
+	sf::RectangleShape bar;			//!< Bar itself, size may vary according to health.
 };

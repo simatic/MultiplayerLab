@@ -1,6 +1,6 @@
 #pragma once
-#include "Common/Components/Component.h"
-#include "Entity.h"
+#include <Common/Components/Component.h>
+#include <Entity.h>
 
 #include <SFML/System/Time.hpp>
 
@@ -16,8 +16,8 @@ struct Bullet : public IdentifiableComponent<Bullet>
 		const sf::Time& 		lifetime,  
 		std::shared_ptr<Entity>	owner);
 	
-	unsigned int 				damage;
-	float 						maxSpeed;
-	sf::Time 					lifetime;
-	std::weak_ptr<Entity> 		owner;
+	unsigned int 				damage;		//!< The damage points when hitting a target.
+	float 						maxSpeed;	//!< Max speed of the bullet.
+	sf::Time 					lifetime;	//!< Lifetime of the bullet.
+	std::weak_ptr<Entity> 		owner;		//!< Who launched the bullet.
 };

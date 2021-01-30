@@ -19,17 +19,17 @@ struct VehicleEngine : public IdentifiableComponent<VehicleEngine>
 		const float 		drag, 
 		const sf::Vector2f& direction);
 	
-	bool 		isGoingForward = false;
-	bool 		isDrifting = false;
-	float 		previousDriftingSign = 0.f;
+	bool 		isGoingForward = false;		//!< If the vehicle is going forward.
+	bool 		isDrifting = false;			//!< If the vehicle is drifting.
+	float 		previousDriftingSign = 0.f;	//!< Which direction was the vehicle previously drifting.
 
-    float 		maxSpeed;
-	float 		backwardsMaxSpeed;
-	float 		acceleration;
-	float 		turnRadius;
-	float 		driftThreshold;
-	float 		driftAngle;
+    float 		maxSpeed;					//!< Vehicle max speed.
+	float 		backwardsMaxSpeed;			//!< Vehicle backwards max speed.
+	float 		acceleration;				//!< Vehicle acceleration.
+	float 		turnRadius;					//!< Vehicle turn radius.
+	float 		driftThreshold;				//!< Speed before the vehicle starts to drift.
+	float 		driftAngle;					
 	float 		drag;
 
-	sf::Vector2f direction;
+	sf::Vector2f direction;					//!< Direction of the vehicle.
 };

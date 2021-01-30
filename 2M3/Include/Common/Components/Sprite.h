@@ -3,6 +3,10 @@
 
 #include <SFML/Graphics/Sprite.hpp>
 
+/**
+ * @struct Sprite component.
+ * Holds a sprite to be rendered.
+ */
 struct Sprite : public IdentifiableComponent<Sprite>
 {
 	Sprite(const sf::Sprite& sprite);

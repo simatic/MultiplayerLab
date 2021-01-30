@@ -11,6 +11,6 @@ struct Camera : public IdentifiableComponent<Camera>
 {
     Camera() = default;
 
-    sf::View playerView;
-    std::weak_ptr<Entity> player;
+    sf::View playerView;            //!< View of the player.
+    std::weak_ptr<Entity> player;   //!< Player on which the camera is attached to.
 };
