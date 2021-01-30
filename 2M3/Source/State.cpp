@@ -1,6 +1,15 @@
 #include "State.h"
 #include "StateStack.h"
 
+State::Context::Context(sf::Color& associatedColor) :
+	uid(nullptr),
+	target(nullptr),
+	textures(nullptr),
+	fonts(nullptr),
+	keys(nullptr),
+	mutex(nullptr),
+	associatedColor(associatedColor)
+{}
 
 State::Context::Context(int& uid, sf::RenderTexture& target, TextureHolder& textures, FontHolder& fonts,
 	/*MusicPlayer& music, SoundPlayer& sounds,*/ KeyBinding& keys, sf::Mutex& appMutex, sf::Color& associatedColor)

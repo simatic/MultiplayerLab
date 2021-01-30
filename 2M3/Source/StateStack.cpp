@@ -119,3 +119,7 @@ StateStack::PendingChange::PendingChange(Action action, States::ID stateID)
 , stateID(stateID)
 {
 }
+
+State::Context& StateStack::getContext() {
+	return mContext;
+}

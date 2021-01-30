@@ -16,6 +16,7 @@ public :
 	Client(int uid, sf::Mutex&, int renderTextureWidth, int renderTextureHeight, ThreadSafeQueue<sf::Sprite>& queueToDraw, ThreadSafeQueue<sf::Sprite>& queueToDisplay);
 
 	// To call in the thread corresponding to its Client.
+	void initialize(KeyBinding& keyBindingConfiguration);
 	void initialize(int keyBindingConfiguration);
 
 	// Method that will run into the thread corresponding to its Client.
@@ -29,6 +30,9 @@ public :
 
 	/// Color associated for this client (eg red for player A, green for player B)
 	sf::Color getAssociatedColor();
+
+	/// Change the keybinding of the client
+	void setKeyBinding(KeyBinding& keyBinding);
 
 private :
 	void processInput();
