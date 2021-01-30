@@ -93,8 +93,6 @@ void GlobalSettingsState::draw() {
 
 	ImGui::End();
 
-	ImGui::ShowDemoWindow();
-
 	ImGui::SFML::Render(*window);
 	window->display();
 }
