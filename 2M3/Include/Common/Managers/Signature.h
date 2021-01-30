@@ -41,10 +41,10 @@ private:
 	template <typename Component>
 	void 				 _removeComponent();
 
-	static thread_local std::size_t registeredComponentsCount;
-	static thread_local std::unordered_map<std::size_t, std::size_t> idToBitIndexMap;
+	static thread_local std::size_t registeredComponentsCount;							//!< The number of components registered.
+	static thread_local std::unordered_map<std::size_t, std::size_t> idToBitIndexMap;	//!< Maps the component id to the bit number in the signature.
 
-	std::bitset<MAX_COMPONENTS> bitset;
+	std::bitset<MAX_COMPONENTS> bitset;		//!< The bitset holds the signature itself.
 };
 
 /**

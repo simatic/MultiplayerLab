@@ -15,7 +15,7 @@ MainState::ClientInfo::ClientInfo(int uid, sf::Mutex& mutex, int renderTextureWi
 		sprite.move(renderTextureWidth, 0);
 	}
 	queueToDraw.push(sprite);
-	client = std::make_unique <Client>(uid, mutex, renderTextureWidth, renderTextureHeight, queueToDraw, queueToDisplay);
+	client = std::make_unique<Client>(uid, mutex, renderTextureWidth, renderTextureHeight, queueToDraw, queueToDisplay);
 }
 
 MainState::MainState(StateStack& stack, Context context, sf::RenderWindow* window, Settings* settings) :

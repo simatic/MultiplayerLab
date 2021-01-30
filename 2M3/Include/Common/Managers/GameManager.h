@@ -1,9 +1,8 @@
 #pragma once
-#include "Common/Systems/System.h"
-#include "Common/Entity.h"
-#include "KeyBinding.h"
+#include <Common/Entity.h>
+#include <Common/Systems/System.h>
+#include <KeyBinding.h>
 #include <Common/Modules/INetworkModule.h>
-
 #include <Common/Network/Constants.h>
 
 #include <memory>
@@ -13,6 +12,11 @@
 
 #include <SFML/Graphics/RenderTarget.hpp>
 
+/**
+ * @class GameManager
+ * The GameManager contains the list of entities and systems that are used while the game is launched.
+ * It serves as an interface between the SFML Application and the game engine.
+ */
 class GameManager
 {
 public:
@@ -67,30 +71,38 @@ protected:
     /**
      * Attributes
      */
-    std::unordered_map<std::uint32_t, std::shared_ptr<Entity>>  entities{};
+    std::unordered_map<std::uint32_t, std::shared_ptr<Entity>>  entities{}; //!< The list of entities in the game.
 
-    std::set<Entity*> entitiesToRemove{};
-    std::map<std::uint32_t, std::shared_ptr<Entity>> entitiesToAdd{};
+    std::set<Entity*> entitiesToRemove{};                               //!< Entities to be removed next frame.
+    std::map<std::uint32_t, std::shared_ptr<Entity>> entitiesToAdd{};   //!< Entities to be added next frame.
 
-    std::vector<std::unique_ptr<System<SystemType::Logic>>>    logicSystems;
-    std::vector<std::unique_ptr<System<SystemType::Render>>>   renderSystems;
+    std::vector<std::unique_ptr<System<SystemType::Logic>>>    logicSystems;    //!< The list of logic systems.
+    std::vector<std::unique_ptr<System<SystemType::Render>>>   renderSystems;   //!< The list of render systems.
 
-    std::uint32_t               highestID = 1;
-    std::queue<std::uint32_t>   unusedIDs;
+    std::uint32_t               highestID = 1;  //!< Holds the highest id that hasn't yet been given to an entity (starts at 1).
+    std::queue<std::uint32_t>   unusedIDs;      //!< Holds unused ids for entities that were removed.
 
-    std::mutex nextFrameActionsAccess;
-    std::queue<std::function<void()>> nextFrameActions;
+    std::mutex nextFrameActionsAccess;                  
+    std::queue<std::function<void()>> nextFrameActions; //!< Actions to be executed next frame.
 
-    sf::RenderTarget*	target = nullptr;
-    KeyBinding*         keyBinding = nullptr;   
+    sf::RenderTarget*	target = nullptr;               //!< The render target for render systems, if any.
+    KeyBinding*         keyBinding = nullptr;           //!< The keybinding for inputs, if any.
 };
 
+/**
+ * Add several logic systems.
+ * @tparam The systems to be added.
+ */
 template <typename... System>
 void GameManager::addLogicSystems()
 {
     (addLogicSystem(std::make_unique<System>(this)), ...);
 }
 
+/**
+ * Add several render systems.
+ * @tparam The systems to be added.
+ */
 template <typename... System>
 void GameManager::addRenderSystems()
 {

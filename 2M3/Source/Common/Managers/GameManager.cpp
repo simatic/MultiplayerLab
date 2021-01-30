@@ -33,12 +33,22 @@ void GameManager::addEntity(std::shared_ptr<Entity> entity)
     addEntityWithID(entity, id);
 }
 
+/**
+ * Add entity with a specific id.
+ * @param entity Entity to add.
+ * @param id The specific id.
+ */
 void GameManager::addEntityWithID(std::shared_ptr<Entity> entity, std::uint32_t id) {
     entity->setID(id);
     entities.emplace(entity->getID(), entity);
     updateSystemLists(entity.get());
 }
 
+/**
+ * Add entity with a specific id on the next frame.
+ * @param entity Entity to add.
+ * @param id The specific id.
+ */
 void GameManager::addEntityWithIDNextFrame(std::shared_ptr<Entity> entity, std::uint32_t id) {
     entitiesToAdd.emplace(id, entity);
 }
@@ -81,6 +91,9 @@ void GameManager::applyEntitiesToRemove()
     entitiesToRemove.clear();
 }
 
+/**
+ * Adds all entities in entitiesToAdd.
+ */
 void GameManager::applyEntitiesToAdd() {
     for(const auto& [id, entity] : entitiesToAdd) {
         addEntityWithID(entity, id);
@@ -148,6 +161,10 @@ void GameManager::updateSystemLists(Entity* entity)
     }
 }
 
+/**
+ * Remove an entity from all system lists.
+ * @param entity Entity to assign.
+ */
 void GameManager::removeFromSystemsLists(Entity* entity) 
 {
     for (auto& system : logicSystems)
@@ -229,6 +246,10 @@ void GameManager::setKeyBinding(KeyBinding* keys)
     keyBinding = keys;
 }
 
+/**
+ * Obtain a sepcific entity by id.
+ * @param id
+ */
 std::shared_ptr<Entity> GameManager::getEntityWithID(std::uint32_t id) const {
     // not using operator[] to avoid filling the map with nullptrs
     auto location = entities.find(id);
@@ -244,6 +265,9 @@ std::shared_ptr<Entity> GameManager::getEntityWithID(std::uint32_t id) const {
     return location->second;
 }
 
+/**
+ * Obtain the list of entities.
+ */
 std::vector<std::shared_ptr<Entity>> GameManager::getEntityList() const {
     std::vector<std::shared_ptr<Entity>> result{};
     for(const auto& [_, entity] : entities) {
@@ -252,6 +276,9 @@ std::vector<std::shared_ptr<Entity>> GameManager::getEntityList() const {
     return result;
 }
 
+/**
+ * Add a new action to do on the next frame.
+ */
 void GameManager::nextFrame(std::function<void()> actionToDo) {
     std::lock_guard lk(nextFrameActionsAccess);
     nextFrameActions.push(actionToDo);
