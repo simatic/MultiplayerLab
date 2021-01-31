@@ -3,7 +3,7 @@
 #include "State.h"
 #include "KeyBinding.h"
 #include "StateStack.h"
-#include "Client.h"
+#include <Client/Client.h>
 #include "Settings.h"
 #include "ThreadSafeQueue.h"
 #include "Profiling.h"

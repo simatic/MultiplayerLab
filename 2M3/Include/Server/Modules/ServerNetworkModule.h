@@ -18,7 +18,7 @@ class ServerNetworkModule : public INetworkModule {
 private:
     //Entity ID -> networkID in AddEntityPacket.h
     sf::Uint32 networkID = 0;
-    Buffer<Packet> outputBuffer{};
+    Buffer<Packet> outputBuffer{};      
     ServerNetworkThread networkThread;
     Server& server;
 

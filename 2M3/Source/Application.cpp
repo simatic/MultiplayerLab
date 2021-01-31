@@ -2,11 +2,7 @@
 #include "Utility.h"
 #include "State.h"
 #include "StateIdentifiers.h"
-#include "TitleState.h"
-#include "MenuState.h"
 #include "GlobalSettingsState.h"
-#include "SettingsState.h"
-#include "GameState.h"
 #include "MainState.h"
 
 #include <iostream>

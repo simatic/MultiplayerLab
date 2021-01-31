@@ -1,7 +1,4 @@
-#include "Client.h"
-#include "TitleState.h"
-#include "MenuState.h"
-#include "SettingsState.h"
+#include <Client/Client.h>
 #include <Client/States/ClientGameState.h>
 #include "Utility.h"
 #include "Profiling.h"

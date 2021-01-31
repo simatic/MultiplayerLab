@@ -5,7 +5,7 @@
 #include "ResourceIdentifiers.h"
 #include "KeyBinding.h"
 #include "StateStack.h"
-#include "Client.h"
+#include <Client/Client.h>
 #include "ThreadSafeQueue.h"
 #include "Profiling.h"
 #include "Settings.h"

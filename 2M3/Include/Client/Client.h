@@ -3,7 +3,8 @@
 
 #include <string>
 
-#include "StateStack.h"
+#include <StateStack.h>
+#include <ResourceHolder.h>
 #include "KeyBinding.h"
 #include "ThreadSafeQueue.h"
 

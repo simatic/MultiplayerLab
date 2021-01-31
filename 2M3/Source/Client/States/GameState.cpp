@@ -1,4 +1,4 @@
-#include "GameState.h"
+#include <Client/States/GameState.h>
 #include "Common/Managers/ResourceManager.h"
 #include <Client/Managers/ClientGameManager.h>
 #include "Common/Prefabs/Prefabs.h"
