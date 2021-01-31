@@ -1,7 +1,7 @@
 #include "Application.h"
 #include "Utility.h"
-#include "State.h"
-#include "StateIdentifiers.h"
+#include <Common/States/State.h>
+#include <Common/States/StateIdentifiers.h>
 #include "GlobalSettingsState.h"
 #include "MainState.h"
 

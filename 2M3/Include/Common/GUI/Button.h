@@ -4,7 +4,7 @@
 
 #include "Component.h"
 #include "ResourceIdentifiers.h"
-#include "State.h"
+#include <Common/States/State.h>
 #include "ResourceHolder.h"
 
 #include <SFML/Graphics/Sprite.hpp>

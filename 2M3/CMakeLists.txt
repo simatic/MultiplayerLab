@@ -29,6 +29,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
         Include/Common/Modules/*.h
         Include/Common/Network/*.h
         Include/Common/Prefabs/*.h
+        Include/Common/States/*.h
         Include/Common/Systems/*.h
         Include/Client/*.h
         Include/Client/Managers/*.h
@@ -48,6 +49,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
         Source/Common/Modules/*.cpp
         Source/Common/Network/*.cpp
         Source/Common/Prefabs/*.cpp
+        Source/Common/States/*.cpp
         Source/Common/Systems/*.cpp
         Source/Client/*.cpp
         Source/Client/Managers/*.cpp

@@ -7,7 +7,7 @@
 
 #include <string>
 #include <memory>
-#include <State.h>
+#include <Common/States/State.h>
 
 /**
  * @class ClientNetworkModule

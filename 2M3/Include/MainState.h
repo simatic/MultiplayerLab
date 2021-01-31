@@ -1,8 +1,8 @@
 #pragma once
 
-#include "State.h"
+#include <Common/States/State.h>
 #include "KeyBinding.h"
-#include "StateStack.h"
+#include <Common/States/StateStack.h>
 #include <Client/Client.h>
 #include "Settings.h"
 #include "ThreadSafeQueue.h"

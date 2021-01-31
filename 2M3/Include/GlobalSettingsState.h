@@ -1,6 +1,6 @@
 #pragma once
 
-#include "State.h"
+#include <Common/States/State.h>
 #include "Settings.h"
 
 #include <SFML/System/Clock.hpp>

@@ -1,7 +1,7 @@
 #ifndef BOOK_SETTINGSSTATE_HPP
 #define BOOK_SETTINGSSTATE_HPP
 
-#include "State.h"
+#include <Common/States/State.h>
 #include "KeyBinding.h"
 #include <Common/GUI/Container.h>
 #include <Common/GUI/Button.h>
