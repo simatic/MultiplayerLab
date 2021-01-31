@@ -23,49 +23,140 @@ public:
     GameManager() = default;
 
     /**
-     * Methods
+     * Add entity.
+     * @param entity Entity to add.
      */
     void addEntity(std::shared_ptr<Entity> entity);
+
+    /**
+     * Add entity with a specific id.
+     * @param entity Entity to add.
+     * @param id The specific id.
+     */
     void addEntityWithID(std::shared_ptr<Entity> entity, std::uint32_t id);
+
+    /**
+     * Add entity with a specific id on the next frame.
+     * @param entity Entity to add.
+     * @param id The specific id.
+     */
     void addEntityWithIDNextFrame(std::shared_ptr<Entity> entity, std::uint32_t id);
+
+    /**
+     * Obtain a sepcific entity by id.
+     * @param id
+     */
     std::shared_ptr<Entity> getEntityWithID(std::uint32_t id) const;
+
+    /**
+     * Set the given entity to be deleted on next frame.
+     * This is safe to use while the game loop is running.
+     */
     void removeEntityNextFrame(Entity* entity);
+
+    /**
+     * Removes and deletes the entity.
+     * @warning Do not use while game loop is running. Use removeEntityNextFrame() instead.
+     */
     void removeEntity(Entity* entity);
 
+    /**
+     * Update logic systems.
+     * @param dt Time since last frame.
+     */
     virtual void update(const sf::Time& dt);
+
+    /**
+     * Update registered renderers.
+     * @param dt Time since last frame.
+     */
     void render(const sf::Time& dt);
 
+    /**
+     * Add system. Ownership is transferred to GameManager.
+     * @param system System to add.
+     */
     void addLogicSystem(std::unique_ptr<System<SystemType::Logic>> system);
+
+    /**
+     * Add renderer. Ownership is transferred to GameManager.
+     * @param system System to add.
+     */
     void addRenderSystem(std::unique_ptr<System<SystemType::Render>> system);
 
+    /**
+     * Assign entities to their systems.
+     */
     virtual void updateSystemListsForAllEntities();
+
+    /**
+     * Assign an entity to its systems.
+     * @param entity Entity to assign.
+     */
     virtual void updateSystemLists(Entity* entity);
 
+    /**
+     * @return The target used to draw on.
+     */
     sf::RenderTarget* getRenderTarget() const;
+    /**
+     * @param target The new target used to draw on.
+     */
     void              setRenderTarget(sf::RenderTarget* target);
 
+    /**
+     * @return Keyboard key binding.
+     */
     KeyBinding*       getKeyBinding() const;
+    /**
+     * @param keys The key binding.
+     */
     void              setKeyBinding(KeyBinding* keys);
 
+    /**
+     * Deletes all entities and systems.
+     */
     virtual void clearAll();
 
-    // templates
+    /**
+     * Add several logic systems.
+     * @tparam The systems to be added.
+     */
     template <typename... System>
     void addLogicSystems();
 
+    /**
+     * Add several render systems.
+     * @tparam The systems to be added.
+     */
     template <typename... System>
     void addRenderSystems();
 
+    /**
+     * Add a new action to do on the next frame.
+     */
     void nextFrame(std::function<void()> actionToDo);
 
+    /**
+     * Obtain the list of entities.
+     */
     std::vector<std::shared_ptr<Entity>> getEntityList() const;
 
 protected:
     /**
-     * Methods
+     * Removes and deletes all entities in entitiesToRemove.
      */
     void applyEntitiesToRemove();
+
+    /**
+     * Adds all entities in entitiesToAdd.
+     */
     void applyEntitiesToAdd();
+
+    /**
+     * Add system. Ownership is transferred to GameManager.
+     * @param system System to add.
+     */
     virtual void removeFromSystemsLists(Entity* entity);
 
     /**
@@ -89,20 +180,12 @@ protected:
     KeyBinding*         keyBinding = nullptr;           //!< The keybinding for inputs, if any.
 };
 
-/**
- * Add several logic systems.
- * @tparam The systems to be added.
- */
 template <typename... System>
 void GameManager::addLogicSystems()
 {
     (addLogicSystem(std::make_unique<System>(this)), ...);
 }
 
-/**
- * Add several render systems.
- * @tparam The systems to be added.
- */
 template <typename... System>
 void GameManager::addRenderSystems()
 {

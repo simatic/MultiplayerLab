@@ -2,9 +2,6 @@
 #include <cstdlib>
 #include <exception>
 
-/**
- * Deletes all entities and systems.
- */
 void GameManager::clearAll()
 {
     logicSystems.clear();
@@ -13,10 +10,6 @@ void GameManager::clearAll()
     entities.clear();
 }
 
-/**
- * Add entity.
- * @param entity Entity to add.
- */
 void GameManager::addEntity(std::shared_ptr<Entity> entity)
 {
     uint32_t id = 0;
@@ -33,30 +26,16 @@ void GameManager::addEntity(std::shared_ptr<Entity> entity)
     addEntityWithID(entity, id);
 }
 
-/**
- * Add entity with a specific id.
- * @param entity Entity to add.
- * @param id The specific id.
- */
 void GameManager::addEntityWithID(std::shared_ptr<Entity> entity, std::uint32_t id) {
     entity->setID(id);
     entities.emplace(entity->getID(), entity);
     updateSystemLists(entity.get());
 }
 
-/**
- * Add entity with a specific id on the next frame.
- * @param entity Entity to add.
- * @param id The specific id.
- */
 void GameManager::addEntityWithIDNextFrame(std::shared_ptr<Entity> entity, std::uint32_t id) {
     entitiesToAdd.emplace(id, entity);
 }
 
-/**
- * Removes and deletes the entity.
- * @warning Do not use while game loop is running. Use removeEntityNextFrame() instead.
- */
 void GameManager::removeEntity(Entity* entity)
 {
     if (entities.find(entity->getID()) != entities.end())
@@ -67,10 +46,6 @@ void GameManager::removeEntity(Entity* entity)
     }
 }
 
-/**
- * Set the given entity to be deleted on next frame.
- * This is safe to use while the game loop is running.
- */
 void GameManager::removeEntityNextFrame(Entity* entity)
 {
     if (entities.find(entity->getID()) != entities.end())
@@ -79,9 +54,6 @@ void GameManager::removeEntityNextFrame(Entity* entity)
     }
 }
 
-/**
- * Removes and deletes all entities in entitiesToRemove.
- */
 void GameManager::applyEntitiesToRemove()
 {
     for (Entity* entity: entitiesToRemove)
@@ -91,9 +63,6 @@ void GameManager::applyEntitiesToRemove()
     entitiesToRemove.clear();
 }
 
-/**
- * Adds all entities in entitiesToAdd.
- */
 void GameManager::applyEntitiesToAdd() {
     for(const auto& [id, entity] : entitiesToAdd) {
         addEntityWithID(entity, id);
@@ -101,27 +70,16 @@ void GameManager::applyEntitiesToAdd() {
     entitiesToAdd.clear();
 }
 
-/**
- * Add system. Ownership is transferred to GameManager.
- * @param system System to add.
- */
 void GameManager::addLogicSystem(std::unique_ptr<System<SystemType::Logic>> system)
 {
     logicSystems.push_back(std::move(system));
 }
 
-/**
- * Add renderer. Ownership is transferred to GameManager.
- * @param system System to add.
- */
 void GameManager::addRenderSystem(std::unique_ptr<System<SystemType::Render>> system)
 {
     renderSystems.push_back(std::move(system));
 }
 
-/**
- * Assign entities to their systems.
- */
 void GameManager::updateSystemListsForAllEntities()
 {
     for (auto&& [id, entity]: entities)
@@ -130,10 +88,6 @@ void GameManager::updateSystemListsForAllEntities()
     }
 }
 
-/**
- * Assign an entity to its systems.
- * @param entity Entity to assign.
- */
 void GameManager::updateSystemLists(Entity* entity)
 {
     for (auto& system: logicSystems)
@@ -161,10 +115,6 @@ void GameManager::updateSystemLists(Entity* entity)
     }
 }
 
-/**
- * Remove an entity from all system lists.
- * @param entity Entity to assign.
- */
 void GameManager::removeFromSystemsLists(Entity* entity) 
 {
     for (auto& system : logicSystems)
@@ -178,10 +128,6 @@ void GameManager::removeFromSystemsLists(Entity* entity)
     }
 }
 
-/**
- * Update logic systems.
- * @param dt Time since last frame.
- */
 void GameManager::update(const sf::Time& dt)
 {
     {
@@ -202,10 +148,6 @@ void GameManager::update(const sf::Time& dt)
     applyEntitiesToAdd();
 }
 
-/**
- * Update registered renderers.
- * @param dt Time since last frame.
- */
 void GameManager::render(const sf::Time& dt)
 {
     for (const auto& renderer: renderSystems)
@@ -214,42 +156,26 @@ void GameManager::render(const sf::Time& dt)
     }
 }
 
-/**
- * @return The target used to draw on.
- */
 sf::RenderTarget* GameManager::getRenderTarget() const
 {
     return target;
 }
 
-/**
- * @param target The new target used to draw on.
- */
 void GameManager::setRenderTarget(sf::RenderTarget* target)
 {
     this->target = target;
 }
 
-/**
- * @return Keyboard key binding.
- */
 KeyBinding* GameManager::getKeyBinding() const
 {
     return keyBinding;
 }
 
-/**
- * @param keys The key binding.
- */
 void GameManager::setKeyBinding(KeyBinding* keys)
 {
     keyBinding = keys;
 }
 
-/**
- * Obtain a sepcific entity by id.
- * @param id
- */
 std::shared_ptr<Entity> GameManager::getEntityWithID(std::uint32_t id) const {
     // not using operator[] to avoid filling the map with nullptrs
     auto location = entities.find(id);
@@ -265,9 +191,6 @@ std::shared_ptr<Entity> GameManager::getEntityWithID(std::uint32_t id) const {
     return location->second;
 }
 
-/**
- * Obtain the list of entities.
- */
 std::vector<std::shared_ptr<Entity>> GameManager::getEntityList() const {
     std::vector<std::shared_ptr<Entity>> result{};
     for(const auto& [_, entity] : entities) {
@@ -276,9 +199,6 @@ std::vector<std::shared_ptr<Entity>> GameManager::getEntityList() const {
     return result;
 }
 
-/**
- * Add a new action to do on the next frame.
- */
 void GameManager::nextFrame(std::function<void()> actionToDo) {
     std::lock_guard lk(nextFrameActionsAccess);
     nextFrameActions.push(actionToDo);
