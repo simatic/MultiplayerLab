@@ -1,4 +1,4 @@
-#include "Label.h"
+#include <Common/GUI/Label.h>
 #include "Utility.h"
 
 #include <SFML/Graphics/RenderStates.hpp>

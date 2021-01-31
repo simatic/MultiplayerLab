@@ -23,6 +23,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
         Include/*.h
         Include/*.inl
         Include/Common/*.h
+        Include/Common/GUI/*.h
         Include/Common/Components/*.h
         Include/Common/Managers/*.h
         Include/Common/Modules/*.h
@@ -41,6 +42,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
 
         Source/*.cpp
         Source/Common/*.cpp
+        Source/Common/GUI/*.cpp
         Source/Common/Components/*.cpp
         Source/Common/Managers/*.cpp
         Source/Common/Modules/*.cpp

@@ -1,5 +1,5 @@
 #include <Client/States/MenuState.h>
-#include "Button.h"
+#include <Common/GUI/Button.h>
 #include "Utility.h"
 //#include <Book/MusicPlayer.hpp>
 #include "ResourceHolder.h"

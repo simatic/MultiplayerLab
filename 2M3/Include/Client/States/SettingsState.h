@@ -3,9 +3,9 @@
 
 #include "State.h"
 #include "KeyBinding.h"
-#include "Container.h"
-#include "Button.h"
-#include "Label.h"
+#include <Common/GUI/Container.h>
+#include <Common/GUI/Button.h>
+#include <Common/GUI/Label.h>
 
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
