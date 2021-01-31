@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Common/States/State.h>
-#include "Settings.h"
+#include <Application/Settings.h>
 
 #include <SFML/System/Clock.hpp>
 

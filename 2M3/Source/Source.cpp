@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <math.h>
-#include "Application.h"
+#include <Application/Application.h>
 
 int main()
 {

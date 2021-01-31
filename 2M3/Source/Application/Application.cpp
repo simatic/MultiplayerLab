@@ -1,9 +1,9 @@
-#include "Application.h"
+#include <Application/Application.h>
 #include "Utility.h"
 #include <Common/States/State.h>
 #include <Common/States/StateIdentifiers.h>
-#include "GlobalSettingsState.h"
-#include "MainState.h"
+#include <Application/States/GlobalSettingsState.h>
+#include <Application/States/MainState.h>
 
 #include <iostream>
 #include <Server/Server.h>

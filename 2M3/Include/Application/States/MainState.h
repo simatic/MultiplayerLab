@@ -4,7 +4,7 @@
 #include <Common/Resources/KeyBinding.h>
 #include <Common/States/StateStack.h>
 #include <Client/Client.h>
-#include "Settings.h"
+#include <Application/Settings.h>
 #include "ThreadSafeQueue.h"
 #include "Profiling.h"
 

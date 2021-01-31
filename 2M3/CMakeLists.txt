@@ -22,6 +22,8 @@ include_directories("Include" "Include/Common" "Include/Common/Components" "Incl
 file(GLOB SOURCES CONFIGURE_DEPENDS
         Include/*.h
         Include/*.inl
+        Include/Application/*.h
+        Include/Application/States/*.h
         Include/Common/*.h
         Include/Common/GUI/*.h
         Include/Common/Components/*.h
@@ -44,6 +46,8 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
         Include/Server/Systems/*.h
 
         Source/*.cpp
+        Source/Application/*.cpp
+        Source/Application/States/*.cpp
         Source/Common/*.cpp
         Source/Common/GUI/*.cpp
         Source/Common/Components/*.cpp

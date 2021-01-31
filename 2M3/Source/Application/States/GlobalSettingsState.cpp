@@ -1,4 +1,4 @@
-#include "GlobalSettingsState.h"
+#include <Application/States/GlobalSettingsState.h>
 #include "Utility.h"
 #include <imgui.h>
 #include <imgui-SFML.h>
