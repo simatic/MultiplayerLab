@@ -6,6 +6,10 @@
 
 #include <Common/Network/PingPongPackets.h>
 
+/**
+ * @class NetworkSetTransform
+ * Sets transform for entities.
+ */
 class NetworkSetTransform : public ClientNetworkSystem<Transform>
 {
 public:

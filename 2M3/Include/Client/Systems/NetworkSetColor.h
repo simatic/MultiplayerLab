@@ -6,6 +6,10 @@
 
 #include <Common/Network/PingPongPackets.h>
 
+/**
+ * @class NetworkSetColor
+ * Sets the color of the client.
+ */
 class NetworkSetColor : public ClientNetworkSystem<Transform>
 {
 public:

@@ -6,6 +6,10 @@
 
 #include <Common/Network/PingPongPackets.h>
 
+/**
+ * @class NetworkPingPong
+ * Ping pong between client and server.
+ */
 class NetworkPingPong : public ClientNetworkSystem<Transform>
 {
 private:

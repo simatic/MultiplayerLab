@@ -6,6 +6,10 @@
 
 #include <Common/Network/PingPongPackets.h>
 
+/**
+ * @class NetworkAddEntities
+ * Adds entities on server request.
+ */
 class NetworkAddEntities : public ClientNetworkSystem<Transform>
 {
 public:

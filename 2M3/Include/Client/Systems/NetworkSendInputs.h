@@ -7,6 +7,10 @@
 #include <Common/Network/PingPongPackets.h>
 #include <PlayableVehicleInput.h>
 
+/**
+ * @class NetworkSendInputs
+ * Sends PlayableVehicleInput to the server.
+ */
 class NetworkSendInputs : public ClientNetworkSystem<Transform, PlayableVehicleInput>
 {
 public:

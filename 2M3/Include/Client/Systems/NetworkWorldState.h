@@ -6,6 +6,10 @@
 
 #include <Common/Network/WorldStatePacket.h>
 
+/**
+ * @class NetworkWorldState
+ * Updates the world state from the server.
+ */
 class NetworkWorldState : public ClientNetworkSystem<Transform>
 {
 public:
