@@ -10,6 +10,10 @@
 
 class Server;
 
+/**
+ * @class ClientNetworkModule
+ * INetworkModule specialization for the server.
+ */
 class ServerNetworkModule : public INetworkModule {
 private:
     //Entity ID -> networkID in AddEntityPacket.h
