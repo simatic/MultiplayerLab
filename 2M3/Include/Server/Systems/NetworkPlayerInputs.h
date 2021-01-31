@@ -4,6 +4,10 @@
 #include "Common/Components/Transform.h"
 #include <Client/Modules/ClientNetworkModule.h>
 
+/**
+ * @class NetworkPlayerInputs
+ * Retrieves clients' inputs.
+ */
 class NetworkPlayerInputs : public ServerNetworkSystem<Transform>
 {
 public:

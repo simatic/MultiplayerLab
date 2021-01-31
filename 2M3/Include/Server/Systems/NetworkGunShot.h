@@ -5,6 +5,10 @@
 #include "Common/Components/VehicleEngine.h"
 #include "Common/Components/Gun.h"
 
+/**
+ * @class NetworkGunShot
+ * Informs clients that they should shoot bullets.
+ */
 class NetworkGunShot : public ServerNetworkSystem<VehicleInput, VehicleEngine, Gun>
 {
 public:

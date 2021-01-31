@@ -5,6 +5,10 @@
 #include <Client/Modules/ClientNetworkModule.h>
 #include <Kinematics.h>
 
+/**
+ * @class NetworkGunShot
+ * Informs clients of entities' positions and velocity.
+ */
 class NetworkUpdatePositionsAndVelocities : public ServerNetworkSystem<Transform, Kinematics>
 {
 private:
