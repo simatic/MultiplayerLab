@@ -4,12 +4,12 @@
 #include <CopiableFromPrefab.h>
 #include <Common/Network/SetColorPacket.h>
 #include <Server/Systems/NetworkPlayerInputs.h>
-#include <CarMovementSystem.h>
+#include <VehicleMovementSystem.h>
 #include <CollisionSystem.h>
-#include <CarCollisionHandling.h>
+#include <VehicleCollisionHandling.h>
 #include <GunSystem.h>
 #include <BulletSystem.h>
-#include <CarDeath.h>
+#include <VehicleDeath.h>
 #include <MovementSystem.h>
 #include <Server/Systems/NetworkUpdatePositionsAndVelocities.h>
 #include <Server/Systems/NetworkGunShot.h>
@@ -55,11 +55,11 @@ void Server::initGame() {
     >();
 
     game.addLogicSystems<
-            CarMovementSystem,
+            VehicleMovementSystem,
             CollisionSystem,
-            CarCollisionSystem,
+            VehicleCollisionSystem,
             BulletSystem,
-            CarDeath,
+            VehicleDeath,
             MovementSystem
     >();
 }

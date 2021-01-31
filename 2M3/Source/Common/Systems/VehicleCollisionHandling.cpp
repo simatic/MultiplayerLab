@@ -1,12 +1,12 @@
-#include "Common/Systems/CarCollisionHandling.h"
+#include "Common/Systems/VehicleCollisionHandling.h"
 #include "Common/Components/Bullet.h"
 #include "GameManager.h"
 
-CarCollisionSystem::CarCollisionSystem(GameManager* const gameManager) :
+VehicleCollisionSystem::VehicleCollisionSystem(GameManager* const gameManager) :
 	LogicSystem<Kinematics, Collider, Health>(gameManager)
 {}
 
-void CarCollisionSystem::update(const sf::Time&)
+void VehicleCollisionSystem::update(const sf::Time&)
 {
 	for (Entity* entity: entities)
 	{

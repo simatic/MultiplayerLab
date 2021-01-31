@@ -1,11 +1,11 @@
-#include "Common/Systems/CarMovementSystem.h"
+#include "Common/Systems/VehicleMovementSystem.h"
 #include "Utility.h"
 
-CarMovementSystem::CarMovementSystem(GameManager* const gameManager) :
+VehicleMovementSystem::VehicleMovementSystem(GameManager* const gameManager) :
 	LogicSystem<Transform, Kinematics, VehicleInput, VehicleEngine>(gameManager)
 {}
 
-void CarMovementSystem::update(const sf::Time& dt)
+void VehicleMovementSystem::update(const sf::Time& dt)
 {
 	for (Entity* entity: entities)
 	{	

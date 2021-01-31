@@ -2,10 +2,10 @@
 #include "Common/Systems/System.h"
 #include "Common/Components/Health.h"
 
-class CarDeath : public LogicSystem<Health>
+class VehicleDeath : public LogicSystem<Health>
 {
 public:
-    explicit CarDeath(GameManager* const gameManager);
+    explicit VehicleDeath(GameManager* const gameManager);
 
     void update(const sf::Time& dt) override;
 };

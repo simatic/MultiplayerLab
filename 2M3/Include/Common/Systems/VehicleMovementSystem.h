@@ -5,10 +5,10 @@
 #include "Common/Components/VehicleInput.h"
 #include "Common/Components/VehicleEngine.h"
 
-class CarMovementSystem : public LogicSystem<Transform, Kinematics, VehicleInput, VehicleEngine>
+class VehicleMovementSystem : public LogicSystem<Transform, Kinematics, VehicleInput, VehicleEngine>
 {
 public:
-	explicit CarMovementSystem(GameManager* const gameManager);
+	explicit VehicleMovementSystem(GameManager* const gameManager);
 
 	void update(const sf::Time& dt) override;;
 };

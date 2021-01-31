@@ -3,10 +3,10 @@
 #include "Common/Components/Collider.h"
 #include "Common/Components/Health.h"
 
-class CarCollisionSystem : public LogicSystem<Kinematics, Collider, Health>
+class VehicleCollisionSystem : public LogicSystem<Kinematics, Collider, Health>
 {
 public:
-    explicit CarCollisionSystem(GameManager* const gameManager);
+    explicit VehicleCollisionSystem(GameManager* const gameManager);
 
     void update(const sf::Time& dt) override;
 };

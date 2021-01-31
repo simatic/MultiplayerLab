@@ -55,11 +55,11 @@ void CarLogic::update(sf::Time dt, std::vector<OldEntity*> entities, std::vector
 {
 
 	KeyboardInputSystem::update(this, mKeyBindings);
-	CarMovementSystem::update(dt, this, newEntities);
+	VehicleMovementSystem::update(dt, this, newEntities);
 	GunSystem::update(dt, this, newEntities);
 	OldEntity::update(dt, entities, newEntities, pairs);
 	CarCollisionHandling::update(this);
-	CarDeath::update(this);
+	VehicleDeath::update(this);
 }
 
 void CarLogic::instanciateBullet(const sf::Vector2f& position, const sf::Vector2f& direction, std::vector<OldEntity*>& newEntities)

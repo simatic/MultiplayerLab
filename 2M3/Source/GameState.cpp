@@ -4,9 +4,9 @@
 #include "Common/Prefabs/Prefabs.h"
 
 #include "Common/Systems/BulletSystem.h"
-#include "Common/Systems/CarCollisionHandling.h"
-#include "Common/Systems/CarDeath.h"
-#include "Common/Systems/CarMovementSystem.h"
+#include "Common/Systems/VehicleCollisionHandling.h"
+#include "Common/Systems/VehicleDeath.h"
+#include "Common/Systems/VehicleMovementSystem.h"
 #include "Common/Systems/CollisionSystem.h"
 #include "Common/Systems/GunSystem.h"
 #include "Common/Systems/KeyboardInputSystem.h"
@@ -45,13 +45,13 @@ GameState::GameState(StateStack& stack, Context context) :
 
     gameManager->addLogicSystems<
         KeyboardInputSystem,
-        CarMovementSystem,
+        VehicleMovementSystem,
         CollisionSystem,
-        CarCollisionSystem,
+        VehicleCollisionSystem,
         BulletSystem,
         TrajectorySystem,
         ParticleSystem,
-        CarDeath,
+        VehicleDeath,
         MovementSystem
     >();
     

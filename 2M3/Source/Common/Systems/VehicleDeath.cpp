@@ -1,11 +1,11 @@
-#include "Common/Systems/CarDeath.h"
+#include "Common/Systems/VehicleDeath.h"
 #include "Common/Managers/GameManager.h"
 
-CarDeath::CarDeath(GameManager* const gameManager) :
+VehicleDeath::VehicleDeath(GameManager* const gameManager) :
     LogicSystem<Health>(gameManager)
 {}
 
-void CarDeath::update(const sf::Time& dt)
+void VehicleDeath::update(const sf::Time& dt)
 {
     for (Entity* entity: entities)
     {
