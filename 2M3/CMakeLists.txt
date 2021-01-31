@@ -45,6 +45,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
         Include/Server/*.h
         Include/Server/Managers/*.h
         Include/Server/Modules/*.h
+        Include/Server/Network/*.h
         Include/Server/Systems/*.h
 
         Source/*.cpp
@@ -69,6 +70,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
         Source/Server/*.cpp
         Source/Server/Managers/*.cpp
         Source/Server/Modules/*.cpp
+        Source/Server/Network/*.cpp
         Source/Server/Systems/*.cpp
         )
 
