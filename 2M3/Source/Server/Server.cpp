@@ -14,7 +14,7 @@
 #include <Server/Systems/NetworkUpdatePositionsAndVelocities.h>
 #include <Server/Systems/NetworkGunShot.h>
 #include "Common/Components/Collider.h"
-#include "Utility.h"
+#include <Common/Utility/Utility.h>
 #include "Server/Server.h"
 #include "Server/Interface.h"
 

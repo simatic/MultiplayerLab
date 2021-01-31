@@ -1,5 +1,5 @@
 #include <Client/States/SettingsState.h>
-#include "Utility.h"
+#include <Common/Utility/Utility.h>
 #include <Common/Resources/ResourceHolder.h>
 
 #include <SFML/Graphics/RenderWindow.hpp>

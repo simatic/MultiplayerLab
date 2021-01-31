@@ -1,6 +1,6 @@
 #include "Common/Systems/BulletSystem.h"
 #include "Common/Managers/GameManager.h"
-#include "Utility.h"
+#include <Common/Utility/Utility.h>
 
 BulletSystem::BulletSystem(GameManager* const gameManager) :
 	LogicSystem<Transform, Kinematics, Bullet>(gameManager)

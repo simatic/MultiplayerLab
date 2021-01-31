@@ -1,7 +1,7 @@
 #include "Common/Systems/CollisionSystem.h"
 #include "Common/Components/Kinematics.h"
-#include "Utility.h"
-#include "Collider.h"
+#include <Common/Utility/Utility.h>
+#include <Common/Utility/Collider.h>
 
 Rectangle getRectangle(const Collider& collider);
 

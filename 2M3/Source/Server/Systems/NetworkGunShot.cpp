@@ -11,7 +11,7 @@
 #include "Common/Components/Bullet.h"
 #include "Server/Server.h"
 
-#include "Utility.h"
+#include <Common/Utility/Utility.h>
 
 NetworkGunShot::NetworkGunShot(GameManager* const gameManager, ServerNetworkModule* networkModule) :
     ServerNetworkSystem<VehicleInput, VehicleEngine, Gun>(gameManager, networkModule)

@@ -11,7 +11,7 @@
 #include "Common/Components/Bullet.h"
 #include "Server/Server.h"
 
-#include "Utility.h"
+#include <Common/Utility/Utility.h>
 
 GunSystem::GunSystem(GameManager* const gameManager) :
     LogicSystem<VehicleInput, VehicleEngine, Gun>(gameManager)

@@ -1,5 +1,5 @@
 #include <Application/Application.h>
-#include "Utility.h"
+#include <Common/Utility/Utility.h>
 #include <Common/States/State.h>
 #include <Common/States/StateIdentifiers.h>
 #include <Application/States/GlobalSettingsState.h>

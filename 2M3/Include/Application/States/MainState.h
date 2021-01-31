@@ -5,7 +5,7 @@
 #include <Common/States/StateStack.h>
 #include <Client/Client.h>
 #include <Application/Settings.h>
-#include "ThreadSafeQueue.h"
+#include <Common/Utility/ThreadSafeQueue.h>
 #include "Profiling.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>

@@ -1,5 +1,5 @@
 #include <Application/States/GlobalSettingsState.h>
-#include "Utility.h"
+#include <Common/Utility/Utility.h>
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include <iostream>

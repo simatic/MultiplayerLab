@@ -1,6 +1,6 @@
 #include <Client/States/MenuState.h>
 #include <Common/GUI/Button.h>
-#include "Utility.h"
+#include <Common/Utility/Utility.h>
 //#include <Book/MusicPlayer.hpp>
 #include <Common/Resources/ResourceHolder.h>
 

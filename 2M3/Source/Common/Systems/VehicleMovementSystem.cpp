@@ -1,5 +1,5 @@
 #include "Common/Systems/VehicleMovementSystem.h"
-#include "Utility.h"
+#include <Common/Utility/Utility.h>
 
 VehicleMovementSystem::VehicleMovementSystem(GameManager* const gameManager) :
 	LogicSystem<Transform, Kinematics, VehicleInput, VehicleEngine>(gameManager)

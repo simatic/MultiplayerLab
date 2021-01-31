@@ -6,7 +6,7 @@
 #include <Common/States/StateStack.h>
 #include <Common/Resources/ResourceHolder.h>
 #include <Common/Resources/KeyBinding.h>
-#include "ThreadSafeQueue.h"
+#include <Common/Utility/ThreadSafeQueue.h>
 
 const sf::Time TimePerTick = sf::seconds(1.f / 20.f);
 const sf::Time TimePerFrame = sf::seconds(1.f / 60.f);

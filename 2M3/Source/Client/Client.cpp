@@ -1,6 +1,6 @@
 #include <Client/Client.h>
 #include <Client/States/ClientGameState.h>
-#include "Utility.h"
+#include <Common/Utility/Utility.h>
 #include "Profiling.h"
 
 #include <SFML/OpenGL.hpp>

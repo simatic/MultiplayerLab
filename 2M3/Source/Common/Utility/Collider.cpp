@@ -1,5 +1,5 @@
-#include <Collider.h>
-#include <Utility.h>
+#include <Common/Utility/Collider.h>
+#include <Common/Utility/Utility.h>
 
 void projectRectangle(sf::Vector2f axis, const Rectangle& rectangle, float& min, float& max)
 {
