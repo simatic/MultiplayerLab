@@ -2,8 +2,8 @@
 
 #include <Common/Modules/INetworkModule.h>
 
-#include <Client/ClientNetworkHandler.h>
-#include <Client/ClientNetworkThread.h>
+#include <Client/Network/ClientNetworkHandler.h>
+#include <Client/Network/ClientNetworkThread.h>
 
 #include <string>
 #include <memory>

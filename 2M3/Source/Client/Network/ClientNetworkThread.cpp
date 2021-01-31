@@ -6,7 +6,7 @@
 #include <Common/Network/PingPongPackets.h>
 #include <iostream>
 #include <thread>
-#include <Client/ClientNetworkThread.h>
+#include <Client/Network/ClientNetworkThread.h>
 #include <Client/Modules/ClientNetworkModule.h>
 
 void ClientNetworkThread::send(sf::UdpSocket& socket, std::unique_ptr<Packet> packet, const sf::IpAddress& address, unsigned short port){

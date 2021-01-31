@@ -1,8 +1,8 @@
 #include <Common/Network/Constants.h>
 #include <Common/Network/Buffer.h>
 #include <SFML/Network.hpp>
-#include <Client/ClientNetworkHandler.h>
-#include <Client/ClientNetworkThread.h>
+#include <Client/Network/ClientNetworkHandler.h>
+#include <Client/Network/ClientNetworkThread.h>
 
 ///
 ///
