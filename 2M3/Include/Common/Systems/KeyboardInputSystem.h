@@ -4,6 +4,10 @@
 #include "Common/Systems/System.h"
 #include "Common/Components/VehicleInput.h"
 
+/**
+ * @class KeyboardInputSystem
+ * Maps keyboard inputs to VehicleInputs.
+ */
 class KeyboardInputSystem : public LogicSystem<PlayableVehicleInput>
 {
 public:

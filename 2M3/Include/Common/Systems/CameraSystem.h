@@ -4,6 +4,10 @@
 #include "Common/Components/CameraTarget.h"
 #include "Common/Components/Transform.h"
 
+/**
+ * @class CameraSystem
+ * Follows the player.
+ */
 class CameraSystem: public RenderSystem<Transform, CameraTarget> {
 public:
     explicit CameraSystem(GameManager* const gameManager);

@@ -4,6 +4,10 @@
 #include "Common/Components/VehicleEngine.h"
 #include "Common/Components/Particles.h"
 
+/**
+ * @class ParticleRenderer
+ * Generate particle at the back of the vehicle.
+ */
 class ParticleSystem : public LogicSystem<Transform, VehicleEngine, Particles>
 {
 public:

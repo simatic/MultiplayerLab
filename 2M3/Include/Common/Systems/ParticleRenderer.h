@@ -3,6 +3,10 @@
 #include "Common/Components/Transform.h"
 #include "Common/Components/Particles.h"
 
+/**
+ * @class ParticleRenderer
+ * Renders particle at the back of the vehicle.
+ */
 class ParticleRenderer : public RenderSystem<Transform, Particles>
 {
 public:

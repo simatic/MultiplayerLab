@@ -4,6 +4,10 @@
 #include "../Components/RectShape.h"
 #include "../Components/Transform.h"
 
+/**
+ * @class RectShapeRenderer
+ * Renders a rectangular shape.
+ */
 class RectShapeRenderer : public RenderSystem<Transform, RectShape>
 {
 public:

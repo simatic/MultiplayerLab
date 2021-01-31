@@ -4,6 +4,10 @@
 #include "Common/Components/VehicleEngine.h"
 #include "Common/Components/Trajectory.h"
 
+/**
+ * @class TrajectorySystem
+ * Saves the trajectory of the vehicle.
+ */
 class TrajectorySystem : public LogicSystem<Transform, VehicleEngine, Trajectory>
 {
 public:

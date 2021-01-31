@@ -4,6 +4,10 @@
 #include "Common/Components/Health.h"
 #include "Common/Components/HealthBar.h"
 
+/**
+ * @class HealthBarRenderer
+ * Renders a health bar below vehicles.
+ */
 class HealthBarRenderer : public RenderSystem<Transform, Health, HealthBar>
 {
 public:

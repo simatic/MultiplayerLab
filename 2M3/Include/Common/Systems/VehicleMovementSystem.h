@@ -5,6 +5,10 @@
 #include "Common/Components/VehicleInput.h"
 #include "Common/Components/VehicleEngine.h"
 
+/**
+ * @class VehicleMovementSystem
+ * Moves the vehicle accordingly to the VehicleInputs.
+ */
 class VehicleMovementSystem : public LogicSystem<Transform, Kinematics, VehicleInput, VehicleEngine>
 {
 public:

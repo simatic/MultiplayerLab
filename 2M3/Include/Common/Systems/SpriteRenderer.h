@@ -5,6 +5,10 @@
 #include "../Components/Transform.h"
 #include "Common/Entity.h"
 
+/**
+ * @class ParticleRenderer
+ * Renders a sprite.
+ */
 class SpriteRenderer : public RenderSystem<Transform, Sprite>
 {
 public:

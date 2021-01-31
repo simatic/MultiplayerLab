@@ -3,6 +3,10 @@
 #include "Common/Components/Transform.h"
 #include "Common/Components/Collider.h"
 
+/**
+ * @class CollisionSystem
+ * Check for collisions between entities.
+ */
 class CollisionSystem : public LogicSystem<Transform, Collider>
 {
 public:

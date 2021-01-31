@@ -5,10 +5,14 @@
 #include <SFML/System/Time.hpp>
 #include <set>
 
-class GameManager;  // Forward redirection of GameManager.
-class ClientNetworkModule;
-class ServerNetworkModule;
+class GameManager;			// Forward redirection of GameManager.
+class ClientNetworkModule;	// Forward redirection of ClientNetworkModule.
+class ServerNetworkModule;	// Forward redirection of ServerNetworkModule.
 
+/**
+ * @enum SystemType
+ * Defines different system types for different usages.
+ */
 enum class SystemType {
 	Logic,
 	Render,
@@ -17,7 +21,7 @@ enum class SystemType {
 };
 
 /**
- * System class.
+ * @class Base System class.
  */
 template <SystemType type>
 class System {
@@ -25,18 +29,38 @@ public:
 	System(GameManager* const gameManager);
 	virtual ~System() = default;
 
+	/**
+	 * Start method is called once at the beginning of the game.
+	 */
 	virtual void start() {};
+
+	/**
+	 * Update method is called every frame.
+	 * @param dt Time since the last frame.
+	 */
 	virtual void update(const sf::Time& dt) {};
 
+	/**
+	 * Adds an entity to the system's entities list.
+	 * @param entity The entity.
+	 */
 	void addEntity(Entity* entity);
+
+	/**
+	 * Removes an entity from the system's entities list.
+	 * @param entity The entity.
+	 */
 	void removeEntity(Entity* entity);
 
+	/**
+	 * Returns the signature of the system, which tells which components the system'entities need.
+	 */
 	const Signature& getSignature() const;
 
 protected:
-	Signature signature;
-	GameManager* const gameManager = nullptr;
-	std::set<Entity*> entities;
+	Signature signature;						//!< Signature of the system.
+	GameManager* const gameManager = nullptr;	//!< Pointer to the gameManager.
+	std::set<Entity*> entities;					//!< System's entities list.
 };
 
 template <SystemType type>
@@ -60,7 +84,9 @@ const Signature& System<type>::getSignature() const {
 }
 
 /**
- * SignedSystem class.
+ * @class SignedSystem class.
+ * Helper class to generate a compile-time signature for a given system,
+ * depending on the components it requires to function properly.
  */
 template <SystemType type, typename... Components>
 class SignedSystem : public System<type>
@@ -76,19 +102,22 @@ SignedSystem<type, Components...>::SignedSystem(GameManager* const gameManager) 
 }
 
 /**
- * Logic system: System that handles the logic of the game, independently from the network, such as physics, movement, particles...
+ * @class LogicSystem
+ * System that handles the logic of the game, independently from the network, such as physics, movement, particles...
  */
 template <typename... Components>
 using LogicSystem = SignedSystem<SystemType::Logic, Components...>;
 
 /**
- * Render system: System that handles rendering, sprites drawing and anything related to visual effects
+ * @class RenderSystem
+ * System that handles rendering, sprites drawing and anything related to visual effects.
  */
 template <typename... Components>
 using RenderSystem = SignedSystem<SystemType::Render, Components...>;
 
 /**
- * Network client system: System that communicates with the network on the client side
+ * @class ClientNetworkSystem
+ * System that communicates with the network on the client side.
  */
 template <typename... Components>
 class ClientNetworkSystem : public SignedSystem<SystemType::ClientNetwork, Components...> {
@@ -106,7 +135,8 @@ ClientNetworkSystem<Components...>::ClientNetworkSystem(GameManager* const gameM
 {}
 
 /**
- * Network server system: System that communicates with the network on the server side
+ * @class ServerNetworkSystem
+ * System that communicates with the network on the server side.
  */
 template <typename... Components>
 class ServerNetworkSystem : public SignedSystem<SystemType::ServerNetwork, Components...> {

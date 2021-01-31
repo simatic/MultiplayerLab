@@ -8,6 +8,10 @@
 #include "../Components/Transform.h"
 #include "Common/Entity.h"
 
+/**
+ * @class GridRenderer
+ * Renders a background grid.
+ */
 class GridRenderer : public RenderSystem<Transform>
 {
 private:

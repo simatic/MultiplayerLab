@@ -3,6 +3,10 @@
 #include "Common/Components/Transform.h"
 #include "Common/Components/Trajectory.h"
 
+/**
+ * @class TrajectoryRenderer
+ * Renders the trajectory of the vehicle.
+ */
 class TrajectoryRenderer : public RenderSystem<Transform, Trajectory>
 {
 public:

@@ -3,6 +3,10 @@
 #include "Common/Components/Transform.h"
 #include "Common/Components/Kinematics.h"
 
+/**
+ * @class MovementSystem
+ * Updates entities' positions.
+ */
 class MovementSystem : public LogicSystem<Transform, Kinematics>
 {
 public:

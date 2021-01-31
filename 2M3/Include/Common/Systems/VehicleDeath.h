@@ -2,6 +2,10 @@
 #include "Common/Systems/System.h"
 #include "Common/Components/Health.h"
 
+/**
+ * @class VehicleDeath
+ * Handles vehicle life.
+ */
 class VehicleDeath : public LogicSystem<Health>
 {
 public:

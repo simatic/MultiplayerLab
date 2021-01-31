@@ -4,6 +4,10 @@
 #include "Common/Components/Kinematics.h"
 #include "Common/Components/Bullet.h"
 
+/**
+ * @class BulletSystem
+ * Handles bullets movement and lifetime.
+ */
 class BulletSystem : public LogicSystem<Transform, Kinematics, Bullet>
 {
 public:

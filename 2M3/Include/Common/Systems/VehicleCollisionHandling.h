@@ -3,6 +3,10 @@
 #include "Common/Components/Collider.h"
 #include "Common/Components/Health.h"
 
+/**
+ * @class VehicleCollisionSystem
+ * Handles collisions between vehicles and other entities.
+ */
 class VehicleCollisionSystem : public LogicSystem<Kinematics, Collider, Health>
 {
 public:
