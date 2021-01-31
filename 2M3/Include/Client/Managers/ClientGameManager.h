@@ -16,20 +16,42 @@ public:
      */
     void clearAll() override;
 
+    /**
+     * Update network and logic systems.
+     * @param dt Time since last frame.
+     */
     void update(const sf::Time& dt) override;
 
-    void updateSystemLists(Entity* entity) override;
-    void removeFromSystemsLists(Entity* entity) override;
-
+    /**
+     * Add network system. Ownership is transferred to GameManager.
+     * @param system System to add.
+     */
     void addNetworkSystem(std::unique_ptr<System<SystemType::ClientNetwork>> system);
 
+    /**
+     * Add several network systems.
+     * @tparam The systems to be added.
+     */
     template <typename... System>
     void addNetworkSystems();
 
-private:
-    std::vector<std::unique_ptr<System<SystemType::ClientNetwork>>>  networkSystems;
+protected:
+    /**
+     * Assign an entity to its systems.
+     * @param entity Entity to assign.
+     */
+    void updateSystemLists(Entity* entity) override;
 
-    ClientNetworkModule* networkModule;
+    /**
+     * Add system. Ownership is transferred to GameManager.
+     * @param system System to add.
+     */
+    void removeFromSystemsLists(Entity* entity) override;
+
+private:
+    std::vector<std::unique_ptr<System<SystemType::ClientNetwork>>>  networkSystems; //!< The list of logic systems.
+
+    ClientNetworkModule* networkModule; //!< Network module for network access from systems.
 };
 
 template <typename... System>
