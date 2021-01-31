@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Common/States/State.h>
-#include "KeyBinding.h"
+#include <Common/Resources/KeyBinding.h>
 #include <Common/States/StateStack.h>
 #include <Client/Client.h>
 #include "Settings.h"

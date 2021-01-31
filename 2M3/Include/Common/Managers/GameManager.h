@@ -1,7 +1,7 @@
 #pragma once
 #include <Common/Entity.h>
 #include <Common/Systems/System.h>
-#include <KeyBinding.h>
+#include <Common/Resources/KeyBinding.h>
 #include <Common/Modules/INetworkModule.h>
 #include <Common/Network/Constants.h>
 

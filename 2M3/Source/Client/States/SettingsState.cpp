@@ -1,6 +1,6 @@
 #include <Client/States/SettingsState.h>
 #include "Utility.h"
-#include "ResourceHolder.h"
+#include <Common/Resources/ResourceHolder.h>
 
 #include <SFML/Graphics/RenderWindow.hpp>
 

@@ -4,8 +4,8 @@
 #include <string>
 
 #include <Common/States/StateStack.h>
-#include <ResourceHolder.h>
-#include "KeyBinding.h"
+#include <Common/Resources/ResourceHolder.h>
+#include <Common/Resources/KeyBinding.h>
 #include "ThreadSafeQueue.h"
 
 const sf::Time TimePerTick = sf::seconds(1.f / 20.f);

@@ -2,7 +2,7 @@
 #include <Common/GUI/Button.h>
 #include "Utility.h"
 //#include <Book/MusicPlayer.hpp>
-#include "ResourceHolder.h"
+#include <Common/Resources/ResourceHolder.h>
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>

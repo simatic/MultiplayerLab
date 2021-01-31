@@ -1,6 +1,6 @@
 #pragma once
-#include "ResourceHolder.h"
-#include "ResourceIdentifiers.h"
+#include <Common/Resources/ResourceHolder.h>
+#include <Common/Resources/ResourceIdentifiers.h>
 
 class ResourceManager
 {

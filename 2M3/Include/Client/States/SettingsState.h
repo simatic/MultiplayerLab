@@ -2,7 +2,7 @@
 #define BOOK_SETTINGSSTATE_HPP
 
 #include <Common/States/State.h>
-#include "KeyBinding.h"
+#include <Common/Resources/KeyBinding.h>
 #include <Common/GUI/Container.h>
 #include <Common/GUI/Button.h>
 #include <Common/GUI/Label.h>

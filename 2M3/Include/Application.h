@@ -1,9 +1,9 @@
 #ifndef BOOK_APPLICATION_HPP
 #define BOOK_APPLICATION_HPP
 
-#include "ResourceHolder.h"
-#include "ResourceIdentifiers.h"
-#include "KeyBinding.h"
+#include <Common/Resources/ResourceHolder.h>
+#include <Common/Resources/ResourceIdentifiers.h>
+#include <Common/Resources/KeyBinding.h>
 #include <Common/States/StateStack.h>
 #include <Client/Client.h>
 #include "ThreadSafeQueue.h"

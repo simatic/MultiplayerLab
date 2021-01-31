@@ -1,4 +1,4 @@
-#include "KeyBinding.h"
+#include <Common/Resources/KeyBinding.h>
 
 #include <string>
 #include <algorithm>

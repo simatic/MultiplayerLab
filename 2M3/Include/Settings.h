@@ -1,5 +1,5 @@
 #pragma once
-#include "KeyBinding.h"
+#include <Common/Resources/KeyBinding.h>
 
 struct Settings
 {
