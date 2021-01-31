@@ -7,8 +7,8 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 #include <implot.h>
-#include <Server/ServerClock.h>
-#include <Server/DelayCreation.h>
+#include <Server/Network/ServerClock.h>
+#include <Server/Network/DelayCreation.h>
 
 Interface::Interface(ServerNetworkHandler& handler): serverNetwork(handler) {
     handler.registerListener(this);

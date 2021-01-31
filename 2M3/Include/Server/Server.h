@@ -5,9 +5,9 @@
 #include <SFML/Network.hpp>
 #include <Server/Managers/ServerGameManager.h>
 #include <Server/Modules/ServerNetworkModule.h>
-#include "Common/Network/Network.h"
-#include "ServerNetworkHandler.h"
-#include "ServerNetworkThread.h"
+#include <Common/Network/Network.h>
+#include <Server/Network/ServerNetworkHandler.h>
+#include <Server/Network/ServerNetworkThread.h>
 #include "IServerEventsListener.h"
 
 class Server: public IServerEventsListener {

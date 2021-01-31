@@ -1,8 +1,8 @@
 #include <iostream>
-#include <Server/ServerNetworkHandler.h>
-#include <Server/ServerClock.h>
+#include <Server/Network/ServerNetworkHandler.h>
+#include <Server/Network/ServerClock.h>
 #include "Server/Server.h"
-#include "Server/DelayCreation.h"
+#include <Server/Network/DelayCreation.h>
 
 DelayCreator::DelayCreator(ServerNetworkHandler& serverNetworkHandler, Buffer<Packet>& outputBuffer): outputBuffer(outputBuffer), serverNetwork(serverNetworkHandler) {
     backingThread = std::thread([&](){this->threadCode();});

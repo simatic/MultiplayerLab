@@ -4,10 +4,10 @@
 
 #include <iostream>
 #include <thread>
-#include <Server/ServerClock.h>
-#include "Server/NetworkSettings.h"
-#include "Server/ServerNetworkHandler.h"
-#include "Server/DelayCreation.h"
+#include <Server/Network/ServerClock.h>
+#include "Server/Network/NetworkSettings.h"
+#include "Server/Network/ServerNetworkHandler.h"
+#include "Server/Network/DelayCreation.h"
 #include "Server/Interface.h"
 
 ServerNetworkHandler::ServerNetworkHandler(Buffer<Packet>& buffer, const std::string& ip, unsigned short port): ip(ip), port(port) {

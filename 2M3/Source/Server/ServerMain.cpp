@@ -7,10 +7,10 @@
 #include <iostream>
 #include <Common/Network/Constants.h>
 #include <sstream>
-#include <Server/ServerNetworkHandler.h>
-#include <Server/ServerNetworkThread.h>
+#include <Server/Network/ServerNetworkHandler.h>
+#include <Server/Network/ServerNetworkThread.h>
 #include <Server/Interface.h>
-#include <Server/DelayCreation.h>
+#include <Server/Network/DelayCreation.h>
 
 void usage(char* executableName) {
     std::cerr << executableName << " <port>" << std::endl;

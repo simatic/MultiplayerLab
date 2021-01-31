@@ -4,8 +4,8 @@
 #include <thread>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <mutex>
-#include "Server/NetworkTypes.h"
-#include "Server/ServerNetworkHandler.h"
+#include "Server/Network/NetworkTypes.h"
+#include "Server/Network/ServerNetworkHandler.h"
 #include "IServerEventsListener.h"
 
 class Interface: public IServerEventsListener {

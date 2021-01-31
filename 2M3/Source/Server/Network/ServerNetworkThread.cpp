@@ -1,6 +1,6 @@
-#include <Server/ServerClock.h>
-#include "Server/ServerNetworkThread.h"
-#include "Server/DelayCreation.h"
+#include <Server/Network/ServerClock.h>
+#include <Server/Network/ServerNetworkThread.h>
+#include "Server/Network/DelayCreation.h"
 
 ServerNetworkThread::ServerNetworkThread(ServerNetworkHandler& handler, Buffer<Packet>& outputBuffer): serverNetwork(handler), outputBuffer(outputBuffer), socket(handler.getSocket()) {
     backingThread = std::thread([&](){this->threadCode();});

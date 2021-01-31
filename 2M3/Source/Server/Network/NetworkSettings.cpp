@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Server/NetworkSettings.h"
+#include "Server/Network/NetworkSettings.h"
 
 NetworkSettings::NetworkSettings() {
     percentageOutGoingPacketLost = 0.0;

@@ -1,4 +1,4 @@
-#include "Server/ServerClock.h"
+#include "Server/Network/ServerClock.h"
 
 ServerClock* ServerClock::instance = nullptr;
 sf::Mutex ServerClock::instanceMutex{};

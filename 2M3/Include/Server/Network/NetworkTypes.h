@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Network.hpp>
 #include "Common/Network/Network.h"
-#include "Server/NetworkSettings.h"
+#include "Server/Network/NetworkSettings.h"
 
 class ServerNetworkHandler;
 

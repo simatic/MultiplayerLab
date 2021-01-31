@@ -4,8 +4,8 @@
 #include <vector>
 #include <SFML/Network.hpp>
 #include "Common/Network/NetworkHandler.h"
-#include "Server/NetworkSettings.h"
-#include "Server/NetworkTypes.h"
+#include "Server/Network/NetworkSettings.h"
+#include "Server/Network/NetworkTypes.h"
 
 class Interface;
 class DelayCreator;

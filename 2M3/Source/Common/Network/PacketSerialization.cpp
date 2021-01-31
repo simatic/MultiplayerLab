@@ -1,7 +1,7 @@
 #include <Common/Network/Network.h>
 #include <iostream>
 #include <Common/Network/PingPongPackets.h>
-#include <Server/DelayCreation.h>
+#include <Server/Network/DelayCreation.h>
 #include <Network/AddEntityPacket.h>
 #include <Network/WorldStatePacket.h>
 #include <Common/Network/SetColorPacket.h>
