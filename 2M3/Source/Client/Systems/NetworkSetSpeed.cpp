@@ -10,19 +10,6 @@ NetworkSetSpeed::NetworkSetSpeed(GameManager* const gameManager, ClientNetworkMo
 
 void NetworkSetSpeed::update(const sf::Time& dt) {
 	if (!networkModule->isBufferEmpty()) {
-	    auto packets = networkModule->extractPacketsOfType<SetVelocityPacket>();
-		while(!packets.empty()) {
-			auto setSpeedPacket = packets.fetchPacket();
-
-		    auto entityID = setSpeedPacket->getEntityID();
-		    auto speed = sf::Vector2f(setSpeedPacket->getSpeedX(), setSpeedPacket->getSpeedY());
-
-		    std::shared_ptr<Entity> entity = gameManager->getEntityWithID(entityID);
-		    if(!entity)
-                continue;
-		    if(auto kinematics = entity->getComponent<Kinematics>()) {
-                kinematics->velocity = speed;
-		    }
-		}
+		// TODO: Recieve velocity
 	}
 }
