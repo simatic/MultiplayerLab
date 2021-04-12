@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2M3 Multiplayer Lab FR</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="m3-multiplayer-lab-fr">2M3 Multiplayer Lab (FR)</h1>
+<p><strong>TP compatible avec la version 1.1_Beta_Lab</strong></p>
+<h2 id="introduction">Introduction</h2>
+<p>L’objectif de ce TP est d’observer différentes problématiques rencontrées dans le développement de jeux multijoueur et d’y apporter des solutions.</p>
+<h2 id="installation">Installation</h2>
+<p>Allez sur <a href="https://github.com/simatic/MultiplayerLab">https://github.com/simatic/MultiplayerLab</a> et téléchargez la dernière version du TP dans la section “Releases”.</p>
+<p>Extrayez l’archive dans le dossier de votre choix et suivez les instructions d’installation en fonction de votre système.</p>
+<h3 id="windows-avec-visual-studio-2019-et-msvc2019">Windows avec Visual Studio 2019 et MSVC2019</h3>
+<p>Ouvrez Visual Studio 2019 et séléctionnez <code>Continuer sans code</code> dans la fenêtre d’accueil.</p>
+<p>Allez ensuite dans <code>Fichier &gt; Ouvrir &gt; CMake</code>et naviguez dans le dossier du TP. Sélectionnez le fichier <code>MultiplayerLab/2M3/CMakeLists.txt</code> et cliquez sur <code>Ouvrir</code>.</p>
+<h2 id="structure-du-programme">Structure du programme</h2>
+<p>Ce TP est basé sur un jeu de tir en 1v1. Vous contrôlez une voiture et le bit est de tuer votre adversaire.</p>
+<p>Ce projet est divisé en trois sous-dossiers :</p>
+<ul>
+<li>Le dossier <code>Client</code>contient tout le code côté client, c’est-à-dire le code qui serait exécuté sur votre machine personnelle si vous achetiez un jeu multijoueur.</li>
+<li>Le dossier <code>Server</code>contient le code côté serveur, c’est-à-dire ce qui serait exécuté sur des machines distantes dans le cas d’applications réelles.</li>
+<li>Le dossier <code>Common</code>contient du code utilisé à la fois par le serveur et le client. Notez bien que l’application se comporte comme si le serveur et le client étaient complètement séparés et connectés uniquement via le réseau, mais du code comme le moteur de jeu est commun au deux et se trouve donc dans ce dossier.</li>
+</ul>
+<p>Le moteur utilisé pour ce jeu est composé de trois éléments :</p>
+<ul>
+<li>Les <code>Components</code>sont des structures C++ qui contiennent des données. Par exemple, le composant <code>Transform</code>contient un <code>sf::Vector2f</code>pour stocker la position et un <code>float</code> pour la rotation.</li>
+<li>Les <code>Entities</code>sont l’équivalent des GameObject dans Unity. Elles ont un ID unique et une liste de composants, selon leur fonction.</li>
+<li>Les <code>Systems</code> gèrent la logique du jeu et agissent sur les composants des entités. Par exemple, le <code>MovementSystem</code> cherche la vitesse dans le composant <code>Kinematics</code>et met à jour le composant <code>Transform</code>. De fait, ce système ne peut fonctionner <strong>que</strong> sur les entités qui <strong>ont</strong> les composants <code>Transform</code>et <code>Kinematics</code>. Le <code>GameManager</code> réalise des vérifications intelligents pour s’assurer de cette propriété.</li>
+</ul>
+<p>Les systèmes sont les classes que vous allez manipuler le plus, pour envoyer des données du client vers le serveur et vice-versa. Ils fonctionnent de la même manière que les scripts <code>MonoBehaviour</code>de Unity, avec une méthode <code>start()</code> (éventuellement) et <code>update()</code>.</p>
+<h2 id="premier-lancement">Premier lancement</h2>
+<p>Compilez puis lancez l’application. Cela peut durer un moment mais devrait être plus rapide par la suite, puisque le compilateur ne régénérera que les fichiers modifiés.</p>
+<p>Vous devriez avoir la vue suivante :<br>
+<img src="../Images/First_Launch.png" alt="Application au premier lancement"></p>
+<p>A droite, encadré de rouge, c’est la vue du client (joueur) 1. A gauche, en vert, celle du client (joueur) 2.</p>
+<p>Vous ne pouvez pas encore les faire bouger. Ce sera l’objet de la partie suivante. En bas, vous pouvez observer les graphes de communication.</p>
+<p>Le graphe de gauche indique les paquets entrant (des clients vers le serveur) et celui de droite des paquets sortants (du serveur vers les clients).</p>
+<p>Enfin, vous pouvez modifier la simulation réseau en ajoutant des pertes de paquet et de la latence en 4 points de communication :</p>
+<ul>
+<li>Du client 1 vers le serveur</li>
+<li>Du client 2 vers le serveur</li>
+<li>Du serveur vers le client 1</li>
+<li>Du serveur vers le client 2</li>
+</ul>
+<h2 id="premiers-pas-avec-le-moteur-de-jeu">Premiers pas avec le moteur de jeu</h2>
+<p>Pour bien comprendre le fonctionnement du moteur de jeu, nous vous proposons d’implémenter le <code>MovementSystem</code> qui met à jour les position des entités selon leur vitesse.</p>
+<p>Ouvrez le <code>MovementSystem</code>dans <code>Source/Common/Systems/MovementSystem.cpp</code>. Vous devriez voir ceci :</p>
+<pre><code>MovementSystem::MovementSystem(GameManager* const gameManager) :
+	LogicSystem&lt;Transform, Kinematics&gt;(gameManager)
+{}
+
+void MovementSystem::update(const sf::Time&amp; dt) {
+	// TODO: Update entities' positions
+}
+</code></pre>
+<p>La première méthode est le constructeur du système. Comme vous pouvez le voir, il demande un pointeur vers le <code>GameManager</code>. Notez également que c’est un système logic <code>LogicSystem</code> qui agit uniquement sur les entités qui ont les composants <code>Transform</code>et <code>Kinematics</code>.</p>
+<p>La deuxième méthode est la méthode <code>update</code>, appelée à chaque frame. Chaque système a la liste des entités sur lesquelles il peut faire des opérations. Cette liste est stockée dans la variable membre <code>entities</code>.</p>
+<p>To-Do :</p>
+<ul>
+<li>Pour chaque entité dans <code>entities</code>, mettez à jour la position de l’entité avec la formule <code>position += velocity * dt</code>.</li>
+<li>Allez voir les déclarations des composants <code>Transform</code>et <code>Kinematics</code> dans <code>Include/Common/Components</code>pour voir ce qu’ils contiennent.</li>
+<li>Vous pouvez obtenir les composants des entités avec <code>entity-&gt;getComponent&lt;...&gt;();</code>.</li>
+</ul>
+<p><strong>Rappels C++</strong><br>
+La méthode <code>getComponent&lt;...&gt;</code> utilise les templates. Il s’agit de mettre le <strong>type</strong> du composant que vous souhaitez obtenir à l’intérieur des chevrons, c’est-à-dire ici <code>Transform</code> ou <code>Kinematics</code>.</p>
+<p>Une fois la méthode <code>update()</code> complétée, compilez et lancez le programme. Attendez quelques instants que le serveur se déconnecte pour éviter qu’il ne force les position des joueurs à zéro. Vous pouvez aussi augmenter la perte de paquets au maximum. Vous devriez maintenant être en mesure de faire bouger les véhicules avec les touches <code>ZQSD</code> et <code>haut/bas/gauche/droite</code>.</p>
+<h2 id="répliquer-les-mouvements">Répliquer les mouvements</h2>
+<h3 id="observation">Observation</h3>
+<p>Pour le moment, les mouvement des véhicules ne sont pas répliqués sur le client en face. Vous pouvez observer, en lançant l’application, que le graphe des paquets sortant est vide. C’est parce que, pour le moment, nous n’avons pas dit au serveur d’envoyer la position et la vitesse des entités au client.</p>
+<h3 id="théorie">Théorie</h3>
+<p>La plupart des jeux multijoueur utilisent une architecture client-serveur, où chaque joueur (client) est connecté à un ou plusieurs serveurs qui reçoivent les <em>inputs</em> des joueurs, mettent à jour l’état du monde et renvoient des informations aux client pour qu’ils puissent faire le rendu de la scène.</p>
+<p>Dans notre jeu, les clients A et B envoient leurs <em>inputs</em> au serveur. Ensuite, le serveur calcule la nouvelle position des véhicules. Enfin, il envoie les position des deux véhicules à chaque client pour qu’ils puissent effectuer le rendu.</p>
+<p>L’envoi des inputs depuis le client et leur réception par le serveur est déjà implémentée, mais il faut désormais envoyer les nouvelles positions et vitesses au véhicule et les recevoir côté client.</p>
+<h3 id="première-étape--envoi-des-positions-et-vitesse-du-serveur-vers-les-clients">Première étape : envoi des positions et vitesse du serveur vers les clients</h3>
+<p>Dans un premier temps, nous allons nous concentrer sur l’envoi des positions/rotations et vitesses du serveur vers les clients.<br>
+Ouvrez le fichier <code>Source/Server/Systems/NetworkUpdatePositionsAndVelocities.cpp</code>.</p>
+<p>Comme pour le <code>MovementSystem</code>, vous pouvez remarquer que ce système a besoin d’un composant <code>Transform</code> et d’un composant <code>Kinematics</code>. On rappelle qu’un système a une liste d’entités <code>entities</code> qui contient toutes les entités sur lesquelles le système peut être appelé.</p>
+<p>To-Do :<br>
+-Pour chaque entité, il nous faut récupérer les composants <code>Transform</code> et <code>Kinematics</code> afin d’envoyer leurs position/rotation et vitesse.</p>
+<ul>
+<li>Une fois ceci fait, il faut envoyer <strong>à chaque client</strong> un paquet contenant la position/rotation (composant <code>Transform</code> complet) et un paquet contenant la vélocité. Pour récupérer la liste des clients connectés au serveur, il suffit de demander au <code>networkModule</code> une référence vers le serveur, avec <code>getServer()</code>, puis de demander au serveur ainsi obtenu la liste des clients avec <code>getClients()</code>.</li>
+<li>Itérez sur cette liste de client, et pour chacun d’eux :
+<ul>
+<li>Créez un paquet <code>SetTransformPacket</code> avec le composant <code>Transform</code> de l’entité.</li>
+<li>Créez un paquet <code>SetVelocityPacket</code> avec la vélocité de l’entité.</li>
+<li>Envoyez ces paquets.</li>
+</ul>
+</li>
+</ul>
+<p>Pour créer des paquets, utilisez la méthode <code>create&lt;...&gt;(...)</code> du <code>networkModule</code>, puis envoyez-les au client en appelant la méthode <code>send(...)</code> sur le client.</p>
+<p>La méthode <code>create&lt;...&gt;(...)</code> prend en argument de template <code>&lt;...&gt;</code> le <strong>type du paquet</strong> à créer et en arguments normaux <code>(...)</code> les <strong>données à écrire</strong> dans le paquet. N’oubliez pas qu’il faut envoyer dans le paquet l’<strong>ID de l’entité</strong> à laquelle correspond les données, sinon comment le client ferait-il à la réception pour savoir quelle entité il doit mettre à jour ? Allez-voir les constructeurs de <code>SetTransformPacket</code> et <code>SetVelocityPacket</code> pour voir quels types de données sont requises pour leur création et dans quel ordre. Notez que le <code>PacketSequenceIndex</code> est automatiquement ajouté par le <code>networkModule</code>, il faut donc faire comme s’il n’existait pas quand vous appelez la méthode <code>create&lt;...&gt;(...)</code>.</p>
+<p><strong>Aide</strong><br>
+Par exemple pour le paquet <code>SetTransformPacket</code>:</p>
+<pre><code>networkModule-&gt;create&lt;SetTransformPacket&gt;(entity-&gt;getID(), transform);
+</code></pre>
+<p>Compilez et lancez l’application. Observez les graphes et remarquez que le graphe des paquets sortants montre désormais l’envoi des <code>SetTransformPacket</code>  et <code>SetVelocityPacket</code> du serveur vers les clients.</p>
+<h3 id="deuxième-étape--recevoir-la-vitesse-côté-client">Deuxième étape : recevoir la vitesse côté client</h3>
+<p>Nous devons maintenant traiter les données que nous a envoyé le serveur.<br>
+Les clients, tout comme le serveur, fait tourner un <em>thread</em> en arrière-plan qui reçoit les paquets. Dès qu’un paquet est réceptionné, il est stocké dans une mémoire tampon (<em>buffer</em>) jusqu’à ce qu’il soit utilisé.</p>
+<p>Ouvrez <code>Source/Client/Systems/NetworkSetSpeed</code>.</p>
+<p>To-Do :</p>
+<ul>
+<li>Nous devons tout d’abord récupérer les <code>SetVelocityPacket</code> du <em>buffer</em>. Pour ce faire, utilisez la méthode <code>extractPacketsOfType&lt;...&gt;</code> du <code>networkModule</code>. Cette méthode retourne une version réduite du <em>buffer</em> avec uniquement les paquets du type qui nous intéressent.</li>
+<li>Tant qu’il reste des paquets dans le <em>buffer</em> ainsi récupéré :
+<ul>
+<li>Extrayez le premier paquet avec <code>fetchPacket()</code>. Cela vous retourne le premier paquet reçu en ordre FIFO et le supprime du <em>buffer</em>.</li>
+<li>Le client a besoin de savoir à quelle entité s’applique la vélocité transmise via le <code>SetVelocityPacket</code>. Vous pouvez l’obtenir avec <code>getEntityID()</code> sur le paquet.</li>
+<li>Trouvez dans le <code>gameManager</code> l’entité avec cette ID, en appelant <code>getEntityWithID</code> sur le <code>gameManager</code>.</li>
+<li>Mettez les données du <code>SetVelocityPacket</code> dans la <code>velocity</code> du composant <code>Kinematics</code> de l’entité récupérée. Vous pouvez obtenir les données du paquet avec <code>getSpeedX()</code>, <code>getSpeedY()</code> (vitesse selon X et Y).</li>
+</ul>
+</li>
+</ul>
+<p>Pour le traitement des paquets <code>SetTransformPacket</code> , nous l’avons implémenté pour vous dans <code>NetworkSetTransform.cpp</code>.</p>
+<p>Compilez et lancez l’application. Vous devriez être en mesure de voir les véhicules bouger chez les deux clients en même temps.</p>
+<p>Jouez avec les paramètres du serveur et observez ce qu’il se passe quand vous augmentez la latence ou la perte de paquets :</p>
+<ul>
+<li>Augmentez par exemple le taux de perte de paquet du serveur vers le client 1 et bougez la voiture du client 2 avec les flèches. Les mouvements devraient être saccadés sur le client 1.</li>
+<li>Augmentez la latence pour la communication serveur -&gt; client 1. Bougez la voiture du client 2 avec les flèches. Les mouvements devraient être répliqués sur le client 1 avec un délai non négligeable.</li>
+</ul>
+</div>
+</body>
+
+</html>

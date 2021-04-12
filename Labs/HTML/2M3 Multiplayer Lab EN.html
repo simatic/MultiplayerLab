@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2M3 Multiplayer Lab EN</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="m3-multiplayer-lab">2M3 Multiplayer Lab</h1>
+<h2 id="introduction">Introduction</h2>
+<p>The goal of this lab is to make you experiment the different problems of multiplayer games, and some solutions to these problems.</p>
+<p>For each step of the lab:</p>
+<ul>
+<li>Experience the problem.</li>
+<li>Experience the proposed solution by coding it according to the instructions.</li>
+</ul>
+<h2 id="preliminary-installation">Preliminary installation</h2>
+<p>Go to <a href="https://github.com/simatic/MultiplayerLab">https://github.com/simatic/MultiplayerLab</a> and download the latest release of the Lab, in the “Releases” section.</p>
+<p>Extract the archive. Then follow the installation instructions depending on your operating system.</p>
+<h3 id="windows-with-visual-studio-2019-and-msvc2019">Windows with Visual Studio 2019 and MSVC2019</h3>
+<p>Open up Visual Studio 2019 and select <code>Continue without code</code> on the welcoming page.<br>
+Then go to <code>File &gt; Open &gt; CMake...</code> and navigate to the extracted archive. Select the <code>CMakeLists.txt</code> file and click on <code>Open</code>.</p>
+<h3 id="linux-with-gcc">Linux with GCC</h3>
+<p>TODO</p>
+<h2 id="structure-of-the-program">Structure of the program</h2>
+<p>This Lab is based on a 1v1 shooting game against two vessels. The goal is to make each of the two clients communicate with each other through a server.</p>
+<p>The project is divided into 3 sections : Client, Server and Common.</p>
+<ul>
+<li>The <code>Client</code> folder contains all the code of the Client side. That is, the code of the game you would execute if you had purshased a multiplayer game.</li>
+<li>The <code>Server</code> folder contains the code of the Server side, which is what would be executed on cloud servers in real-life implementations.</li>
+<li><code>Common</code> contains code that are used both by Client and Server for convenience. However, the app behaves as if Server and Client where totally separted and connected only via network, just like in real-life.</li>
+</ul>
+<p>The engine used for this game is composed of three elements :</p>
+<ul>
+<li><code>Components</code> are basic C++ structs that hold data. For instance, the <code>Transfrom</code> component holds a <code>sf::Vector2f</code> to store the position and a <code>float</code> for the rotation :</li>
+</ul>
+<pre><code>struct Transform {
+	sf::Vector2f position;
+	float rotation;
+}
+</code></pre>
+<ul>
+<li><code>Entities</code> are the equivalent of GameObjects in Unity. They have a unique ID and a set of components, depending on their function.</li>
+<li><code>Systems</code> handle the logic of the game and act on entities’ components. For example, the <code>MovementSystem</code> fetch the speed of the <code>Kinematics</code> component and update the <code>Transform</code> component accordingly. Of course, this system runs only on entities that <strong>have</strong> the <code>Kinematics</code> and <code>Transform</code> components. The <code>GameManager</code> performs smart checks to ensure this property.</li>
+</ul>
+<p><code>Systems</code> are what you will be modifing the most, so as to send data from the client to the server and vice-versa. They work a bit like in Unity with <code>start()</code> and <code>update()</code> methods.</p>
+<h2 id="first-steps-with-2m3-structure">First steps with 2M3 structure</h2>
+<p>To understand the game engine a bit further, our first task will be to implement the <code>MovementSystem</code> for entities to update their position according to their speed.</p>
+<p>Open the <code>MovementSystem</code> at <code>Common/Systems/MovementSystem.cpp</code>.</p>
+<p>This is what you should see :</p>
+<pre><code>MovementSystem::MovementSystem(GameManager* const gameManager) :
+	LogicSystem&lt;Transform, Kinematics&gt;(gameManager)
+{}
+
+void MovementSystem::update(const sf::Time&amp; dt) {
+	// TODO: Update entities' positions
+}
+</code></pre>
+<p>The first method is the constructor if the system. As you can see, the system needs a reference to the <code>gameManager</code>. You can also see that it is a <code>LogicSystem</code> that only acts on entities that have a <code>Transform</code> and a <code>Kinematics</code> component.</p>
+<p>The second method is what will be called at each frame. It is important to know that each system has a list of the entites it can perform operations on. This list is stored under the <code>entites</code> member variable.</p>
+<p>What you need to do is :</p>
+<ul>
+<li>For each entity in <code>entities</code>, update entity’s position with <code>position += speed * dt</code>.</li>
+<li>Check the <code>Transform</code> and <code>Kinematics</code> components under <code>Common/Components</code> to see what they contain.</li>
+<li>You can get the entity’s components with <code>entity-&gt;getComponent&lt;...&gt;();</code>.</li>
+<li>Once you have a component, you can access its data with <code>-&gt;</code>, e.g. <code>transform-&gt;position</code>.</li>
+</ul>
+<p>Once the <code>update()</code> method is completed, compile and run the program. You should see the vessels move if you press the <code>WASD</code> keys. You may need to wait a littel bit until the server disconnects because the server is authoritative and will maintain the initial positions. It will disconnect after a few seconds.</p>
+<h2 id="replicating-movements">Replicating movements</h2>
+<p>The tow vessels are nox movable! Great! But this is still a single-player game, and the enemy isn’t moving at all.<br>
+Most multiplayer games use a client-server architecture, where each client (the players) is connected to a central server that receives all the inputs from the clients, update the world status accordingly and send back information to the client for them to render the resulting scene.</p>
+<p>In our game, Client A and Client B send their inputs to the Server. Then, the Server computes the new positions of the vessels. Finally, the Server sends the positions of both vessels to each Client so that they can render the scene.</p>
+<p>The goal is now to set up this communication.</p>
+<h3 id="first-step--send-inputs-from-client-to-server">First step : send inputs from client to server</h3>
+<p>We will first focus on sending inputs from the client to the server.<br>
+Open <code>Source/Client/Systems/NetworkSendInputs.cpp</code></p>
+<p>As with the <code>MovementSystem</code>, you can see that this system needs a <code>Transform</code>component and a <code>PlayableCarInputs</code> component. This component holds inputs for the vessel that is played by the user. Remember that a system has a list of entites named <code>entities</code> which contains the entities on which the system can be applied. Each client has only one playable vessel, so the size of <code>entities</code> should be 1.</p>
+<p>What you need to do is:</p>
+<ul>
+<li>Get the playable vessel from the <code>entities</code> list.</li>
+<li>Extract ist inputs from the <code>PlayableCarInputs</code> component.</li>
+<li>With the <code>createAndSend</code> method of the <code>networkModule</code>, send an <code>InputPacket</code> that contains these inputs. Check the constructor of <code>InputPacket</code> to see in which order the inputs need to be passed to the packet. Note that <code>PacketSequenceIndex</code> will automatically added to the constructor by the method <code>createAndSend</code>.</li>
+</ul>
+<h3 id="second-step--receive-clients-inputs-from-server-side">Second step : receive client’s inputs from server side</h3>
+<p>Now, we need to get the inputs the client sent us.<br>
+Recieving is a bit more complex. The server, as well as the clients, has a background thread that listens for incoming packets. Once packets are recieved, they are stored into a buffer until they are used.</p>
+<p>Open <code>Source/Server/Systems/NetworkPlayerInputs</code>.</p>
+<ul>
+<li>In order to manage client inputs, we first need to get the <code>InputPacket</code>s from the buffer. This is done with the <code>extractPacketsOfType&lt;...&gt;</code> method of the <code>serverModule</code>.</li>
+<li>The server now needs to know for which vessel does each packet apply to. The server has a corresponding table between the client’s ID and the playable vessel of this client. You can get it with <code>serverModule-&gt;getServer().getClientEntityByID(...);</code>. You can get the ID of the sender by calling <code>getSender</code> on the packet.</li>
+<li>Finally, put the inputs of the <code>InputPacket</code> in the <code>CarInput</code> of the fetched entity with <code>inputPacket-&gt;get[Up/Down...]</code>.</li>
+</ul>
+<p>Play with the server controls and observe what happens when you increase packet loss or latency.</p>
+</div>
+</body>
+
+</html>
