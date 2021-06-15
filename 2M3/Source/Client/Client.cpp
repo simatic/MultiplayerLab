@@ -64,7 +64,8 @@ void Client::initialize(KeyBinding& keyBinding) {
 }
 
 void Client::initialize(int keyBindingConfiguration) {
-	initialize(KeyBinding(keyBindingConfiguration));
+	auto kb{ KeyBinding(keyBindingConfiguration) };
+	initialize(kb);
 }
 
 void Client::run() {

@@ -1,7 +1,7 @@
 #include <Common/States/State.h>
 #include <Common/States/StateStack.h>
 
-State::Context::Context(sf::Color& associatedColor) :
+State::Context::Context(sf::Color associatedColor) :
 	uid(nullptr),
 	target(nullptr),
 	textures(nullptr),

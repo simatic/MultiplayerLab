@@ -27,9 +27,10 @@
 Application::Application() :
 	mWindow(sf::VideoMode::getDesktopMode()/*sf::VideoMode(1600, 900)*/, "2M3", sf::Style::Close | sf::Style::Resize),
 	_isMainWindowOpen(false),
-	stateStack(std::make_unique<StateStack>(State::Context::Context())),
 	settings(std::make_unique<Settings>())
 {
+	sf::Color color;
+	stateStack = std::make_unique<StateStack>(State::Context(color));
 	mWindow.setKeyRepeatEnabled(false);
 	mWindow.setVerticalSyncEnabled(true);
 
