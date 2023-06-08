@@ -12,13 +12,39 @@ endif()
 
 set (BUILD_SHARED_LIBS FALSE)
 
+#
 # We include the subset of Boost we will be using.
+#
 include_directories(boost_1_82_0_subset)
 if(WIN32)
     # Compilation of some of the boost sources requires the following definition
     # (which is appropriate for Windows 7 target)
     add_compile_definitions(_WIN32_WINNT=0x0601)
 endif()
+
+#
+# Cereal : A simple FetchContent does not work ==> We generate its library
+# in the same manner as google-test
+#
+
+# Download and unpack Cereal at configure time
+configure_file(CMakeLists_cereal.txt.in cereal-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cereal-download )
+if(result)
+    message(FATAL_ERROR "CMake step for cereal failed: ${result}")
+endif()
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cereal-download )
+if(result)
+    message(FATAL_ERROR "Build step for enet failed: ${result}")
+endif()
+
+# Give access to cereal include directory
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/cereal-src/include")
+
 set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(sample)
