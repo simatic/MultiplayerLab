@@ -89,6 +89,9 @@ int main(int argc, char* argv[])
         tcp::socket s(io_service);
         s.connect(*iterator);
 
+        boost::asio::ip::tcp::no_delay option(true);
+        s.set_option(option);
+
         // Create a thread for receiving data
         auto t = jthread(msg_receive, std::ref(s), std::ref(myId));
 

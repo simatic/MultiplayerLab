@@ -103,6 +103,10 @@ void session(socket_ptr const& sock, unsigned char& lastId)
     {
         socket_ptr sock(new tcp::socket(io_service));
         a.accept(*sock);
+
+        boost::asio::ip::tcp::no_delay option(true);
+        sock->set_option(option);
+
         auto t = jthread(session, sock, ref(lastId));
     }
 }
