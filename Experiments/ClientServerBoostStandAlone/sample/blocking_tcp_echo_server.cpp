@@ -64,7 +64,6 @@ void analyze_packet(socket_ptr const& sock, string_view msg_sv, unsigned char& l
             break;
         }
     }
-
 }
 
 void session(socket_ptr const& sock, unsigned char& lastId)

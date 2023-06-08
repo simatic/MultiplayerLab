@@ -45,16 +45,16 @@ void analyze_packet(string_view msg_sv, unsigned char& myId)
             else
                 cout << "client " << static_cast<unsigned int>(sbm.senderId);
             // C++20 operator<< is not yet implemented for duration in gcc.
-            // Thus we cannot write: cout << " in " << elapsed << "\n";
+            // Thus, we cannot write: cout << " in " << elapsed << "\n";
             // ==> We do it manually.
             cout << " in " << elapsed.count() << " ms\n";
             break;
     }
 }
 
-void msg_receive(tcp::socket &s, unsigned char &myId)
+[[noreturn]]void msg_receive(tcp::socket &s, unsigned char &myId)
 {
-    while (true)
+    for (;;)
     {
         size_t len;
         size_t len_length = boost::asio::read(s,
