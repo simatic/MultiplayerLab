@@ -8,19 +8,15 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <cstdlib>
 #include <iostream>
 #include <thread>
-#include <boost/smart_ptr.hpp>
 #include <boost/asio.hpp>
 #include "common.h"
 
 using boost::asio::ip::tcp;
 using namespace std;
 
-using socket_ptr = boost::shared_ptr<tcp::socket> ;
-
-void analyze_packet(socket_ptr const& sock, string_view msg_sv, unsigned char& lastId)
+void analyze_packet(tcp::socket *psock, string_view msg_sv, unsigned char& lastId)
 {
     std::string msg_string{msg_sv};
     std::istringstream msg_stream{ msg_string };
@@ -39,8 +35,8 @@ void analyze_packet(socket_ptr const& sock, string_view msg_sv, unsigned char& l
             } // archive goes out of scope, ensuring all contents are flushed
             std::string_view sir_sv{ sir_stream.view() };
             size_t len = sir_sv.length();
-            boost::asio::write(*sock, boost::asio::buffer(&len, sizeof(len)));
-            boost::asio::write(*sock, boost::asio::buffer(sir_sv.data(), len));
+            boost::asio::write(*psock, boost::asio::buffer(&len, sizeof(len)));
+            boost::asio::write(*psock, boost::asio::buffer(sir_sv.data(), len));
             break;
         }
         case Client::MessageToBroadcast :
@@ -59,14 +55,14 @@ void analyze_packet(socket_ptr const& sock, string_view msg_sv, unsigned char& l
             } // archive goes out of scope, ensuring all contents are flushed
             std::string_view sbm_sv{ sbm_stream.view() };
             size_t len = sbm_sv.length();
-            boost::asio::write(*sock, boost::asio::buffer(&len, sizeof(len)));
-            boost::asio::write(*sock, boost::asio::buffer(sbm_sv.data(), len));
+            boost::asio::write(*psock, boost::asio::buffer(&len, sizeof(len)));
+            boost::asio::write(*psock, boost::asio::buffer(sbm_sv.data(), len));
             break;
         }
     }
 }
 
-void session(socket_ptr const& sock, unsigned char& lastId)
+void session(unique_ptr<tcp::socket> upsock, unsigned char& lastId)
 {
     try
     {
@@ -74,18 +70,18 @@ void session(socket_ptr const& sock, unsigned char& lastId)
         {
             size_t len;
             boost::system::error_code error;
-            size_t length = boost::asio::read(*sock,boost::asio::buffer(&len, sizeof(len)), error);
+            size_t length = boost::asio::read(*upsock, boost::asio::buffer(&len, sizeof(len)), error);
             if (error == boost::asio::error::eof)
                 break; // Connection closed cleanly by peer.
             else if (error)
                 throw boost::system::system_error(error); // Some other error.
             assert(length == sizeof(len));
             char msg[max_length];
-            size_t msg_length = boost::asio::read(*sock,
+            size_t msg_length = boost::asio::read(*upsock,
                                                   boost::asio::buffer(msg, len));
             assert(msg_length == len);
             std::string_view msg_sv{msg, len};
-            analyze_packet(sock, msg_sv, lastId);
+            analyze_packet(upsock.get(), msg_sv, lastId);
         }
     }
     catch (std::exception& e)
@@ -101,13 +97,13 @@ void session(socket_ptr const& sock, unsigned char& lastId)
     tcp::acceptor a(io_service, tcp::endpoint(tcp::v4(), port));
     for (;;)
     {
-        socket_ptr sock(new tcp::socket(io_service));
-        a.accept(*sock);
+        auto upsock = make_unique<tcp::socket>(io_service);
+        a.accept(*upsock);
 
         boost::asio::ip::tcp::no_delay option(true);
-        sock->set_option(option);
+        upsock->set_option(option);
 
-        auto t = jthread(session, sock, ref(lastId));
+        auto t = jthread(session, std::move(upsock), ref(lastId));
     }
 }
 
@@ -123,7 +119,6 @@ int main(int argc, char* argv[])
 
     boost::asio::io_service io_service;
 
-    using namespace std; // For atoi.
     server(io_service, atoi(argv[1]));
   }
   catch (std::exception& e)
