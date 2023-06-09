@@ -6,13 +6,14 @@
 
 #include <iostream>
 #include <thread>
+#include <shared_mutex>
 #include <boost/asio.hpp>
 #include "common.h"
 
 using boost::asio::ip::tcp;
 using namespace std;
 
-void analyze_packet(tcp::socket *psock, string_view msg_sv, unsigned char& lastId)
+void analyze_packet(tcp::socket *psock, string_view msg_sv, unsigned char& lastId, vector<tcp::socket*> const&vecSock, std::shared_timed_mutex &rw_mutex)
 {
     std::string msg_string{msg_sv};
     std::istringstream msg_stream{ msg_string };
@@ -51,15 +52,32 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, unsigned char& lastI
             } // archive goes out of scope, ensuring all contents are flushed
             std::string_view sbm_sv{ sbm_stream.view() };
             size_t len = sbm_sv.length();
-            boost::asio::write(*psock, boost::asio::buffer(&len, sizeof(len)));
-            boost::asio::write(*psock, boost::asio::buffer(sbm_sv.data(), len));
+            // We broadcast the message to all clients
+            {
+                std::shared_lock readerLock(rw_mutex);
+                for (auto &ps : vecSock)
+                {
+                    boost::asio::write(*ps, boost::asio::buffer(&len, sizeof(len)));
+                    boost::asio::write(*ps, boost::asio::buffer(sbm_sv.data(), len));
+                }
+            }
             break;
         }
+        case Client::DisconnectInfo:
+            // Should never happen as this value is only used with UDP
+            cerr << "ERROR : Received DisconnectInfo with TCP protocol\n";
+            abort();
     }
 }
 
 void session(unique_ptr<tcp::socket> upsock, unsigned char& lastId)
 {
+    static vector<tcp::socket*> vecSock;
+    static std::shared_timed_mutex rw_mutex;
+    {
+        std::lock_guard writerLock(rw_mutex);
+        vecSock.push_back(upsock.get());
+    }
     try
     {
         for (;;)
@@ -77,12 +95,16 @@ void session(unique_ptr<tcp::socket> upsock, unsigned char& lastId)
                                                   boost::asio::buffer(msg, len));
             assert(msg_length == len);
             std::string_view msg_sv{msg, len};
-            analyze_packet(upsock.get(), msg_sv, lastId);
+            analyze_packet(upsock.get(), msg_sv, lastId, vecSock, rw_mutex);
         }
     }
     catch (std::exception& e)
     {
         std::cerr << "Exception in thread: " << e.what() << "\n";
+    }
+    {
+        std::lock_guard writerLock(rw_mutex);
+        vecSock.erase(remove(vecSock.begin(), vecSock.end(), upsock.get()), vecSock.end());
     }
     cout << "Client disconnected\n";
 }
@@ -100,6 +122,7 @@ void session(unique_ptr<tcp::socket> upsock, unsigned char& lastId)
         upsock->set_option(option);
 
         auto t = jthread(session, std::move(upsock), ref(lastId));
+        t.detach();
     }
 }
 

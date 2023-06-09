@@ -4,10 +4,6 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/chrono.hpp>
 
-// Where the server listens
-//constexpr std::string_view SERVER_HOST{ "localhost" };
-//constexpr unsigned short SERVER_PORT{ 4096 };
-
 // Maximum length of a UDP packet
 constexpr size_t max_length{65515};
 
@@ -49,7 +45,8 @@ struct ServerBroadcastMessage
 enum class Client : unsigned char
 {
     IdRequest,
-    MessageToBroadcast
+    MessageToBroadcast,
+    DisconnectInfo // Only used for UDP client to tell server it is disconnecting
 };
 
 struct ClientMessageToBroadcast
@@ -65,4 +62,18 @@ struct ClientMessageToBroadcast
         archive(senderId, messageId, sendTime); // serialize things by passing them to the archive
     }
 };
+
+struct ClientDisconnectInfo
+{
+    unsigned char id;
+
+    // This method lets cereal know which data members to serialize
+    template<class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(id); // serialize things by passing them to the archive
+    }
+};
+
+
 

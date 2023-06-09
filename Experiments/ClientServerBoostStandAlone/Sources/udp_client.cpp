@@ -83,6 +83,7 @@ int main(int argc, char* argv[])
 
         // Create a thread for receiving data
         auto t = jthread(msg_receive, std::ref(s), std::ref(myId));
+        t.detach();
 
         // Send IdRequest to server
         stringstream ir_stream;
@@ -112,6 +113,17 @@ int main(int argc, char* argv[])
 
             this_thread::sleep_for(500ms);
         }
+
+        // Send DisconnectInfo to server
+        stringstream di_stream;
+        di_stream << static_cast<unsigned char>(Client::DisconnectInfo);
+        {
+            cereal::BinaryOutputArchive oarchive(di_stream); // Create an output archive
+            struct ClientDisconnectInfo cdi { myId };
+            oarchive(cdi); // Write the data to the archive
+        } // archive goes out of scope, ensuring all contents are flushed
+        std::string_view di_sv{ di_stream.view() };
+        s.send_to(boost::asio::buffer(di_sv.data(), di_sv.length()), *iterator);
     }
     catch (std::exception& e)
     {

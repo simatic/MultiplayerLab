@@ -90,6 +90,7 @@ int main(int argc, char* argv[])
 
         // Create a thread for receiving data
         auto t = jthread(msg_receive, std::ref(s), std::ref(myId));
+        t.detach();
 
         // Send IdRequest to server
         stringstream ir_stream;

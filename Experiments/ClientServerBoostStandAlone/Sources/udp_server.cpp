@@ -5,6 +5,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <map>
 #include <boost/asio.hpp>
 #include "common.h"
 
@@ -13,6 +14,7 @@ using namespace std;
 
 void analyze_packet(udp::socket & sock, udp::endpoint const& sender_endpoint, string_view msg_sv, unsigned char& lastId)
 {
+    static map<unsigned char, udp::endpoint> mapEndPoint;
     std::string msg_string{msg_sv};
     std::istringstream msg_stream{ msg_string };
     unsigned char msg_typ;
@@ -30,6 +32,7 @@ void analyze_packet(udp::socket & sock, udp::endpoint const& sender_endpoint, st
             } // archive goes out of scope, ensuring all contents are flushed
             std::string_view sir_sv{ sir_stream.view() };
             sock.send_to(boost::asio::buffer(sir_sv.data(), sir_sv.length()), sender_endpoint);
+            mapEndPoint[lastId] = sender_endpoint;
             break;
         }
         case Client::MessageToBroadcast :
@@ -47,7 +50,20 @@ void analyze_packet(udp::socket & sock, udp::endpoint const& sender_endpoint, st
                 oarchive(sbm); // Write the data to the archive
             } // archive goes out of scope, ensuring all contents are flushed
             std::string_view sbm_sv{ sbm_stream.view() };
-            sock.send_to(boost::asio::buffer(sbm_sv.data(), sbm_sv.length()), sender_endpoint);
+            // We broadcast the message to all clients
+            for (auto const&[id, endpoint] : mapEndPoint)
+                sock.send_to(boost::asio::buffer(sbm_sv.data(), sbm_sv.length()), endpoint);
+            break;
+        }
+        case Client::DisconnectInfo:
+        {
+            struct ClientDisconnectInfo cdi;
+            {
+                cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
+                iarchive(cdi); // Read the data from the archive
+            }
+            mapEndPoint.erase(cdi.id);
+            cout << "Client disconnected\n";
             break;
         }
     }
