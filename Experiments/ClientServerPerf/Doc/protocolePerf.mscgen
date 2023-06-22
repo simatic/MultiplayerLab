@@ -1,0 +1,31 @@
+msc {
+	hscale = "1.3";
+
+	c1 [label="Client_1"],c2 [label="Client_2"],s[label="Server"];
+
+	c1 note s [label="TCP scenario"];
+	s note s [label="Thread acceptConn"];
+	c1=>s[label="tcp_connect"];
+	s=>c1[label="ack_tcp_connect"];
+	s note s [label="Thread acceptConn\nThread handleClient_1"];
+	c1=>s[label="Client::IdRequest"];
+	s=>c1[label="Server::IdResponse(1)"];
+	c1=>s[label="Client::MessageToBroadcast(1, 1, someContent)"];
+	s=>c1[label="Server::BroadcastMessage(1, 1, someContent)"];
+	c2=>s[label="tcp_connect"];
+	s=>c2[label="ack_tcp_connect"];
+	s note s [label="Thread acceptConn\nThread handleClient_1\nThread handleClient_2"];
+	c2=>s[label="Client::IdRequest"];
+	s=>c2[label="Server::IdResponse(2)"];
+	c2=>s[label="Client::MessageToBroadcast(2, 1, someContent)"];
+	s=>c1[label="Server::BroadcastMessage(2, 1, someContent)"];
+	s=>c2[label="Server::BroadcastMessage(2, 1, someContent)"];
+	...;
+	c1=>s[label="Client::DoneSendingMessage(1)"];
+	s=>c1[label="Server::AckDoneSendingMessage"];
+	c1=>s[label="tcp_disconnect"];
+	s note s [label="Thread acceptConn\nThread handleClient_2"];
+	c2=>s[label="Client::MessageToBroadcast(2, 42, someContent)"];
+	s=>c2[label="Server::BroadcastMessage(2, 42, someContent)"];
+	|||;
+}
