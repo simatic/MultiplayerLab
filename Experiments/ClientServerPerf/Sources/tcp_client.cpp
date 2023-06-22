@@ -187,12 +187,9 @@ int main(int argc, char* argv[])
 
     // Display statistics
     samples.resize(nb_msg_received);
-    ranges::sort(samples);
+    std::ranges::sort(samples);
     cout << "Ratio received / sent messages = " << nb_msg_received << " / " << nb_messages << " (" << nb_msg_received * 100 / nb_messages << "%)\n";
-    std::chrono::duration<double, std::milli> sum{0.0};
-    for (auto const& s: samples)
-        sum += s;
-    cout << "Average = " << sum.count() / samples.size() << " ms\n";
+    cout << "Average = " << (std::reduce(samples.begin(), samples.end()) / samples.size()).count() << " ms\n";
     cout << "Min = " << samples[0].count() << " ms\n";
     cout << "Q1 = " << samples[samples.size()/4].count() << " ms\n";
     cout << "Q2 = " << samples[samples.size()/2].count() << " ms\n";
