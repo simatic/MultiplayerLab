@@ -180,8 +180,8 @@ struct param_t getParam(int argc, char* argv[])
             "v|verbose \t [optional] Verbose display required"
     };
 
-    int nonopt, ret;
-    if ((ret = parser.parse (argc, argv, &nonopt)) != 0)
+    int nonopt;
+    if (int ret ; (ret = parser.parse (argc, argv, &nonopt)) != 0)
     {
         if (ret == 1)
             cout << "Unknown option: " << argv[nonopt] << " Valid options are : " << endl
