@@ -19,9 +19,9 @@ void analyze_packet(string_view msg_sv, unsigned char& myId)
     std::istringstream msg_stream{ msg_string };
     unsigned char msg_typ;
     msg_stream >> msg_typ;
-    switch (Server server_msg_typ{ msg_typ }; server_msg_typ)
+    switch (ServerMsgId server_msg_typ{msg_typ }; server_msg_typ)
     {
-        case Server::IdResponse :
+        case ServerMsgId::IdResponse :
             struct ServerIdResponse sir;
             {
                 cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
@@ -29,7 +29,7 @@ void analyze_packet(string_view msg_sv, unsigned char& myId)
             }
             myId = sir.id;
             break;
-        case Server::BroadcastMessage :
+        case ServerMsgId::BroadcastMessage :
             struct ServerBroadcastMessage sbm;
             {
                 cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 
         // Send IdRequest to server
         stringstream ir_stream;
-        ir_stream << static_cast<unsigned char>(Client::IdRequest);
+        ir_stream << static_cast<unsigned char>(ClientMsgId::IdRequest);
         std::string_view ir_sv{ ir_stream.view() };
         s.send_to(boost::asio::buffer(ir_sv.data(), ir_sv.length()), *iterator);
 
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
         for (unsigned int i = 0; i < 10; ++i) {
             cout << "Request to broadcast message #" << i << "\n";
             std::stringstream cmtb_stream;
-            cmtb_stream << static_cast<unsigned char>(Client::MessageToBroadcast);
+            cmtb_stream << static_cast<unsigned char>(ClientMsgId::MessageToBroadcast);
             {
                 cereal::BinaryOutputArchive oarchive(cmtb_stream); // Create an output archive
                 struct ClientMessageToBroadcast cmtb { myId, i, std::chrono::system_clock::now() };
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 
         // Send DisconnectInfo to server
         stringstream di_stream;
-        di_stream << static_cast<unsigned char>(Client::DisconnectInfo);
+        di_stream << static_cast<unsigned char>(ClientMsgId::DisconnectInfo);
         {
             cereal::BinaryOutputArchive oarchive(di_stream); // Create an output archive
             struct ClientDisconnectInfo cdi { myId };

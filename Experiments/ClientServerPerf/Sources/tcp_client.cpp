@@ -38,24 +38,20 @@ bool analyze_packet(string_view msg_sv, unsigned char& myId, param_t const& para
 {
     std::string msg_string{msg_sv};
     std::istringstream msg_stream{ msg_string };
-    unsigned char msg_typ;
-    msg_stream >> msg_typ;
-    switch (Server server_msg_typ{ msg_typ }; server_msg_typ)
+    unsigned char msg_id;
+    msg_stream >> msg_id;
+    switch (ServerMsgId server_msg_typ{msg_id }; server_msg_typ)
     {
-        case Server::AckDoneSendingMessages :
+        case ServerMsgId::AckDoneSendingMessages :
             return true;
-        case Server::BroadcastMessage :
+        case ServerMsgId::BroadcastMessage :
         {
-            struct ServerBroadcastMessage sbm;
-            {
-                cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
-                iarchive(sbm); // Read the data from the archive
-            }
+            auto sbm {read_data_in_msg_stream<ServerBroadcastMessage>(msg_stream)};
             chrono::duration<double, std::milli> elapsed = std::chrono::system_clock::now() - sbm.sendTime;
             if (sbm.senderId == myId)
                 measures.rtts[measures.nb_rtts++] = elapsed;
             if (param.verbose) {
-                cout << "Client " << static_cast<unsigned int>(myId) << " : ";
+                cout << "ClientMsgId " << static_cast<unsigned int>(myId) << " : ";
                 cout << "Received broadcast message #" << sbm.messageId << " echoed from ";
                 if (sbm.senderId == myId)
                     cout << "myself";
@@ -68,13 +64,9 @@ bool analyze_packet(string_view msg_sv, unsigned char& myId, param_t const& para
             }
             return false;
         }
-        case Server::IdResponse :
+        case ServerMsgId::IdResponse :
         {
-            struct ServerIdResponse sir;
-            {
-                cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
-                iarchive(sir); // Read the data from the archive
-            }
+            auto sir {read_data_in_msg_stream<ServerIdResponse>(msg_stream)};
             myId = sir.id;
             return false;
         }
@@ -124,12 +116,10 @@ void client(param_t const& param, measures_t & measures)
         auto t = jthread(msg_receive, std::ref(s), std::ref(myId), std::ref(param), std::ref(measures));
 
         // Send IdRequest to server
-        stringstream ir_stream;
-        ir_stream << static_cast<unsigned char>(Client::IdRequest);
-        std::string_view ir_sv{ ir_stream.view() };
-        size_t len = ir_sv.length();
+        auto s_cir {prepare_msg_with_no_data<ClientMsgId>(ClientMsgId::IdRequest)};
+        auto len = s_cir.length();
         boost::asio::write(s, boost::asio::buffer(&len, sizeof(len)));
-        boost::asio::write(s, boost::asio::buffer(ir_sv.data(), len));
+        boost::asio::write(s, boost::asio::buffer(s_cir.data(), len));
 
         // Wait for IdResponse from server (received by msg_receive thread)
         while (myId == 0)
@@ -143,38 +133,27 @@ void client(param_t const& param, measures_t & measures)
         for (unsigned int i = 0; i < param.nb_messages; ++i) {
             if (param.verbose)
                 cout << "Request to broadcast message #" << i << "\n";
-            std::stringstream cmtb_stream;
-            cmtb_stream << static_cast<unsigned char>(Client::MessageToBroadcast);
-            {
-                cereal::BinaryOutputArchive oarchive(cmtb_stream); // Create an output archive
-                struct ClientMessageToBroadcast cmtb { myId, i, std::chrono::system_clock::now() };
-                oarchive(cmtb); // Write the data to the archive
-            } // archive goes out of scope, ensuring all contents are flushed
-            std::string_view cmtb_sv{ cmtb_stream.view() };
-            len = cmtb_sv.length();
+            auto s_cmtb {prepare_msg<ClientMsgId, ClientMessageToBroadcast>(ClientMsgId::MessageToBroadcast,
+                                                                       ClientMessageToBroadcast{ myId, i, std::chrono::system_clock::now() })};
+
+            len = s_cmtb.length();
             boost::asio::write(s, boost::asio::buffer(&len, sizeof(len)));
-            boost::asio::write(s, boost::asio::buffer(cmtb_sv.data(), len));
+            boost::asio::write(s, boost::asio::buffer(s_cmtb.data(), len));
 
             this_thread::sleep_for(param.send_interval);
         }
 
         // Send DoneSendingMessages to server
-        std::stringstream cdom_stream;
-        cdom_stream << static_cast<unsigned char>(Client::DoneSendingMessages);
-        {
-            cereal::BinaryOutputArchive oarchive(cdom_stream); // Create an output archive
-            struct ClientDoneSendingMessages cdom { myId };
-            oarchive(cdom); // Write the data to the archive
-        } // archive goes out of scope, ensuring all contents are flushed
-        std::string_view cdom_sv{cdom_stream.view() };
-        len = cdom_sv.length();
+        auto s_cdsm {prepare_msg<ClientMsgId, ClientDoneSendingMessages>(ClientMsgId::DoneSendingMessages,
+                                                                        ClientDoneSendingMessages{ myId })};
+        len = s_cdsm.length();
         boost::asio::write(s, boost::asio::buffer(&len, sizeof(len)));
-        boost::asio::write(s, boost::asio::buffer(cdom_sv.data(), len));
+        boost::asio::write(s, boost::asio::buffer(s_cdsm.data(), len));
 
-        // msg_receive thread will exit when it has received Server::AckDoneSendingMessages)
+        // msg_receive thread will exit when it has received ServerMsgId::AckDoneSendingMessages)
         t.join();
 
-        cout << "Client " << static_cast<unsigned int>(myId) << " done\n";
+        cout << "ClientMsgId " << static_cast<unsigned int>(myId) << " done\n";
     }
     catch (std::exception& e)
     {

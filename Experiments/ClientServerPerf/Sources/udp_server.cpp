@@ -19,12 +19,12 @@ void analyze_packet(udp::socket & sock, udp::endpoint const& sender_endpoint, st
     std::istringstream msg_stream{ msg_string };
     unsigned char msg_typ;
     msg_stream >> msg_typ;
-    switch (Client client_msg_typ{ msg_typ }; client_msg_typ)
+    switch (ClientMsgId client_msg_typ{msg_typ }; client_msg_typ)
     {
-        case Client::IdRequest :
+        case ClientMsgId::IdRequest :
         {
             std::stringstream sir_stream;
-            sir_stream << static_cast<unsigned char>(Server::IdResponse);
+            sir_stream << static_cast<unsigned char>(ServerMsgId::IdResponse);
             {
                 cereal::BinaryOutputArchive oarchive(sir_stream); // Create an output archive
                 struct ServerIdResponse sir { ++lastId };
@@ -35,7 +35,7 @@ void analyze_packet(udp::socket & sock, udp::endpoint const& sender_endpoint, st
             mapEndPoint[lastId] = sender_endpoint;
             break;
         }
-        case Client::MessageToBroadcast :
+        case ClientMsgId::MessageToBroadcast :
         {
             struct ClientMessageToBroadcast cmtb;
             {
@@ -43,7 +43,7 @@ void analyze_packet(udp::socket & sock, udp::endpoint const& sender_endpoint, st
                 iarchive(cmtb); // Read the data from the archive
             }
             std::stringstream sbm_stream;
-            sbm_stream << static_cast<unsigned char>(Server::BroadcastMessage);
+            sbm_stream << static_cast<unsigned char>(ServerMsgId::BroadcastMessage);
             {
                 cereal::BinaryOutputArchive oarchive(sbm_stream); // Create an output archive
                 struct ServerBroadcastMessage sbm { cmtb.senderId, cmtb.messageId, cmtb.sendTime };
@@ -55,7 +55,7 @@ void analyze_packet(udp::socket & sock, udp::endpoint const& sender_endpoint, st
                 sock.send_to(boost::asio::buffer(sbm_sv.data(), sbm_sv.length()), endpoint);
             break;
         }
-        case Client::DisconnectInfo:
+        case ClientMsgId::DisconnectInfo:
         {
             struct ClientDisconnectInfo cdi;
             {
@@ -63,7 +63,7 @@ void analyze_packet(udp::socket & sock, udp::endpoint const& sender_endpoint, st
                 iarchive(cdi); // Read the data from the archive
             }
             mapEndPoint.erase(cdi.id);
-            cout << "Client disconnected\n";
+            cout << "ClientMsgId disconnected\n";
             break;
         }
     }
