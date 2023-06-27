@@ -47,8 +47,7 @@ enum class Client : unsigned char
 {
     IdRequest,
     MessageToBroadcast,
-    DoneSendingMessages,
-    DisconnectInfo // Only used for UDP client to tell server it is disconnecting
+    DoneSendingMessages
 };
 
 struct ClientMessageToBroadcast
@@ -65,7 +64,7 @@ struct ClientMessageToBroadcast
     }
 };
 
-struct ClientDisconnectInfo
+struct ClientDoneSendingMessages
 {
     unsigned char id;
 

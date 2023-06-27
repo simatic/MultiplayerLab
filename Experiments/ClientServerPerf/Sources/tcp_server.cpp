@@ -13,7 +13,7 @@
 using boost::asio::ip::tcp;
 using namespace std;
 
-void analyze_packet(tcp::socket *psock, string_view msg_sv, unsigned char& lastId, vector<tcp::socket*> const&vecSock, std::shared_timed_mutex &rw_mutex)
+void analyze_packet(tcp::socket *psock, string_view msg_sv, unsigned char& lastId, vector<tcp::socket*> &vecSock, std::shared_timed_mutex &rw_mutex)
 {
     std::string msg_string{msg_sv};
     std::istringstream msg_stream{ msg_string };
@@ -21,6 +21,31 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, unsigned char& lastI
     msg_stream >> msg_typ;
     switch (Client client_msg_typ{ msg_typ }; client_msg_typ)
     {
+        case Client::DoneSendingMessages :
+        {
+            struct ClientDoneSendingMessages cdsm;
+            {
+                cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
+                iarchive(cdsm); // Read the data from the archive
+            }
+            // Send AckDoneSendingMessages to client
+            stringstream adsm_stream;
+            adsm_stream << static_cast<unsigned char>(Server::AckDoneSendingMessages);
+            std::string_view adsm_sv{adsm_stream.view() };
+            size_t len = adsm_sv.length();
+            {
+                std::lock_guard writerLock(rw_mutex);
+                boost::asio::write(*psock, boost::asio::buffer(&len, sizeof(len)));
+                boost::asio::write(*psock, boost::asio::buffer(adsm_sv.data(), len));
+            }
+            // Remove psock from vecsock
+            {
+                std::lock_guard writerLock(rw_mutex);
+                vecSock.erase(remove(vecSock.begin(), vecSock.end(), psock), vecSock.end());
+                std::erase(vecSock, psock); // C++ 20 offers this remplacement for vecSock.erase(remove())
+            }
+            cout << "Client " << static_cast<unsigned int>(cdsm.id) << " announces it will disconnect\n";
+        }
         case Client::IdRequest :
         {
             std::stringstream sir_stream;
@@ -32,8 +57,11 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, unsigned char& lastI
             } // archive goes out of scope, ensuring all contents are flushed
             std::string_view sir_sv{ sir_stream.view() };
             size_t len = sir_sv.length();
-            boost::asio::write(*psock, boost::asio::buffer(&len, sizeof(len)));
-            boost::asio::write(*psock, boost::asio::buffer(sir_sv.data(), len));
+            {
+                std::lock_guard writerLock(rw_mutex);
+                boost::asio::write(*psock, boost::asio::buffer(&len, sizeof(len)));
+                boost::asio::write(*psock, boost::asio::buffer(sir_sv.data(), len));
+            }
             break;
         }
         case Client::MessageToBroadcast :
@@ -54,7 +82,7 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, unsigned char& lastI
             size_t len = sbm_sv.length();
             // We broadcast the message to all clients
             {
-                std::shared_lock readerLock(rw_mutex);
+                std::lock_guard writerLock(rw_mutex);
                 for (auto &ps : vecSock)
                 {
                     boost::asio::write(*ps, boost::asio::buffer(&len, sizeof(len)));
@@ -63,10 +91,6 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, unsigned char& lastI
             }
             break;
         }
-        case Client::DisconnectInfo:
-            // Should never happen as this value is only used with UDP
-            cerr << "ERROR : Received DisconnectInfo with TCP protocol\n";
-            abort();
     }
 }
 
@@ -102,11 +126,6 @@ void session(unique_ptr<tcp::socket> upsock, unsigned char& lastId)
     {
         std::cerr << "Exception in thread: " << e.what() << "\n";
     }
-    {
-        std::lock_guard writerLock(rw_mutex);
-        vecSock.erase(remove(vecSock.begin(), vecSock.end(), upsock.get()), vecSock.end());
-    }
-    cout << "Client disconnected\n";
 }
 
 [[noreturn]] void server(boost::asio::io_service& io_service, short port)

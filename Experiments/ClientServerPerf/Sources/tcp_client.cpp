@@ -14,9 +14,27 @@
 using boost::asio::ip::tcp;
 using namespace std;
 
-using StatTable=vector<std::chrono::duration<double, std::milli>>;
+struct measures_t {
+    explicit measures_t(size_t nb_rtts_max)
+    : rtts(nb_rtts_max)
+    {
+    }
+    vector<std::chrono::duration<double, std::milli>> rtts; // Round-Trip Time
+    atomic_size_t nb_rtts{0};
+};
 
-void analyze_packet(string_view msg_sv, unsigned char& myId, const bool verbose, StatTable &samples, atomic_size_t & nb_msg_received)
+struct param_t {
+    string host;
+    string port;
+    bool verbose{false};
+    int nb_messages{0};
+    chrono::duration<int64_t, ratio<1, 1000>> send_interval{0};
+    int size_messages{0};
+    int nb_clients{0};
+};
+
+// Should return true if analyze_packet discovers client will not receive any more packets.
+bool analyze_packet(string_view msg_sv, unsigned char& myId, param_t const& param, measures_t & measures)
 {
     std::string msg_string{msg_sv};
     std::istringstream msg_stream{ msg_string };
@@ -24,24 +42,20 @@ void analyze_packet(string_view msg_sv, unsigned char& myId, const bool verbose,
     msg_stream >> msg_typ;
     switch (Server server_msg_typ{ msg_typ }; server_msg_typ)
     {
-        case Server::IdResponse :
-            struct ServerIdResponse sir;
-            {
-                cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
-                iarchive(sir); // Read the data from the archive
-            }
-            myId = sir.id;
-            break;
+        case Server::AckDoneSendingMessages :
+            return true;
         case Server::BroadcastMessage :
+        {
             struct ServerBroadcastMessage sbm;
             {
                 cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
                 iarchive(sbm); // Read the data from the archive
             }
             chrono::duration<double, std::milli> elapsed = std::chrono::system_clock::now() - sbm.sendTime;
-            samples[nb_msg_received++] = elapsed;
-            if (verbose)
-            {
+            if (sbm.senderId == myId)
+                measures.rtts[measures.nb_rtts++] = elapsed;
+            if (param.verbose) {
+                cout << "Client " << static_cast<unsigned int>(myId) << " : ";
                 cout << "Received broadcast message #" << sbm.messageId << " echoed from ";
                 if (sbm.senderId == myId)
                     cout << "myself";
@@ -52,11 +66,24 @@ void analyze_packet(string_view msg_sv, unsigned char& myId, const bool verbose,
                 // ==> We do it manually.
                 cout << " in " << elapsed.count() << " ms\n";
             }
-            break;
+            return false;
+        }
+        case Server::IdResponse :
+        {
+            struct ServerIdResponse sir;
+            {
+                cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
+                iarchive(sir); // Read the data from the archive
+            }
+            myId = sir.id;
+            return false;
+        }
+        default:
+            return false;
     }
 }
 
-[[noreturn]]void msg_receive(tcp::socket &s, unsigned char &myId, const bool verbose, StatTable &samples, atomic_size_t & nb_msg_received)
+void msg_receive(tcp::socket &s, unsigned char &myId, param_t const& param, measures_t & measures)
 {
     for (;;)
     {
@@ -69,33 +96,116 @@ void analyze_packet(string_view msg_sv, unsigned char& myId, const bool verbose,
                                                 boost::asio::buffer(msg, len));
         assert(msg_length == len);
         std::string_view msg_sv{msg, len};
-        analyze_packet(msg_sv, myId, verbose, samples, nb_msg_received);
+        if (analyze_packet(msg_sv, myId, param, measures))
+            break;
+    }
+}
+
+void client(param_t const& param, measures_t & measures)
+{
+    try
+    {
+        // EndPoint creation
+        boost::asio::io_service io_service;
+
+        tcp::resolver resolver(io_service);
+        tcp::resolver::query query(tcp::v4(), param.host, param.port);
+        tcp::resolver::iterator iterator = resolver.resolve(query);
+
+        tcp::socket s(io_service);
+        s.connect(*iterator);
+
+        boost::asio::ip::tcp::no_delay option(true);
+        s.set_option(option);
+
+        unsigned char myId{ 0 };
+
+        // Create a thread for receiving data
+        auto t = jthread(msg_receive, std::ref(s), std::ref(myId), std::ref(param), std::ref(measures));
+
+        // Send IdRequest to server
+        stringstream ir_stream;
+        ir_stream << static_cast<unsigned char>(Client::IdRequest);
+        std::string_view ir_sv{ ir_stream.view() };
+        size_t len = ir_sv.length();
+        boost::asio::write(s, boost::asio::buffer(&len, sizeof(len)));
+        boost::asio::write(s, boost::asio::buffer(ir_sv.data(), len));
+
+        // Wait for IdResponse from server (received by msg_receive thread)
+        while (myId == 0)
+        {
+            this_thread::sleep_for(50ms);
+        }
+
+        if (param.verbose)
+            cout << "Received my Id which is: " << static_cast<unsigned int>(myId) << "\n";
+
+        for (unsigned int i = 0; i < param.nb_messages; ++i) {
+            if (param.verbose)
+                cout << "Request to broadcast message #" << i << "\n";
+            std::stringstream cmtb_stream;
+            cmtb_stream << static_cast<unsigned char>(Client::MessageToBroadcast);
+            {
+                cereal::BinaryOutputArchive oarchive(cmtb_stream); // Create an output archive
+                struct ClientMessageToBroadcast cmtb { myId, i, std::chrono::system_clock::now() };
+                oarchive(cmtb); // Write the data to the archive
+            } // archive goes out of scope, ensuring all contents are flushed
+            std::string_view cmtb_sv{ cmtb_stream.view() };
+            len = cmtb_sv.length();
+            boost::asio::write(s, boost::asio::buffer(&len, sizeof(len)));
+            boost::asio::write(s, boost::asio::buffer(cmtb_sv.data(), len));
+
+            this_thread::sleep_for(param.send_interval);
+        }
+
+        // Send DoneSendingMessages to server
+        std::stringstream cdom_stream;
+        cdom_stream << static_cast<unsigned char>(Client::DoneSendingMessages);
+        {
+            cereal::BinaryOutputArchive oarchive(cdom_stream); // Create an output archive
+            struct ClientDoneSendingMessages cdom { myId };
+            oarchive(cdom); // Write the data to the archive
+        } // archive goes out of scope, ensuring all contents are flushed
+        std::string_view cdom_sv{cdom_stream.view() };
+        len = cdom_sv.length();
+        boost::asio::write(s, boost::asio::buffer(&len, sizeof(len)));
+        boost::asio::write(s, boost::asio::buffer(cdom_sv.data(), len));
+
+        // msg_receive thread will exit when it has received Server::AckDoneSendingMessages)
+        t.join();
+
+        cout << "Client " << static_cast<unsigned int>(myId) << " done\n";
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "Exception: " << e.what() << "\n";
     }
 }
 
 void usage()
 {
-    cerr << "Usage: tcp_client <host> <port> <verbose_0_or_1> <nb_messages> <send_interval_milliseconds> <size_messages>\n";
+    cerr << "Usage: tcp_client <host> <port> <verbose_0_or_1> <nb_messages> <send_interval_milliseconds> <size_messages> <nb_clients>\n";
 }
 
 int main(int argc, char* argv[])
 {
-    if (argc != 7)
+    struct param_t param;
+
+    if (argc != 8)
     {
         usage();
         return EXIT_FAILURE;
     }
 
     // Read arguments
-    string host{argv[1]};
+    param.host = argv[1];
 
-    string port{argv[2]};
+    param.port = argv[2];
 
-    bool verbose = (argv[3][0] == '1');
+    param.verbose = (argv[3][0] == '1');
 
     std::istringstream iss4(argv[4]);
-    int nb_messages;
-    iss4 >> nb_messages;
+    iss4 >> param.nb_messages;
     if (!iss4)
     {
         usage();
@@ -110,93 +220,46 @@ int main(int argc, char* argv[])
         usage();
         return EXIT_FAILURE;
     }
-    auto send_interval{ chrono::milliseconds(nb_milli)};
+    param.send_interval = chrono::milliseconds(nb_milli);
 
     std::istringstream iss6(argv[6]);
-    int size_messages;
-    iss6 >> size_messages;
+    iss6 >> param.size_messages;
     if (!iss6)
     {
         usage();
         return EXIT_FAILURE;
     }
 
+    std::istringstream iss7(argv[7]);
+    iss7 >> param.nb_clients;
+    if (!iss7)
+    {
+        usage();
+        return EXIT_FAILURE;
+    }
+
     // Variables used during experiment
-    unsigned char myId{ 0 };
-    StatTable samples(nb_messages);
-    atomic_size_t nb_msg_received{0};
+    measures_t measures(param.nb_messages * param.nb_clients);
 
-    try
-    {
-        // EndPoint creation
-        boost::asio::io_service io_service;
-
-        tcp::resolver resolver(io_service);
-        tcp::resolver::query query(tcp::v4(), host, port);
-        tcp::resolver::iterator iterator = resolver.resolve(query);
-
-        tcp::socket s(io_service);
-        s.connect(*iterator);
-
-        boost::asio::ip::tcp::no_delay option(true);
-        s.set_option(option);
-
-        // Create a thread for receiving data
-        auto t = jthread(msg_receive, std::ref(s), std::ref(myId), verbose, std::ref(samples), std::ref(nb_msg_received));
-        t.detach();
-
-        // Send IdRequest to server
-        stringstream ir_stream;
-        ir_stream << static_cast<unsigned char>(Client::IdRequest);
-        std::string_view ir_sv{ ir_stream.view() };
-        size_t len = ir_sv.length();
-        boost::asio::write(s, boost::asio::buffer(&len, sizeof(len)));
-        boost::asio::write(s, boost::asio::buffer(ir_sv.data(), len));
-
-        // Wait for IdResponse from server (received by msg_receive thread)
-        while (myId == 0)
-        {
-              this_thread::sleep_for(50ms);
-          }
-
-        if (verbose)
-            cout << "Received my Id which is: " << static_cast<unsigned int>(myId) << "\n";
-
-        for (unsigned int i = 0; i < nb_messages; ++i) {
-            if (verbose)
-                cout << "Request to broadcast message #" << i << "\n";
-            std::stringstream cmtb_stream;
-            cmtb_stream << static_cast<unsigned char>(Client::MessageToBroadcast);
-            {
-                cereal::BinaryOutputArchive oarchive(cmtb_stream); // Create an output archive
-                struct ClientMessageToBroadcast cmtb { myId, i, std::chrono::system_clock::now() };
-                oarchive(cmtb); // Write the data to the archive
-            } // archive goes out of scope, ensuring all contents are flushed
-            std::string_view cmtb_sv{ cmtb_stream.view() };
-            len = cmtb_sv.length();
-            boost::asio::write(s, boost::asio::buffer(&len, sizeof(len)));
-            boost::asio::write(s, boost::asio::buffer(cmtb_sv.data(), len));
-
-            this_thread::sleep_for(send_interval);
-        }
+    // We launch all of the clients to make the experiment
+    vector<jthread> clients(param.nb_clients);
+    for (auto& c : clients) {
+        c = jthread(client, std::ref(param), std::ref(measures));
     }
-    catch (std::exception& e)
-    {
-        std::cerr << "Exception: " << e.what() << "\n";
-    }
+    for (auto& c: clients)
+        c.join();
 
     // Display statistics
-    samples.resize(nb_msg_received);
-    std::ranges::sort(samples);
-    cout << "Ratio received / sent messages = " << nb_msg_received << " / " << nb_messages << " (" << nb_msg_received * 100 / nb_messages << "%)\n";
-    cout << "Average = " << (std::reduce(samples.begin(), samples.end()) / samples.size()).count() << " ms\n";
-    cout << "Min = " << samples[0].count() << " ms\n";
-    cout << "Q1 = " << samples[samples.size()/4].count() << " ms\n";
-    cout << "Q2 = " << samples[samples.size()/2].count() << " ms\n";
-    cout << "Q3 = " << samples[samples.size()*3/4].count() << " ms\n";
-    cout << "Centile #99 = " << samples[samples.size()*99/100].count() << " ms\n";
-    cout << "Max = " << samples[samples.size()-1].count() << " ms\n";
-
+    measures.rtts.resize(measures.nb_rtts);
+    std::ranges::sort(measures.rtts);
+    cout << "Ratio received / sent messages = " << measures.nb_rtts << " / " << param.nb_messages * param.nb_clients << " (" << measures.nb_rtts * 100 / param.nb_messages / param.nb_clients << "%)\n";
+    cout << "Average = " << (std::reduce(measures.rtts.begin(), measures.rtts.end()) / measures.rtts.size()).count() << " ms\n";
+    cout << "Min = " << measures.rtts[0].count() << " ms\n";
+    cout << "Q1 = " << measures.rtts[measures.rtts.size()/4].count() << " ms\n";
+    cout << "Q2 = " << measures.rtts[measures.rtts.size()/2].count() << " ms\n";
+    cout << "Q3 = " << measures.rtts[measures.rtts.size()*3/4].count() << " ms\n";
+    cout << "Centile #99 = " << measures.rtts[measures.rtts.size()*99/100].count() << " ms\n";
+    cout << "Max = " << measures.rtts[measures.rtts.size()-1].count() << " ms\n";
 
     return 0;
 }
