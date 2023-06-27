@@ -10,9 +10,12 @@
 #include <boost/asio.hpp>
 #include <numeric>
 #include "common.h"
+#include "options.h"
+#include "options_ext.h"
 
 using boost::asio::ip::tcp;
 using namespace std;
+using mlib::OptParser;
 
 struct measures_t {
     explicit measures_t(size_t nb_rtts_max)
@@ -26,11 +29,11 @@ struct measures_t {
 struct param_t {
     string host;
     string port;
-    bool verbose{false};
     int nb_messages{0};
     chrono::duration<int64_t, ratio<1, 1000>> send_interval{0};
     int size_messages{0};
     int nb_clients{0};
+    bool verbose{false};
 };
 
 // Should return true if analyze_packet discovers client will not receive any more packets.
@@ -161,61 +164,60 @@ void client(param_t const& param, measures_t & measures)
     }
 }
 
-void usage()
+struct param_t getParam(int argc, char* argv[])
 {
-    cerr << "Usage: tcp_client <host> <port> <verbose_0_or_1> <nb_messages> <send_interval_milliseconds> <size_messages> <nb_clients>\n";
+    OptParser parser{
+            "h|help \t Show help message",
+            "H:host hostname \t Host (or IP address) to connect to",
+            "p:port port_number \t Port to connect to",
+            "n:nb_messages number \t Number of messages to be sent",
+            "i:interval time_in_milliseconds \t Time interval between two sending of messages by a single client",
+            "s:size size_in_bytes \t Size of messages sent by a client",
+            "c:clients number \t Number of clients which send messages to server",
+            "v|verbose \t [optional] Verbose display required"
+    };
+
+    int nonopt, ret;
+    if ((ret = parser.parse (argc, argv, &nonopt)) != 0)
+    {
+        if (ret == 1)
+            cout << "Unknown option: " << argv[nonopt] << " Valid options are : " << endl
+                 << parser.synopsis () << endl;
+        else if (ret == 2)
+            cout << "Option " << argv[nonopt] << " requires an argument." << endl;
+        else if (ret == 3)
+            cout << "Invalid options combination: " << argv[nonopt] << endl;
+        exit (1);
+    }
+    if ((argc == 1) || parser.hasopt ('h'))
+    {
+        //No arguments on command line or help required. Show help and exit.
+        cout << "Usage:" << endl;
+        cout << parser.synopsis () << endl;
+        cout << "Where:" << endl
+             << parser.description () << endl;
+        exit (0);
+    }
+
+    struct param_t param{
+            getopt_required_string(parser, 'H'),
+            getopt_required_string(parser, 'p'),
+            getopt_required_int(parser, 'n'),
+            chrono::milliseconds(getopt_required_int(parser, 'i')),
+            getopt_required_int(parser, 's'),
+            getopt_required_int(parser, 'c'),
+            parser.hasopt ('v')
+    };
+
+    if (nonopt < argc)
+        cout << "WARNING: There is a non-option argument: " << argv[nonopt] << " ==> It won't be used" << endl;
+
+    return param;
 }
 
 int main(int argc, char* argv[])
 {
-    struct param_t param;
-
-    if (argc != 8)
-    {
-        usage();
-        return EXIT_FAILURE;
-    }
-
-    // Read arguments
-    param.host = argv[1];
-
-    param.port = argv[2];
-
-    param.verbose = (argv[3][0] == '1');
-
-    std::istringstream iss4(argv[4]);
-    iss4 >> param.nb_messages;
-    if (!iss4)
-    {
-        usage();
-        return EXIT_FAILURE;
-    }
-
-    std::istringstream iss5(argv[5]);
-    long long nb_milli;
-    iss5 >> nb_milli;
-    if (!iss5)
-    {
-        usage();
-        return EXIT_FAILURE;
-    }
-    param.send_interval = chrono::milliseconds(nb_milli);
-
-    std::istringstream iss6(argv[6]);
-    iss6 >> param.size_messages;
-    if (!iss6)
-    {
-        usage();
-        return EXIT_FAILURE;
-    }
-
-    std::istringstream iss7(argv[7]);
-    iss7 >> param.nb_clients;
-    if (!iss7)
-    {
-        usage();
-        return EXIT_FAILURE;
-    }
+    struct param_t param{getParam(argc, argv)};
 
     // Variables used during experiment
     measures_t measures(param.nb_messages * param.nb_clients);

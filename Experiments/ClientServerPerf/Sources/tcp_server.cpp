@@ -9,11 +9,19 @@
 #include <shared_mutex>
 #include <boost/asio.hpp>
 #include "common.h"
+#include "options.h"
+#include "options_ext.h"
 
 using boost::asio::ip::tcp;
 using namespace std;
+using mlib::OptParser;
 
-void analyze_packet(tcp::socket *psock, string_view msg_sv, atomic_uchar& lastId, vector<tcp::socket*> &vecSock, std::shared_timed_mutex &rw_mutex)
+struct param_t {
+    int port;
+    bool verbose{false};
+};
+
+void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param, atomic_uchar& lastId, vector<tcp::socket*> &vecSock, std::shared_timed_mutex &rw_mutex)
 {
     std::string msg_string{msg_sv};
     std::istringstream msg_stream{ msg_string };
@@ -36,7 +44,8 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, atomic_uchar& lastId
                 std::lock_guard writerLock(rw_mutex);
                 std::erase(vecSock, psock); // C++ 20 offers this remplacement for vecSock.erase(remove())
             }
-            cout << "ClientMsgId " << static_cast<unsigned int>(cdsm.id) << " announces it will disconnect\n";
+            if (param.verbose)
+                cout << "ClientMsgId " << static_cast<unsigned int>(cdsm.id) << " announces it will disconnect\n";
         }
         case ClientMsgId::IdRequest :
         {
@@ -70,7 +79,7 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, atomic_uchar& lastId
     }
 }
 
-void session(unique_ptr<tcp::socket> upsock, atomic_uchar& lastId)
+void session(unique_ptr<tcp::socket> upsock, param_t const& param, atomic_uchar& lastId)
 {
     static vector<tcp::socket*> vecSock;
     static std::shared_timed_mutex rw_mutex;
@@ -95,7 +104,7 @@ void session(unique_ptr<tcp::socket> upsock, atomic_uchar& lastId)
                                                   boost::asio::buffer(msg, len));
             assert(msg_length == len);
             std::string_view msg_sv{msg, len};
-            analyze_packet(upsock.get(), msg_sv, lastId, vecSock, rw_mutex);
+            analyze_packet(upsock.get(), msg_sv, param, lastId, vecSock, rw_mutex);
         }
     }
     catch (std::exception& e)
@@ -104,7 +113,7 @@ void session(unique_ptr<tcp::socket> upsock, atomic_uchar& lastId)
     }
 }
 
-[[noreturn]] void server(boost::asio::io_service& io_service, short port)
+[[noreturn]] void server(boost::asio::io_service& io_service, short port, param_t const& param)
 {
     atomic_uchar lastId{0};
     tcp::acceptor a(io_service, tcp::endpoint(tcp::v4(), port));
@@ -116,29 +125,64 @@ void session(unique_ptr<tcp::socket> upsock, atomic_uchar& lastId)
         boost::asio::ip::tcp::no_delay option(true);
         upsock->set_option(option);
 
-        auto t = jthread(session, std::move(upsock), ref(lastId));
+        auto t = jthread(session, std::move(upsock), ref(param), ref(lastId));
         t.detach();
     }
 }
 
-int main(int argc, char* argv[])
+struct param_t getParam(int argc, char* argv[])
 {
-  try
-  {
-    if (argc != 2)
+    OptParser parser{
+            "h|help \t Show help message",
+            "p:port port_number \t Port to connect to",
+            "v|verbose \t [optional] Verbose display required"
+    };
+
+    int nonopt, ret;
+    if ((ret = parser.parse (argc, argv, &nonopt)) != 0)
     {
-      std::cerr << "Usage: blocking_tcp_echo_server <port>\n";
-      return 1;
+        if (ret == 1)
+            cout << "Unknown option: " << argv[nonopt] << " Valid options are : " << endl
+                 << parser.synopsis () << endl;
+        else if (ret == 2)
+            cout << "Option " << argv[nonopt] << " requires an argument." << endl;
+        else if (ret == 3)
+            cout << "Invalid options combination: " << argv[nonopt] << endl;
+        exit (1);
+    }
+    if ((argc == 1) || parser.hasopt ('h'))
+    {
+        //No arguments on command line or help required. Show help and exit.
+        cout << "Usage:" << endl;
+        cout << parser.synopsis () << endl;
+        cout << "Where:" << endl
+             << parser.description () << endl;
+        exit (0);
     }
 
-    boost::asio::io_service io_service;
+    struct param_t param{
+            getopt_required_int(parser, 'p'),
+            parser.hasopt ('v')
+    };
 
-    server(io_service, static_cast<short>(atoi(argv[1])));
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << "Exception: " << e.what() << "\n";
-  }
+    if (nonopt < argc)
+        cout << "WARNING: There is a non-option argument: " << argv[nonopt] << " ==> It won't be used" << endl;
 
-  return 0;
+    return param;
+}
+
+int main(int argc, char* argv[])
+{
+    struct param_t param{getParam(argc, argv)};
+    try
+    {
+        boost::asio::io_service io_service;
+        server(io_service, static_cast<short>(param.port), param);
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "Exception: " << e.what() << "\n";
+    }
+
+    return 0;
 }
