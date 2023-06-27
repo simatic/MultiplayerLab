@@ -57,7 +57,7 @@ bool analyze_packet(string_view msg_sv, unsigned char& myId, param_t const& para
             if (sbm.senderId == myId)
                 measures.rtts[measures.nb_rtts++] = elapsed;
             if (param.verbose) {
-                cout << "ClientMsgId " << static_cast<unsigned int>(myId) << " : ";
+                cout << "Client #" << static_cast<unsigned int>(myId) << " : ";
                 cout << "Received broadcast message #" << sbm.messageId << " echoed from ";
                 if (sbm.senderId == myId)
                     cout << "myself";
@@ -159,7 +159,8 @@ void client(param_t const& param, measures_t & measures)
         // msg_receive thread will exit when it has received ServerMsgId::AckDoneSendingMessages)
         t.join();
 
-        cout << "ClientMsgId " << static_cast<unsigned int>(myId) << " done\n";
+        if (param.verbose)
+            cout << "Client #" << static_cast<unsigned int>(myId) << " done\n";
     }
     catch (std::exception& e)
     {
