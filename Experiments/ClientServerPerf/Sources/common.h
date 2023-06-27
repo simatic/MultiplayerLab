@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/chrono.hpp>
+#include <cereal/types/string.hpp>
 
 // Maximum length of a UDP packet
 constexpr size_t max_length{65515};
@@ -27,12 +28,13 @@ struct MsgForBroadcastSample
     unsigned char senderId{};
     unsigned int messageId{};
     std::chrono::time_point<std::chrono::system_clock> sendTime;
+    std::string filler;
 
     // This method lets cereal know which data members to serialize
     template<class Archive>
     void serialize(Archive& archive)
     {
-        archive(senderId, messageId, sendTime); // serialize things by passing them to the archive
+        archive(senderId, messageId, sendTime, filler); // serialize things by passing them to the archive
     }
 };
 

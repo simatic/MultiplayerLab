@@ -17,6 +17,9 @@ using boost::asio::ip::tcp;
 using namespace std;
 using mlib::OptParser;
 
+// The following value has been found experimentally when filler field of ClientMessageToBroadcast has size 0
+constexpr int minSizeClientMessageToBroadcast = 22;
+
 struct measures_t {
     explicit measures_t(size_t nb_rtts_max)
     : rtts(nb_rtts_max)
@@ -137,7 +140,7 @@ void client(param_t const& param, measures_t & measures)
             if (param.verbose)
                 cout << "Request to broadcast message #" << i << "\n";
             auto s_cmtb {prepare_msg<ClientMsgId, ClientMessageToBroadcast>(ClientMsgId::MessageToBroadcast,
-                                                                       ClientMessageToBroadcast{ myId, i, std::chrono::system_clock::now() })};
+                                                                       ClientMessageToBroadcast{ myId, i, std::chrono::system_clock::now(), std::string(param.size_messages - minSizeClientMessageToBroadcast, 0) })};
 
             len = s_cmtb.length();
             boost::asio::write(s, boost::asio::buffer(&len, sizeof(len)));
@@ -172,7 +175,7 @@ struct param_t getParam(int argc, char* argv[])
             "p:port port_number \t Port to connect to",
             "n:nb_messages number \t Number of messages to be sent",
             "i:interval time_in_milliseconds \t Time interval between two sending of messages by a single client",
-            "s:size size_in_bytes \t Size of messages sent by a client",
+            "s:size size_in_bytes \t Size of messages sent by a client (min is 22 ==> If lower than 22, will be set to 22)",
             "c:clients number \t Number of clients which send messages to server",
             "v|verbose \t [optional] Verbose display required"
     };
@@ -208,6 +211,7 @@ struct param_t getParam(int argc, char* argv[])
             getopt_required_int(parser, 'c'),
             parser.hasopt ('v')
     };
+    param.size_messages = (param.size_messages >= minSizeClientMessageToBroadcast ? param.size_messages : minSizeClientMessageToBroadcast);
 
     if (nonopt < argc)
         cout << "WARNING: There is a non-option argument: " << argv[nonopt] << " ==> It won't be used" << endl;

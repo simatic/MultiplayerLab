@@ -63,7 +63,7 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
         {
             auto cmtb{read_data_in_msg_stream<ClientMessageToBroadcast>(msg_stream)};
             auto s {prepare_msg<ServerMsgId, ServerBroadcastMessage>(ServerMsgId::BroadcastMessage,
-                                                                      ServerBroadcastMessage{ cmtb.senderId, cmtb.messageId, cmtb.sendTime })};
+                                                                      ServerBroadcastMessage{ cmtb.senderId, cmtb.messageId, cmtb.sendTime, cmtb.filler })};
             auto len = s.length();
             // We broadcast the message to all clients
             {
