@@ -5,6 +5,7 @@
 //
 
 #include <iostream>
+#include <map>
 #include <thread>
 #include <shared_mutex>
 #include <boost/asio.hpp>
@@ -20,8 +21,10 @@ struct param_t {
     bool verbose{false};
 };
 
-void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param, atomic_uchar& lastId, vector<tcp::socket*> &vecSock, std::shared_timed_mutex &rw_mutex)
+void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param, atomic_uchar& lastId)
 {
+    static map<unsigned char, tcp::socket*> mapEndPoint;
+    static std::shared_timed_mutex rw_mutex;
     std::string msg_string{msg_sv};
     std::istringstream msg_stream{ msg_string };
     unsigned char msg_id;
@@ -41,10 +44,10 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
             // Remove psock from vecsock
             {
                 std::lock_guard writerLock(rw_mutex);
-                std::erase(vecSock, psock); // C++ 20 offers this remplacement for vecSock.erase(remove())
+                mapEndPoint.erase(cdsm.id);
             }
             if (param.verbose)
-                cout << "ClientMsgId " << static_cast<unsigned int>(cdsm.id) << " announces it will disconnect\n";
+                cout << "Client #" << static_cast<unsigned int>(cdsm.id) << " announces it will disconnect\n";
         }
         case ClientMsgId::IdRequest :
         {
@@ -55,6 +58,10 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
                 std::lock_guard writerLock(rw_mutex);
                 boost::asio::write(*psock, boost::asio::buffer(&len, sizeof(len)));
                 boost::asio::write(*psock, boost::asio::buffer(s.data(), len));
+            }
+            {
+                std::lock_guard writerLock(rw_mutex);
+                mapEndPoint[lastId] = psock;
             }
             break;
         }
@@ -67,10 +74,10 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
             // We broadcast the message to all clients
             {
                 std::lock_guard writerLock(rw_mutex);
-                for (auto &ps : vecSock)
+                for (auto const&[id, endpoint] : mapEndPoint)
                 {
-                    boost::asio::write(*ps, boost::asio::buffer(&len, sizeof(len)));
-                    boost::asio::write(*ps, boost::asio::buffer(s.data(), len));
+                    boost::asio::write(*endpoint, boost::asio::buffer(&len, sizeof(len)));
+                    boost::asio::write(*endpoint, boost::asio::buffer(s.data(), len));
                 }
             }
             break;
@@ -80,12 +87,6 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
 
 void session(unique_ptr<tcp::socket> upsock, param_t const& param, atomic_uchar& lastId)
 {
-    static vector<tcp::socket*> vecSock;
-    static std::shared_timed_mutex rw_mutex;
-    {
-        std::lock_guard writerLock(rw_mutex);
-        vecSock.push_back(upsock.get());
-    }
     try
     {
         for (;;)
@@ -103,7 +104,7 @@ void session(unique_ptr<tcp::socket> upsock, param_t const& param, atomic_uchar&
                                                   boost::asio::buffer(msg, len));
             assert(msg_length == len);
             std::string_view msg_sv{msg, len};
-            analyze_packet(upsock.get(), msg_sv, param, lastId, vecSock, rw_mutex);
+            analyze_packet(upsock.get(), msg_sv, param, lastId);
         }
     }
     catch (std::exception& e)
