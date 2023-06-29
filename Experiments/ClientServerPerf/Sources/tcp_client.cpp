@@ -11,11 +11,11 @@
 #include <numeric>
 #include "common.h"
 #include "options.h"
-#include "options_ext.h"
+#include "OptParser_ext.h"
 
 using boost::asio::ip::tcp;
 using namespace std;
-using mlib::OptParser;
+using namespace mlib;
 
 // The following value has been found experimentally when filler field of ClientMessageToBroadcast has size 0
 constexpr int minSizeClientMessageToBroadcast = 22;
@@ -170,7 +170,7 @@ void client(param_t const& param, measures_t & measures)
 
 struct param_t getParam(int argc, char* argv[])
 {
-    OptParser parser{
+    OptParser_ext parser{
             "h|help \t Show help message",
             "H:host hostname \t Host (or IP address) to connect to",
             "p:port port_number \t Port to connect to",
@@ -204,12 +204,12 @@ struct param_t getParam(int argc, char* argv[])
     }
 
     struct param_t param{
-            getopt_required_string(parser, 'H'),
-            getopt_required_string(parser, 'p'),
-            getopt_required_int(parser, 'n'),
-            chrono::milliseconds(getopt_required_int(parser, 'i')),
-            getopt_required_int(parser, 's'),
-            getopt_required_int(parser, 'c'),
+            parser.getopt_required_string('H'),
+            parser.getopt_required_string('p'),
+            parser.getopt_required_int('n'),
+            chrono::milliseconds(parser.getopt_required_int('i')),
+            parser.getopt_required_int('s'),
+            parser.getopt_required_int('c'),
             parser.hasopt ('v')
     };
     param.size_messages = (param.size_messages >= minSizeClientMessageToBroadcast ? param.size_messages : minSizeClientMessageToBroadcast);

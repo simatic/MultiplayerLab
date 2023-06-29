@@ -9,12 +9,11 @@
 #include <shared_mutex>
 #include <boost/asio.hpp>
 #include "common.h"
-#include "options.h"
-#include "options_ext.h"
+#include "OptParser_ext.h"
 
 using boost::asio::ip::tcp;
 using namespace std;
-using mlib::OptParser;
+using namespace mlib;
 
 struct param_t {
     int port;
@@ -132,7 +131,7 @@ void session(unique_ptr<tcp::socket> upsock, param_t const& param, atomic_uchar&
 
 struct param_t getParam(int argc, char* argv[])
 {
-    OptParser parser{
+    OptParser_ext parser{
             "h|help \t Show help message",
             "p:port port_number \t Port to connect to",
             "v|verbose \t [optional] Verbose display required"
@@ -161,7 +160,7 @@ struct param_t getParam(int argc, char* argv[])
     }
 
     struct param_t param{
-            getopt_required_int(parser, 'p'),
+            parser.getopt_required_int('p'),
             parser.hasopt ('v')
     };
 
