@@ -1,0 +1,46 @@
+#include <iostream>
+#include "tcp_communication.h"
+#include "common.h"
+
+struct ForLength
+{
+    size_t size{};
+
+    // This method lets cereal know which data members to serialize
+    template<class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(size); // serialize things by passing them to the archive
+    }
+};
+
+void tcp_send(boost::asio::ip::tcp::socket *psock, std::string const& s)
+{
+    ForLength forLength{s.length()};
+    std::stringstream o_stream;
+    {
+        cereal::BinaryOutputArchive oarchive(o_stream); // Create an output archive
+        oarchive(forLength); // Write the data to the archive
+    } // archive goes out of scope, ensuring all contents are flushed
+
+    auto sWithLength = o_stream.str() + s;
+
+    boost::asio::write(*psock, boost::asio::buffer(sWithLength.data(), sWithLength.length()));
+}
+
+std::string tcp_receive(boost::asio::ip::tcp::socket *psock)
+{
+    // We read the length of the message
+    size_t len;
+    boost::system::error_code error;
+    auto length = boost::asio::read(*psock, boost::asio::buffer(&len, sizeof(len)), error);
+    if (error)
+        throw boost::system::system_error(error); // Some other error. boost::asio::error::eof est l'erreur pertinente à regardr
+    assert(length == sizeof(len));
+    // We read the message itself
+    char s[len];
+    auto msg_length = boost::asio::read(*psock,
+                                        boost::asio::buffer(s, len));
+    assert(msg_length == len);
+    return std::string{s, len};
+}

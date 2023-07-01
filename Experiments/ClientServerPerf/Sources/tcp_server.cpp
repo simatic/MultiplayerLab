@@ -11,6 +11,7 @@
 #include <boost/asio.hpp>
 #include "common.h"
 #include "OptParser_ext.h"
+#include "tcp_communication.h"
 
 using boost::asio::ip::tcp;
 using namespace std;
@@ -35,12 +36,7 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
         {
             auto cdsm{read_data_in_msg_stream<ClientDoneSendingMessages>(msg_stream)};
             auto s{prepare_msg_with_no_data<ServerMsgId>(ServerMsgId::AckDoneSendingMessages)};
-            auto len = s.length();
-            {
-                std::lock_guard writerLock(rw_mutex);
-                boost::asio::write(*psock, boost::asio::buffer(&len, sizeof(len)));
-                boost::asio::write(*psock, boost::asio::buffer(s.data(), len));
-            }
+            tcp_send(psock, s);
             // Remove psock from vecsock
             {
                 std::lock_guard writerLock(rw_mutex);
@@ -48,20 +44,17 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
             }
             if (param.verbose)
                 cout << "Client #" << static_cast<unsigned int>(cdsm.id) << " announces it will disconnect\n";
+            break;
         }
         case ClientMsgId::IdRequest :
         {
+            unsigned char idToReturn = ++lastId;
             auto s{prepare_msg<ServerMsgId, ServerIdResponse>(ServerMsgId::IdResponse,
-                                                                ServerIdResponse{++lastId })};
-            auto len = s.length();
+                                                                ServerIdResponse{idToReturn })};
+            tcp_send(psock, s);
             {
                 std::lock_guard writerLock(rw_mutex);
-                boost::asio::write(*psock, boost::asio::buffer(&len, sizeof(len)));
-                boost::asio::write(*psock, boost::asio::buffer(s.data(), len));
-            }
-            {
-                std::lock_guard writerLock(rw_mutex);
-                mapEndPoint[lastId] = psock;
+                mapEndPoint[idToReturn] = psock;
             }
             break;
         }
@@ -70,18 +63,22 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
             auto cmtb{read_data_in_msg_stream<ClientMessageToBroadcast>(msg_stream)};
             auto s {prepare_msg<ServerMsgId, ServerBroadcastMessage>(ServerMsgId::BroadcastMessage,
                                                                       ServerBroadcastMessage{ cmtb.senderId, cmtb.messageId, cmtb.sendTime, cmtb.filler })};
-            auto len = s.length();
             // We broadcast the message to all clients
             {
-                std::lock_guard writerLock(rw_mutex);
+                std::shared_lock readerLock(rw_mutex);
                 for (auto const&[id, endpoint] : mapEndPoint)
                 {
-                    boost::asio::write(*endpoint, boost::asio::buffer(&len, sizeof(len)));
-                    boost::asio::write(*endpoint, boost::asio::buffer(s.data(), len));
+                    tcp_send(endpoint, s);
                 }
             }
             break;
         }
+        default:
+        {
+            cerr << "ERROR : Unexpected client_msg_typ (" << static_cast<int>(client_msg_typ) << ")\n";
+            exit(EXIT_FAILURE);
+        }
+
     }
 }
 
@@ -91,25 +88,23 @@ void session(unique_ptr<tcp::socket> upsock, param_t const& param, atomic_uchar&
     {
         for (;;)
         {
-            size_t len;
-            boost::system::error_code error;
-            size_t length = boost::asio::read(*upsock, boost::asio::buffer(&len, sizeof(len)), error);
-            if (error == boost::asio::error::eof)
-                break; // Connection closed cleanly by peer.
-            else if (error)
-                throw boost::system::system_error(error); // Some other error.
-            assert(length == sizeof(len));
-            char msg[max_length];
-            size_t msg_length = boost::asio::read(*upsock,
-                                                  boost::asio::buffer(msg, len));
-            assert(msg_length == len);
-            std::string_view msg_sv{msg, len};
-            analyze_packet(upsock.get(), msg_sv, param, lastId);
+            auto msg_s{tcp_receive(upsock.get())};
+            analyze_packet(upsock.get(), msg_s, param, lastId);
         }
+    }
+    catch (boost::system::system_error& e)
+    {
+        if (e.code() == boost::asio::error::eof)
+        {
+            if (param.verbose)
+                cout << "Client disconnected\n";
+        }
+        else
+            std::cerr << "Unexpected Boost Exception in thread: " << e.what() << "\n";
     }
     catch (std::exception& e)
     {
-        std::cerr << "Exception in thread: " << e.what() << "\n";
+        std::cerr << "Unexpected non-Boost Exception in thread: " << e.what() << "\n";
     }
 }
 

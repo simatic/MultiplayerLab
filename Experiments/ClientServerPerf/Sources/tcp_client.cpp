@@ -12,6 +12,7 @@
 #include "common.h"
 #include "options.h"
 #include "OptParser_ext.h"
+#include "tcp_communication.h"
 
 using boost::asio::ip::tcp;
 using namespace std;
@@ -55,7 +56,9 @@ bool analyze_packet(string_view msg_sv, unsigned char& myId, param_t const& para
             auto sbm {read_data_in_msg_stream<ServerBroadcastMessage>(msg_stream)};
             chrono::duration<double, std::milli> elapsed = std::chrono::system_clock::now() - sbm.sendTime;
             if (sbm.senderId == myId)
+            {
                 measures.rtts[measures.nb_rtts++] = elapsed;
+            }
             if (param.verbose) {
                 cout << "Client #" << static_cast<unsigned int>(myId) << " : ";
                 cout << "Received broadcast message #" << sbm.messageId << " echoed from ";
@@ -77,24 +80,19 @@ bool analyze_packet(string_view msg_sv, unsigned char& myId, param_t const& para
             return false;
         }
         default:
-            return false;
+        {
+            cerr << "ERROR : Unexpected server_msg_typ (" << static_cast<int>(server_msg_typ) << ")\n";
+            exit(EXIT_FAILURE);
+        }
     }
 }
 
-void msg_receive(tcp::socket &s, unsigned char &myId, param_t const& param, measures_t & measures)
+void msg_receive(tcp::socket &sock, unsigned char &myId, param_t const& param, measures_t & measures)
 {
     for (;;)
     {
-        size_t len;
-        size_t len_length = boost::asio::read(s,
-                                                boost::asio::buffer(&len, sizeof(len)));
-        assert(len_length == sizeof(len));
-        char msg[max_length];
-        size_t msg_length = boost::asio::read(s,
-                                                boost::asio::buffer(msg, len));
-        assert(msg_length == len);
-        std::string_view msg_sv{msg, len};
-        if (analyze_packet(msg_sv, myId, param, measures))
+        auto msg_s{tcp_receive(&sock)};
+        if (analyze_packet(msg_s, myId, param, measures))
             break;
     }
 }
@@ -110,22 +108,20 @@ void client(param_t const& param, measures_t & measures)
         tcp::resolver::query query(tcp::v4(), param.host, param.port);
         tcp::resolver::iterator iterator = resolver.resolve(query);
 
-        tcp::socket s(io_service);
-        s.connect(*iterator);
+        tcp::socket sock(io_service);
+        sock.connect(*iterator);
 
         boost::asio::ip::tcp::no_delay option(true);
-        s.set_option(option);
+        sock.set_option(option);
 
         unsigned char myId{ 0 };
 
         // Create a thread for receiving data
-        auto t = jthread(msg_receive, std::ref(s), std::ref(myId), std::ref(param), std::ref(measures));
+        auto t = jthread(msg_receive, std::ref(sock), std::ref(myId), std::ref(param), std::ref(measures));
 
         // Send IdRequest to server
         auto s_cir {prepare_msg_with_no_data<ClientMsgId>(ClientMsgId::IdRequest)};
-        auto len = s_cir.length();
-        boost::asio::write(s, boost::asio::buffer(&len, sizeof(len)));
-        boost::asio::write(s, boost::asio::buffer(s_cir.data(), len));
+        tcp_send(&sock, s_cir);
 
         // Wait for IdResponse from server (received by msg_receive thread)
         while (myId == 0)
@@ -141,20 +137,14 @@ void client(param_t const& param, measures_t & measures)
                 cout << "Request to broadcast message #" << i << "\n";
             auto s_cmtb {prepare_msg<ClientMsgId, ClientMessageToBroadcast>(ClientMsgId::MessageToBroadcast,
                                                                        ClientMessageToBroadcast{ myId, i, std::chrono::system_clock::now(), std::string(param.size_messages - minSizeClientMessageToBroadcast, 0) })};
-
-            len = s_cmtb.length();
-            boost::asio::write(s, boost::asio::buffer(&len, sizeof(len)));
-            boost::asio::write(s, boost::asio::buffer(s_cmtb.data(), len));
-
+            tcp_send(&sock, s_cmtb);
             this_thread::sleep_for(param.send_interval);
         }
 
         // Send DoneSendingMessages to server
         auto s_cdsm {prepare_msg<ClientMsgId, ClientDoneSendingMessages>(ClientMsgId::DoneSendingMessages,
                                                                         ClientDoneSendingMessages{ myId })};
-        len = s_cdsm.length();
-        boost::asio::write(s, boost::asio::buffer(&len, sizeof(len)));
-        boost::asio::write(s, boost::asio::buffer(s_cdsm.data(), len));
+        tcp_send(&sock, s_cdsm);
 
         // msg_receive thread will exit when it has received ServerMsgId::AckDoneSendingMessages)
         t.join();

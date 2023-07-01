@@ -1,11 +1,11 @@
 add_executable(tcp_client
-  tcp_client.cpp common.h options.cpp options.h OptParser_ext.cpp OptParser_ext.h
+  tcp_client.cpp common.h tcp_communication.cpp tcp_communication.h options.cpp options.h OptParser_ext.cpp OptParser_ext.h
 )
 if (UNIX)
   target_link_options(tcp_client PUBLIC -pthread)
 endif()
 add_executable(tcp_server
-  tcp_server.cpp common.h options.cpp options.h OptParser_ext.cpp OptParser_ext.h
+  tcp_server.cpp common.h tcp_communication.cpp tcp_communication.h options.cpp options.h OptParser_ext.cpp OptParser_ext.h
 )
 if (UNIX)
   target_link_options(tcp_server PUBLIC -pthread)

@@ -9,7 +9,7 @@ namespace mlib {
     public:
         OptParser_ext (std::initializer_list<const char*> list);
 
-        std::string getopt_required_string(char option);
-        int getopt_required_int(char option);
+        [[nodiscard]] std::string getopt_required_string(char option) const;
+        [[nodiscard]] int getopt_required_int(char option) const;
     };
 }

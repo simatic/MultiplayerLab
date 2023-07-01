@@ -11,7 +11,7 @@ namespace mlib {
     : OptParser{list}
     {}
 
-    std::string OptParser_ext::getopt_required_string(char option) {
+    std::string OptParser_ext::getopt_required_string(char option) const {
         std::string optArg;
         if (!getopt(option, optArg)) {
             cout << "Option -" << option << " is missing\n\n";
@@ -24,7 +24,7 @@ namespace mlib {
         return optArg;
     }
 
-    int OptParser_ext::getopt_required_int(char option) {
+    int OptParser_ext::getopt_required_int(char option) const {
         std::string optArg;
         if (!getopt(option, optArg)) {
             cout << "Option -" << option << " is missing\n\n";

@@ -43,7 +43,7 @@ struct MsgForBroadcastSample
 //---------------------------------------------------
 enum class ServerMsgId : unsigned char
 {
-    IdResponse,
+    IdResponse = 65, // We start with a value which be displayed as a character in debugger
     BroadcastMessage,
     AckDoneSendingMessages
 };
@@ -56,7 +56,7 @@ using ServerBroadcastMessage = MsgForBroadcastSample;
 //---------------------------------------------------
 enum class ClientMsgId : unsigned char
 {
-    IdRequest,
+    IdRequest = 97, // We start with a value which be displayed as a character in debugger + the enum values are different from values in enum ServerMsgId
     MessageToBroadcast,
     DoneSendingMessages
 };
