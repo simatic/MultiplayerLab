@@ -22,9 +22,8 @@ struct param_t {
     bool verbose{false};
 };
 
-void broadcast_msg(std::string const& s, map<unsigned char, tcp::socket*> const& mapEndPoint, std::shared_timed_mutex &rw_mutex)
+void broadcast_msg(std::string const& s, map<unsigned char, tcp::socket*> const& mapEndPoint)
 {
-    std::shared_lock readerLock(rw_mutex);
     for (auto const&[id, endpoint] : mapEndPoint)
     {
         tcp_send(endpoint, s);
@@ -70,7 +69,10 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
                 if (param.verbose)
                     cout << "There is no more broadcasting clients\n";
                 auto sbe{prepare_msg_with_no_data<ServerMsgId>(ServerMsgId::BroadcastEnd)};
-                broadcast_msg(sbe, mapEndPoint, rw_mutex);
+                {
+                    std::shared_lock readerLock(rw_mutex);
+                    broadcast_msg(sbe, mapEndPoint);
+                }
             }
             break;
         }
@@ -92,11 +94,7 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
                         cout << "All clients are connected: They can start broadcasting\n";
                     nbBroadcastingClients = cir.nbClients;
                     auto sbb{ prepare_msg_with_no_data<ServerMsgId>(ServerMsgId::BroadcastBegin) };
-                    // We cannot use broadcast_msg because it would try to put a shared_lock on rw_mutex
-                    for (auto const& [id, endpoint] : mapEndPoint)
-                    {
-                        tcp_send(endpoint, sbb);
-                    }
+                    broadcast_msg(sbb, mapEndPoint);
                 }
             }
             break;
@@ -106,7 +104,10 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
             auto cmtb{read_data_in_msg_stream<ClientMessageToBroadcast>(msg_stream)};
             auto s {prepare_msg<ServerMsgId, ServerBroadcastMessage>(ServerMsgId::BroadcastMessage,
                                                                       ServerBroadcastMessage{ cmtb.senderId, cmtb.messageId, cmtb.sendTime, cmtb.filler })};
-            broadcast_msg(s, mapEndPoint, rw_mutex);
+            {
+                std::shared_lock readerLock(rw_mutex);
+                broadcast_msg(s, mapEndPoint);
+            }
             break;
         }
         default:
