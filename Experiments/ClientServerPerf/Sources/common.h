@@ -43,26 +43,44 @@ struct MsgForBroadcastSample
 //---------------------------------------------------
 enum class ServerMsgId : unsigned char
 {
-    IdResponse = 65, // We start with a value which be displayed as a character in debugger
+    AckDoneSendingMessages = 65, // We start with a value which be displayed as a character in debugger
+    AckDisconnectIntent,
+    BroadcastBegin,
+    BroadcastEnd,
     BroadcastMessage,
-    AckDoneSendingMessages
+    IdResponse
 };
 
-using ServerIdResponse = MsgWithId;
 using ServerBroadcastMessage = MsgForBroadcastSample;
+using ServerIdResponse = MsgWithId;
 
 //---------------------------------------------------
 // Packets sent by the client
 //---------------------------------------------------
 enum class ClientMsgId : unsigned char
 {
-    IdRequest = 97, // We start with a value which be displayed as a character in debugger + the enum values are different from values in enum ServerMsgId
-    MessageToBroadcast,
-    DoneSendingMessages
+    DisconnectIntent = 97, // We start with a value which be displayed as a character in debugger + the enum values are different from values in enum ServerMsgId
+    DoneSendingMessages,
+    IdRequest,
+    MessageToBroadcast
+};
+
+using ClientDisconnectIntent = MsgWithId;
+using ClientDoneSendingMessages = MsgWithId;
+
+struct ClientIdRequest
+{
+    int nbClients{};
+
+    // This method lets cereal know which data members to serialize
+    template<class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(nbClients); // serialize things by passing them to the archive
+    }
 };
 
 using ClientMessageToBroadcast = MsgForBroadcastSample;
-using ClientDoneSendingMessages = MsgWithId;
 
 //---------------------------------------------------
 // Templates

@@ -9,6 +9,7 @@
 #include <vector>
 #include <boost/asio.hpp>
 #include <numeric>
+#include <latch>
 #include "common.h"
 #include "options.h"
 #include "OptParser_ext.h"
@@ -41,7 +42,7 @@ struct param_t {
 };
 
 // Should return true if analyze_packet discovers client will not receive any more packets.
-bool analyze_packet(string_view msg_sv, unsigned char& myId, param_t const& param, measures_t & measures)
+bool analyze_packet(string_view msg_sv, unsigned char& myId, param_t const& param, measures_t & measures, std::latch &broadcast_begin, std::latch &broadcast_end)
 {
     std::string msg_string{msg_sv};
     std::istringstream msg_stream{ msg_string };
@@ -49,8 +50,13 @@ bool analyze_packet(string_view msg_sv, unsigned char& myId, param_t const& para
     msg_stream >> msg_id;
     switch (ServerMsgId server_msg_typ{msg_id }; server_msg_typ)
     {
-        case ServerMsgId::AckDoneSendingMessages :
+        case ServerMsgId::AckDisconnectIntent :
             return true;
+        case ServerMsgId::AckDoneSendingMessages :
+            return false;
+        case ServerMsgId::BroadcastBegin :
+            broadcast_begin.count_down();
+            return false;
         case ServerMsgId::BroadcastMessage :
         {
             auto sbm {read_data_in_msg_stream<ServerBroadcastMessage>(msg_stream)};
@@ -73,6 +79,9 @@ bool analyze_packet(string_view msg_sv, unsigned char& myId, param_t const& para
             }
             return false;
         }
+        case ServerMsgId::BroadcastEnd :
+            broadcast_end.count_down();
+            return false;
         case ServerMsgId::IdResponse :
         {
             auto sir {read_data_in_msg_stream<ServerIdResponse>(msg_stream)};
@@ -87,17 +96,17 @@ bool analyze_packet(string_view msg_sv, unsigned char& myId, param_t const& para
     }
 }
 
-void msg_receive(tcp::socket &sock, unsigned char &myId, param_t const& param, measures_t & measures)
+void msg_receive(tcp::socket &sock, unsigned char &myId, param_t const& param, measures_t & measures, std::latch &broadcast_begin, std::latch &broadcast_end)
 {
     for (;;)
     {
         auto msg_s{tcp_receive(&sock)};
-        if (analyze_packet(msg_s, myId, param, measures))
+        if (analyze_packet(msg_s, myId, param, measures, broadcast_begin, broadcast_end))
             break;
     }
 }
 
-void client(param_t const& param, measures_t & measures)
+void client(param_t const& param, measures_t & measures, std::latch &broadcast_begin, std::latch &broadcast_end)
 {
     try
     {
@@ -117,20 +126,16 @@ void client(param_t const& param, measures_t & measures)
         unsigned char myId{ 0 };
 
         // Create a thread for receiving data
-        auto t = jthread(msg_receive, std::ref(sock), std::ref(myId), std::ref(param), std::ref(measures));
+        auto t = jthread(msg_receive, std::ref(sock), std::ref(myId), std::ref(param), std::ref(measures), std::ref(broadcast_begin), std::ref(broadcast_end));
 
         // Send IdRequest to server
-        auto s_cir {prepare_msg_with_no_data<ClientMsgId>(ClientMsgId::IdRequest)};
+        auto s_cir {prepare_msg<ClientMsgId, ClientIdRequest>(ClientMsgId::IdRequest, ClientIdRequest{param.nb_clients})};
         tcp_send(&sock, s_cir);
 
-        // Wait for IdResponse from server (received by msg_receive thread)
-        while (myId == 0)
-        {
-            this_thread::sleep_for(50ms);
-        }
+        broadcast_begin.wait();
 
         if (param.verbose)
-            cout << "Received my Id which is: " << static_cast<unsigned int>(myId) << "\n";
+            cout << "My Id which is: " << static_cast<unsigned int>(myId) << " and I can start broadcasting\n";
 
         for (unsigned int i = 0; i < param.nb_messages; ++i) {
             if (param.verbose)
@@ -146,7 +151,14 @@ void client(param_t const& param, measures_t & measures)
                                                                         ClientDoneSendingMessages{ myId })};
         tcp_send(&sock, s_cdsm);
 
-        // msg_receive thread will exit when it has received ServerMsgId::AckDoneSendingMessages)
+        broadcast_end.wait();
+
+        // Send DisconnectIntent to server
+        auto s_cdi {prepare_msg<ClientMsgId, ClientDisconnectIntent>(ClientMsgId::DisconnectIntent,
+                                                                         ClientDisconnectIntent{ myId })};
+        tcp_send(&sock, s_cdi);
+
+        // msg_receive thread will exit when it has received ServerMsgId::AckDisconnectIntent)
         t.join();
 
         if (param.verbose)
@@ -216,11 +228,13 @@ int main(int argc, char* argv[])
 
     // Variables used during experiment
     measures_t measures(param.nb_messages * param.nb_clients);
+    std::latch broadcast_begin(param.nb_clients);
+    std::latch broadcast_end(param.nb_clients);
 
     // We launch all of the clients to make the experiment
     vector<jthread> clients(param.nb_clients);
     for (auto& c : clients) {
-        c = jthread(client, std::ref(param), std::ref(measures));
+        c = jthread(client, std::ref(param), std::ref(measures), std::ref(broadcast_begin), std::ref(broadcast_end));
     }
     for (auto& c: clients)
         c.join();

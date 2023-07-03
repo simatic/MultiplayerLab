@@ -1,31 +1,52 @@
 msc {
 	hscale = "1.3";
 
-	c1 [label="Client_1"],c2 [label="Client_2"],s[label="ServerMsgId"];
+	s[label="Server"],c1 [label="Client_1"],c2 [label="Client_2"];
 
-	c1 note s [label="TCP scenario"];
-	s note s [label="Thread acceptConn"];
+	s note c1 [label="TCP scenario"];
+	s note s [label="Thread server"];
 	c1=>s[label="tcp_connect"];
 	s=>c1[label="ack_tcp_connect"];
-	s note s [label="Thread acceptConn\nThread handleClient_1"];
-	c1=>s[label="ClientMsgId::IdRequest"];
-	s=>c1[label="ServerMsgId::IdResponse(1)"];
-	c1=>s[label="ClientMsgId::MessageToBroadcast(1, 1, someContent)"];
-	s=>c1[label="ServerMsgId::BroadcastMessage(1, 1, someContent)"];
+	s note s [label="Thread server\nThread sessionClient_1"];
+	c1=>s[label="ClientMsgId::IdRequest(nbClients=2)"];
+	s=>c1[label="ServerMsgId::IdResponse(id=1)"];
 	c2=>s[label="tcp_connect"];
 	s=>c2[label="ack_tcp_connect"];
-	s note s [label="Thread acceptConn\nThread handleClient_1\nThread handleClient_2"];
-	c2=>s[label="ClientMsgId::IdRequest"];
-	s=>c2[label="ServerMsgId::IdResponse(2)"];
-	c2=>s[label="ClientMsgId::MessageToBroadcast(2, 1, someContent)"];
-	s=>c1[label="ServerMsgId::BroadcastMessage(2, 1, someContent)"];
-	s=>c2[label="ServerMsgId::BroadcastMessage(2, 1, someContent)"];
+	s note s [label="Thread server\nThread sessionClient_1\nThread sessionClient_2"];
+	c2=>s[label="ClientMsgId::IdRequest(nbClients=2)"];
+	s=>c2[label="ServerMsgId::IdResponse(id=2)"];
+	s=>c1,
+	s=>c2[label="ServerMsgId::BroadcastBegin()"];
+	c1=>s[label="ClientMsgId::MessageToBroadcast(senderId=1,messageId=1,sendTime=time_c1_1,filler)"];
+	s=>c1,
+	s=>c2[label="ServerMsgId::BroadcastMessage(senderId=1,messageId=1,sendTime=time_c1_1,filler)"];
+	c1 note c1 [label="Store time-time_c1_1 in measures.rtts"];
+	c2=>s[label="ClientMsgId::MessageToBroadcast(senderId=2,messageId=1,sendTime=time_c2_1,filler)"];
+	s=>c1,
+	s=>c2[label="ServerMsgId::BroadcastMessage(senderId=2,messageId=1,sendTime=time_c2_1,filler)"];
+	c2 note c2 [label="Store time-time_c2_1 in measures.rtts"];
 	...;
-	c1=>s[label="ClientMsgId::DoneSendingMessage(1)"];
+	c1=>s[label="ClientMsgId::MessageToBroadcast(senderId=1,messageId=9,sendTime=time_c1_9,filler)"];
+	s=>c1,
+	s=>c2[label="ServerMsgId::BroadcastMessage(senderId=1,messageId=9,sendTime=time_c1_9,filler)"];
+	c1 note c1 [label="Store time-time_c1_9 in measures.rtts"];
+	c1=>s[label="ClientMsgId::DoneSendingMessage(id=1)"];
 	s=>c1[label="ServerMsgId::AckDoneSendingMessage"];
+	c2=>s[label="ClientMsgId::MessageToBroadcast(senderId=2,messageId=9,sendTime=time_c2_9,filler)"];
+	s=>c1,
+	s=>c2[label="ServerMsgId::BroadcastMessage(senderId=2,messageId=9,sendTime=time_c2_9,filler)"];
+	c2 note c2 [label="Store time-time_c2_9 in measures.rtts"];
+	c2=>s[label="ClientMsgId::DoneSendingMessage(id=2)"];
+	s=>c2[label="ServerMsgId::AckDoneSendingMessage"];
+	s=>c1,
+	s=>c2[label="ServerMsgId::BroadcastEnd()"];
+	c1=>s[label="ClientMsgId::DisconnectIntent(id=1)"];
+	s=>c1[label="ServerMsgId::AckDisconnectIntent"];
+	c2=>s[label="ClientMsgId::DisconnectIntent(id=2)"];
+	s=>c2[label="ServerMsgId::AckDisconnectIntent"];
 	c1=>s[label="tcp_disconnect"];
-	s note s [label="Thread acceptConn\nThread handleClient_2"];
-	c2=>s[label="ClientMsgId::MessageToBroadcast(2, 42, someContent)"];
-	s=>c2[label="ServerMsgId::BroadcastMessage(2, 42, someContent)"];
+	s note s [label="Thread serverConn\nThread sessionhandleClient_2"];
+	c2=>s[label="tcp_disconnect"];
+	s note s [label="Thread serverConn"];
 	|||;
 }
