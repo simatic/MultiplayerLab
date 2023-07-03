@@ -38,7 +38,7 @@ std::string tcp_receive(boost::asio::ip::tcp::socket *psock)
         throw boost::system::system_error(error); // Some other error. boost::asio::error::eof est l'erreur pertinente à regardr
     assert(length == sizeof(len));
     // We read the message itself
-    char s[len];
+    char s[max_length];
     auto msg_length = boost::asio::read(*psock,
                                         boost::asio::buffer(s, len));
     assert(msg_length == len);

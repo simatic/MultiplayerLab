@@ -84,16 +84,20 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
             {
                 std::lock_guard writerLock(rw_mutex);
                 mapEndPoint[idToReturn] = psock;
-            }
-            if (param.verbose)
-                cout << "Client #" << static_cast<unsigned int>(idToReturn) << " has received its id\n";
-            if (mapEndPoint.size() == cir.nbClients)
-            {
                 if (param.verbose)
-                    cout << "All clients are connected: They can start broadcasting\n";
-                nbBroadcastingClients = cir.nbClients;
-                auto sbb{prepare_msg_with_no_data<ServerMsgId>(ServerMsgId::BroadcastBegin)};
-                broadcast_msg(sbb, mapEndPoint, rw_mutex);
+                    cout << "Client #" << static_cast<unsigned int>(idToReturn) << " has received its id\n";
+                if (mapEndPoint.size() == cir.nbClients)
+                {
+                    if (param.verbose)
+                        cout << "All clients are connected: They can start broadcasting\n";
+                    nbBroadcastingClients = cir.nbClients;
+                    auto sbb{ prepare_msg_with_no_data<ServerMsgId>(ServerMsgId::BroadcastBegin) };
+                    // We cannot use broadcast_msg because it would try to put a shared_lock on rw_mutex
+                    for (auto const& [id, endpoint] : mapEndPoint)
+                    {
+                        tcp_send(endpoint, sbb);
+                    }
+                }
             }
             break;
         }
