@@ -184,7 +184,7 @@ struct Param getParam(int argc, char* argv[])
             "p:port port_number \t Port to connect to",
             "n:nbMsg number \t Number of messages to be sent",
             "i:interval time_in_milliseconds \t Time interval between two sending of messages by a single client",
-            "s:size size_in_bytes \t Size of messages sent by a client (min is 22 ==> If lower than 22, will be set to 22)",
+            "s:size size_in_bytes \t Size of messages sent by a client (must be in interval [22,65515])",
             "c:clients number \t Number of clients which send messages to server",
             "v|verbose \t [optional] Verbose display required"
     };
@@ -193,20 +193,20 @@ struct Param getParam(int argc, char* argv[])
     if (int ret ; (ret = parser.parse (argc, argv, &nonopt)) != 0)
     {
         if (ret == 1)
-            cout << "Unknown option: " << argv[nonopt] << " Valid options are : " << endl
+            cerr << "Unknown option: " << argv[nonopt] << " Valid options are : " << endl
                  << parser.synopsis () << endl;
         else if (ret == 2)
-            cout << "Option " << argv[nonopt] << " requires an argument." << endl;
+            cerr << "Option " << argv[nonopt] << " requires an argument." << endl;
         else if (ret == 3)
-            cout << "Invalid options combination: " << argv[nonopt] << endl;
+            cerr << "Invalid options combination: " << argv[nonopt] << endl;
         exit (1);
     }
     if ((argc == 1) || parser.hasopt ('h'))
     {
         //No arguments on command line or help required. Show help and exit.
-        cout << "Usage:" << endl;
-        cout << parser.synopsis () << endl;
-        cout << "Where:" << endl
+        cerr << "Usage:" << endl;
+        cerr << parser.synopsis () << endl;
+        cerr << "Where:" << endl
              << parser.description () << endl;
         exit (0);
     }
@@ -220,10 +220,22 @@ struct Param getParam(int argc, char* argv[])
             parser.getoptIntRequired('c'),
             parser.hasopt ('v')
     };
-    param.sizeMsg = (param.sizeMsg >= minSizeClientMessageToBroadcast ? param.sizeMsg : minSizeClientMessageToBroadcast);
+    if (param.sizeMsg < minSizeClientMessageToBroadcast || param.sizeMsg > maxLength)
+    {
+        cerr << "ERROR: Argument for size of messages is " << param.sizeMsg
+             << " which is not in interval [ " << minSizeClientMessageToBroadcast << " , " << maxLength << " ]"
+             << endl
+             << parser.synopsis () << endl;
+        exit(1);
+    }
 
     if (nonopt < argc)
-        cout << "WARNING: There is a non-option argument: " << argv[nonopt] << " ==> It won't be used" << endl;
+    {
+        cerr << "ERROR: There is a non-option argument '" << argv[nonopt]
+             << "' which cannot be understood. Please run again program but without this argument" << endl
+             << parser.synopsis () << endl;
+        exit(1);
+    }
 
     return param;
 }

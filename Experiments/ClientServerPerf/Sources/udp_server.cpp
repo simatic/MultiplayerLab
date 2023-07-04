@@ -75,10 +75,10 @@ void analyze_packet(udp::socket & sock, udp::endpoint const& sender_endpoint, st
     udp::socket sock(io_service, udp::endpoint(udp::v4(), port));
     for (;;)
     {
-        char msg[max_length];
+        char msg[maxLength];
         udp::endpoint sender_endpoint;
         size_t msg_length = sock.receive_from(
-                boost::asio::buffer(msg, max_length), sender_endpoint);
+                boost::asio::buffer(msg, maxLength), sender_endpoint);
         std::string_view msg_sv{msg, msg_length};
         analyze_packet(sock, sender_endpoint, msg_sv, lastId);
     }

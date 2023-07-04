@@ -175,20 +175,20 @@ struct Param getParam(int argc, char* argv[])
     if (int ret ; (ret = parser.parse (argc, argv, &nonopt)) != 0)
     {
         if (ret == 1)
-            cout << "Unknown option: " << argv[nonopt] << " Valid options are : " << endl
+            cerr << "Unknown option: " << argv[nonopt] << " Valid options are : " << endl
                  << parser.synopsis () << endl;
         else if (ret == 2)
-            cout << "Option " << argv[nonopt] << " requires an argument." << endl;
+            cerr << "Option " << argv[nonopt] << " requires an argument." << endl;
         else if (ret == 3)
-            cout << "Invalid options combination: " << argv[nonopt] << endl;
+            cerr << "Invalid options combination: " << argv[nonopt] << endl;
         exit (1);
     }
     if ((argc == 1) || parser.hasopt ('h'))
     {
         //No arguments on command line or help required. Show help and exit.
-        cout << "Usage:" << endl;
-        cout << parser.synopsis () << endl;
-        cout << "Where:" << endl
+        cerr << "Usage:" << endl;
+        cerr << parser.synopsis () << endl;
+        cerr << "Where:" << endl
              << parser.description () << endl;
         exit (0);
     }
@@ -199,7 +199,12 @@ struct Param getParam(int argc, char* argv[])
     };
 
     if (nonopt < argc)
-        cout << "WARNING: There is a non-option argument: " << argv[nonopt] << " ==> It won't be used" << endl;
+    {
+        cerr << "ERROR: There is a non-option argument '" << argv[nonopt]
+             << "' which cannot be understood. Please run again program but without this argument" << endl
+             << parser.synopsis () << endl;
+        exit(1);
+    }
 
     return param;
 }

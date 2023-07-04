@@ -6,7 +6,7 @@
 #include <cereal/types/string.hpp>
 
 // Maximum length of a UDP packet
-constexpr size_t max_length{65515};
+constexpr size_t maxLength{65515};
 
 //---------------------------------------------------
 // Generic message data

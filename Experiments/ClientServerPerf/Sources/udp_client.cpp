@@ -53,10 +53,10 @@ void analyze_packet(string_view msg_sv, unsigned char& myId)
 {
     for (;;)
     {
-        char msg[max_length];
+        char msg[maxLength];
         udp::endpoint sender_endpoint;
         size_t msg_length = s.receive_from(
-                boost::asio::buffer(msg, max_length), sender_endpoint);
+                boost::asio::buffer(msg, maxLength), sender_endpoint);
         std::string_view msg_sv{msg, msg_length};
         analyze_packet(msg_sv, myId);
     }
