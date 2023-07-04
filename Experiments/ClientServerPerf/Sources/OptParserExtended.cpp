@@ -1,17 +1,17 @@
 #include <iostream>
 #include <sstream>
-#include "OptParser_ext.h"
+#include "OptParserExtended.h"
 
 using std::cout;
 using std::endl;
 
 namespace mlib {
 
-    OptParser_ext::OptParser_ext (std::initializer_list<const char*> list)
+    OptParserExtended::OptParserExtended (std::initializer_list<const char*> list)
     : OptParser{list}
     {}
 
-    std::string OptParser_ext::getopt_required_string(char option) const {
+    std::string OptParserExtended::getoptStringRequired(char option) const {
         std::string optArg;
         if (!getopt(option, optArg)) {
             cout << "Option -" << option << " is missing\n\n";
@@ -24,7 +24,7 @@ namespace mlib {
         return optArg;
     }
 
-    int OptParser_ext::getopt_required_int(char option) const {
+    int OptParserExtended::getoptIntRequired(char option) const {
         std::string optArg;
         if (!getopt(option, optArg)) {
             cout << "Option -" << option << " is missing\n\n";

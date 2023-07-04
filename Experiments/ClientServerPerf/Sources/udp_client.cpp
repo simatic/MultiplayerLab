@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
         std::string_view ir_sv{ ir_stream.view() };
         s.send_to(boost::asio::buffer(ir_sv.data(), ir_sv.length()), *iterator);
 
-        // Wait for IdResponse from server (received by msg_receive thread)
+        // Wait for IdResponse from server (received by msgReceive thread)
         while (myId == 0)
         {
             this_thread::sleep_for(50ms);

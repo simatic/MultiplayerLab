@@ -10,47 +10,47 @@
 #include <shared_mutex>
 #include <boost/asio.hpp>
 #include "common.h"
-#include "OptParser_ext.h"
+#include "OptParserExtended.h"
 #include "tcp_communication.h"
 
 using boost::asio::ip::tcp;
 using namespace std;
 using namespace mlib;
 
-struct param_t {
+struct Param {
     int port;
     bool verbose{false};
 };
 
-void broadcast_msg(std::string const& s, map<unsigned char, tcp::socket*> const& mapEndPoint)
+void broadcastMsg(std::string const& s, map<unsigned char, tcp::socket*> const& mapEndPoint)
 {
     for (auto const&[id, endpoint] : mapEndPoint)
     {
-        tcp_send(endpoint, s);
+        sendPacket(endpoint, s);
     }
 
 }
 
-void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param)
+void analyzePacket(tcp::socket *psock, string_view msgSv, Param const& param)
 {
     static atomic_uchar lastId{0};
     static atomic_int32_t nbBroadcastingClients{0};
     static map<unsigned char, tcp::socket*> mapEndPoint;
-    static std::shared_timed_mutex rw_mutex;
-    std::string msg_string{msg_sv};
-    std::istringstream msg_stream{ msg_string };
-    unsigned char msg_id;
-    msg_stream >> msg_id;
-    switch (ClientMsgId client_msg_typ{msg_id }; client_msg_typ)
+    static std::shared_timed_mutex rwMutex;
+    std::string msgString{msgSv};
+    std::istringstream msgStream{msgString };
+    unsigned char msgIid;
+    msgStream >> msgIid;
+    switch (ClientMsgId clientMsgTyp{ msgIid }; clientMsgTyp)
     {
         case ClientMsgId::DisconnectIntent :
         {
-            auto cdi{read_data_in_msg_stream<ClientDisconnectIntent>(msg_stream)};
-            auto s{prepare_msg_with_no_data<ServerMsgId>(ServerMsgId::AckDisconnectIntent)};
-            tcp_send(psock, s);
+            auto cdi{readDataInMsgStream<ClientDisconnectIntent>(msgStream)};
+            auto s{prepareMsgWithNoData<ServerMsgId>(ServerMsgId::AckDisconnectIntent)};
+            sendPacket(psock, s);
             // Remove psock from vecsock
             {
-                std::lock_guard writerLock(rw_mutex);
+                std::lock_guard writerLock(rwMutex);
                 mapEndPoint.erase(cdi.id);
             }
             if (param.verbose)
@@ -59,32 +59,32 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
         }
         case ClientMsgId::DoneSendingMessages :
         {
-            auto cdsm{read_data_in_msg_stream<ClientDoneSendingMessages>(msg_stream)};
-            auto s{prepare_msg_with_no_data<ServerMsgId>(ServerMsgId::AckDoneSendingMessages)};
-            tcp_send(psock, s);
+            auto cdsm{readDataInMsgStream<ClientDoneSendingMessages>(msgStream)};
+            auto s{prepareMsgWithNoData<ServerMsgId>(ServerMsgId::AckDoneSendingMessages)};
+            sendPacket(psock, s);
             if (param.verbose)
                 cout << "Client #" << static_cast<unsigned int>(cdsm.id) << " announces it is done broadcasting messages\n";
             if (--nbBroadcastingClients == 0)
             {
                 if (param.verbose)
                     cout << "There is no more broadcasting clients\n";
-                auto sbe{prepare_msg_with_no_data<ServerMsgId>(ServerMsgId::BroadcastEnd)};
+                auto sbe{prepareMsgWithNoData<ServerMsgId>(ServerMsgId::BroadcastEnd)};
                 {
-                    std::shared_lock readerLock(rw_mutex);
-                    broadcast_msg(sbe, mapEndPoint);
+                    std::shared_lock readerLock(rwMutex);
+                    broadcastMsg(sbe, mapEndPoint);
                 }
             }
             break;
         }
         case ClientMsgId::IdRequest :
         {
-            auto cir{read_data_in_msg_stream<ClientIdRequest>(msg_stream)};
+            auto cir{readDataInMsgStream<ClientIdRequest>(msgStream)};
             unsigned char idToReturn = ++lastId;
-            auto s{prepare_msg<ServerMsgId, ServerIdResponse>(ServerMsgId::IdResponse,
-                                                                ServerIdResponse{idToReturn })};
-            tcp_send(psock, s);
+            auto s{prepareMsg<ServerMsgId, ServerIdResponse>(ServerMsgId::IdResponse,
+                                                             ServerIdResponse{idToReturn})};
+            sendPacket(psock, s);
             {
-                std::lock_guard writerLock(rw_mutex);
+                std::lock_guard writerLock(rwMutex);
                 mapEndPoint[idToReturn] = psock;
                 if (param.verbose)
                     cout << "Client #" << static_cast<unsigned int>(idToReturn) << " has received its id\n";
@@ -93,40 +93,42 @@ void analyze_packet(tcp::socket *psock, string_view msg_sv, param_t const& param
                     if (param.verbose)
                         cout << "All clients are connected: They can start broadcasting\n";
                     nbBroadcastingClients = cir.nbClients;
-                    auto sbb{ prepare_msg_with_no_data<ServerMsgId>(ServerMsgId::BroadcastBegin) };
-                    broadcast_msg(sbb, mapEndPoint);
+                    auto sbb{prepareMsgWithNoData<ServerMsgId>(ServerMsgId::BroadcastBegin) };
+                    broadcastMsg(sbb, mapEndPoint);
                 }
             }
             break;
         }
         case ClientMsgId::MessageToBroadcast :
         {
-            auto cmtb{read_data_in_msg_stream<ClientMessageToBroadcast>(msg_stream)};
-            auto s {prepare_msg<ServerMsgId, ServerBroadcastMessage>(ServerMsgId::BroadcastMessage,
-                                                                      ServerBroadcastMessage{ cmtb.senderId, cmtb.messageId, cmtb.sendTime, cmtb.filler })};
+            auto cmtb{readDataInMsgStream<ClientMessageToBroadcast>(msgStream)};
+            auto s {prepareMsg<ServerMsgId, ServerBroadcastMessage>(ServerMsgId::BroadcastMessage,
+                                                                    ServerBroadcastMessage{cmtb.senderId,
+                                                                                           cmtb.messageId,
+                                                                                           cmtb.sendTime, cmtb.filler})};
             {
-                std::shared_lock readerLock(rw_mutex);
-                broadcast_msg(s, mapEndPoint);
+                std::shared_lock readerLock(rwMutex);
+                broadcastMsg(s, mapEndPoint);
             }
             break;
         }
         default:
         {
-            cerr << "ERROR : Unexpected client_msg_typ (" << static_cast<int>(client_msg_typ) << ")\n";
+            cerr << "ERROR : Unexpected clientMsgTyp (" << static_cast<int>(clientMsgTyp) << ")\n";
             exit(EXIT_FAILURE);
         }
 
     }
 }
 
-void session(unique_ptr<tcp::socket> upsock, param_t const& param)
+void session(unique_ptr<tcp::socket> upsock, Param const& param)
 {
     try
     {
         for (;;)
         {
-            auto msg_s{tcp_receive(upsock.get())};
-            analyze_packet(upsock.get(), msg_s, param);
+            auto s{receivePacket(upsock.get())};
+            analyzePacket(upsock.get(), s, param);
         }
     }
     catch (boost::system::system_error& e)
@@ -145,12 +147,12 @@ void session(unique_ptr<tcp::socket> upsock, param_t const& param)
     }
 }
 
-[[noreturn]] void server(boost::asio::io_service& io_service, short port, param_t const& param)
+[[noreturn]] void server(boost::asio::io_service& ioService, short port, Param const& param)
 {
-    tcp::acceptor a(io_service, tcp::endpoint(tcp::v4(), port));
+    tcp::acceptor a(ioService, tcp::endpoint(tcp::v4(), port));
     for (;;)
     {
-        auto upsock = make_unique<tcp::socket>(io_service);
+        auto upsock = make_unique<tcp::socket>(ioService);
         a.accept(*upsock);
 
         boost::asio::ip::tcp::no_delay option(true);
@@ -161,9 +163,9 @@ void session(unique_ptr<tcp::socket> upsock, param_t const& param)
     }
 }
 
-struct param_t getParam(int argc, char* argv[])
+struct Param getParam(int argc, char* argv[])
 {
-    OptParser_ext parser{
+    OptParserExtended parser{
             "h|help \t Show help message",
             "p:port port_number \t Port to connect to",
             "v|verbose \t [optional] Verbose display required"
@@ -191,8 +193,8 @@ struct param_t getParam(int argc, char* argv[])
         exit (0);
     }
 
-    struct param_t param{
-            parser.getopt_required_int('p'),
+    struct Param param{
+            parser.getoptIntRequired('p'),
             parser.hasopt ('v')
     };
 
@@ -204,11 +206,11 @@ struct param_t getParam(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-    struct param_t param{getParam(argc, argv)};
+    struct Param param{getParam(argc, argv)};
     try
     {
-        boost::asio::io_service io_service;
-        server(io_service, static_cast<short>(param.port), param);
+        boost::asio::io_service ioService;
+        server(ioService, static_cast<short>(param.port), param);
     }
     catch (std::exception& e)
     {

@@ -86,46 +86,46 @@ using ClientMessageToBroadcast = MsgForBroadcastSample;
 // Templates
 //---------------------------------------------------
 
-/// @brief Returns data of message contained in msg_stream (Note: msg_id has already been read in msg_stream)
+/// @brief Returns data of message contained in msgStream (Note: msg_id has already been read in msgStream)
 /// @details
-/// Usage: Use <tt>auto data = read_data_in_msg_stream<DataStructName>(msg_stream)</tt>
+/// Usage: Use <tt>auto data = readDataInMsgStream<DataStructName>(msgStream)</tt>
 /// @tparam D Name of (Data) structure to be read
-/// @args msg_stream string stream containing message
+/// @args msgStream string stream containing message
 /// @return Data structure read
 template <typename D>
-D read_data_in_msg_stream(std::istringstream &msg_stream)
+D readDataInMsgStream(std::istringstream &msgStream)
 {
     D data{};
-    cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
+    cereal::BinaryInputArchive iarchive(msgStream); // Create an input archive
     iarchive(data); // Read the data from the archive
     return data;
 }
 
-/// @brief Returns a string containing a message with msg_id and no data
-/// Usage: Use <tt>auto sv = prepare_msg_with_no_data<EnumName>(msg_id)</tt>
-/// @tparam E Name of msg_id Enum
-/// @args msg_id to be stored in message
+/// @brief Returns a string containing a message with msgId and no data
+/// Usage: Use <tt>auto sv = prepareMsgWithNoData<EnumName>(msgId)</tt>
+/// @tparam E Name of msgId Enum
+/// @args msgId to be stored in message
 /// @return string containing message
 template <typename E>
-std::string prepare_msg_with_no_data(E msg_id)
+std::string prepareMsgWithNoData(E msgId)
 {
     std::stringstream o_stream;
-    o_stream << static_cast<unsigned char>(msg_id);
+    o_stream << static_cast<unsigned char>(msgId);
     return o_stream.str();
 }
 
-/// @brief Returns a string containing a message with msg_id and data
-/// Usage: Use <tt>auto sv = prepare_msg<EnumName,DataStructName>(msg_id, data)</tt>
-/// @tparam E Name of msg_id Enum
+/// @brief Returns a string containing a message with msgId and data
+/// Usage: Use <tt>auto sv = prepareMsg<EnumName,DataStructName>(msgId, data)</tt>
+/// @tparam E Name of msgId Enum
 /// @tparam D Name of (Data) structure to be written in message
-/// @args msg_id to be stored in message
+/// @args msgId to be stored in message
 /// @args data to be stored in message
 /// @return string containing message
 template <typename E, typename D>
-std::string prepare_msg(E msg_id, D data)
+std::string prepareMsg(E msgId, D data)
 {
     std::stringstream o_stream;
-    o_stream << static_cast<unsigned char>(msg_id);
+    o_stream << static_cast<unsigned char>(msgId);
     {
         cereal::BinaryOutputArchive oarchive(o_stream); // Create an output archive
         oarchive(data); // Write the data to the archive

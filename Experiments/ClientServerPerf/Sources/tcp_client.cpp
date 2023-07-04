@@ -12,7 +12,7 @@
 #include <latch>
 #include "common.h"
 #include "options.h"
-#include "OptParser_ext.h"
+#include "OptParserExtended.h"
 #include "tcp_communication.h"
 
 using boost::asio::ip::tcp;
@@ -22,48 +22,48 @@ using namespace mlib;
 // The following value has been found experimentally when filler field of ClientMessageToBroadcast has size 0
 constexpr int minSizeClientMessageToBroadcast = 22;
 
-struct measures_t {
-    explicit measures_t(size_t nb_rtts_max)
+struct Measures {
+    explicit Measures(size_t nb_rtts_max)
     : rtts(nb_rtts_max)
     {
     }
     vector<std::chrono::duration<double, std::milli>> rtts; // Round-Trip Time
-    atomic_size_t nb_rtts{0};
+    atomic_size_t nbRtts{0};
 };
 
-struct param_t {
+struct Param {
     string host;
     string port;
-    int nb_messages{0};
-    chrono::duration<int64_t, ratio<1, 1000>> send_interval{0};
-    int size_messages{0};
-    int nb_clients{0};
+    int nbMsg{0};
+    chrono::duration<int64_t, ratio<1, 1000>> sendInterval{0};
+    int sizeMsg{0};
+    int nbClients{0};
     bool verbose{false};
 };
 
-// Should return true if analyze_packet discovers client will not receive any more packets.
-bool analyze_packet(string_view msg_sv, unsigned char& myId, param_t const& param, measures_t & measures, std::latch &broadcast_begin, std::latch &broadcast_end)
+// Should return true if analyzePacket discovers client will not receive any more packets.
+bool analyzePacket(string_view msgSv, unsigned char& myId, Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd)
 {
-    std::string msg_string{msg_sv};
-    std::istringstream msg_stream{ msg_string };
-    unsigned char msg_id;
-    msg_stream >> msg_id;
-    switch (ServerMsgId server_msg_typ{msg_id }; server_msg_typ)
+    std::string msgString{msgSv};
+    std::istringstream msgStream{msgString };
+    unsigned char msgId;
+    msgStream >> msgId;
+    switch (ServerMsgId serverMsgId{ msgId }; serverMsgId)
     {
         case ServerMsgId::AckDisconnectIntent :
             return true;
         case ServerMsgId::AckDoneSendingMessages :
             return false;
         case ServerMsgId::BroadcastBegin :
-            broadcast_begin.count_down();
+            broadcastBegin.count_down();
             return false;
         case ServerMsgId::BroadcastMessage :
         {
-            auto sbm {read_data_in_msg_stream<ServerBroadcastMessage>(msg_stream)};
+            auto sbm {readDataInMsgStream<ServerBroadcastMessage>(msgStream)};
             chrono::duration<double, std::milli> elapsed = std::chrono::system_clock::now() - sbm.sendTime;
             if (sbm.senderId == myId)
             {
-                measures.rtts[measures.nb_rtts++] = elapsed;
+                measures.rtts[measures.nbRtts++] = elapsed;
             }
             if (param.verbose) {
                 cout << "Client #" << static_cast<unsigned int>(myId) << " : ";
@@ -80,44 +80,44 @@ bool analyze_packet(string_view msg_sv, unsigned char& myId, param_t const& para
             return false;
         }
         case ServerMsgId::BroadcastEnd :
-            broadcast_end.count_down();
+            broadcastEnd.count_down();
             return false;
         case ServerMsgId::IdResponse :
         {
-            auto sir {read_data_in_msg_stream<ServerIdResponse>(msg_stream)};
+            auto sir {readDataInMsgStream<ServerIdResponse>(msgStream)};
             myId = sir.id;
             return false;
         }
         default:
         {
-            cerr << "ERROR : Unexpected server_msg_typ (" << static_cast<int>(server_msg_typ) << ")\n";
+            cerr << "ERROR : Unexpected serverMsgId (" << static_cast<int>(serverMsgId) << ")\n";
             exit(EXIT_FAILURE);
         }
     }
 }
 
-void msg_receive(tcp::socket &sock, unsigned char &myId, param_t const& param, measures_t & measures, std::latch &broadcast_begin, std::latch &broadcast_end)
+void msgReceive(tcp::socket &sock, unsigned char &myId, Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd)
 {
     for (;;)
     {
-        auto msg_s{tcp_receive(&sock)};
-        if (analyze_packet(msg_s, myId, param, measures, broadcast_begin, broadcast_end))
+        auto msg_s{receivePacket(&sock)};
+        if (analyzePacket(msg_s, myId, param, measures, broadcastBegin, broadcastEnd))
             break;
     }
 }
 
-void client(param_t const& param, measures_t & measures, std::latch &broadcast_begin, std::latch &broadcast_end)
+void client(Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd)
 {
     try
     {
         // EndPoint creation
-        boost::asio::io_service io_service;
+        boost::asio::io_service ioService;
 
-        tcp::resolver resolver(io_service);
+        tcp::resolver resolver(ioService);
         tcp::resolver::query query(tcp::v4(), param.host, param.port);
         tcp::resolver::iterator iterator = resolver.resolve(query);
 
-        tcp::socket sock(io_service);
+        tcp::socket sock(ioService);
         sock.connect(*iterator);
 
         boost::asio::ip::tcp::no_delay option(true);
@@ -126,39 +126,45 @@ void client(param_t const& param, measures_t & measures, std::latch &broadcast_b
         unsigned char myId{ 0 };
 
         // Create a thread for receiving data
-        auto t = jthread(msg_receive, std::ref(sock), std::ref(myId), std::ref(param), std::ref(measures), std::ref(broadcast_begin), std::ref(broadcast_end));
+        auto t = jthread(msgReceive, std::ref(sock), std::ref(myId), std::ref(param), std::ref(measures),
+                         std::ref(broadcastBegin), std::ref(broadcastEnd));
 
         // Send IdRequest to server
-        auto s_cir {prepare_msg<ClientMsgId, ClientIdRequest>(ClientMsgId::IdRequest, ClientIdRequest{param.nb_clients})};
-        tcp_send(&sock, s_cir);
+        auto cir {prepareMsg<ClientMsgId, ClientIdRequest>(ClientMsgId::IdRequest, ClientIdRequest{param.nbClients})};
+        sendPacket(&sock, cir);
 
-        broadcast_begin.wait();
+        broadcastBegin.wait();
 
         if (param.verbose)
             cout << "My Id which is: " << static_cast<unsigned int>(myId) << " and I can start broadcasting\n";
 
-        for (unsigned int i = 0; i < param.nb_messages; ++i) {
+        for (unsigned int i = 0; i < param.nbMsg; ++i) {
             if (param.verbose)
                 cout << "Request to broadcast message #" << i << "\n";
-            auto s_cmtb {prepare_msg<ClientMsgId, ClientMessageToBroadcast>(ClientMsgId::MessageToBroadcast,
-                                                                       ClientMessageToBroadcast{ myId, i, std::chrono::system_clock::now(), std::string(param.size_messages - minSizeClientMessageToBroadcast, 0) })};
-            tcp_send(&sock, s_cmtb);
-            this_thread::sleep_for(param.send_interval);
+            auto s_cmtb {prepareMsg<ClientMsgId, ClientMessageToBroadcast>(ClientMsgId::MessageToBroadcast,
+                                                                           ClientMessageToBroadcast{myId, i,
+                                                                                                    std::chrono::system_clock::now(),
+                                                                                                    std::string(
+                                                                                                            param.sizeMsg -
+                                                                                                            minSizeClientMessageToBroadcast,
+                                                                                                            0)})};
+            sendPacket(&sock, s_cmtb);
+            this_thread::sleep_for(param.sendInterval);
         }
 
         // Send DoneSendingMessages to server
-        auto s_cdsm {prepare_msg<ClientMsgId, ClientDoneSendingMessages>(ClientMsgId::DoneSendingMessages,
-                                                                        ClientDoneSendingMessages{ myId })};
-        tcp_send(&sock, s_cdsm);
+        auto cdsm {prepareMsg<ClientMsgId, ClientDoneSendingMessages>(ClientMsgId::DoneSendingMessages,
+                                                                      ClientDoneSendingMessages{myId})};
+        sendPacket(&sock, cdsm);
 
-        broadcast_end.wait();
+        broadcastEnd.wait();
 
         // Send DisconnectIntent to server
-        auto s_cdi {prepare_msg<ClientMsgId, ClientDisconnectIntent>(ClientMsgId::DisconnectIntent,
-                                                                         ClientDisconnectIntent{ myId })};
-        tcp_send(&sock, s_cdi);
+        auto cdi {prepareMsg<ClientMsgId, ClientDisconnectIntent>(ClientMsgId::DisconnectIntent,
+                                                                  ClientDisconnectIntent{myId})};
+        sendPacket(&sock, cdi);
 
-        // msg_receive thread will exit when it has received ServerMsgId::AckDisconnectIntent)
+        // msgReceive thread will exit when it has received ServerMsgId::AckDisconnectIntent)
         t.join();
 
         if (param.verbose)
@@ -170,13 +176,13 @@ void client(param_t const& param, measures_t & measures, std::latch &broadcast_b
     }
 }
 
-struct param_t getParam(int argc, char* argv[])
+struct Param getParam(int argc, char* argv[])
 {
-    OptParser_ext parser{
+    OptParserExtended parser{
             "h|help \t Show help message",
             "H:host hostname \t Host (or IP address) to connect to",
             "p:port port_number \t Port to connect to",
-            "n:nb_messages number \t Number of messages to be sent",
+            "n:nbMsg number \t Number of messages to be sent",
             "i:interval time_in_milliseconds \t Time interval between two sending of messages by a single client",
             "s:size size_in_bytes \t Size of messages sent by a client (min is 22 ==> If lower than 22, will be set to 22)",
             "c:clients number \t Number of clients which send messages to server",
@@ -205,16 +211,16 @@ struct param_t getParam(int argc, char* argv[])
         exit (0);
     }
 
-    struct param_t param{
-            parser.getopt_required_string('H'),
-            parser.getopt_required_string('p'),
-            parser.getopt_required_int('n'),
-            chrono::milliseconds(parser.getopt_required_int('i')),
-            parser.getopt_required_int('s'),
-            parser.getopt_required_int('c'),
+    struct Param param{
+            parser.getoptStringRequired('H'),
+            parser.getoptStringRequired('p'),
+            parser.getoptIntRequired('n'),
+            chrono::milliseconds(parser.getoptIntRequired('i')),
+            parser.getoptIntRequired('s'),
+            parser.getoptIntRequired('c'),
             parser.hasopt ('v')
     };
-    param.size_messages = (param.size_messages >= minSizeClientMessageToBroadcast ? param.size_messages : minSizeClientMessageToBroadcast);
+    param.sizeMsg = (param.sizeMsg >= minSizeClientMessageToBroadcast ? param.sizeMsg : minSizeClientMessageToBroadcast);
 
     if (nonopt < argc)
         cout << "WARNING: There is a non-option argument: " << argv[nonopt] << " ==> It won't be used" << endl;
@@ -224,25 +230,25 @@ struct param_t getParam(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-    struct param_t param{getParam(argc, argv)};
+    struct Param param{getParam(argc, argv)};
 
     // Variables used during experiment
-    measures_t measures(param.nb_messages * param.nb_clients);
-    std::latch broadcast_begin(param.nb_clients);
-    std::latch broadcast_end(param.nb_clients);
+    Measures measures(param.nbMsg * param.nbClients);
+    std::latch broadcastBegin(param.nbClients);
+    std::latch broadcastEnd(param.nbClients);
 
     // We launch all of the clients to make the experiment
-    vector<jthread> clients(param.nb_clients);
+    vector<jthread> clients(param.nbClients);
     for (auto& c : clients) {
-        c = jthread(client, std::ref(param), std::ref(measures), std::ref(broadcast_begin), std::ref(broadcast_end));
+        c = jthread(client, std::ref(param), std::ref(measures), std::ref(broadcastBegin), std::ref(broadcastEnd));
     }
     for (auto& c: clients)
         c.join();
 
     // Display statistics
-    measures.rtts.resize(measures.nb_rtts);
+    measures.rtts.resize(measures.nbRtts);
     std::ranges::sort(measures.rtts);
-    cout << "Ratio received / sent messages = " << measures.nb_rtts << " / " << param.nb_messages * param.nb_clients << " (" << measures.nb_rtts * 100 / param.nb_messages / param.nb_clients << "%)\n";
+    cout << "Ratio received / sent messages = " << measures.nbRtts << " / " << param.nbMsg * param.nbClients << " (" << measures.nbRtts * 100 / param.nbMsg / param.nbClients << "%)\n";
     cout << "Average = " << (std::reduce(measures.rtts.begin(), measures.rtts.end()) / measures.rtts.size()).count() << " ms\n";
     cout << "Min = " << measures.rtts[0].count() << " ms\n";
     cout << "Q1 = " << measures.rtts[measures.rtts.size()/4].count() << " ms\n";

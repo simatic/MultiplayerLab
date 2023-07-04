@@ -14,21 +14,21 @@ struct ForLength
     }
 };
 
-void tcp_send(boost::asio::ip::tcp::socket *psock, std::string const& s)
+void sendPacket(boost::asio::ip::tcp::socket *psock, std::string const& s)
 {
     ForLength forLength{s.length()};
-    std::stringstream o_stream;
+    std::stringstream oStream;
     {
-        cereal::BinaryOutputArchive oarchive(o_stream); // Create an output archive
+        cereal::BinaryOutputArchive oarchive(oStream); // Create an output archive
         oarchive(forLength); // Write the data to the archive
     } // archive goes out of scope, ensuring all contents are flushed
 
-    auto sWithLength = o_stream.str() + s;
+    auto sWithLength = oStream.str() + s;
 
     boost::asio::write(*psock, boost::asio::buffer(sWithLength.data(), sWithLength.length()));
 }
 
-std::string tcp_receive(boost::asio::ip::tcp::socket *psock)
+std::string receivePacket(boost::asio::ip::tcp::socket *psock)
 {
     // We read the length of the message
     size_t len;
