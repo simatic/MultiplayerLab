@@ -86,7 +86,7 @@ bool analyzePacket(const string &msgString, unsigned char& myId, Param const& pa
         }
         default:
         {
-            cerr << "ERROR : Unexpected serverMsgId (" << static_cast<int>(serverMsgId) << ")\n";
+            cerr << "ERROR: Unexpected serverMsgId (" << static_cast<int>(serverMsgId) << ")\n";
             exit(EXIT_FAILURE);
         }
     }
@@ -94,11 +94,25 @@ bool analyzePacket(const string &msgString, unsigned char& myId, Param const& pa
 
 void msgReceive(tcp::socket &sock, unsigned char &myId, Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd)
 {
-    for (;;)
+    try
     {
-        auto msgString{receivePacket(&sock)};
-        if (analyzePacket(msgString, myId, param, measures, broadcastBegin, broadcastEnd))
-            break;
+        for (;;)
+        {
+            auto msgString{receivePacket(&sock)};
+            if (analyzePacket(msgString, myId, param, measures, broadcastBegin, broadcastEnd))
+                break;
+        }
+    }
+    catch (boost::system::system_error& e)
+    {
+        if (e.code() == boost::asio::error::eof || e.code() == boost::asio::error::connection_reset)
+            // Server disconnection is signified with 
+            //  - boost::asio::error::eof for Linux
+            //  - boost::asio::error::connection_reset for Windows
+            cerr << "ERROR: Server has disconnected (probably because it crashed)\n";
+        else
+            cerr << "ERROR: Unexpected Boost Exception in thread msgReceive: " << e.what() << "\n";
+        exit(1);
     }
 }
 
@@ -164,9 +178,13 @@ void client(Param const& param, Measures & measures, std::latch &broadcastBegin,
         if (param.verbose)
             cout << "Client #" << static_cast<unsigned int>(myId) << " done\n";
     }
-    catch (std::exception& e)
+    catch (boost::system::system_error& e)
     {
-        std::cerr << "Exception: " << e.what() << "\n";
+        if (e.code() == boost::asio::error::connection_refused)
+            cerr << "ERROR: Could not connect to server, either because server is not started or it is not listening on the port " << param.port << " you specified in tcp_client arguments\n";
+        else
+            cerr << "ERROR: Unexpected Boost Exception in thread client: " << e.what() << "\n";
+        exit(1);
     }
 }
 

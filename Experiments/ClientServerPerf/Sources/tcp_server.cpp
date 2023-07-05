@@ -109,7 +109,7 @@ void analyzePacket(tcp::socket *psock, const string &msgString, Param const& par
         }
         default:
         {
-            cerr << "ERROR : Unexpected clientMsgTyp (" << static_cast<int>(clientMsgTyp) << ")\n";
+            cerr << "ERROR: Unexpected clientMsgTyp (" << static_cast<int>(clientMsgTyp) << ")\n";
             exit(EXIT_FAILURE);
         }
 
@@ -133,12 +133,17 @@ void session(unique_ptr<tcp::socket> upsock, Param const& param)
             if (param.verbose)
                 cout << "Client disconnected\n";
         }
+        else if (e.code() == boost::asio::error::connection_reset)
+        {
+            // Can only be experienced on Windows
+            cerr << "ERROR: Client disconnected abnormally (probably because it crashed)\n";
+            exit(1);
+        }
         else
-            std::cerr << "Unexpected Boost Exception in thread: " << e.what() << "\n";
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Unexpected non-Boost Exception in thread: " << e.what() << "\n";
+        {
+            cerr << "ERROR: Unexpected Boost Exception in thread session: " << e.what() << "\n";
+            exit(1);
+        }
     }
 }
 
