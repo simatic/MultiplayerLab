@@ -42,13 +42,9 @@ struct Param {
 };
 
 // Should return true if analyzePacket discovers client will not receive any more packets.
-bool analyzePacket(string_view msgSv, unsigned char& myId, Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd)
+bool analyzePacket(const string &msgString, unsigned char& myId, Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd)
 {
-    std::string msgString{msgSv};
-    std::istringstream msgStream{msgString };
-    unsigned char msgId;
-    msgStream >> msgId;
-    switch (ServerMsgId serverMsgId{ msgId }; serverMsgId)
+    switch (ServerMsgId serverMsgId{ static_cast<ServerMsgId>(msgString[0]) }; serverMsgId)
     {
         case ServerMsgId::AckDisconnectIntent :
             return true;
@@ -59,7 +55,7 @@ bool analyzePacket(string_view msgSv, unsigned char& myId, Param const& param, M
             return false;
         case ServerMsgId::BroadcastMessage :
         {
-            auto sbm {readDataInMsgStream<ServerBroadcastMessage>(msgStream)};
+            auto sbm {deserializeStruct<ServerBroadcastMessage>(msgString)};
             chrono::duration<double, std::milli> elapsed = std::chrono::system_clock::now() - sbm.sendTime;
             if (sbm.senderId == myId)
             {
@@ -67,7 +63,7 @@ bool analyzePacket(string_view msgSv, unsigned char& myId, Param const& param, M
             }
             if (param.verbose) {
                 cout << "Client #" << static_cast<unsigned int>(myId) << " : ";
-                cout << "Received broadcast message #" << sbm.messageId << " echoed from ";
+                cout << "Received broadcast message #" << sbm.msgNum << " echoed from ";
                 if (sbm.senderId == myId)
                     cout << "myself";
                 else
@@ -84,7 +80,7 @@ bool analyzePacket(string_view msgSv, unsigned char& myId, Param const& param, M
             return false;
         case ServerMsgId::IdResponse :
         {
-            auto sir {readDataInMsgStream<ServerIdResponse>(msgStream)};
+            auto sir {deserializeStruct<ServerIdResponse>(msgString)};
             myId = sir.id;
             return false;
         }
@@ -100,8 +96,8 @@ void msgReceive(tcp::socket &sock, unsigned char &myId, Param const& param, Meas
 {
     for (;;)
     {
-        auto msg_s{receivePacket(&sock)};
-        if (analyzePacket(msg_s, myId, param, measures, broadcastBegin, broadcastEnd))
+        auto msgString{receivePacket(&sock)};
+        if (analyzePacket(msgString, myId, param, measures, broadcastBegin, broadcastEnd))
             break;
     }
 }
@@ -130,7 +126,7 @@ void client(Param const& param, Measures & measures, std::latch &broadcastBegin,
                          std::ref(broadcastBegin), std::ref(broadcastEnd));
 
         // Send IdRequest to server
-        auto cir {prepareMsg<ClientMsgId, ClientIdRequest>(ClientMsgId::IdRequest, ClientIdRequest{param.nbClients})};
+        auto cir {serializeStruct<ClientIdRequest>(ClientIdRequest{ClientMsgId::IdRequest, param.nbClients})};
         sendPacket(&sock, cir);
 
         broadcastBegin.wait();
@@ -141,8 +137,8 @@ void client(Param const& param, Measures & measures, std::latch &broadcastBegin,
         for (unsigned int i = 0; i < param.nbMsg; ++i) {
             if (param.verbose)
                 cout << "Request to broadcast message #" << i << "\n";
-            auto s_cmtb {prepareMsg<ClientMsgId, ClientMessageToBroadcast>(ClientMsgId::MessageToBroadcast,
-                                                                           ClientMessageToBroadcast{myId, i,
+            auto s_cmtb {serializeStruct<ClientMessageToBroadcast>(ClientMessageToBroadcast{ClientMsgId::MessageToBroadcast,
+                                                                                                    myId, i,
                                                                                                     std::chrono::system_clock::now(),
                                                                                                     std::string(
                                                                                                             param.sizeMsg -
@@ -153,15 +149,13 @@ void client(Param const& param, Measures & measures, std::latch &broadcastBegin,
         }
 
         // Send DoneSendingMessages to server
-        auto cdsm {prepareMsg<ClientMsgId, ClientDoneSendingMessages>(ClientMsgId::DoneSendingMessages,
-                                                                      ClientDoneSendingMessages{myId})};
+        auto cdsm {serializeStruct<ClientDoneSendingMessages>(ClientDoneSendingMessages{ClientMsgId::DoneSendingMessages, myId})};
         sendPacket(&sock, cdsm);
 
         broadcastEnd.wait();
 
         // Send DisconnectIntent to server
-        auto cdi {prepareMsg<ClientMsgId, ClientDisconnectIntent>(ClientMsgId::DisconnectIntent,
-                                                                  ClientDisconnectIntent{myId})};
+        auto cdi {serializeStruct<ClientDisconnectIntent>(ClientDisconnectIntent{ClientMsgId::DisconnectIntent, myId})};
         sendPacket(&sock, cdi);
 
         // msgReceive thread will exit when it has received ServerMsgId::AckDisconnectIntent)
@@ -249,7 +243,7 @@ int main(int argc, char* argv[])
     std::latch broadcastBegin(param.nbClients);
     std::latch broadcastEnd(param.nbClients);
 
-    // We launch all of the clients to make the experiment
+    // We launch all the clients to make the experiment
     vector<jthread> clients(param.nbClients);
     for (auto& c : clients) {
         c = jthread(client, std::ref(param), std::ref(measures), std::ref(broadcastBegin), std::ref(broadcastEnd));

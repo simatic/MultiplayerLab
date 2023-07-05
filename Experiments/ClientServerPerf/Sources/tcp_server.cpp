@@ -31,22 +31,18 @@ void broadcastMsg(std::string const& s, map<unsigned char, tcp::socket*> const& 
 
 }
 
-void analyzePacket(tcp::socket *psock, string_view msgSv, Param const& param)
+void analyzePacket(tcp::socket *psock, const string &msgString, Param const& param)
 {
     static atomic_uchar lastId{0};
     static atomic_int32_t nbBroadcastingClients{0};
     static map<unsigned char, tcp::socket*> mapEndPoint;
     static std::shared_timed_mutex rwMutex;
-    std::string msgString{msgSv};
-    std::istringstream msgStream{msgString };
-    unsigned char msgIid;
-    msgStream >> msgIid;
-    switch (ClientMsgId clientMsgTyp{ msgIid }; clientMsgTyp)
+    switch (ClientMsgId clientMsgTyp{ static_cast<ClientMsgId>(msgString[0]) }; clientMsgTyp)
     {
         case ClientMsgId::DisconnectIntent :
         {
-            auto cdi{readDataInMsgStream<ClientDisconnectIntent>(msgStream)};
-            auto s{prepareMsgWithNoData<ServerMsgId>(ServerMsgId::AckDisconnectIntent)};
+            auto cdi{deserializeStruct<ClientDisconnectIntent>(msgString)};
+            auto s{serializeStruct<ServerAckDisconnectIntent>(ServerAckDisconnectIntent{ServerMsgId::AckDisconnectIntent})};
             sendPacket(psock, s);
             // Remove psock from vecsock
             {
@@ -59,8 +55,8 @@ void analyzePacket(tcp::socket *psock, string_view msgSv, Param const& param)
         }
         case ClientMsgId::DoneSendingMessages :
         {
-            auto cdsm{readDataInMsgStream<ClientDoneSendingMessages>(msgStream)};
-            auto s{prepareMsgWithNoData<ServerMsgId>(ServerMsgId::AckDoneSendingMessages)};
+            auto cdsm{deserializeStruct<ClientDoneSendingMessages>(msgString)};
+            auto s{serializeStruct<ServerAckDoneSendingMessages>(ServerAckDoneSendingMessages{ServerMsgId::AckDoneSendingMessages})};
             sendPacket(psock, s);
             if (param.verbose)
                 cout << "Client #" << static_cast<unsigned int>(cdsm.id) << " announces it is done broadcasting messages\n";
@@ -68,7 +64,7 @@ void analyzePacket(tcp::socket *psock, string_view msgSv, Param const& param)
             {
                 if (param.verbose)
                     cout << "There is no more broadcasting clients\n";
-                auto sbe{prepareMsgWithNoData<ServerMsgId>(ServerMsgId::BroadcastEnd)};
+                auto sbe{serializeStruct<ServerBroadcastEnd>(ServerBroadcastEnd{ServerMsgId::BroadcastEnd})};
                 {
                     std::shared_lock readerLock(rwMutex);
                     broadcastMsg(sbe, mapEndPoint);
@@ -78,10 +74,9 @@ void analyzePacket(tcp::socket *psock, string_view msgSv, Param const& param)
         }
         case ClientMsgId::IdRequest :
         {
-            auto cir{readDataInMsgStream<ClientIdRequest>(msgStream)};
+            auto cir{deserializeStruct<ClientIdRequest>(msgString)};
             unsigned char idToReturn = ++lastId;
-            auto s{prepareMsg<ServerMsgId, ServerIdResponse>(ServerMsgId::IdResponse,
-                                                             ServerIdResponse{idToReturn})};
+            auto s{serializeStruct<ServerIdResponse>(ServerIdResponse{ServerMsgId::IdResponse, idToReturn})};
             sendPacket(psock, s);
             {
                 std::lock_guard writerLock(rwMutex);
@@ -93,7 +88,7 @@ void analyzePacket(tcp::socket *psock, string_view msgSv, Param const& param)
                     if (param.verbose)
                         cout << "All clients are connected: They can start broadcasting\n";
                     nbBroadcastingClients = cir.nbClients;
-                    auto sbb{prepareMsgWithNoData<ServerMsgId>(ServerMsgId::BroadcastBegin) };
+                    auto sbb{serializeStruct<ServerBroadcastBegin>(ServerBroadcastBegin{ServerMsgId::BroadcastBegin})};
                     broadcastMsg(sbb, mapEndPoint);
                 }
             }
@@ -101,11 +96,11 @@ void analyzePacket(tcp::socket *psock, string_view msgSv, Param const& param)
         }
         case ClientMsgId::MessageToBroadcast :
         {
-            auto cmtb{readDataInMsgStream<ClientMessageToBroadcast>(msgStream)};
-            auto s {prepareMsg<ServerMsgId, ServerBroadcastMessage>(ServerMsgId::BroadcastMessage,
-                                                                    ServerBroadcastMessage{cmtb.senderId,
-                                                                                           cmtb.messageId,
-                                                                                           cmtb.sendTime, cmtb.filler})};
+            auto cmtb{deserializeStruct<ClientMessageToBroadcast>(msgString)};
+            auto s {serializeStruct<ServerBroadcastMessage>(ServerBroadcastMessage{ServerMsgId::BroadcastMessage,
+                                                                                   cmtb.senderId,
+                                                                                   cmtb.msgNum,
+                                                                                   cmtb.sendTime, cmtb.filler})};
             {
                 std::shared_lock readerLock(rwMutex);
                 broadcastMsg(s, mapEndPoint);

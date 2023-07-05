@@ -9,36 +9,6 @@
 constexpr size_t maxLength{65515};
 
 //---------------------------------------------------
-// Generic message data
-//---------------------------------------------------
-struct MsgWithId
-{
-    unsigned char id{};
-
-    // This method lets cereal know which data members to serialize
-    template<class Archive>
-    void serialize(Archive& archive)
-    {
-        archive(id); // serialize things by passing them to the archive
-    }
-};
-
-struct MsgForBroadcastSample
-{
-    unsigned char senderId{};
-    unsigned int messageId{};
-    std::chrono::time_point<std::chrono::system_clock> sendTime;
-    std::string filler;
-
-    // This method lets cereal know which data members to serialize
-    template<class Archive>
-    void serialize(Archive& archive)
-    {
-        archive(senderId, messageId, sendTime, filler); // serialize things by passing them to the archive
-    }
-};
-
-//---------------------------------------------------
 // Packets sent by the server
 //---------------------------------------------------
 enum class ServerMsgId : unsigned char
@@ -51,8 +21,51 @@ enum class ServerMsgId : unsigned char
     IdResponse
 };
 
-using ServerBroadcastMessage = MsgForBroadcastSample;
-using ServerIdResponse = MsgWithId;
+struct GenericServerMsgWithoutData
+{
+    ServerMsgId msgId{};
+
+    // This method lets cereal know which data members to serialize
+    template<class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(msgId); // serialize things by passing them to the archive
+    }
+};
+
+using ServerAckDoneSendingMessages = GenericServerMsgWithoutData;
+using ServerAckDisconnectIntent = GenericServerMsgWithoutData;
+using ServerBroadcastBegin = GenericServerMsgWithoutData;
+using ServerBroadcastEnd = GenericServerMsgWithoutData;
+
+struct ServerBroadcastMessage
+{
+    ServerMsgId msgId{};
+    unsigned char senderId{};
+    unsigned int msgNum{};
+    std::chrono::time_point<std::chrono::system_clock> sendTime;
+    std::string filler;
+
+    // This method lets cereal know which data members to serialize
+    template<class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(msgId, senderId, msgNum, sendTime, filler); // serialize things by passing them to the archive
+    }
+};
+
+struct ServerIdResponse
+{
+    ServerMsgId msgId{};
+    unsigned char id{};
+
+    // This method lets cereal know which data members to serialize
+    template<class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(msgId, id); // serialize things by passing them to the archive
+    }
+};
 
 //---------------------------------------------------
 // Packets sent by the client
@@ -65,70 +78,84 @@ enum class ClientMsgId : unsigned char
     MessageToBroadcast
 };
 
-using ClientDisconnectIntent = MsgWithId;
-using ClientDoneSendingMessages = MsgWithId;
+struct GenericClientMsgWithId
+{
+    ClientMsgId msgId{};
+    unsigned char id{};
+
+    // This method lets cereal know which data members to serialize
+    template<class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(msgId, id); // serialize things by passing them to the archive
+    }
+};
+
+using ClientDisconnectIntent = GenericClientMsgWithId;
+using ClientDoneSendingMessages = GenericClientMsgWithId;
 
 struct ClientIdRequest
 {
+    ClientMsgId msgId{};
     int nbClients{};
 
     // This method lets cereal know which data members to serialize
     template<class Archive>
     void serialize(Archive& archive)
     {
-        archive(nbClients); // serialize things by passing them to the archive
+        archive(msgId, nbClients); // serialize things by passing them to the archive
     }
 };
 
-using ClientMessageToBroadcast = MsgForBroadcastSample;
+struct ClientMessageToBroadcast
+{
+    ClientMsgId msgId{};
+    unsigned char senderId{};
+    unsigned int msgNum{};
+    std::chrono::time_point<std::chrono::system_clock> sendTime;
+    std::string filler;
+
+    // This method lets cereal know which data members to serialize
+    template<class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(msgId, senderId, msgNum, sendTime, filler); // serialize things by passing them to the archive
+    }
+};
 
 //---------------------------------------------------
 // Templates
 //---------------------------------------------------
 
-/// @brief Returns data of message contained in msgStream (Note: msg_id has already been read in msgStream)
+/// @brief Returns structured deserialized from msgStream
 /// @details
-/// Usage: Use <tt>auto data = readDataInMsgStream<DataStructName>(msgStream)</tt>
-/// @tparam D Name of (Data) structure to be read
-/// @args msgStream string stream containing message
+/// Usage: Use <tt>auto data = deserializeStruct<StructName>(msgStream)</tt>
+/// @tparam S Name of structure to be read
+/// @args msgString String containing message
 /// @return Data structure read
-template <typename D>
-D readDataInMsgStream(std::istringstream &msgStream)
+template <typename S>
+S deserializeStruct(const std::string &msgString)
 {
-    D data{};
-    cereal::BinaryInputArchive iarchive(msgStream); // Create an input archive
-    iarchive(data); // Read the data from the archive
-    return data;
+    std::istringstream msgStream{msgString};
+    cereal::BinaryInputArchive archive(msgStream); // Create an input archive
+    S structure{};
+    archive(structure); // Read the structure from the archive
+    return structure;
 }
 
-/// @brief Returns a string containing a message with msgId and no data
-/// Usage: Use <tt>auto sv = prepareMsgWithNoData<EnumName>(msgId)</tt>
-/// @tparam E Name of msgId Enum
+/// @brief Returns a string containing serialized structure
+/// Usage: Use <tt>auto sv = prepareMsg<EnumName,DataStructName>(msgId, structure)</tt>
+/// @tparam S Name of (Data) structure to be written in message
 /// @args msgId to be stored in message
-/// @return string containing message
-template <typename E>
-std::string prepareMsgWithNoData(E msgId)
+/// @args structure to be stored in message
+/// @return string containing serialized structure
+template <typename S>
+std::string serializeStruct(S structure)
 {
     std::stringstream o_stream;
-    o_stream << static_cast<unsigned char>(msgId);
-    return o_stream.str();
-}
-
-/// @brief Returns a string containing a message with msgId and data
-/// Usage: Use <tt>auto sv = prepareMsg<EnumName,DataStructName>(msgId, data)</tt>
-/// @tparam E Name of msgId Enum
-/// @tparam D Name of (Data) structure to be written in message
-/// @args msgId to be stored in message
-/// @args data to be stored in message
-/// @return string containing message
-template <typename E, typename D>
-std::string prepareMsg(E msgId, D data)
-{
-    std::stringstream o_stream;
-    o_stream << static_cast<unsigned char>(msgId);
     {
-        cereal::BinaryOutputArchive oarchive(o_stream); // Create an output archive
-        oarchive(data); // Write the data to the archive
+        cereal::BinaryOutputArchive archive(o_stream); // Create an output archive
+        archive(structure); // Write the structure to the archive
     } // archive goes out of scope, ensuring all contents are flushed
     return o_stream.str();
 }

@@ -13,13 +13,9 @@ using boost::asio::ip::udp;
 
 using namespace std;
 
-void analyze_packet(string_view msg_sv, unsigned char& myId)
+void analyze_packet(const string_view &msgString, unsigned char& myId)
 {
-    std::string msg_string{msg_sv};
-    std::istringstream msg_stream{ msg_string };
-    unsigned char msg_typ;
-    msg_stream >> msg_typ;
-    switch (ServerMsgId server_msg_typ{msg_typ }; server_msg_typ)
+    switch (ServerMsgId server_msg_typ{ static_cast<ServerMsgId>(msgString[0]) }; server_msg_typ)
     {
         case ServerMsgId::IdResponse :
             struct ServerIdResponse sir;
@@ -36,7 +32,7 @@ void analyze_packet(string_view msg_sv, unsigned char& myId)
                 iarchive(sbm); // Read the data from the archive
             }
             std::chrono::duration<double, std::milli> elapsed = std::chrono::system_clock::now() - sbm.sendTime;
-            cout << "Received broadcast message #" << sbm.messageId << " echoed from ";
+            cout << "Received broadcast message #" << sbm.msgNum << " echoed from ";
             if (sbm.senderId == myId)
                 cout << "myself";
             else

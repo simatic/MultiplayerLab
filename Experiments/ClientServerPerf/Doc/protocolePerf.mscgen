@@ -17,24 +17,24 @@ msc {
 	s=>c2[label="ServerMsgId::IdResponse(id=2)"];
 	s=>c1,
 	s=>c2[label="ServerMsgId::BroadcastBegin()"];
-	c1=>s[label="ClientMsgId::MessageToBroadcast(senderId=1,messageId=1,sendTime=time_c1_1,filler)"];
+	c1=>s[label="ClientMsgId::MessageToBroadcast(senderId=1,msgNum=1,sendTime=time_c1_1,filler)"];
 	s=>c1,
-	s=>c2[label="ServerMsgId::BroadcastMessage(senderId=1,messageId=1,sendTime=time_c1_1,filler)"];
+	s=>c2[label="ServerMsgId::BroadcastMessage(senderId=1,msgNum=1,sendTime=time_c1_1,filler)"];
 	c1 note c1 [label="Store time-time_c1_1 in measures.rtts"];
-	c2=>s[label="ClientMsgId::MessageToBroadcast(senderId=2,messageId=1,sendTime=time_c2_1,filler)"];
+	c2=>s[label="ClientMsgId::MessageToBroadcast(senderId=2,msgNum=1,sendTime=time_c2_1,filler)"];
 	s=>c1,
-	s=>c2[label="ServerMsgId::BroadcastMessage(senderId=2,messageId=1,sendTime=time_c2_1,filler)"];
+	s=>c2[label="ServerMsgId::BroadcastMessage(senderId=2,msgNum=1,sendTime=time_c2_1,filler)"];
 	c2 note c2 [label="Store time-time_c2_1 in measures.rtts"];
 	...;
-	c1=>s[label="ClientMsgId::MessageToBroadcast(senderId=1,messageId=9,sendTime=time_c1_9,filler)"];
+	c1=>s[label="ClientMsgId::MessageToBroadcast(senderId=1,msgNum=9,sendTime=time_c1_9,filler)"];
 	s=>c1,
-	s=>c2[label="ServerMsgId::BroadcastMessage(senderId=1,messageId=9,sendTime=time_c1_9,filler)"];
+	s=>c2[label="ServerMsgId::BroadcastMessage(senderId=1,msgNum=9,sendTime=time_c1_9,filler)"];
 	c1 note c1 [label="Store time-time_c1_9 in measures.rtts"];
 	c1=>s[label="ClientMsgId::DoneSendingMessage(id=1)"];
 	s=>c1[label="ServerMsgId::AckDoneSendingMessage"];
-	c2=>s[label="ClientMsgId::MessageToBroadcast(senderId=2,messageId=9,sendTime=time_c2_9,filler)"];
+	c2=>s[label="ClientMsgId::MessageToBroadcast(senderId=2,msgNum=9,sendTime=time_c2_9,filler)"];
 	s=>c1,
-	s=>c2[label="ServerMsgId::BroadcastMessage(senderId=2,messageId=9,sendTime=time_c2_9,filler)"];
+	s=>c2[label="ServerMsgId::BroadcastMessage(senderId=2,msgNum=9,sendTime=time_c2_9,filler)"];
 	c2 note c2 [label="Store time-time_c2_9 in measures.rtts"];
 	c2=>s[label="ClientMsgId::DoneSendingMessage(id=2)"];
 	s=>c2[label="ServerMsgId::AckDoneSendingMessage"];
