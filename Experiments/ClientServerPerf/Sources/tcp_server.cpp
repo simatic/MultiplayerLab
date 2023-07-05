@@ -147,19 +147,31 @@ void session(unique_ptr<tcp::socket> upsock, Param const& param)
     }
 }
 
-[[noreturn]] void server(boost::asio::io_service& ioService, Param const& param)
+[[noreturn]] void server(Param const& param)
 {
-    tcp::acceptor a(ioService, tcp::endpoint(tcp::v4(), static_cast<short>(param.port)));
-    for (;;)
+    try
     {
-        auto upsock = make_unique<tcp::socket>(ioService);
-        a.accept(*upsock);
+        boost::asio::io_service ioService;
+        tcp::acceptor a(ioService, tcp::endpoint(tcp::v4(), static_cast<short>(param.port)));
+        for (;;)
+        {
+            auto upsock = make_unique<tcp::socket>(ioService);
+            a.accept(*upsock);
 
-        boost::asio::ip::tcp::no_delay option(true);
-        upsock->set_option(option);
+            boost::asio::ip::tcp::no_delay option(true);
+            upsock->set_option(option);
 
-        auto t = jthread(session, std::move(upsock), ref(param));
-        t.detach();
+            auto t = jthread(session, std::move(upsock), ref(param));
+            t.detach();
+        }
+    }
+    catch (boost::system::system_error& e)
+    {
+        if (e.code() == boost::asio::error::address_in_use)
+            cerr << "ERROR: Server cannot bind to port " << param.port << " (probably because there is an other server running and already bound to this port)\n";
+        else
+            cerr << "ERROR: Unexpected Boost Exception in function server(): " << e.what() << "\n";
+        exit(1);
     }
 }
 
@@ -212,15 +224,5 @@ int main(int argc, char* argv[])
     //
     // Launch the application
     //
-    try
-    {
-        boost::asio::io_service ioService;
-        server(ioService, param);
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Exception: " << e.what() << "\n";
-    }
-
-    return 0;
+    server(param);
 }

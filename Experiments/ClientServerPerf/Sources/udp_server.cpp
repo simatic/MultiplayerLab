@@ -100,13 +100,24 @@ void analyzePacket(udp::socket &sock, udp::endpoint const& senderEndpoint, const
 
 [[noreturn]] void server(Param const& param)
 {
-    boost::asio::io_service ioService;
-    udp::socket sock(ioService, udp::endpoint(udp::v4(), static_cast<short>(param.port)));
-    for (;;)
+    try
     {
-        udp::endpoint senderEndpoint;
-        auto msgString{receivePacket(sock, senderEndpoint)};
-        analyzePacket(sock, senderEndpoint, msgString, param);
+        boost::asio::io_service ioService;
+        udp::socket sock(ioService, udp::endpoint(udp::v4(), static_cast<short>(param.port)));
+        for (;;)
+        {
+            udp::endpoint senderEndpoint;
+            auto msgString{receivePacket(sock, senderEndpoint)};
+            analyzePacket(sock, senderEndpoint, msgString, param);
+        }
+    }
+    catch (boost::system::system_error& e)
+    {
+        if (e.code() == boost::asio::error::address_in_use)
+            cerr << "ERROR: Server cannot bind to port " << param.port << " (probably because there is an other server running and already bound to this port)\n";
+        else
+            cerr << "ERROR: Unexpected Boost Exception in function server(): " << e.what() << "\n";
+        exit(1);
     }
 }
 
