@@ -12,6 +12,8 @@ endif()
 
 set (BUILD_SHARED_LIBS FALSE)
 
+set(CMAKE_CXX_STANDARD 20)
+
 #
 # We include the subset of Boost we will be using.
 #
@@ -39,13 +41,40 @@ execute_process(COMMAND ${CMAKE_COMMAND} --build .
         RESULT_VARIABLE result
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cereal-download )
 if(result)
-    message(FATAL_ERROR "Build step for enet failed: ${result}")
+    message(FATAL_ERROR "Build step for cereal failed: ${result}")
 endif()
 
 # Give access to cereal include directory
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/cereal-src/include")
 
-set(CMAKE_CXX_STANDARD 20)
+#
+# ENet : A simple FetchContent does not work ==> We generate its library
+# in the same manner as google-test
+#
+
+# Download and unpack ENet at configure time
+configure_file(CMakeLists_enet.txt.in enet-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/enet-download )
+if(result)
+    message(FATAL_ERROR "CMake step for enet failed: ${result}")
+endif()
+if(WIN32)
+    # Code of ENet win32.c contains calls to deprecated APIs. The following flag disable warnings related to this problem.
+    add_compile_definitions(_WINSOCK_DEPRECATED_NO_WARNINGS)
+endif()
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/enet-download )
+if(result)
+    message(FATAL_ERROR "Build step for enet failed: ${result}")
+endif()
+
+# Add enet directly to our build. This defines enet target
+add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/enet-src
+        EXCLUDE_FROM_ALL)
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/enet-src/include")
 
 add_subdirectory(Sources)
 
