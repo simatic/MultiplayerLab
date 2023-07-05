@@ -19,9 +19,6 @@ using boost::asio::ip::tcp;
 using namespace std;
 using namespace mlib;
 
-// The following value has been found experimentally when filler field of ClientMessageToBroadcast has size 0
-constexpr int minSizeClientMessageToBroadcast = 22;
-
 struct Measures {
     explicit Measures(size_t nb_rtts_max)
     : rtts(nb_rtts_max)
@@ -69,7 +66,7 @@ bool analyzePacket(const string &msgString, unsigned char& myId, Param const& pa
                 else
                     cout << "client " << static_cast<unsigned int>(sbm.senderId);
                 // C++20 operator<< is not yet implemented for duration in gcc.
-                // Thus, we cannot write: cout << " in " << elapsed << "\n";
+                // Thus, we cannot write: " in " << elapsed << "\n";
                 // ==> We do it manually.
                 cout << " in " << elapsed.count() << " ms\n";
             }

@@ -1,130 +1,254 @@
 //
-// Application to make statistics on udp
-// inspired by blocking_udp_echo_client.cpp (from https://www.boost.org/doc/libs/1_35_0/doc/html/boost_asio/example/echo/blocking_udp_echo_client.cpp)
+// Application to make statistics on tcp
+// inspired by blocking_tcp_echo_client.cpp (from https://www.boost.org/doc/libs/1_35_0/doc/html/boost_asio/example/echo/blocking_tcp_echo_client.cpp)
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
 
 #include <iostream>
 #include <thread>
+#include <vector>
 #include <boost/asio.hpp>
+#include <numeric>
+#include <latch>
 #include "common.h"
+#include "options.h"
+#include "OptParserExtended.h"
+#include "udp_communication.h"
 
 using boost::asio::ip::udp;
-
 using namespace std;
+using namespace mlib;
 
-void analyze_packet(const string_view &msgString, unsigned char& myId)
-{
-    switch (ServerMsgId server_msg_typ{ static_cast<ServerMsgId>(msgString[0]) }; server_msg_typ)
+struct Measures {
+    explicit Measures(size_t nb_rtts_max)
+    : rtts(nb_rtts_max)
     {
-        case ServerMsgId::IdResponse :
-            struct ServerIdResponse sir;
-            {
-                cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
-                iarchive(sir); // Read the data from the archive
-            }
-            myId = sir.id;
-            break;
+    }
+    vector<std::chrono::duration<double, std::milli>> rtts; // Round-Trip Time
+    atomic_size_t nbRtts{0};
+};
+
+struct Param {
+    string host;
+    string port;
+    int nbMsg{0};
+    chrono::duration<int64_t, ratio<1, 1000>> sendInterval{0};
+    int sizeMsg{0};
+    int nbClients{0};
+    bool verbose{false};
+};
+
+// Should return true if analyzePacket discovers client will not receive any more packets.
+bool analyzePacket(const string &msgString, unsigned char& myId, Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd)
+{
+    switch (ServerMsgId serverMsgId{ static_cast<ServerMsgId>(msgString[0]) }; serverMsgId)
+    {
+        case ServerMsgId::AckDisconnectIntent :
+            return true;
+        case ServerMsgId::AckDoneSendingMessages :
+            return false;
+        case ServerMsgId::BroadcastBegin :
+            broadcastBegin.count_down();
+            return false;
         case ServerMsgId::BroadcastMessage :
-            struct ServerBroadcastMessage sbm;
-            {
-                cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
-                iarchive(sbm); // Read the data from the archive
-            }
-            std::chrono::duration<double, std::milli> elapsed = std::chrono::system_clock::now() - sbm.sendTime;
-            cout << "Received broadcast message #" << sbm.msgNum << " echoed from ";
+        {
+            auto sbm {deserializeStruct<ServerBroadcastMessage>(msgString)};
+            chrono::duration<double, std::milli> elapsed = std::chrono::system_clock::now() - sbm.sendTime;
             if (sbm.senderId == myId)
-                cout << "myself";
-            else
-                cout << "client " << static_cast<unsigned int>(sbm.senderId);
-            // C++20 operator<< is not yet implemented for duration in gcc.
-            // Thus, we cannot write: cout << " in " << elapsed << "\n";
-            // ==> We do it manually.
-            cout << " in " << elapsed.count() << " ms\n";
+            {
+                measures.rtts[measures.nbRtts++] = elapsed;
+            }
+            if (param.verbose) {
+                cout << "Client #" << static_cast<unsigned int>(myId) << " : ";
+                cout << "Received broadcast message #" << sbm.msgNum << " echoed from ";
+                if (sbm.senderId == myId)
+                    cout << "myself";
+                else
+                    cout << "client " << static_cast<unsigned int>(sbm.senderId);
+                // C++20 operator<< is not yet implemented for duration in gcc.
+                // Thus, we cannot write: " in " << elapsed << "\n";
+                // ==> We do it manually.
+                cout << " in " << elapsed.count() << " ms\n";
+            }
+            return false;
+        }
+        case ServerMsgId::BroadcastEnd :
+            broadcastEnd.count_down();
+            return false;
+        case ServerMsgId::IdResponse :
+        {
+            auto sir {deserializeStruct<ServerIdResponse>(msgString)};
+            myId = sir.id;
+            return false;
+        }
+        default:
+        {
+            cerr << "ERROR: Unexpected serverMsgId (" << static_cast<int>(serverMsgId) << ")\n";
+            exit(EXIT_FAILURE);
+        }
+    }
+}
+
+void msgReceive(udp::socket &sock, unsigned char &myId, Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd)
+{
+    for (;;)
+    {
+        udp::endpoint unusedSenderEndpoint; // It is always the server endpoint
+        auto msgString{receivePacket(sock, unusedSenderEndpoint)};
+        if (analyzePacket(msgString, myId, param, measures, broadcastBegin, broadcastEnd))
             break;
     }
 }
 
-[[noreturn]]void msg_receive(udp::socket &s, unsigned char &myId)
+void client(Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd)
 {
-    for (;;)
-    {
-        char msg[maxLength];
-        udp::endpoint sender_endpoint;
-        size_t msg_length = s.receive_from(
-                boost::asio::buffer(msg, maxLength), sender_endpoint);
-        std::string_view msg_sv{msg, msg_length};
-        analyze_packet(msg_sv, myId);
+    boost::asio::io_service ioService;
+
+    udp::socket sock(ioService, udp::endpoint(udp::v4(), 0));
+
+    udp::resolver resolver(ioService);
+    udp::resolver::query query(udp::v4(), param.host, param.port);
+    udp::resolver::iterator iterator = resolver.resolve(query);
+    udp::endpoint serverEndpoint = *iterator;
+
+    unsigned char myId{ 0 };
+
+    // Create a thread for receiving data
+    auto t = jthread(msgReceive, std::ref(sock), std::ref(myId), std::ref(param), std::ref(measures),
+                     std::ref(broadcastBegin), std::ref(broadcastEnd));
+
+    // Send IdRequest to server
+    auto cir {serializeStruct<ClientIdRequest>(ClientIdRequest{ClientMsgId::IdRequest, param.nbClients})};
+    sendPacket(sock, cir, serverEndpoint);
+
+    broadcastBegin.wait();
+
+    if (param.verbose)
+        cout << "My Id which is: " << static_cast<unsigned int>(myId) << " and I can start broadcasting\n";
+
+    for (unsigned int i = 0; i < param.nbMsg; ++i) {
+        if (param.verbose)
+            cout << "Request to broadcast message #" << i << "\n";
+        auto s_cmtb {serializeStruct<ClientMessageToBroadcast>(ClientMessageToBroadcast{ClientMsgId::MessageToBroadcast,
+                                                                                        myId, i,
+                                                                                        std::chrono::system_clock::now(),
+                                                                                        std::string(
+                                                                                                param.sizeMsg -
+                                                                                                minSizeClientMessageToBroadcast,
+                                                                                                0)})};
+        sendPacket(sock, s_cmtb, serverEndpoint);
+        this_thread::sleep_for(param.sendInterval);
     }
+
+    // Send DoneSendingMessages to server
+    auto cdsm {serializeStruct<ClientDoneSendingMessages>(ClientDoneSendingMessages{ClientMsgId::DoneSendingMessages, myId})};
+    sendPacket(sock, cdsm, serverEndpoint);
+
+    broadcastEnd.wait();
+
+    // Send DisconnectIntent to server
+    auto cdi {serializeStruct<ClientDisconnectIntent>(ClientDisconnectIntent{ClientMsgId::DisconnectIntent, myId})};
+    sendPacket(sock, cdi, serverEndpoint);
+
+    // msgReceive thread will exit when it has received ServerMsgId::AckDisconnectIntent)
+    t.join();
+
+    if (param.verbose)
+        cout << "Client #" << static_cast<unsigned int>(myId) << " done\n";
 }
 
 int main(int argc, char* argv[])
 {
-    unsigned char myId{ 0 };
-    try
+    //
+    // Take care of program arguments
+    //
+    OptParserExtended parser{
+            "h|help \t Show help message",
+            "H:host hostname \t Host (or IP address) to connect to",
+            "p:port port_number \t Port to connect to",
+            "n:nbMsg number \t Number of messages to be sent",
+            "i:interval time_in_milliseconds \t Time interval between two sending of messages by a single client",
+            "s:size size_in_bytes \t Size of messages sent by a client (must be in interval [22,65515])",
+            "c:clients number \t Number of clients which send messages to server",
+            "v|verbose \t [optional] Verbose display required"
+    };
+
+    int nonopt;
+    if (int ret ; (ret = parser.parse (argc, argv, &nonopt)) != 0)
     {
-        if (argc != 3)
-        {
-          std::cerr << "Usage: blocking_udp_echo_client <host> <port>\n";
-          return 1;
-        }
-
-        boost::asio::io_service io_service;
-
-        udp::socket s(io_service, udp::endpoint(udp::v4(), 0));
-
-        udp::resolver resolver(io_service);
-        udp::resolver::query query(udp::v4(), argv[1], argv[2]);
-        udp::resolver::iterator iterator = resolver.resolve(query);
-
-        // Create a thread for receiving data
-        auto t = jthread(msg_receive, std::ref(s), std::ref(myId));
-        t.detach();
-
-        // Send IdRequest to server
-        stringstream ir_stream;
-        ir_stream << static_cast<unsigned char>(ClientMsgId::IdRequest);
-        std::string_view ir_sv{ ir_stream.view() };
-        s.send_to(boost::asio::buffer(ir_sv.data(), ir_sv.length()), *iterator);
-
-        // Wait for IdResponse from server (received by msgReceive thread)
-        while (myId == 0)
-        {
-            this_thread::sleep_for(50ms);
-        }
-
-        cout << "Received my Id which is: " << static_cast<unsigned int>(myId) << "\n";
-
-        for (unsigned int i = 0; i < 10; ++i) {
-            cout << "Request to broadcast message #" << i << "\n";
-            std::stringstream cmtb_stream;
-            cmtb_stream << static_cast<unsigned char>(ClientMsgId::MessageToBroadcast);
-            {
-                cereal::BinaryOutputArchive oarchive(cmtb_stream); // Create an output archive
-                struct ClientMessageToBroadcast cmtb { myId, i, std::chrono::system_clock::now() };
-                oarchive(cmtb); // Write the data to the archive
-            } // archive goes out of scope, ensuring all contents are flushed
-            std::string_view cmtb_sv{ cmtb_stream.view() };
-            s.send_to(boost::asio::buffer(cmtb_sv.data(), cmtb_sv.length()), *iterator);
-
-            this_thread::sleep_for(500ms);
-        }
-
-        // Send DisconnectInfo to server
-        stringstream di_stream;
-        di_stream << static_cast<unsigned char>(ClientMsgId::DisconnectInfo);
-        {
-            cereal::BinaryOutputArchive oarchive(di_stream); // Create an output archive
-            struct ClientDisconnectInfo cdi { myId };
-            oarchive(cdi); // Write the data to the archive
-        } // archive goes out of scope, ensuring all contents are flushed
-        std::string_view di_sv{ di_stream.view() };
-        s.send_to(boost::asio::buffer(di_sv.data(), di_sv.length()), *iterator);
+        if (ret == 1)
+            cerr << "Unknown option: " << argv[nonopt] << " Valid options are : " << endl
+                 << parser.synopsis () << endl;
+        else if (ret == 2)
+            cerr << "Option " << argv[nonopt] << " requires an argument." << endl;
+        else if (ret == 3)
+            cerr << "Invalid options combination: " << argv[nonopt] << endl;
+        exit (1);
     }
-    catch (std::exception& e)
+    if ((argc == 1) || parser.hasopt ('h'))
     {
-        std::cerr << "Exception: " << e.what() << "\n";
+        //No arguments on command line or help required. Show help and exit.
+        cerr << "Usage:" << endl;
+        cerr << parser.synopsis () << endl;
+        cerr << "Where:" << endl
+             << parser.description () << endl;
+        exit (0);
     }
+
+    struct Param param{
+            parser.getoptStringRequired('H'),
+            parser.getoptStringRequired('p'),
+            parser.getoptIntRequired('n'),
+            chrono::milliseconds(parser.getoptIntRequired('i')),
+            parser.getoptIntRequired('s'),
+            parser.getoptIntRequired('c'),
+            parser.hasopt ('v')
+    };
+    if (param.sizeMsg < minSizeClientMessageToBroadcast || param.sizeMsg > maxLength)
+    {
+        cerr << "ERROR: Argument for size of messages is " << param.sizeMsg
+             << " which is not in interval [ " << minSizeClientMessageToBroadcast << " , " << maxLength << " ]"
+             << endl
+             << parser.synopsis () << endl;
+        exit(1);
+    }
+
+    if (nonopt < argc)
+    {
+        cerr << "ERROR: There is a non-option argument '" << argv[nonopt]
+             << "' which cannot be understood. Please run again program but without this argument" << endl
+             << parser.synopsis () << endl;
+        exit(1);
+    }
+
+    //
+    // Launch the application
+    //
+
+    // Variables used during experiment
+    Measures measures(param.nbMsg * param.nbClients);
+    std::latch broadcastBegin(param.nbClients);
+    std::latch broadcastEnd(param.nbClients);
+
+    // We launch all the clients to make the experiment
+    vector<jthread> clients(param.nbClients);
+    for (auto& c : clients) {
+        c = jthread(client, std::ref(param), std::ref(measures), std::ref(broadcastBegin), std::ref(broadcastEnd));
+    }
+    for (auto& c: clients)
+        c.join();
+
+    // Display statistics
+    measures.rtts.resize(measures.nbRtts);
+    std::ranges::sort(measures.rtts);
+    cout << "Ratio received / sent messages = " << measures.nbRtts << " / " << param.nbMsg * param.nbClients << " (" << measures.nbRtts * 100 / param.nbMsg / param.nbClients << "%)\n";
+    cout << "Average = " << (std::reduce(measures.rtts.begin(), measures.rtts.end()) / measures.rtts.size()).count() << " ms\n";
+    cout << "Min = " << measures.rtts[0].count() << " ms\n";
+    cout << "Q1 = " << measures.rtts[measures.rtts.size()/4].count() << " ms\n";
+    cout << "Q2 = " << measures.rtts[measures.rtts.size()/2].count() << " ms\n";
+    cout << "Q3 = " << measures.rtts[measures.rtts.size()*3/4].count() << " ms\n";
+    cout << "Centile #99 = " << measures.rtts[measures.rtts.size()*99/100].count() << " ms\n";
+    cout << "Max = " << measures.rtts[measures.rtts.size()-1].count() << " ms\n";
 
     return 0;
 }

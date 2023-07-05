@@ -5,6 +5,9 @@
 #include <cereal/types/chrono.hpp>
 #include <cereal/types/string.hpp>
 
+// The following value has been found experimentally when filler field of ClientMessageToBroadcast has size 0
+constexpr int minSizeClientMessageToBroadcast = 22;
+
 // Maximum length of a UDP packet
 constexpr size_t maxLength{65515};
 

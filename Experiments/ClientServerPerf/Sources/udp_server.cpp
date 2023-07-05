@@ -1,108 +1,163 @@
 //
-// Application to make statistics on udp
-// inspired by blocking_udp_echo_server.cpp (from https://www.boost.org/doc/libs/1_35_0/doc/html/boost_asio/example/echo/blocking_udp_echo_server.cpp)
+// Application to make statistics on tcp
+// inspired by blocking_tcp_echo_server.cpp (from https://www.boost.org/doc/libs/1_35_0/doc/html/boost_asio/example/echo/blocking_tcp_echo_server.cpp)
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
 
-#include <cstdlib>
 #include <iostream>
 #include <map>
 #include <boost/asio.hpp>
 #include "common.h"
+#include "OptParserExtended.h"
+#include "udp_communication.h"
 
 using boost::asio::ip::udp;
 using namespace std;
+using namespace mlib;
 
-void analyze_packet(udp::socket & sock, udp::endpoint const& sender_endpoint, string_view msg_sv, unsigned char& lastId)
+struct Param {
+    int port{};
+    bool verbose{false};
+};
+
+void broadcastMsg(udp::socket & sock, std::string const& s, map<unsigned char, udp::endpoint> const& mapEndPoint)
 {
+    for (auto const&[id, endpoint] : mapEndPoint)
+        sendPacket(sock, s, endpoint);
+}
+
+void analyzePacket(udp::socket &sock, udp::endpoint const& senderEndpoint, const string &msgString, Param const& param)
+{
+    static unsigned char lastId{0};
+    static int nbBroadcastingClients{0};
     static map<unsigned char, udp::endpoint> mapEndPoint;
-    std::string msg_string{msg_sv};
-    std::istringstream msg_stream{ msg_string };
-    unsigned char msg_typ;
-    msg_stream >> msg_typ;
-    switch (ClientMsgId client_msg_typ{msg_typ }; client_msg_typ)
+    switch (ClientMsgId clientMsgTyp{ static_cast<ClientMsgId>(msgString[0]) }; clientMsgTyp)
     {
+        case ClientMsgId::DisconnectIntent :
+        {
+            auto cdi{deserializeStruct<ClientDisconnectIntent>(msgString)};
+            auto s{serializeStruct<ServerAckDisconnectIntent>(ServerAckDisconnectIntent{ServerMsgId::AckDisconnectIntent})};
+            sendPacket(sock, s, senderEndpoint);
+            // Remove senderEndpoint from mapEndPoint
+            mapEndPoint.erase(cdi.id);
+            if (param.verbose)
+                cout << "Client #" << static_cast<unsigned int>(cdi.id) << " announces it will disconnect\n";
+            break;
+        }
+        case ClientMsgId::DoneSendingMessages :
+        {
+            auto cdsm{deserializeStruct<ClientDoneSendingMessages>(msgString)};
+            auto s{serializeStruct<ServerAckDoneSendingMessages>(ServerAckDoneSendingMessages{ServerMsgId::AckDoneSendingMessages})};
+            sendPacket(sock, s, senderEndpoint);
+            if (param.verbose)
+                cout << "Client #" << static_cast<unsigned int>(cdsm.id) << " announces it is done broadcasting messages\n";
+            if (--nbBroadcastingClients == 0)
+            {
+                if (param.verbose)
+                    cout << "There is no more broadcasting clients\n";
+                auto sbe{serializeStruct<ServerBroadcastEnd>(ServerBroadcastEnd{ServerMsgId::BroadcastEnd})};
+                broadcastMsg(sock, sbe, mapEndPoint);
+            }
+            break;
+        }
         case ClientMsgId::IdRequest :
         {
-            std::stringstream sir_stream;
-            sir_stream << static_cast<unsigned char>(ServerMsgId::IdResponse);
+            auto cir{deserializeStruct<ClientIdRequest>(msgString)};
+            ++lastId;
+            auto s{serializeStruct<ServerIdResponse>(ServerIdResponse{ServerMsgId::IdResponse, lastId})};
+            sendPacket(sock, s, senderEndpoint);
+            mapEndPoint[lastId] = senderEndpoint;
+            if (param.verbose)
+                cout << "Client #" << static_cast<unsigned int>(lastId) << " has received its id\n";
+            if (mapEndPoint.size() == cir.nbClients)
             {
-                cereal::BinaryOutputArchive oarchive(sir_stream); // Create an output archive
-                struct ServerIdResponse sir { ++lastId };
-                oarchive(sir); // Write the data to the archive
-            } // archive goes out of scope, ensuring all contents are flushed
-            std::string_view sir_sv{ sir_stream.view() };
-            sock.send_to(boost::asio::buffer(sir_sv.data(), sir_sv.length()), sender_endpoint);
-            mapEndPoint[lastId] = sender_endpoint;
+                if (param.verbose)
+                    cout << "All clients are connected: They can start broadcasting\n";
+                nbBroadcastingClients = cir.nbClients;
+                auto sbb{serializeStruct<ServerBroadcastBegin>(ServerBroadcastBegin{ServerMsgId::BroadcastBegin})};
+                broadcastMsg(sock, sbb, mapEndPoint);
+            }
             break;
         }
         case ClientMsgId::MessageToBroadcast :
         {
-            struct ClientMessageToBroadcast cmtb;
-            {
-                cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
-                iarchive(cmtb); // Read the data from the archive
-            }
-            std::stringstream sbm_stream;
-            sbm_stream << static_cast<unsigned char>(ServerMsgId::BroadcastMessage);
-            {
-                cereal::BinaryOutputArchive oarchive(sbm_stream); // Create an output archive
-                struct ServerBroadcastMessage sbm { cmtb.senderId, cmtb.messageId, cmtb.sendTime };
-                oarchive(sbm); // Write the data to the archive
-            } // archive goes out of scope, ensuring all contents are flushed
-            std::string_view sbm_sv{ sbm_stream.view() };
-            // We broadcast the message to all clients
-            for (auto const&[id, endpoint] : mapEndPoint)
-                sock.send_to(boost::asio::buffer(sbm_sv.data(), sbm_sv.length()), endpoint);
+            auto cmtb{deserializeStruct<ClientMessageToBroadcast>(msgString)};
+            auto s {serializeStruct<ServerBroadcastMessage>(ServerBroadcastMessage{ServerMsgId::BroadcastMessage,
+                                                                                   cmtb.senderId,
+                                                                                   cmtb.msgNum,
+                                                                                   cmtb.sendTime, cmtb.filler})};
+            broadcastMsg(sock, s, mapEndPoint);
             break;
         }
-        case ClientMsgId::DisconnectInfo:
+        default:
         {
-            struct ClientDisconnectInfo cdi;
-            {
-                cereal::BinaryInputArchive iarchive(msg_stream); // Create an input archive
-                iarchive(cdi); // Read the data from the archive
-            }
-            mapEndPoint.erase(cdi.id);
-            cout << "ClientMsgId disconnected\n";
-            break;
+            cerr << "ERROR: Unexpected clientMsgTyp (" << static_cast<int>(clientMsgTyp) << ")\n";
+            exit(EXIT_FAILURE);
         }
+
     }
 }
 
-[[noreturn]]void server(boost::asio::io_service& io_service, short port)
+[[noreturn]] void server(Param const& param)
 {
-    unsigned char lastId = 0;
-    udp::socket sock(io_service, udp::endpoint(udp::v4(), port));
+    boost::asio::io_service ioService;
+    udp::socket sock(ioService, udp::endpoint(udp::v4(), static_cast<short>(param.port)));
     for (;;)
     {
-        char msg[maxLength];
-        udp::endpoint sender_endpoint;
-        size_t msg_length = sock.receive_from(
-                boost::asio::buffer(msg, maxLength), sender_endpoint);
-        std::string_view msg_sv{msg, msg_length};
-        analyze_packet(sock, sender_endpoint, msg_sv, lastId);
+        udp::endpoint senderEndpoint;
+        auto msgString{receivePacket(sock, senderEndpoint)};
+        analyzePacket(sock, senderEndpoint, msgString, param);
     }
 }
 
 int main(int argc, char* argv[])
 {
-  try
-  {
-    if (argc != 2)
+    //
+    // Take care of program arguments
+    //
+    OptParserExtended parser{
+            "h|help \t Show help message",
+            "p:port port_number \t Port to connect to",
+            "v|verbose \t [optional] Verbose display required"
+    };
+
+    int nonopt;
+    if (int ret ; (ret = parser.parse (argc, argv, &nonopt)) != 0)
     {
-      std::cerr << "Usage: blocking_udp_echo_server <port>\n";
-      return 1;
+        if (ret == 1)
+            cerr << "Unknown option: " << argv[nonopt] << " Valid options are : " << endl
+                 << parser.synopsis () << endl;
+        else if (ret == 2)
+            cerr << "Option " << argv[nonopt] << " requires an argument." << endl;
+        else if (ret == 3)
+            cerr << "Invalid options combination: " << argv[nonopt] << endl;
+        exit (1);
+    }
+    if ((argc == 1) || parser.hasopt ('h'))
+    {
+        //No arguments on command line or help required. Show help and exit.
+        cerr << "Usage:" << endl;
+        cerr << parser.synopsis () << endl;
+        cerr << "Where:" << endl
+             << parser.description () << endl;
+        exit (0);
     }
 
-    boost::asio::io_service io_service;
+    struct Param param{
+            parser.getoptIntRequired('p'),
+            parser.hasopt ('v')
+    };
 
-    using namespace std; // For atoi.
-    server(io_service, atoi(argv[1]));
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << "Exception: " << e.what() << "\n";
-  }
+    if (nonopt < argc)
+    {
+        cerr << "ERROR: There is a non-option argument '" << argv[nonopt]
+             << "' which cannot be understood. Please run again program but without this argument" << endl
+             << parser.synopsis () << endl;
+        exit(1);
+    }
 
-  return 0;
+    //
+    // Launch the application
+    //
+    server(param);
 }

@@ -18,7 +18,7 @@ using namespace std;
 using namespace mlib;
 
 struct Param {
-    int port;
+    int port{};
     bool verbose{false};
 };
 
@@ -44,7 +44,7 @@ void analyzePacket(tcp::socket *psock, const string &msgString, Param const& par
             auto cdi{deserializeStruct<ClientDisconnectIntent>(msgString)};
             auto s{serializeStruct<ServerAckDisconnectIntent>(ServerAckDisconnectIntent{ServerMsgId::AckDisconnectIntent})};
             sendPacket(psock, s);
-            // Remove psock from vecsock
+            // Remove psock from mapEndPoint
             {
                 std::lock_guard writerLock(rwMutex);
                 mapEndPoint.erase(cdi.id);
@@ -147,9 +147,9 @@ void session(unique_ptr<tcp::socket> upsock, Param const& param)
     }
 }
 
-[[noreturn]] void server(boost::asio::io_service& ioService, short port, Param const& param)
+[[noreturn]] void server(boost::asio::io_service& ioService, Param const& param)
 {
-    tcp::acceptor a(ioService, tcp::endpoint(tcp::v4(), port));
+    tcp::acceptor a(ioService, tcp::endpoint(tcp::v4(), static_cast<short>(param.port)));
     for (;;)
     {
         auto upsock = make_unique<tcp::socket>(ioService);
@@ -215,7 +215,7 @@ int main(int argc, char* argv[])
     try
     {
         boost::asio::io_service ioService;
-        server(ioService, static_cast<short>(param.port), param);
+        server(ioService, param);
     }
     catch (std::exception& e)
     {
