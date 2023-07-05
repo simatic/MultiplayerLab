@@ -163,8 +163,11 @@ void session(unique_ptr<tcp::socket> upsock, Param const& param)
     }
 }
 
-struct Param getParam(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
+    //
+    // Take care of program arguments
+    //
     OptParserExtended parser{
             "h|help \t Show help message",
             "p:port port_number \t Port to connect to",
@@ -206,12 +209,9 @@ struct Param getParam(int argc, char* argv[])
         exit(1);
     }
 
-    return param;
-}
-
-int main(int argc, char* argv[])
-{
-    struct Param param{getParam(argc, argv)};
+    //
+    // Launch the application
+    //
     try
     {
         boost::asio::io_service ioService;

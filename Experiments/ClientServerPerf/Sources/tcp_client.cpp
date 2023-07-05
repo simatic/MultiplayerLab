@@ -188,8 +188,11 @@ void client(Param const& param, Measures & measures, std::latch &broadcastBegin,
     }
 }
 
-struct Param getParam(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
+    //
+    // Take care of program arguments
+    //
     OptParserExtended parser{
             "h|help \t Show help message",
             "H:host hostname \t Host (or IP address) to connect to",
@@ -249,12 +252,9 @@ struct Param getParam(int argc, char* argv[])
         exit(1);
     }
 
-    return param;
-}
-
-int main(int argc, char* argv[])
-{
-    struct Param param{getParam(argc, argv)};
+    //
+    // Launch the application
+    //
 
     // Variables used during experiment
     Measures measures(param.nbMsg * param.nbClients);
