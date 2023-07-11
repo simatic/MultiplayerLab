@@ -32,24 +32,45 @@ struct Param {
     string host;
     string port;
     int nbMsg{0};
-    chrono::duration<int64_t, ratio<1, 1000>> sendInterval{0};
     int sizeMsg{0};
     int nbClients{0};
     bool verbose{false};
 };
 
-// Should return true if analyzePacket discovers client will not receive any more packets.
-bool analyzePacket(const string &msgString, unsigned char& myId, Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd)
+unsigned int sendMsgToBroadcast(udp::socket &sock, udp::endpoint const&serverEndpoint, Param const &param, unsigned char myId, unsigned int msgNum)
 {
+    ++msgNum;
+    if (param.verbose)
+        cout << "Client #" << static_cast<unsigned int>(myId)  << " : Request to broadcast message #" << msgNum << "\n";
+    auto s_cmtb {serializeStruct<ClientMessageToBroadcast>(ClientMessageToBroadcast{ClientMsgId::MessageToBroadcast,
+                                                                                    myId, msgNum,
+                                                                                    std::chrono::system_clock::now(),
+                                                                                    std::string(
+                                                                                            param.sizeMsg -
+                                                                                            minSizeClientMessageToBroadcast,
+                                                                                            0)})};
+    sendPacket(sock, s_cmtb, serverEndpoint);
+    return msgNum;
+}
+
+// Should return true if handlePacket discovers client will not receive any more packets.
+bool handlePacket(udp::socket &sock, udp::endpoint const&serverEndpoint, const string &msgString, Param const &param,
+             Measures &measures, std::latch &allAckDisconnectIntentReceived)
+{
+    static thread_local unsigned char myId{0};
+    static thread_local unsigned int msgNum{0};
     switch (ServerMsgId serverMsgId{ static_cast<ServerMsgId>(msgString[0]) }; serverMsgId)
     {
         case ServerMsgId::AckDisconnectIntent :
+            allAckDisconnectIntentReceived.count_down();
             return true;
         case ServerMsgId::AckDoneSendingMessages :
             return false;
         case ServerMsgId::BroadcastBegin :
-            broadcastBegin.count_down();
+        {
+            msgNum = sendMsgToBroadcast(sock, serverEndpoint, param, myId, msgNum);
             return false;
+        }
         case ServerMsgId::BroadcastMessage :
         {
             auto sbm {deserializeStruct<ServerBroadcastMessage>(msgString)};
@@ -64,21 +85,38 @@ bool analyzePacket(const string &msgString, unsigned char& myId, Param const& pa
                 if (sbm.senderId == myId)
                     cout << "myself";
                 else
-                    cout << "client " << static_cast<unsigned int>(sbm.senderId);
+                    cout << "client #" << static_cast<unsigned int>(sbm.senderId);
                 // C++20 operator<< is not yet implemented for duration in gcc.
                 // Thus, we cannot write: " in " << elapsed << "\n";
                 // ==> We do it manually.
                 cout << " in " << elapsed.count() << " ms\n";
             }
+            if (sbm.senderId == myId)
+            {
+                if (msgNum < param.nbMsg)
+                {
+                    msgNum = sendMsgToBroadcast(sock, serverEndpoint, param, myId, msgNum);
+                }
+                else
+                {
+                    auto cdsm {serializeStruct<ClientDoneSendingMessages>(ClientDoneSendingMessages{ClientMsgId::DoneSendingMessages, myId})};
+                    sendPacket(sock, cdsm, serverEndpoint);
+                }
+            }
             return false;
         }
         case ServerMsgId::BroadcastEnd :
-            broadcastEnd.count_down();
+        {
+            auto cdi {serializeStruct<ClientDisconnectIntent>(ClientDisconnectIntent{ClientMsgId::DisconnectIntent, myId})};
+            sendPacket(sock, cdi, serverEndpoint);
             return false;
+        }
         case ServerMsgId::IdResponse :
         {
             auto sir {deserializeStruct<ServerIdResponse>(msgString)};
             myId = sir.id;
+            if (param.verbose)
+                cout << "Client received its Id which is: #" << static_cast<unsigned int>(myId) << "\n";
             return false;
         }
         default:
@@ -89,18 +127,18 @@ bool analyzePacket(const string &msgString, unsigned char& myId, Param const& pa
     }
 }
 
-void msgReceive(udp::socket &sock, unsigned char &myId, Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd)
+void msgReceive(udp::socket &sock, Param const& param, Measures & measures, std::latch &allAckDisconnectIntentReceived)
 {
     for (;;)
     {
-        udp::endpoint unusedSenderEndpoint; // It is always the server endpoint
-        auto msgString{receivePacket(sock, unusedSenderEndpoint)};
-        if (analyzePacket(msgString, myId, param, measures, broadcastBegin, broadcastEnd))
+        udp::endpoint serverEndpoint; // It is always the server endpoint
+        auto msgString{receivePacket(sock, serverEndpoint)};
+        if (handlePacket(sock, serverEndpoint, msgString, param, measures, allAckDisconnectIntentReceived))
             break;
     }
 }
 
-void client(Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd)
+void client(Param const& param, Measures & measures, std::latch &allAckDisconnectIntentReceived)
 {
     boost::asio::io_service ioService;
 
@@ -114,41 +152,14 @@ void client(Param const& param, Measures & measures, std::latch &broadcastBegin,
     unsigned char myId{ 0 };
 
     // Create a thread for receiving data
-    auto t = jthread(msgReceive, std::ref(sock), std::ref(myId), std::ref(param), std::ref(measures),
-                     std::ref(broadcastBegin), std::ref(broadcastEnd));
+    auto t = jthread(msgReceive, std::ref(sock), std::ref(param), std::ref(measures),
+                     std::ref(allAckDisconnectIntentReceived));
 
     // Send IdRequest to server
     auto cir {serializeStruct<ClientIdRequest>(ClientIdRequest{ClientMsgId::IdRequest, param.nbClients})};
     sendPacket(sock, cir, serverEndpoint);
 
-    broadcastBegin.wait();
-
-    if (param.verbose)
-        cout << "My Id which is: " << static_cast<unsigned int>(myId) << " and I can start broadcasting\n";
-
-    for (unsigned int i = 0; i < param.nbMsg; ++i) {
-        if (param.verbose)
-            cout << "Request to broadcast message #" << i << "\n";
-        auto s_cmtb {serializeStruct<ClientMessageToBroadcast>(ClientMessageToBroadcast{ClientMsgId::MessageToBroadcast,
-                                                                                        myId, i,
-                                                                                        std::chrono::system_clock::now(),
-                                                                                        std::string(
-                                                                                                param.sizeMsg -
-                                                                                                minSizeClientMessageToBroadcast,
-                                                                                                0)})};
-        sendPacket(sock, s_cmtb, serverEndpoint);
-        this_thread::sleep_for(param.sendInterval);
-    }
-
-    // Send DoneSendingMessages to server
-    auto cdsm {serializeStruct<ClientDoneSendingMessages>(ClientDoneSendingMessages{ClientMsgId::DoneSendingMessages, myId})};
-    sendPacket(sock, cdsm, serverEndpoint);
-
-    broadcastEnd.wait();
-
-    // Send DisconnectIntent to server
-    auto cdi {serializeStruct<ClientDisconnectIntent>(ClientDisconnectIntent{ClientMsgId::DisconnectIntent, myId})};
-    sendPacket(sock, cdi, serverEndpoint);
+    allAckDisconnectIntentReceived.wait();
 
     // msgReceive thread will exit when it has received ServerMsgId::AckDisconnectIntent)
     t.join();
@@ -167,7 +178,6 @@ int main(int argc, char* argv[])
             "H:host hostname \t Host (or IP address) to connect to",
             "p:port port_number \t Port to connect to",
             "n:nbMsg number \t Number of messages to be sent",
-            "i:interval time_in_milliseconds \t Time interval between two sending of messages by a single client",
             "s:size size_in_bytes \t Size of messages sent by a client (must be in interval [22,65515])",
             "c:clients number \t Number of clients which send messages to server",
             "v|verbose \t [optional] Verbose display required"
@@ -199,7 +209,6 @@ int main(int argc, char* argv[])
             parser.getoptStringRequired('H'),
             parser.getoptStringRequired('p'),
             parser.getoptIntRequired('n'),
-            chrono::milliseconds(parser.getoptIntRequired('i')),
             parser.getoptIntRequired('s'),
             parser.getoptIntRequired('c'),
             parser.hasopt ('v')
@@ -227,13 +236,12 @@ int main(int argc, char* argv[])
 
     // Variables used during experiment
     Measures measures(param.nbMsg * param.nbClients);
-    std::latch broadcastBegin(param.nbClients);
-    std::latch broadcastEnd(param.nbClients);
+    std::latch allAckDisconnectIntentReceived(param.nbClients);
 
     // We launch all the clients to make the experiment
     vector<jthread> clients(param.nbClients);
     for (auto& c : clients) {
-        c = jthread(client, std::ref(param), std::ref(measures), std::ref(broadcastBegin), std::ref(broadcastEnd));
+        c = jthread(client, std::ref(param), std::ref(measures), std::ref(allAckDisconnectIntentReceived));
     }
     for (auto& c: clients)
         c.join();

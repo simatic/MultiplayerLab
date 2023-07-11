@@ -32,27 +32,46 @@ struct Param {
     string host;
     int port;
     int nbMsg{0};
-    chrono::duration<int64_t, ratio<1, 1000>> sendInterval{0};
     int sizeMsg{0};
     int nbClients{0};
     int enet_flags{};
     bool verbose{false};
 };
 
-// Should return true if analyzePacket discovers client will not receive any more packets.
-bool analyzePacket(ENetEvent const& event, unsigned char& myId, Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd, std::latch &ackDisconnectIntent)
+unsigned int sendMsgToBroadcast(ENetPeer* peer, Param const &param, unsigned char myId, unsigned int msgNum)
 {
+    ++msgNum;
+    if (param.verbose)
+        cout << "Client #" << static_cast<unsigned int>(myId)  << " : Request to broadcast message #" << msgNum << "\n";
+    auto s_cmtb {serializeStruct<ClientMessageToBroadcast>(ClientMessageToBroadcast{ClientMsgId::MessageToBroadcast,
+                                                                                    myId, msgNum,
+                                                                                    std::chrono::system_clock::now(),
+                                                                                    std::string(
+                                                                                            param.sizeMsg -
+                                                                                            minSizeClientMessageToBroadcast,
+                                                                                            0)})};
+    sendPacket(peer, 0, param.enet_flags, s_cmtb);
+    return msgNum;
+}
+
+// Should return true if handlePacket discovers client will not receive any more packets.
+bool handlePacket(ENetEvent const &event, Param const &param, Measures &measures, std::latch &allAckDisconnectIntentReceived)
+{
+    static thread_local unsigned char myId{0};
+    static thread_local unsigned int msgNum{0};
     std::string msgString{bit_cast<char*>(event.packet->data), event.packet->dataLength};
     switch (ServerMsgId serverMsgId{ static_cast<ServerMsgId>(msgString[0]) }; serverMsgId)
     {
         case ServerMsgId::AckDisconnectIntent :
-            ackDisconnectIntent.count_down();
+            allAckDisconnectIntentReceived.count_down();
             return true;
         case ServerMsgId::AckDoneSendingMessages :
             return false;
         case ServerMsgId::BroadcastBegin :
-            broadcastBegin.count_down();
+        {
+            msgNum = sendMsgToBroadcast(event.peer, param, myId, msgNum);
             return false;
+        }
         case ServerMsgId::BroadcastMessage :
         {
             auto sbm {deserializeStruct<ServerBroadcastMessage>(msgString)};
@@ -67,21 +86,38 @@ bool analyzePacket(ENetEvent const& event, unsigned char& myId, Param const& par
                 if (sbm.senderId == myId)
                     cout << "myself";
                 else
-                    cout << "client " << static_cast<unsigned int>(sbm.senderId);
+                    cout << "client #" << static_cast<unsigned int>(sbm.senderId);
                 // C++20 operator<< is not yet implemented for duration in gcc.
                 // Thus, we cannot write: " in " << elapsed << "\n";
                 // ==> We do it manually.
                 cout << " in " << elapsed.count() << " ms\n";
             }
+            if (sbm.senderId == myId)
+            {
+                if (msgNum < param.nbMsg)
+                {
+                    msgNum = sendMsgToBroadcast(event.peer, param, myId, msgNum);
+                }
+                else
+                {
+                    auto cdsm {serializeStruct<ClientDoneSendingMessages>(ClientDoneSendingMessages{ClientMsgId::DoneSendingMessages, myId})};
+                    sendPacket(event.peer, 0, param.enet_flags, cdsm);
+                }
+            }
             return false;
         }
         case ServerMsgId::BroadcastEnd :
-            broadcastEnd.count_down();
+        {
+            auto cdi {serializeStruct<ClientDisconnectIntent>(ClientDisconnectIntent{ClientMsgId::DisconnectIntent, myId})};
+            sendPacket(event.peer, 0, param.enet_flags, cdi);
             return false;
+        }
         case ServerMsgId::IdResponse :
         {
             auto sir {deserializeStruct<ServerIdResponse>(msgString)};
             myId = sir.id;
+            if (param.verbose)
+                cout << "Client received its Id which is: #" << static_cast<unsigned int>(myId) << "\n";
             return false;
         }
         default:
@@ -92,37 +128,43 @@ bool analyzePacket(ENetEvent const& event, unsigned char& myId, Param const& par
     }
 }
 
-void msgReceive(ENetHost* client, unsigned char &myId, Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd, std::latch &ackDisconnectIntent)
+// Returns true if there are no more events to handle
+bool handleEvent(ENetEvent const &event, Param const& param, Measures & measures, std::latch &allAckDisconnectIntentReceived)
+{
+    switch (event.type)
+    {
+        case ENET_EVENT_TYPE_RECEIVE:
+            handlePacket(event, param, measures, allAckDisconnectIntentReceived);
+            /* Clean up the packet now that we're done using it. */
+            enet_packet_destroy(event.packet);
+            break;
+        case ENET_EVENT_TYPE_DISCONNECT:
+            // This event can only be received when we call enet_peer_disconnect()
+            if (param.verbose)
+                cout << "Disconnection success.\n";
+            return true;
+        case ENET_EVENT_TYPE_CONNECT:
+            // We should never see this event as we are already connected.
+            cerr << "Received unexpected ENET_EVENT_TYPE_CONNECT\n";
+            exit(EXIT_FAILURE);
+        case ENET_EVENT_TYPE_NONE: // Happens when no event occurred within the specified time limit ==> We just ignore this event.
+            break;
+    }
+    return false;
+}
+
+void msgReceive(ENetHost* client, Param const& param, Measures & measures, std::latch &allAckDisconnectIntentReceived)
 {
     for (;;)
     {
         ENetEvent event;
         while (enet_host_service(client, &event, timeoutFor_enet_host_service) > 0)
-        {
-            switch (event.type)
-            {
-                case ENET_EVENT_TYPE_RECEIVE:
-                    analyzePacket(event, myId, param, measures, broadcastBegin, broadcastEnd, ackDisconnectIntent);
-                    /* Clean up the packet now that we're done using it. */
-                    enet_packet_destroy(event.packet);
-                    break;
-                case ENET_EVENT_TYPE_DISCONNECT:
-                    // This event can only be received when we call enet_peer_disconnect()
-                    if (param.verbose)
-                        cout << "Disconnection success.\n";
-                    return;
-                case ENET_EVENT_TYPE_CONNECT:
-                    // We should never see this event as we are already connected.
-                    cerr << "Received unexpected ENET_EVENT_TYPE_CONNECT\n";
-                    exit(EXIT_FAILURE);
-                case ENET_EVENT_TYPE_NONE: // Happens when no event occurred within the specified time limit ==> We just ignore this event.
-                    break;
-            }
-        }
+            if (handleEvent(event, param, measures, allAckDisconnectIntentReceived))
+                return;
     }
 }
 
-void client(Param const& param, Measures & measures, std::latch &broadcastBegin, std::latch &broadcastEnd, std::latch &ackDisconnectIntent)
+void client(Param const& param, Measures & measures, std::latch &allAckDisconnectIntentReceived)
 {
     if (enet_initialize() != 0)
     {
@@ -162,47 +204,14 @@ void client(Param const& param, Measures & measures, std::latch &broadcastBegin,
         exit(EXIT_FAILURE);
     }
 
-    unsigned char myId{ 0 };
-
     // Create a thread for receiving data
-    auto t = jthread(msgReceive, clientHost, std::ref(myId), std::ref(param), std::ref(measures),
-                     std::ref(broadcastBegin), std::ref(broadcastEnd), std::ref(ackDisconnectIntent));
+    auto t = jthread(msgReceive, clientHost, std::ref(param), std::ref(measures), std::ref(allAckDisconnectIntentReceived));
 
     // Send IdRequest to server
     auto cir {serializeStruct<ClientIdRequest>(ClientIdRequest{ClientMsgId::IdRequest, param.nbClients})};
     sendPacket(peer, 0, param.enet_flags, cir);
 
-    broadcastBegin.wait();
-
-    if (param.verbose)
-        cout << "My Id which is: " << static_cast<unsigned int>(myId) << " and I can start broadcasting\n";
-
-    for (unsigned int i = 0; i < param.nbMsg; ++i) {
-        if (param.verbose)
-            cout << "Request to broadcast message #" << i << "\n";
-        auto s_cmtb {serializeStruct<ClientMessageToBroadcast>(ClientMessageToBroadcast{ClientMsgId::MessageToBroadcast,
-                                                                                        myId, i,
-                                                                                        std::chrono::system_clock::now(),
-                                                                                        std::string(
-                                                                                                param.sizeMsg -
-                                                                                                minSizeClientMessageToBroadcast,
-                                                                                                0)})};
-        sendPacket(peer, 0, param.enet_flags, s_cmtb);
-        enet_host_flush(clientHost);
-        this_thread::sleep_for(param.sendInterval);
-    }
-
-    // Send DoneSendingMessages to server
-    auto cdsm {serializeStruct<ClientDoneSendingMessages>(ClientDoneSendingMessages{ClientMsgId::DoneSendingMessages, myId})};
-    sendPacket(peer, 0, param.enet_flags, cdsm);
-
-    broadcastEnd.wait();
-
-    // Send DisconnectIntent to server
-    auto cdi {serializeStruct<ClientDisconnectIntent>(ClientDisconnectIntent{ClientMsgId::DisconnectIntent, myId})};
-    sendPacket(peer, 0, param.enet_flags, cdi);
-
-    ackDisconnectIntent.wait();
+    allAckDisconnectIntentReceived.wait();
 
     enet_peer_disconnect(peer, 0); // Instead of 0, we could have sent some data
 
@@ -210,7 +219,7 @@ void client(Param const& param, Measures & measures, std::latch &broadcastBegin,
     t.join();
 
     if (param.verbose)
-        cout << "Client #" << static_cast<unsigned int>(myId) << " done\n";
+        cout << "Client done\n";
 }
 
 int main(int argc, char* argv[])
@@ -223,7 +232,6 @@ int main(int argc, char* argv[])
             "H:host hostname \t Host (or IP address) to connect to",
             "p:port port_number \t Port to connect to",
             "n:nbMsg number \t Number of messages to be sent",
-            "i:interval time_in_milliseconds \t Time interval between two sending of messages by a single client",
             "s:size size_in_bytes \t Size of messages sent by a client (must be in interval [22,65515])",
             "c:clients number \t Number of clients which send messages to server",
             "u|unreliable \t [optional] By default, ENet will apply ENET_PACKET_FLAG_RELIABLE flag to packets sent.\n\t\t\t\t\tIf this flag is specified, ENET_PACKET_FLAG_UNSEQUENCED flag will be applied\n\t\t\t\t\t(packets will not be sequenced with other packet and will not be reliably sent)",
@@ -256,7 +264,6 @@ int main(int argc, char* argv[])
             parser.getoptStringRequired('H'),
             parser.getoptIntRequired('p'),
             parser.getoptIntRequired('n'),
-            chrono::milliseconds(parser.getoptIntRequired('i')),
             parser.getoptIntRequired('s'),
             parser.getoptIntRequired('c'),
             parser.hasopt ('v') ? ENET_PACKET_FLAG_UNSEQUENCED : ENET_PACKET_FLAG_RELIABLE,
@@ -285,14 +292,12 @@ int main(int argc, char* argv[])
 
     // Variables used during experiment
     Measures measures(param.nbMsg * param.nbClients);
-    std::latch broadcastBegin(param.nbClients);
-    std::latch broadcastEnd(param.nbClients);
-    std::latch ackDisconnectIntent(param.nbClients);
+    std::latch allAckDisconnectIntentReceived(param.nbClients);
 
     // We launch all the clients to make the experiment
     vector<jthread> clients(param.nbClients);
     for (auto& c : clients) {
-        c = jthread(client, std::ref(param), std::ref(measures), std::ref(broadcastBegin), std::ref(broadcastEnd), std::ref(ackDisconnectIntent));
+        c = jthread(client, std::ref(param), std::ref(measures), std::ref(allAckDisconnectIntentReceived));
     }
     for (auto& c: clients)
         c.join();
