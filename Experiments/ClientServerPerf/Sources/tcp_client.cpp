@@ -4,13 +4,13 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
 
+#include <boost/asio.hpp>
 #include <iostream>
+#include <latch>
 #include <thread>
 #include <vector>
-#include <boost/asio.hpp>
-#include <numeric>
-#include <latch>
 #include "common.h"
+#include "Measures.h"
 #include "options.h"
 #include "OptParserExtended.h"
 #include "tcp_communication.h"
@@ -19,15 +19,6 @@ using boost::asio::ip::tcp;
 using namespace std;
 using namespace mlib;
 
-struct Measures {
-    explicit Measures(size_t nb_rtts_max)
-    : rtts(nb_rtts_max)
-    {
-    }
-    vector<std::chrono::duration<double, std::milli>> rtts; // Round-Trip Time
-    atomic_size_t nbRtts{0};
-};
-
 struct Param {
     string host;
     string port;
@@ -35,6 +26,15 @@ struct Param {
     int sizeMsg{0};
     int nbClients{0};
     bool verbose{false};
+    static std::string csvHeadline()
+    {
+        return std::string { "host,port,nbMsg,sizeMsg,nbClients"};
+    }
+
+    [[nodiscard]] std::string asCsv() const
+    {
+        return std::string { host + "," + port + "," + std::to_string(nbMsg) + "," + std::to_string(sizeMsg) + "," + std::to_string(nbClients) };
+    }
 };
 
 unsigned int sendMsgToBroadcast(tcp::socket &sock, Param const &param, unsigned char myId, unsigned int msgNum)
@@ -77,7 +77,7 @@ bool handlePacket(tcp::socket &sock, const string &msgString, Param const &param
             chrono::duration<double, std::milli> elapsed = std::chrono::system_clock::now() - sbm.sendTime;
             if (sbm.senderId == myId)
             {
-                measures.rtts[measures.nbRtts++] = elapsed;
+                measures.add(elapsed);
             }
             if (param.verbose) {
                 cout << "Client #" << static_cast<unsigned int>(myId) << " : ";
@@ -273,16 +273,8 @@ int main(int argc, char* argv[])
         c.join();
 
     // Display statistics
-    measures.rtts.resize(measures.nbRtts);
-    std::ranges::sort(measures.rtts);
-    cout << "Ratio received / sent messages = " << measures.nbRtts << " / " << param.nbMsg * param.nbClients << " (" << measures.nbRtts * 100 / param.nbMsg / param.nbClients << "%)\n";
-    cout << "Average = " << (std::reduce(measures.rtts.begin(), measures.rtts.end()) / measures.rtts.size()).count() << " ms\n";
-    cout << "Min = " << measures.rtts[0].count() << " ms\n";
-    cout << "Q1 = " << measures.rtts[measures.rtts.size()/4].count() << " ms\n";
-    cout << "Q2 = " << measures.rtts[measures.rtts.size()/2].count() << " ms\n";
-    cout << "Q3 = " << measures.rtts[measures.rtts.size()*3/4].count() << " ms\n";
-    cout << "Centile #99 = " << measures.rtts[measures.rtts.size()*99/100].count() << " ms\n";
-    cout << "Max = " << measures.rtts[measures.rtts.size()-1].count() << " ms\n";
+    cout << "Protocol," << Param::csvHeadline() << "," << Measures::csvHeadline() << "\n";
+    cout << "tcp," << param.asCsv() << "," << measures.asCsv(param.nbMsg, param.nbClients) << "\n";
 
     return 0;
 }
