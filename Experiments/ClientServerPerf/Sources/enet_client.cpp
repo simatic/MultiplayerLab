@@ -57,8 +57,8 @@ unsigned int sendMsgToBroadcast(ENetPeer* peer, Param const &param, unsigned cha
 // Should return true if handlePacket discovers client will not receive any more packets.
 bool handlePacket(ENetEvent const &event, Param const &param, Measures &measures, std::latch &allAckDisconnectIntentReceived)
 {
-    static thread_local unsigned char myId{0};
-    static thread_local unsigned int msgNum{0};
+    thread_local unsigned char myId{0};
+    thread_local unsigned int msgNum{0};
     std::string msgString{bit_cast<char*>(event.packet->data), event.packet->dataLength};
     switch (ServerMsgId serverMsgId{ static_cast<ServerMsgId>(msgString[0]) }; serverMsgId)
     {

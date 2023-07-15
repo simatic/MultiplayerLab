@@ -57,8 +57,8 @@ unsigned int sendMsgToBroadcast(tcp::socket &sock, Param const &param, unsigned 
 bool handlePacket(tcp::socket &sock, const string &msgString, Param const &param,
              Measures &measures, std::latch &allAckDisconnectIntentReceived)
 {
-    static thread_local unsigned char myId{0};
-    static thread_local unsigned int msgNum{0};
+    thread_local unsigned char myId{0};
+    thread_local unsigned int msgNum{0};
     switch (ServerMsgId serverMsgId{ static_cast<ServerMsgId>(msgString[0]) }; serverMsgId)
     {
         case ServerMsgId::AckDisconnectIntent :
