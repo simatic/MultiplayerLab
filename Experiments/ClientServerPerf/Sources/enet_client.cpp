@@ -6,7 +6,6 @@
 
 #include <enet/enet.h>
 #include <iostream>
-#include <latch>
 #include <thread>
 #include <vector>
 #include "common.h"
@@ -55,7 +54,7 @@ unsigned int sendMsgToBroadcast(ENetPeer* peer, Param const &param, unsigned cha
 }
 
 // Should return true if handlePacket discovers client will not receive any more packets.
-bool handlePacket(ENetEvent const &event, Param const &param, Measures &measures, std::latch &allAckDisconnectIntentReceived)
+bool handlePacket(ENetEvent const &event, Param const &param, Measures &measures)
 {
     thread_local unsigned char myId{0};
     thread_local unsigned int msgNum{0};
@@ -63,7 +62,6 @@ bool handlePacket(ENetEvent const &event, Param const &param, Measures &measures
     switch (ServerMsgId serverMsgId{ static_cast<ServerMsgId>(msgString[0]) }; serverMsgId)
     {
         case ServerMsgId::AckDisconnectIntent :
-            allAckDisconnectIntentReceived.count_down();
             return true;
         case ServerMsgId::AckDoneSendingMessages :
             return false;
@@ -129,12 +127,14 @@ bool handlePacket(ENetEvent const &event, Param const &param, Measures &measures
 }
 
 // Returns true if there are no more events to handle
-bool handleEvent(ENetEvent const &event, Param const& param, Measures & measures, std::latch &allAckDisconnectIntentReceived)
+bool handleEvent(ENetEvent const &event, Param const& param, Measures & measures)
 {
     switch (event.type)
     {
         case ENET_EVENT_TYPE_RECEIVE:
-            handlePacket(event, param, measures, allAckDisconnectIntentReceived);
+            if (handlePacket(event, param, measures))
+                enet_peer_disconnect(event.peer, 0); // Instead of 0, we could have sent some data
+
             /* Clean up the packet now that we're done using it. */
             enet_packet_destroy(event.packet);
             break;
@@ -153,18 +153,18 @@ bool handleEvent(ENetEvent const &event, Param const& param, Measures & measures
     return false;
 }
 
-void msgReceive(ENetHost* client, Param const& param, Measures & measures, std::latch &allAckDisconnectIntentReceived)
+void msgReceive(ENetHost* client, Param const& param, Measures & measures)
 {
     for (;;)
     {
         ENetEvent event;
         while (enet_host_service(client, &event, timeoutFor_enet_host_service) > 0)
-            if (handleEvent(event, param, measures, allAckDisconnectIntentReceived))
+            if (handleEvent(event, param, measures))
                 return;
     }
 }
 
-void client(Param const& param, Measures & measures, std::latch &allAckDisconnectIntentReceived)
+void client(Param const& param, Measures & measures)
 {
     if (enet_initialize() != 0)
     {
@@ -205,15 +205,11 @@ void client(Param const& param, Measures & measures, std::latch &allAckDisconnec
     }
 
     // Create a thread for receiving data
-    auto t = jthread(msgReceive, clientHost, std::ref(param), std::ref(measures), std::ref(allAckDisconnectIntentReceived));
+    auto t = jthread(msgReceive, clientHost, std::ref(param), std::ref(measures));
 
     // Send IdRequest to server
     auto cir {serializeStruct<ClientIdRequest>(ClientIdRequest{ClientMsgId::IdRequest, param.nbClients})};
     sendPacket(peer, 0, param.enet_flags, cir);
-
-    allAckDisconnectIntentReceived.wait();
-
-    enet_peer_disconnect(peer, 0); // Instead of 0, we could have sent some data
 
     // msgReceive thread will exit when it has received ENET_EVENT_TYPE_DISCONNECT
     t.join();
@@ -292,12 +288,11 @@ int main(int argc, char* argv[])
 
     // Variables used during experiment
     Measures measures(param.nbMsg * param.nbClients);
-    std::latch allAckDisconnectIntentReceived(param.nbClients);
 
     // We launch all the clients to make the experiment
     vector<jthread> clients(param.nbClients);
     for (auto& c : clients) {
-        c = jthread(client, std::ref(param), std::ref(measures), std::ref(allAckDisconnectIntentReceived));
+        c = jthread(client, std::ref(param), std::ref(measures));
     }
     for (auto& c: clients)
         c.join();

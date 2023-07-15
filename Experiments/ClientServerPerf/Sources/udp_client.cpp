@@ -6,7 +6,6 @@
 
 #include <boost/asio.hpp>
 #include <iostream>
-#include <latch>
 #include <thread>
 #include <vector>
 #include "common.h"
@@ -56,14 +55,13 @@ unsigned int sendMsgToBroadcast(udp::socket &sock, udp::endpoint const&serverEnd
 
 // Should return true if handlePacket discovers client will not receive any more packets.
 bool handlePacket(udp::socket &sock, udp::endpoint const&serverEndpoint, const string &msgString, Param const &param,
-             Measures &measures, std::latch &allAckDisconnectIntentReceived)
+             Measures &measures)
 {
     thread_local unsigned char myId{0};
     thread_local unsigned int msgNum{0};
     switch (ServerMsgId serverMsgId{ static_cast<ServerMsgId>(msgString[0]) }; serverMsgId)
     {
         case ServerMsgId::AckDisconnectIntent :
-            allAckDisconnectIntentReceived.count_down();
             return true;
         case ServerMsgId::AckDoneSendingMessages :
             return false;
@@ -128,18 +126,18 @@ bool handlePacket(udp::socket &sock, udp::endpoint const&serverEndpoint, const s
     }
 }
 
-void msgReceive(udp::socket &sock, Param const& param, Measures & measures, std::latch &allAckDisconnectIntentReceived)
+void msgReceive(udp::socket &sock, Param const& param, Measures & measures)
 {
     for (;;)
     {
         udp::endpoint serverEndpoint; // It is always the server endpoint
         auto msgString{receivePacket(sock, serverEndpoint)};
-        if (handlePacket(sock, serverEndpoint, msgString, param, measures, allAckDisconnectIntentReceived))
+        if (handlePacket(sock, serverEndpoint, msgString, param, measures))
             break;
     }
 }
 
-void client(Param const& param, Measures & measures, std::latch &allAckDisconnectIntentReceived)
+void client(Param const& param, Measures & measures)
 {
     boost::asio::io_service ioService;
 
@@ -153,14 +151,11 @@ void client(Param const& param, Measures & measures, std::latch &allAckDisconnec
     unsigned char myId{ 0 };
 
     // Create a thread for receiving data
-    auto t = jthread(msgReceive, std::ref(sock), std::ref(param), std::ref(measures),
-                     std::ref(allAckDisconnectIntentReceived));
+    auto t = jthread(msgReceive, std::ref(sock), std::ref(param), std::ref(measures));
 
     // Send IdRequest to server
     auto cir {serializeStruct<ClientIdRequest>(ClientIdRequest{ClientMsgId::IdRequest, param.nbClients})};
     sendPacket(sock, cir, serverEndpoint);
-
-    allAckDisconnectIntentReceived.wait();
 
     // msgReceive thread will exit when it has received ServerMsgId::AckDisconnectIntent)
     t.join();
@@ -237,12 +232,11 @@ int main(int argc, char* argv[])
 
     // Variables used during experiment
     Measures measures(param.nbMsg * param.nbClients);
-    std::latch allAckDisconnectIntentReceived(param.nbClients);
 
     // We launch all the clients to make the experiment
     vector<jthread> clients(param.nbClients);
     for (auto& c : clients) {
-        c = jthread(client, std::ref(param), std::ref(measures), std::ref(allAckDisconnectIntentReceived));
+        c = jthread(client, std::ref(param), std::ref(measures));
     }
     for (auto& c: clients)
         c.join();
