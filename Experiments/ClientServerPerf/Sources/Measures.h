@@ -12,5 +12,5 @@ public:
     std::string asCsv(int argNbMsg, int argNbClients);
 private:
     std::vector<std::chrono::duration<double, std::milli>> rtts; // Round-Trip Time
-    std::atomic_size_t nbRtts;
+    std::atomic_size_t nbRtts{0};
 };
