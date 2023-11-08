@@ -15,7 +15,7 @@ void Measures::add(std::chrono::duration<double, std::milli> const& elapsed)
 
 std::string Measures::csvHeadline()
 {
-    return std::string { "nbReceivedMsg,nbSentMsg,ratio nbRcv/nbSent,Average (in ms),Min,Q1,Q2,Q3,Centile #99,Max"};
+    return std::string { "nbReceivedMsg,nbSentMsg,ratio nbRcv/nbSent,Average (in ms),Min,Q(0,25),Q(0,5),Q(0,75),Q(0,99),Q(0,999),Q(0,9999),Max"};
 }
 
 std::string Measures::asCsv(int argNbMsg, int argNbClients)
@@ -33,6 +33,8 @@ std::string Measures::asCsv(int argNbMsg, int argNbClients)
             + std::to_string(rtts[rtts.size()/2].count()) + ","
             + std::to_string(rtts[rtts.size()*3/4].count()) + ","
             + std::to_string(rtts[rtts.size()*99/100].count()) + ","
+            + std::to_string(rtts[rtts.size()*999/1000].count()) + ","
+            + std::to_string(rtts[rtts.size()*9999/10000].count()) + ","
             + std::to_string(rtts[rtts.size()-1].count())
     };
 }
