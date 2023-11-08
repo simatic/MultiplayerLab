@@ -95,8 +95,7 @@ void client(Param const& param, Measures & measures)
     auto t = jthread(msgReceive, std::ref(sock), std::ref(param), std::ref(measures));
 
     // Send Ping messages to server every param.interval ms
-    unsigned int msgNum{0};
-    while (msgNum < param.nbMsg) {
+    for (unsigned int msgNum= 0 ; msgNum < param.nbMsg ; ++msgNum) {
         if (param.verbose)
             cout << "Client send Ping message #" << msgNum << "\n";
         auto s {serializeStruct<ClientPing>(ClientPing{ClientMsgId::Ping,
@@ -107,12 +106,11 @@ void client(Param const& param, Measures & measures)
                                                                     minSizeClientMessageToBroadcast,
                                                                     0)})};
         sendPacket(sock, s, serverEndpoint);
-        ++msgNum;
 
         this_thread::sleep_for(param.interval);
     }
 
-    //
+    // Send DoneSendingMessages so that thread receiving messages receives AckDoneSendingMessages and terminates
     auto cdsm {serializeStruct<ClientDoneSendingMessages>(ClientDoneSendingMessages{ClientMsgId::DoneSendingMessages})};
     sendPacket(sock, cdsm, serverEndpoint);
 
