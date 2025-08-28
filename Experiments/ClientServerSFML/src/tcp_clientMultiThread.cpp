@@ -3,7 +3,6 @@
 #include <unistd.h>
 // pour getpid()
 #include <sys/types.h>
-#include <unistd.h>
 #define GETPID getpid
 #else
 // pour gethostname (NB : requiert librairie Ws2_32.lib ou DLL Ws2_32.dll
@@ -17,6 +16,7 @@
 #include <sstream>
 #include <thread>
 #include <memory>
+#include <utility>
 
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp> // Pour sf::sleep
@@ -25,21 +25,20 @@
 
 using namespace std;
 
-const int DEFAULT_NB_MESSAGES(60);
+constexpr int DEFAULT_NB_MESSAGES(60);
 
-static sf::Int32 clientId;
+static int32_t clientId;
 
-void messageManager(shared_ptr<sf::TcpSocket> pSocket) {
+[[noreturn]] void messageManager(const shared_ptr<sf::TcpSocket> &pSocket) {
 	sf::Packet packet;
-	while (pSocket->receive(packet) == sf::Socket::Done) {
-		sf::Int32 msgType;
+	while (pSocket->receive(packet) == sf::Socket::Status::Done) {
+		int32_t msgType;
 		packet >> msgType;
-		ServerMsgType messageType = static_cast<ServerMsgType>(msgType);
-		switch (messageType) {
+		switch (auto messageType = static_cast<ServerMsgType>(msgType)) {
 		case ServerMsgType::Broadcast:
 		{
-			sf::Int32 senderClientId;
-			sf::Int32 i;
+			int32_t senderClientId;
+			int32_t i;
 			packet >> senderClientId >> i;
 			cout << "Client '" << senderClientId << "' has broadcast (thanks to server) integer: " << i << endl;
 			break;
@@ -50,8 +49,8 @@ void messageManager(shared_ptr<sf::TcpSocket> pSocket) {
 			cout << "Received my clientId from server. It is '" << clientId << "'" << endl;
 			break;
 		}
-		default:
-			cerr << "ERROR: Received from server unknown messageType:'" << static_cast<int>(messageType) << "'" << endl;
+			default:
+			cerr << "ERROR: Received from server unknown messageType:'" << to_underlying(messageType) << "'" << endl;
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -88,7 +87,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	string_view host(DEFAULT_HOST.data());
+	string_view host(DEFAULT_HOST);
 	if (argc > 2)
 	{
 		host = argv[2];
@@ -97,7 +96,7 @@ int main(int argc, char* argv[])
 	int nbMessages(DEFAULT_NB_MESSAGES);
 	if (argc > 1)
 	{
-		std::istringstream iss(argv[1]);
+		istringstream iss(argv[1]);
 		iss >> nbMessages;
 		if (!iss)
 		{
@@ -107,9 +106,8 @@ int main(int argc, char* argv[])
 	}
 
 	char hostname[64];
-	int rc = gethostname(hostname, sizeof(hostname));
-	if (rc < 0) {
-		cerr << "Erreur lors de l'execution de gethostname()" << endl;
+	if (gethostname(hostname, sizeof(hostname)) < 0) {
+		cerr << "Error when executing gethostname()" << endl;
 		return EXIT_FAILURE;
 	}
 	ostringstream buffer;
@@ -120,9 +118,13 @@ int main(int argc, char* argv[])
 
 	auto pSocket = make_shared<sf::TcpSocket>();
 	cout << "Connect to " << host << ":" << port << endl;
-	sf::Socket::Status status = pSocket->connect(host.data(), port);
-	if (status != sf::Socket::Done) {
-		cerr << "Error: Problem during connect (status = " << status << ") :" << endl;
+	auto hostIpAddress = sf::IpAddress::resolve(host);
+	if (!hostIpAddress.has_value()) {
+		cerr << "Error: Cannot determine IP address of host " << host << endl;
+		return EXIT_FAILURE;
+	}
+	if (pSocket->connect(hostIpAddress.value(), port) != sf::Socket::Status::Done) {
+		cerr << "Error: Problem during connect:" << endl;
 		cerr << "\t- server is probably not running;" << endl;
 		cerr << "\t- or the server you are trying to connect to is *not* the right one;" << endl;
 		cerr << "\t- or the port you are trying to connect to is *not* the one listened by the server." << endl;
@@ -130,13 +132,12 @@ int main(int argc, char* argv[])
 	}
 
 	// Fork thread to handle messages received on this connection
-	std::thread t(messageManager, pSocket);
-	t.detach();
+	jthread t(messageManager, pSocket);
 
 	// Send our clientId to the server
 	sf::Packet packet;
-	packet << static_cast<int>(ClientMsgType::ClientIdRequest);
-	if (pSocket->send(packet) != sf::Socket::Done) {
+	packet << to_underlying(ClientMsgType::ClientIdRequest);
+	if (pSocket->send(packet) != sf::Socket::Status::Done) {
 		cerr << "Error: Problem during send of CLIENT_ID" << endl;
 		exit(EXIT_FAILURE);
 	}
@@ -146,9 +147,9 @@ int main(int argc, char* argv[])
 	cout << "Broadcasting " << nbMessages << " messages (at frequency of 1 message per second)" << endl;
 	for (int i = 1; i <= nbMessages; ++i) {
 		cout << "Request to broadcast integer: " << i << endl;
-		sf::Packet packet;
-		packet << static_cast<int>(ClientMsgType::IntToBroadcast) << i;
-		if (pSocket->send(packet) != sf::Socket::Done) {
+		packet.clear();
+		packet << to_underlying(ClientMsgType::IntToBroadcast) << i;
+		if (pSocket->send(packet) != sf::Socket::Status::Done) {
 			cerr << "Error: Problem during send of Client::IntToBroadcast" << endl;
 			exit(EXIT_FAILURE);
 		}

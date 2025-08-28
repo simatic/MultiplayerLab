@@ -4,6 +4,7 @@
 #include <vector>
 #include <mutex>
 #include <memory>
+#include <utility>
 
 #include <SFML/Network.hpp>
 
@@ -15,52 +16,57 @@ static vector<shared_ptr<sf::TcpSocket>> vecClientSock;
 
 static mutex mutexVec;
 
-void clientManager(shared_ptr<sf::TcpSocket> pClientSock)
+void clientManager(const shared_ptr<sf::TcpSocket> &pClientSock)
 {
 	size_t posClientSockInVector;
 	{
-		lock_guard<mutex> guard(mutexVec);
+		lock_guard guard(mutexVec);
 		vecClientSock.push_back(pClientSock);
 		posClientSockInVector = vecClientSock.size() - 1;
 	}
-	sf::Int32 clientId = posClientSockInVector;
+	auto clientId = static_cast<int32_t>(posClientSockInVector);
 
 	sf::Packet packet;
-	while (pClientSock->receive(packet) == sf::Socket::Done) {
-		sf::Int32 msgType;
+	while (pClientSock->receive(packet) == sf::Socket::Status::Done) {
+		int32_t msgType;
 		packet >> msgType;
-		ClientMsgType messageType = static_cast<ClientMsgType>(msgType);
-		switch (messageType) {
+		switch (auto messageType = static_cast<ClientMsgType>(msgType)) {
 		case ClientMsgType::ClientIdRequest:
 			cout << "Client '" << clientId << "' is connected and requesting its clientId" << endl;
 			{
 				sf::Packet packetToSend;
-				packetToSend << static_cast<sf::Int32>(ServerMsgType::ClientIdResponse) << clientId;
-				pClientSock->send(packetToSend);
+				packetToSend << to_underlying(ServerMsgType::ClientIdResponse) << clientId;
+				if (pClientSock->send(packetToSend) != sf::Socket::Status::Done) {
+					cerr << "Error: Problem during send of CLIENT_ID" << endl;
+					exit(1);
+				}
 			}
 			break;
 		case ClientMsgType::IntToBroadcast:
-			sf::Int32 i;
+			int32_t i;
 			packet >> i;
 			cout << "Client '" << clientId << "' requests to broadcast int \"" << i << "\"" << endl;
 			{
 				sf::Packet packetToSend;
-				packetToSend << static_cast<sf::Int32>(ServerMsgType::Broadcast) << clientId << i;
+				packetToSend << to_underlying(ServerMsgType::Broadcast) << clientId << i;
 
-				lock_guard<mutex> guard(mutexVec);
-				for (auto && sock : vecClientSock)
-					sock->send(packetToSend);
+				lock_guard guard(mutexVec);
+				for (const auto & sock : vecClientSock)
+					if (sock->send(packetToSend) != sf::Socket::Status::Done) {
+						cerr << "Error: Problem during broadcasting to clients" << endl;
+						exit(EXIT_FAILURE);
+					}
 			}
 			break;
 		default:
-			std::cerr << "Received unknown message type '" << static_cast<int>(messageType) << "' from client '" << clientId<< "'" << endl;
+			std::cerr << "Received unknown message type '" << to_underlying(messageType) << "' from client '" << clientId<< "'" << endl;
 			exit(1);
 		}
 	}
 
 	std::cerr << "Client '" << clientId << "' disconnected" << endl;
 	{
-		lock_guard<mutex> guard(mutexVec);
+		lock_guard guard(mutexVec);
 		vecClientSock.erase(vecClientSock.begin() + posClientSockInVector);
 	}
 
@@ -95,22 +101,22 @@ int main(int argc, char** argv)
 	sf::TcpListener listener;
 
 	// Listen to port
-	if (listener.listen(port) != sf::Socket::Done) {
+	if (listener.listen(port) != sf::Socket::Status::Done) {
 		std::cerr << "Error: Problem during listen (probably, there is already another server running)" << std::endl;
 		exit(1);
 	}
 
 	// Wait for a new connection
 	std::cerr << "Waiting for connections on port " << port << std::endl;
-	while (1) {
+	while (true) {
 		auto pClientSock = make_shared<sf::TcpSocket>();
-		if (listener.accept(*pClientSock) != sf::Socket::Done) {
+		if (listener.accept(*pClientSock) != sf::Socket::Status::Done) {
 			std::cerr << "Error: Problem during accept" << std::endl;
 			exit(1);
 		}
 
-		// Fork thread to handle this clien's connection
-		std::thread t(clientManager, pClientSock);
+		// Fork thread to handle this client's connection
+		jthread t(clientManager, pClientSock);
 		t.detach();
 	}
 

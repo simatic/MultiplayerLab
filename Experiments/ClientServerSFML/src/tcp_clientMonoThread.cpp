@@ -3,7 +3,6 @@
 #include <unistd.h>
 // pour getpid()
 #include <sys/types.h>
-#include <unistd.h>
 #define GETPID getpid
 #else
 // pour gethostname (NB : requiert librairie Ws2_32.lib ou DLL Ws2_32.dll
@@ -15,6 +14,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp> // Pour sf::sleep
@@ -23,12 +23,12 @@
 
 using namespace std;
 
-const int DEFAULT_NB_MESSAGES(60);
+constexpr int DEFAULT_NB_MESSAGES(60);
 
-static sf::Int32 clientId;
+static int32_t clientId;
 
-// Returns sf::Socket::NotReady if there were no waiting packets or waiting packets which were processed
-//      or sf::Socket::Disconnected if the connection with server is lost
+// Returns sf::Socket::Status::NotReady if there were no waiting packets or waiting packets which were processed
+//      or sf::Socket::Status::Disconnected if the connection with server is lost
 sf::Socket::Status processWaitingPackets(sf::TcpSocket &socket)
 {
 	sf::Socket::Status status;
@@ -36,22 +36,21 @@ sf::Socket::Status processWaitingPackets(sf::TcpSocket &socket)
 		// We try to see if there is a message to process
 		sf::Packet packet;
 		status = socket.receive(packet);
-		if ((status == sf::Socket::NotReady) || (status == sf::Socket::Disconnected))
+		if ((status == sf::Socket::Status::NotReady) || (status == sf::Socket::Status::Disconnected))
 			break;
 
 		// We read the socket until we are sure that the message is complete
-		while (status != sf::Socket::Done)
+		while (status != sf::Socket::Status::Done)
 			status = socket.receive(packet);
 
 		// We process the message
-		sf::Int32 msgType;
+		int32_t msgType;
 		packet >> msgType;
-		ServerMsgType messageType = static_cast<ServerMsgType>(msgType);
-		switch (messageType) {
+		switch (auto messageType = static_cast<ServerMsgType>(msgType)) {
 		case ServerMsgType::Broadcast:
 		{
-			sf::Int32 senderClientId;
-			sf::Int32 i;
+			int32_t senderClientId;
+			int32_t i;
 			packet >> senderClientId >> i;
 			cout << "Client '" << senderClientId << "' has broadcast (thanks to server) integer: " << i << endl;
 			break;
@@ -63,24 +62,25 @@ sf::Socket::Status processWaitingPackets(sf::TcpSocket &socket)
 			break;
 		}
 		default:
-			cerr << "ERROR: Received from server unknown messageType:'" << static_cast<int>(messageType) << "'" << endl;
+			cerr << "ERROR: Received from server unknown messageType:'" << std::to_underlying(messageType) << "'" << endl;
 			exit(EXIT_FAILURE);
 		}
 
-	} while (true); // We exit this loop thanks to break instruction when ((status == sf::Socket::NotReady) || (status == sf::Socket::Disconnected))
+	} while (true); // We exit this loop thanks to break instruction when ((status == sf::Socket::Status::NotReady) || (status == sf::Socket::Status::Disconnected))
 	return status;
 }
 
 void sendPacket(sf::TcpSocket &socket, sf::Packet &packet)
 {
 	sf::Socket::Status status;
+	using enum sf::Socket::Status;
 	do {
 		status = socket.send(packet);
-		if ((status != sf::Socket::Done) && (status != sf::Socket::Partial)) {
+		if ((status != Done) && (status != Partial)) {
 			cerr << "Error: Problem during send of a packet" << endl;
 			exit(EXIT_FAILURE);
 		}
-	} while (status == sf::Socket::Partial);
+	} while (status == Partial);
 }
 
 void usage(string_view progName)
@@ -130,9 +130,8 @@ int main(int argc, char *argv[])
 	}
 
 	char hostname[64];
-	int rc = gethostname(hostname, sizeof(hostname));
-	if (rc < 0) {
-		cerr << "Erreur lors de l'execution de gethostname()" << endl;
+	if (gethostname(hostname, sizeof(hostname)) < 0) {
+		cerr << "Erreur when executing gethostname()" << endl;
 		exit(EXIT_FAILURE);
 	}
 	ostringstream buffer;
@@ -143,9 +142,13 @@ int main(int argc, char *argv[])
 
 	sf::TcpSocket socket;
 	cout << "Connect to " << host << ":" << port << endl;
-	sf::Socket::Status status = socket.connect(host.data(), port);
-	if (status != sf::Socket::Done) {
-		cerr << "Error: Problem during connect (status = " << status << ") :" << endl;
+	auto hostIpAddress = sf::IpAddress::resolve(host);
+	if (!hostIpAddress.has_value()) {
+		cerr << "Error: Cannot determine IP address of host " << host << endl;
+		return EXIT_FAILURE;
+	}
+	if (socket.connect(hostIpAddress.value(), port) != sf::Socket::Status::Done) {
+		cerr << "Error: Problem during connect" << endl;
 		cerr << "\t- server is probably not running;" << endl;
 		cerr << "\t- or the server you are trying to connect to is *not* the right one;" << endl;
 		cerr << "\t- or the port you are trying to connect to is *not* the one listened by the server." << endl;
@@ -155,7 +158,7 @@ int main(int argc, char *argv[])
 
 	// Send our clientId to the server
 	sf::Packet packet;
-	packet << static_cast<int>(ClientMsgType::ClientIdRequest);
+	packet << std::to_underlying(ClientMsgType::ClientIdRequest);
 	sendPacket(socket, packet);
 	sf::sleep(sf::milliseconds(1000));
 
@@ -163,10 +166,10 @@ int main(int argc, char *argv[])
 	cout << "Broadcasting " << nbMessages << " messages (at frequency of 1 message per second)" << endl;
 	for (int i = 1; i <= nbMessages; ++i) {
 		cout << "Request to broadcast integer: " << i << endl;
-		sf::Packet packet;
-		packet << static_cast<int>(ClientMsgType::IntToBroadcast) << i;
+		packet.clear();
+		packet << std::to_underlying(ClientMsgType::IntToBroadcast) << i;
 		sendPacket(socket, packet);
-		if (processWaitingPackets(socket) == sf::Socket::Disconnected) {
+		if (processWaitingPackets(socket) == sf::Socket::Status::Disconnected) {
 			cerr << "Connection with server is lost (server probably stopped)" << endl;
 			break;
 		}

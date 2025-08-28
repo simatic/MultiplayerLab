@@ -3,7 +3,6 @@
 #include <unistd.h>
 // pour getpid()
 #include <sys/types.h>
-#include <unistd.h>
 #define GETPID getpid
 #else
 // pour gethostname (NB : requiert librairie Ws2_32.lib ou DLL Ws2_32.dll
@@ -15,6 +14,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp> // Pour sf::sleep
@@ -23,37 +23,33 @@
 
 using namespace std;
 
-const int DEFAULT_NB_MESSAGES(60);
+constexpr int DEFAULT_NB_MESSAGES(60);
 
-static sf::Int32 clientId;
+static int32_t clientId;
 static sf::Clock myClock;
 
 void processWaitingPackets(sf::UdpSocket &socket)
 {
-	sf::Socket::Status status;
-	do
-	{
+	do {
 		// We try to see if there is a message to process
 		sf::Packet packet;
-		sf::IpAddress remoteAddress;
+		optional<sf::IpAddress> remoteAddress;
 		unsigned short remotePort;
-		status = socket.receive(packet, remoteAddress, remotePort);
-		if (status == sf::Socket::NotReady)
+		if (socket.receive(packet, remoteAddress, remotePort) == sf::Socket::Status::NotReady)
 			break;
 
 		// We process the message
-		sf::Int32 msgType;
+		int32_t msgType;
 		packet >> msgType;
-		ServerMsgType messageType = static_cast<ServerMsgType>(msgType);
-		switch (messageType)
+		switch (auto messageType = static_cast<ServerMsgType>(msgType))
 		{
 			case ServerMsgType::Broadcast:
 			{
-				sf::Int32 senderClientId;
-				sf::Int32 i;
-				sf::Int64 sendElapsed;
+				int32_t senderClientId;
+				int32_t i;
+				int64_t sendElapsed;
 				packet >> senderClientId >> i >> sendElapsed;
-				sf::Int64 receiveElapsed = myClock.getElapsedTime().asMicroseconds();
+				int64_t receiveElapsed = myClock.getElapsedTime().asMicroseconds();
 				cout << (clientId == senderClientId ? "[Myself] " : "") << "Client '" << senderClientId 
 					<< "' has broadcast (thanks to server) integer: " << i
 					<< " taking " << receiveElapsed - sendElapsed << " microseconds" << endl;
@@ -67,14 +63,14 @@ void processWaitingPackets(sf::UdpSocket &socket)
 			}
 			case ServerMsgType::newClient:
 			{
-				sf::Int32 aClientId;
+				int32_t aClientId;
 				string aClientName;
 				packet >> aClientId >> aClientName;
 				cout << "New client " << aClientName << " with clientId " << aClientId << endl;
 				break;
 			}
 			default:
-				cerr << "ERROR: Received from server unknown messageType:'" << static_cast<int>(messageType) << "'" << endl;
+				cerr << "ERROR: Received from server unknown messageType:'" << to_underlying(messageType) << "'" << endl;
 				exit(EXIT_FAILURE);
 		}
 
@@ -82,10 +78,10 @@ void processWaitingPackets(sf::UdpSocket &socket)
 	while (true); // We exit this loop thanks to break instruction when ((status == sf::Socket::NotReady) || (status == sf::Socket::Disconnected))
 }
 
-void sendPacket(sf::UdpSocket &socket, sf::Packet &packet, sf::IpAddress &recipient, unsigned short remotePort)
+void sendPacket(sf::UdpSocket &socket, sf::Packet &packet, const sf::IpAddress &recipient, unsigned short remotePort)
 {
 	sf::Socket::Status status = socket.send(packet, recipient, remotePort);
-	if (status != sf::Socket::Done) {
+	if (status != sf::Socket::Status::Done) {
 		cerr << "Error: Problem during send of a packet" << endl;
 		exit(EXIT_FAILURE);
 	}
@@ -125,7 +121,11 @@ int main(int argc, char *argv[])
 	{
 		host = argv[3];
 	}
-	sf::IpAddress recipient(host.data());
+	auto recipient = sf::IpAddress::resolve(host);
+	if (!recipient.has_value()) {
+		cerr << "Error: Cannot determine IP address of host " << host << endl;
+		return EXIT_FAILURE;
+	}
 
 	int nbMessages(DEFAULT_NB_MESSAGES);
 	if (argc > 2)
@@ -152,9 +152,8 @@ int main(int argc, char *argv[])
 	}
 
 	char hostname[64];
-	int rc = gethostname(hostname, sizeof(hostname));
-	if (rc < 0) {
-		cerr << "Erreur lors de l'execution de gethostname()" << endl;
+	if (gethostname(hostname, sizeof(hostname)) < 0) {
+		cerr << "Error when executing gethostname()" << endl;
 		exit(EXIT_FAILURE);
 	}
 	ostringstream buffer;
@@ -165,18 +164,17 @@ int main(int argc, char *argv[])
 	std::cout << "I will work with server at " << host << ":" << remotePort << endl;
 
 	sf::UdpSocket socket;
-	sf::Socket::Status status = socket.bind(localPort);
-	if (status != sf::Socket::Done)
+	if (socket.bind(localPort) != sf::Socket::Status::Done)
 	{
-		cerr << "Error: Problem during binding to local port " << localPort << " (status = " << status << ") : Another process is probably already using this port" << endl;
+		cerr << "Error: Problem during binding to local port " << localPort << " : Another process is probably already using this port" << endl;
 		return EXIT_FAILURE;
 	}
 	socket.setBlocking(false);
 
 	// Send our clientId to the server
 	sf::Packet packet;
-	packet << static_cast<int>(ClientMsgType::ClientIdRequest) << clientName;
-	sendPacket(socket, packet, recipient, remotePort);
+	packet << to_underlying(ClientMsgType::ClientIdRequest) << clientName;
+	sendPacket(socket, packet, recipient.value(), remotePort);
 	sf::sleep(sf::milliseconds(1000)); // To give time to server to answer, so that we set clientId
 	processWaitingPackets(socket);
 
@@ -184,10 +182,10 @@ int main(int argc, char *argv[])
 	cout << "Broadcasting " << nbMessages << " messages (at frequency of 1 message per second)" << endl;
 	for (int i = 1; i <= nbMessages; ++i) {
 		cout << "Request to broadcast integer: " << i << endl;
-		sf::Packet packet;
+		packet.clear();
 		// NB : "Security leak" as the client sends its clientId (it could send another clientId
-		packet << static_cast<int>(ClientMsgType::IntToBroadcast) << clientId << i << myClock.getElapsedTime().asMicroseconds();
-		sendPacket(socket, packet, recipient, remotePort);
+		packet << to_underlying(ClientMsgType::IntToBroadcast) << clientId << i << myClock.getElapsedTime().asMicroseconds();
+		sendPacket(socket, packet, recipient.value(), remotePort);
 		processWaitingPackets(socket);
 		sf::sleep(sf::milliseconds(1000));
 	}
