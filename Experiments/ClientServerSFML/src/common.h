@@ -8,17 +8,7 @@ const unsigned short DEFAULT_PORT(4096);
 // Type of messages
 
 // Packets originated in the server
-enum class ServerMsgType : int32_t
-{
-	Broadcast,
-	ClientIdResponse,
-	newClient
-};
+enum class ServerMsgType : int32_t { Broadcast, ClientIdResponse, newClient };
 
 // Packets originated in the client
-enum class ClientMsgType : int32_t
-{
-	ClientIdRequest,
-	IntToBroadcast
-};
-
+enum class ClientMsgType : int32_t { ClientIdRequest, IntToBroadcast };
